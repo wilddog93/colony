@@ -2,7 +2,6 @@ import {
     createSlice,
     PayloadAction,
   } from '@reduxjs/toolkit';
-import { setCookie } from '../../../utils/cookie';
   import type { RootState } from '../../store';
   
   // declaring the types for our state
@@ -33,7 +32,6 @@ import { setCookie } from '../../../utils/cookie';
   // The PayloadAction type here is used to declare the contents of `action.payload`
       incrementByAmount: (state, action: PayloadAction<number>) => {
         state.value += action.payload;
-        setCookie("counter", state?.value)
       },
     }
   });

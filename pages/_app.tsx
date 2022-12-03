@@ -7,8 +7,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 
-const MyApp: FC<AppProps> = ({ Component, ...rest }) => {
-  const { store, props } = wrapper.useWrappedStore(rest);
+const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
+  const { store, props } = wrapper.useWrappedStore(pageProps);
   axios.defaults.baseURL = process.env.API_ENDPOINT;
   return (
     <Provider store={store}>

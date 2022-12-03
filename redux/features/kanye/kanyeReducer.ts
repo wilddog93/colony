@@ -5,6 +5,7 @@ import {
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import type { RootState } from '../../store';
+import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 
 // here we are typing the types for the state
 export type KanyeState = {
@@ -29,6 +30,7 @@ export const getKanyeQuote = createAsyncThunk('kanye/kanyeQuote', async (params:
         const { data, status } = response
         if (status == 200) {
             toast.success("sukses")
+            setCookie('quote', data?.quote, { maxAge: 60 * 60 * 24 })
             return data
         } else {
             throw response

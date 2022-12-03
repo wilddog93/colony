@@ -13,13 +13,22 @@ import {
 } from '../redux/features/counter/counterSlice';
 import { useState } from 'react';
 import { getKanyeQuote, selectKanye } from '../redux/features/kanye/kanyeReducer';
+import { AppProps } from 'next/app';
+import { GetServerSideProps } from 'next';
+import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 
-const Home: React.FC = () => {
+type Props = {
+  pageProps: any
+}
+
+const Home = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const count = useAppSelector(selectCount);
   const [incrementAmount, setIncrementAmount] = useState<number>(0);
 
   const { data, pending, error } = useAppSelector(selectKanye);
+
+  console.log(pageProps, "quote")
 
   return (
     <div className=''>
@@ -92,6 +101,16 @@ const Home: React.FC = () => {
       </main>
     </div>
   )
+}
+
+export const getServerSideProps:GetServerSideProps = async (context: any) => {
+  const token = getCookie("quote", context)
+
+  return {
+    props: {
+      token,
+    },
+  }
 }
 
 export default Home;
