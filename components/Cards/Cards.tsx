@@ -1,11 +1,14 @@
 import React from 'react'
 
-type Props = {}
+type Props = {
+  children: React.ReactNode,
+  className: string
+}
 
-export default function Cards({}: Props) {
+export default function Cards({ children, className }: Props) {
   return (
-    <div>
-        <img src={"vercel.svg"} width="250" height="250" />
+    <div className={className}>
+      {children}
     </div>
   )
 }
