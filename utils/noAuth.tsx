@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { getCookie } from "./cookie";
 import { cookies } from 'next/headers';
+import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 
 const noAuth = (WrappedComponent: any) => {
     return (props: any) => {

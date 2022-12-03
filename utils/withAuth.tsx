@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { reauthenticate } from "../../redux/actions/AuthActions";
-import { getCookie, removeCookie } from "./cookie";
+import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 
 const withAuth = (WrappedComponent: any) => {
