@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Cards from '../components/Cards/Cards';
-import Navbar from '../components/Navbar';
 import {
   useAppDispatch,
   useAppSelector,
@@ -39,7 +38,6 @@ const Home = ({ pageProps }: Props) => {
       </Head>
 
       <main className="w-full bg-gray-100">
-        <Navbar />
         <div className='w-full'>
           <img src={"vercel.svg"} width="250" height="250" className='mx-auto' />
         </div>
