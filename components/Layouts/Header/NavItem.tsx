@@ -46,19 +46,6 @@ function NavItem(props: any) {
                 >
                     <MdChevronLeft className="w-5 h-5 text-gray-400" />
                 </button>
-                <div className="relative flex flex-row justify-between items-center">
-                    <button
-                        className={`relative focus:outline-none flex items-center py-[0.20rem] px-3 text-gray-500 hover:text-primary-600 focus:text-primary-600`}
-                        onClick={() => router.push("/auth/selectaccess")}
-                    >
-                        <MdLayers className="w-5 h-5 mr-2" />
-                        <span className="font-bold hidden lg:inline-block">Menu</span>
-                        <MdChevronRight className="w-5 h-5 ml-2 hidden lg:inline-block" />
-                    </button>
-                </div>
-                <div className="pl-3">
-                    select
-                </div>
                 <button
                     type="button"
                     onClick={() => setIsMobile((e) => !e)}

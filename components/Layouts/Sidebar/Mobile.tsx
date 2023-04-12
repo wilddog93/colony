@@ -34,14 +34,14 @@ function Mobile({ children, sidebar, handleSidebar, images, header }: Props) {
       <aside className={`font-sans flex md:hidden w-full max-w-xs transform transition-all duration-700 ease-in-out fixed inset-y-0 z-[101] shadow-lg lg:flex-shrink-0 overflow-y-auto bg-white ${sidebar ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="w-full mb-6 flex flex-col">
           {/* <!--Start logo --> */}
-          <div className={`sticky top-0 z-40 bg-white shadow shadow-black/20 p-4 flex justify-between items-center transform transition-all duration-700 ease-in-out`}>
+          <div className={`sticky top-0 z-40 bg-[#111F2C] shadow shadow-black/20 p-4 flex justify-between items-center transform transition-all duration-700 ease-in-out`}>
             <Link href="/">
               <div className="flex w-12 h-12 rounded-lg items-center">
                 <img
                   src={images ?? "/image/eclipse-icon.png"}
                   className="w-auto h-10"
                 />
-                <span className='ml-2 font-extrabold text-lg lg:text-xl py-2 text-green-300'>{header || 'Building Management'}</span>
+                <span className='ml-2 font-extrabold text-3xl py-2 text-white'>{header || 'Menu'}</span>
               </div>
             </Link>
             <button

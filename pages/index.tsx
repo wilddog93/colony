@@ -27,7 +27,7 @@ const Home = ({ pageProps }: Props) => {
 
   const { data, pending, error } = useAppSelector(selectKanye);
 
-  console.log(pageProps, "quote")
+  // console.log(pageProps, "quote")
 
   return (
     <div className=''>
@@ -102,12 +102,18 @@ const Home = ({ pageProps }: Props) => {
 }
 
 export const getServerSideProps:GetServerSideProps = async (context: any) => {
-  const token = getCookie("quote", context)
+  const token = await getCookie("accessToken", context)
 
+  if(token){
+    return {
+      props: {
+        token
+      },
+    };
+  }
+  
   return {
-    props: {
-      token,
-    },
+    props: {},
   }
 }
 

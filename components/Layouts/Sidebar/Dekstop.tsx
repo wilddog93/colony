@@ -28,8 +28,8 @@ function Dekstop({ children, sidebar, handleSidebar, images, header }: Props) {
   };
 
   return (
-    <div className='relative group-hover:w-full'>
-      <aside className={`fixed z-[1000] hidden md:flex hover:w-full max-w-xs transform transition-all duration-700 ease-in-out inset-y-0 shadow-lg lg:flex-shrink-0 bg-white w-full`}>
+    <div className='relative'>
+      <aside className={`${sidebar ? "z-[1000]" : ""} fixed hidden md:flex hover:w-full max-w-xs transform transition-all duration-700 ease-in-out top-0 bottom-0 shadow-lg lg:flex-shrink-0 bg-white w-full`}>
         <div className={`w-full mb-6 flex flex-col overflow-y-auto`}>
           {/* <!--Start logo --> */}
           <div className={`sticky top-0 z-40 bg-white shadow shadow-black/20 px-6 py-3.5 flex items-center transform transition-all duration-700 ease-in-out`}>
@@ -40,7 +40,7 @@ function Dekstop({ children, sidebar, handleSidebar, images, header }: Props) {
                     src={images ?? "./image/eclipse-icon.png"} alt="logo"
                     className="w-8 h-8 my-auto mr-5"
                   />
-                  <span className='hover:visible font-extrabold text-lg lg:text-xl py-2 text-green-300'>{header || 'Building Management'}</span>
+                  <span className='hover:visible font-extrabold text-lg lg:text-xl py-2 text-green-300'>{header || 'Menus'}</span>
                 </div>
               </div>
             </Link>

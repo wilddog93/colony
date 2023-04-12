@@ -32,21 +32,15 @@ function MainLayout({
     return (
         <div ref={containerRef}>
             <Head>
-                <title>{title} | Spring Hills</title>
-                <link rel="icon" href={logo ?? `./image/logo-bar.png`} />
+                <title>{title} | Colony</title>
+                <link rel="icon" href={logo ? logo : `./image/logo-bar.png`} />
                 <meta name="description" content={`Colony - ${description}`} />
             </Head>
 
             <div className="font-sans relative flex w-full bg-gray-50 overflow-y-auto">
-                <Sidebars
-                    sidebar={sidebar}
-                    handleSidebar={handleSidebar}
-                    images={images}
-                    header={header}
-                />
                 {/* main */}
-                <div className="md:pl-[20rem] flex flex-col items-center w-full h-screen min-h-full duration-300 ease-in-out">
-                    <div className='relative'>
+                <div className="flex flex-col items-center w-full h-screen min-h-full duration-300 ease-in-out">
+                    <div className='w-full relative flex'>
                         {children}
                     </div>
                 </div>

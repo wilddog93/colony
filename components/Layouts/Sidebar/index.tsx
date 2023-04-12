@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Children } from 'react';
 import Dekstop from './Dekstop';
 import Mobile from './Mobile';
 import Navigation from './Navigation';
@@ -9,9 +9,10 @@ type Props = {
     handleSidebar: () => void,
     images: string,
     header: string,
+    children: any
 }
 
-function Sidebars({ sidebar, handleSidebar, images, header }: Props) {
+function Sidebars({ sidebar, handleSidebar, images, header, children }: Props) {
     return (
         <React.Fragment>
             <Dekstop
@@ -20,7 +21,8 @@ function Sidebars({ sidebar, handleSidebar, images, header }: Props) {
                 images={images}
                 header={header}
             >
-                <Navigation routes={routes} />
+                {/* <Navigation routes={routes} /> */}
+                {children}
             </Dekstop>
             <Mobile
                 sidebar={sidebar}
@@ -28,7 +30,8 @@ function Sidebars({ sidebar, handleSidebar, images, header }: Props) {
                 images={images}
                 header={header}
             >
-                <Navigation routes={routes} />
+                {/* <Navigation routes={routes} /> */}
+                {children}
             </Mobile>
         </React.Fragment>
     )
