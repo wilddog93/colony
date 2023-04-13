@@ -30,6 +30,9 @@ function index({ }: Props) {
                 <NavItem
                     handleSidebar={handleSidebar}
                     defaultImage="../../../image/no-image.jpeg"
+                    images="../../../image/logo.png"
+                    logo="../../../image/logo.png"
+                    header="Colony"
                 />
             </Navbar>
             <Sidebars
