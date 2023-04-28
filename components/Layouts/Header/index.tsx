@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 const Header = (props: any) => {
     return (
-        <header className='sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none'>
+        <header className='sticky top-0 z-999 flex w-full bg-boxdark-2 drop-shadow-none'>
             <div className='flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11'>
                 <div className='flex items-center gap-2 sm:gap-4'>
                     {/* <!-- Hamburger Toggle BTN --> */}
@@ -17,30 +17,30 @@ const Header = (props: any) => {
                             e.stopPropagation()
                             props.setSidebarOpen(!props.sidebarOpen)
                         }}
-                        className='z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark'
+                        className='z-99999 block rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark'
                     >
                         <span className='relative block h-5.5 w-5.5 cursor-pointer'>
                             <span className='du-block absolute right-0 h-full w-full'>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white ${!props.sidebarOpen && '!w-full delay-300'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!w-full delay-300'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-150 duration-200 ease-in-out dark:bg-white ${!props.sidebarOpen && 'delay-400 !w-full'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!props.sidebarOpen && 'delay-400 !w-full'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-200 duration-200 ease-in-out dark:bg-white ${!props.sidebarOpen && '!w-full delay-500'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!w-full delay-500'
                                         }`}
                                 ></span>
                             </span>
                             <span className='absolute right-0 h-full w-full rotate-45'>
                                 <span
-                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm bg-black delay-300 duration-200 ease-in-out dark:bg-white ${!props.sidebarOpen && '!h-0 !delay-[0]'
+                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!h-0 !delay-[0]'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm bg-black duration-200 ease-in-out dark:bg-white ${!props.sidebarOpen && '!h-0 !delay-200'
+                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!h-0 !delay-200'
                                         }`}
                                 ></span>
                             </span>
@@ -49,13 +49,13 @@ const Header = (props: any) => {
                     {/* <!-- Hamburger Toggle BTN --> */}
 
                     <Link href='/'>
-                        <div className='flex flex-shrink-0 items-center gap-2'>
-                            <img src="./image/logo/logo-icon.svg" alt='Logo' />
-                            <span className='hidden flex-shrink-0 lg:flex'>Building Management</span>
+                        <div className='flex flex-shrink-0 items-center gap-2 text-white'>
+                            <img src={!props.logo ? "./image/logo/logo-icon.svg" : props.logo} alt='Logo' />
+                            <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!props.title ? "Building" : props.title}</span>
                         </div>
                     </Link>
 
-                    <div className='hidden sm:block'>
+                    <div className='hidden'>
                         <form action='https://formbold.com/s/unique_form_id' method='POST'>
                             <div className='relative'>
                                 <button className='absolute top-1/2 left-0 -translate-y-1/2'>
@@ -96,18 +96,18 @@ const Header = (props: any) => {
                 <div className='flex items-center gap-3 2xsm:gap-7'>
                     <ul className='flex items-center gap-2 2xsm:gap-4'>
                         {/* <!-- Dark Mode Toggler --> */}
-                        <DarkModeSwitcher />
+                        {/* <DarkModeSwitcher /> */}
                         {/* <!-- Dark Mode Toggler --> */}
 
                         {/* <!-- Notification Menu Area --> */}
-                        <DropdownNotification />
+                        <DropdownUser />
                         {/* <!-- Notification Menu Area --> */}
 
                         {/* <!-- Chat Notification Area --> */}
+                        <DropdownNotification />
                     </ul>
 
                     {/* <!-- User Area --> */}
-                    <DropdownUser />
                     {/* <!-- User Area --> */}
                 </div>
             </div>
