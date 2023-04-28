@@ -12,7 +12,9 @@ const DropdownUser = () => {
 
     const myLoader = (props: any) => {
         const { src, width, quality } = props;
-        return `https://example.com/${src}?w=${width}&q=${quality || 75}`
+        console.log(props, 'loader')
+        // return `https://example.com/${src}?w=${width}&q=${quality || 75}`
+        return `${src}`
     }
 
     // close on click outside
@@ -66,8 +68,8 @@ const DropdownUser = () => {
                         loader={myLoader}
                         src="image/user/user-01.png"
                         alt="Picture of the author"
-                        // width={500}
-                        // height={500}
+                        width={500}
+                        height={500}
                     />
                 </span>
 
@@ -101,7 +103,7 @@ const DropdownUser = () => {
                         <Link
                             href='/profile'
                         >
-                            <a className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
+                            <div className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
                                 <svg
                                     className='fill-current'
                                     width='22'
@@ -120,7 +122,7 @@ const DropdownUser = () => {
                                     />
                                 </svg>
                                 My Profile
-                            </a>
+                            </div>
                         </Link>
                     </li>
                     <li>
@@ -128,7 +130,7 @@ const DropdownUser = () => {
                             href='/'
                             className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'
                         >
-                            <a className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
+                            <div className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
                                 <svg
                                     className='fill-current'
                                     width='22'
@@ -143,14 +145,14 @@ const DropdownUser = () => {
                                     />
                                 </svg>
                                 My Contacts
-                            </a>
+                            </div>
                         </Link>
                     </li>
                     <li>
                         <Link
                             href='/settings'
                         >
-                            <a className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
+                            <div className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
                                 <svg
                                     className='fill-current'
                                     width='22'
@@ -169,7 +171,7 @@ const DropdownUser = () => {
                                     />
                                 </svg>
                                 Account Settings
-                            </a>
+                            </div>
                         </Link>
                     </li>
                 </ul>

@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import React, { ReactNode, useRef, useState } from 'react'
 import { useDimensions } from '../../utils/useHooks/use-dimensions';
-import Sidebars from './Sidebar';
+import Sidebars from './Sidebar/Sidebars';
 
 type Props = {
     children: ReactNode,
