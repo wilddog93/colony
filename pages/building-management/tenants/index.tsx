@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
-import DefaultLayout from '../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../components/Layouts/Sidebar/Building-Management';
+import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
+import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 
 type Props = {}
 
-const Dashboard = (props: any) => {
+const Tenants = (props: any) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      logo="image/logo/logo-icon.png"
+      logo="../image/logo/logo-icon.png"
       description=""
     >
       {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5'>
@@ -84,4 +84,4 @@ const Dashboard = (props: any) => {
   )
 }
 
-export default Dashboard;
+export default Tenants;

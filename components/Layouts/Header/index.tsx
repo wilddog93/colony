@@ -3,6 +3,7 @@ import DropdownNotification from '../../Dropdown/DropdownNotification'
 import DropdownUser from '../../Dropdown/DropdownUser'
 import DarkModeSwitcher from '../../DarkMode/DarkModeSwitcher'
 import Link from 'next/link'
+import { MdMuseum } from 'react-icons/md'
 
 const Header = (props: any) => {
     return (
@@ -50,8 +51,9 @@ const Header = (props: any) => {
 
                     <Link href='/'>
                         <div className='flex flex-shrink-0 items-center gap-2 text-white'>
-                            <img src={!props.logo ? "./image/logo/logo-icon.svg" : props.logo} alt='Logo' />
-                            <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!props.title ? "Building" : props.title}</span>
+                            {/* <img src={!props.logo ? "./image/logo/logo-icon.svg" : props.logo} alt='Logo' /> */}
+                            <MdMuseum className='w-8 h-8 text-blue-500' />
+                            <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!props.header ? "Building" : props.header}</span>
                         </div>
                     </Link>
 

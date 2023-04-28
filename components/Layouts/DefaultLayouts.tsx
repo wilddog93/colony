@@ -5,18 +5,19 @@ import Head from 'next/head';
 
 type Props = {
     children: any,
+    header: any
     title: any,
     description: any,
-    logo: string
+    logo: string,
 }
 
-const DefaultLayout = ({ children, title, description, logo }: Props) => {
+const DefaultLayout = ({ children, title, description, logo, header }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
         <div className='dark:bg-boxdark-2 dark:text-bodydark'>
             <Head>
-                <title>{title} | Colony</title>
+                <title>{header} | Colony</title>
                 <link rel="icon" href={logo ? logo : `./image/logo-bar.png`} />
                 <meta name="description" content={`Colony - ${description}`} />
             </Head>
@@ -29,7 +30,7 @@ const DefaultLayout = ({ children, title, description, logo }: Props) => {
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} />
+                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}

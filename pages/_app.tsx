@@ -18,7 +18,7 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
 
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">
-      <div className="w-16 h-16 rounded-full animate-spin border-4 border-solid border-primary border-t-transparent"></div>
+      <img src="./image/logo/logo-icon.png" alt="" className="animate-spin w-12 h-12" />
     </div>
   )
   return (
