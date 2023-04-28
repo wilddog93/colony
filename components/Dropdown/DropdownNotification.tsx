@@ -77,7 +77,7 @@ const DropdownNotification = () => {
           <li>
             <button
               onClick={() => console.log("test")}
-              className='flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
+              className='text-left flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
             >
               <p className='text-sm'>
                 <span className='text-black dark:text-white'>
@@ -93,7 +93,7 @@ const DropdownNotification = () => {
           <li>
             <button
               onClick={() => console.log("test")}
-              className='flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
+              className='text-left flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
             >
               <p className='text-sm'>
                 <span className='text-black dark:text-white'>
@@ -108,7 +108,7 @@ const DropdownNotification = () => {
           <li>
             <button
               onClick={() => console.log("test")}
-              className='flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
+              className='text-left flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
             >
               <p className='text-sm'>
                 <span className='text-black dark:text-white'>
@@ -124,7 +124,7 @@ const DropdownNotification = () => {
           <li>
             <button
               onClick={() => console.log("test")}
-              className='flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
+              className='text-left flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4'
             >
               <p className='text-sm'>
                 <span className='text-black dark:text-white'>
