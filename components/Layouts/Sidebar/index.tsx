@@ -110,8 +110,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title }: Props) => {
                 <div className='flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5'>
                     <Link href='/'>
                         <div className="flex items-center gap-2">
-                            <Image loader={myLoader} src={!logo ? "image/logo/logo-icon.svg" : logo} alt='Logo' width={40} height={40} />
-                            <span className='flex-shrink-0 lg:flex text-white text-xl'>{!title ? "Building" : title}</span>
+                            <Image loader={myLoader} src={!logo ? "image/logo/logo-icon.png" : logo} alt='Logo' width={30} height={30} />
+                            <span className='flex-shrink-0 lg:flex text-white text-2xl font-semibold'>{!title ? "Building" : title}</span>
                         </div>
                     </Link>
 
@@ -142,7 +142,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title }: Props) => {
 
                 <div className='no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear'>
                     {/* <!-- Sidebar Menu --> */}
-                    <nav className='mt-5 py-4 px-4 lg:mt-9 lg:px-6'>
+                    <nav className='mt-3 py-4 px-4  lg:px-6'>
                         {/* <!-- Menu Group --> */}
                         <div>
                             <h3 className='mb-4 ml-4 text-sm font-semibold text-bodydark2'>

@@ -158,7 +158,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                     >
                                         <div
                                             className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('calendar') &&
-                                                'bg-graydark dark:bg-meta-4'
+                                                'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <svg
@@ -186,7 +186,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                         href='/profile'
                                     >
                                         <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('profile') && 'bg-graydark dark:bg-meta-4'
+                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('profile') && 'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <svg
@@ -225,7 +225,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                     type='button'
                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/forms' ||
                                                         pathname.includes('forms')) &&
-                                                        'bg-graydark dark:bg-meta-4'
+                                                        'bg-primary dark:bg-primary'
                                                         }`}
                                                     onClick={(e) => {
                                                         e.preventDefault()
@@ -324,7 +324,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                         href='/tables'
                                     >
                                         <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('tables') && 'bg-graydark dark:bg-meta-4'
+                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('tables') && 'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <svg
@@ -365,7 +365,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                     >
                                         <div
                                             className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('settings') &&
-                                                'bg-graydark dark:bg-meta-4'
+                                                'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <svg
@@ -418,7 +418,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                         href='/chart'
                                     >
                                         <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('chart') && 'bg-graydark dark:bg-meta-4'
+                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('chart') && 'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <svg
@@ -467,8 +467,8 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                             <React.Fragment>
                                                 <button
                                                     type='button'
-                                                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/auth' || pathname.includes('auth')) &&
-                                                        'bg-graydark dark:bg-meta-4'
+                                                    className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/auth' || pathname.includes('auth')) &&
+                                                        'bg-primary dark:bg-primary'
                                                         }`}
                                                     onClick={(e) => {
                                                         e.preventDefault()
