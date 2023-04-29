@@ -5,19 +5,20 @@ import Head from 'next/head';
 
 type Props = {
     children: any,
-    header: any
+    header: any,
+    head: any,
     title: any,
     description: any,
     logo: string,
 }
 
-const DefaultLayout = ({ children, title, description, logo, header }: Props) => {
+const DefaultLayout = ({ children, title, description, logo, header, head }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
         <div className='dark:bg-boxdark-2 dark:text-bodydark'>
             <Head>
-                <title>{header} | Colony</title>
+                <title>{head} - {header} | Colony</title>
                 <link rel="icon" href={logo ? logo : `./image/logo-bar.png`} />
                 <meta name="description" content={`Colony - ${description}`} />
             </Head>

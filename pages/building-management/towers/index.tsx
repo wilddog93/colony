@@ -4,13 +4,13 @@ import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 
 type Props = {}
 
-const Tenants = (props: any) => {
+const Towers = (props: any) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      head="Tenant Management"
+      head="Tower Management"
       logo="../image/logo/logo-icon.svg"
       description=""
     >
@@ -85,4 +85,4 @@ const Tenants = (props: any) => {
   )
 }
 
-export default Tenants;
+export default Towers;

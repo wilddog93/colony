@@ -52,7 +52,7 @@ const Header = (props: any) => {
                     <Link href='/'>
                         <div className='flex flex-shrink-0 items-center gap-2 text-white'>
                             {/* <img src={!props.logo ? "./image/logo/logo-icon.svg" : props.logo} alt='Logo' /> */}
-                            <MdMuseum className='w-8 h-8 text-blue-500' />
+                            <MdMuseum className='w-8 h-8 text-[#44C2FD]' />
                             <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!props.header ? "Building" : props.header}</span>
                         </div>
                     </Link>
