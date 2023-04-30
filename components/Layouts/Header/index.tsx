@@ -105,6 +105,10 @@ const Header = (props: any) => {
                         <DropdownUser userDefault={props?.userDefault} />
                         {/* <!-- Notification Menu Area --> */}
 
+                        <div className="relative h-10 mx-3">
+                            <div className="border-l border-gray absolute inset-y-0"></div>
+                        </div>
+
                         {/* <!-- Chat Notification Area --> */}
                         <DropdownNotification />
                     </ul>
