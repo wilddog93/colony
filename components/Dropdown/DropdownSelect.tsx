@@ -34,6 +34,11 @@ export default function DropdownSelect({
     customStyles
 }: Props) {
 
+    const onChangeMulti = (selected: any) => {
+        isMulti && selected.length &&
+            selected.find((option: any) => option.value === "all") ? onChange(options.slice(1)) : !isMulti ? onChange((selected) || null) : onChange(selected);
+    }
+
     const DropdownIndicator = (p: any) => {
 
         if (isSearch) {
@@ -64,9 +69,9 @@ export default function DropdownSelect({
             placeholder={placeholder || "Choose..."}
             isClearable
             defaultValue={value}
-            onChange={onChange}
+            onChange={onChangeMulti}
             options={options}
-            isMulti={isMulti || false}
+            isMulti={isMulti}
             value={value}
             className={`text-xs font-semibold ${className}`}
             aria-errormessage={error}
