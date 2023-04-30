@@ -357,6 +357,9 @@ module.exports = {
       '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
       inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
       none: 'none',
+      bottom:
+        "0 5px 6px -7px rgba(0, 0, 0, 0.6), 0 2px 4px -5px rgba(0, 0, 0, 0.06)",
+      top: "0 2px 6px 1px rgba(0, 0, 0, 0.6), 0 2px 4px -5px rgba(0, 0, 0, 0.06)",
       DEFAULT: '0px 8px 13px -3px rgba(0, 0, 0, 0.07)',
       card: '0px 1px 3px rgba(0, 0, 0, 0.12)',
       'card-2': '0px 1px 2px rgba(0, 0, 0, 0.05)',
