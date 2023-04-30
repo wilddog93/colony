@@ -1,6 +1,11 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
+import Button from '../../../components/Button/Button';
+import { MdAdd, MdArrowDropDown, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdLocationOn, MdMoreHoriz } from 'react-icons/md';
+import Cards from '../../../components/Cards/Cards';
+import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
+import CardTower from '../../../components/BM/CardTower';
 
 type Props = {}
 
@@ -14,71 +19,71 @@ const Towers = (props: any) => {
       logo="../image/logo/logo-icon.svg"
       description=""
     >
-      {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5'>
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, fugiat.</div>
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, fugiat.</div>
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, fugiat.</div>
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, fugiat.</div>
-      </div>
-
-      <div className='mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5'>
-        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum, reiciendis!</div>
-        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum, reiciendis!</div>
-        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum, reiciendis!</div>
-        <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum, reiciendis!</div>
-        <div className='col-span-12 xl:col-span-8'>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium, voluptates.</div>
-        </div>
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, dicta.</div>
-      </div> */}
       <div className='absolute left-0 top-20 bottom-0 right-0 z-99 bg-boxdark flex text-white'>
-        {/* <div className={`flex w-full lg:w-90 flex-col overflow-y-hidden duration-300 ease-linear p-4 md:p-6 2xl:p-10 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className='w-full px-4 overflow-auto'>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aliquid, voluptate!
-          </div>
-        </div> */}
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <div className="w-full bg-white lg:rounded-tl-[3rem] p-4 md:p-6 2xl:p-10">
-          <button
-            aria-controls='sidebar'
-            aria-expanded={sidebarOpen}
-            onClick={(e) => {
-              e.stopPropagation()
-              setSidebarOpen(!sidebarOpen)
-            }}
-            className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
-          >
-            <span className='relative block h-5.5 w-5.5 cursor-pointer'>
-              <span className='du-block absolute right-0 h-full w-full'>
-                <span
-                  className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-300'
-                    }`}
-                ></span>
-                <span
-                  className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarOpen && 'delay-400 !w-full'
-                    }`}
-                ></span>
-                <span
-                  className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-500'
-                    }`}
-                ></span>
-              </span>
-              <span className='absolute right-0 h-full w-full rotate-45'>
-                <span
-                  className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-[0]'
-                    }`}
-                ></span>
-                <span
-                  className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!h-0 !delay-200'
-                    }`}
-                ></span>
-              </span>
-            </span>
-          </button>
-          <div className='tracking-wide text-left text-boxdark-2'>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora maiores obcaecati nobis magni labore, ipsum maxime, aut qui, eaque in exercitationem optio beatae dicta dolorem illum! Minus vero inventore veniam!
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
+          <div className='sticky bg-white top-0 z-99 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2 border-b-2 border-gray lg:border-0'>
+            <div className='w-full flex items-center justify-between'>
+              <button
+                aria-controls='sidebar'
+                aria-expanded={sidebarOpen}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSidebarOpen(!sidebarOpen)
+                }}
+                className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
+              >
+                <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
+              </button>
+              <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Tower Management</h3>
+            </div>
+            <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3'
+                onClick={() => console.log("klik")}
+                variant='primary-outline'
+                key={'1'}
+              >
+                <span className='hidden lg:inline-block'>Amenities</span>
+                <MdLocalHotel className='w-4 h-4' />
+              </Button>
+
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3'
+                onClick={() => console.log("klik")}
+                variant='primary-outline'
+                key={'2'}
+              >
+                <span className='hidden lg:inline-block'>Facilities</span>
+                <MdCleaningServices className='w-4 h-4' />
+              </Button>
+
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3'
+                onClick={() => console.log("klik")}
+                variant='primary'
+                key={'3'}
+              >
+                <span className='hidden lg:inline-block'>New Tower</span>
+                <MdAdd className='w-4 h-4' />
+              </Button>
+            </div>
           </div>
+
+          <main className='relative tracking-wide text-left text-boxdark-2'>
+            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
+              {/* cards */}
+              <CardTower items={""} />
+
+              <CardTower items={""} />
+
+              <CardTower items={""} />
+            </div>
+          </main>
         </div>
       </div>
     </DefaultLayout>
