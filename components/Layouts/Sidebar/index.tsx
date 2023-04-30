@@ -8,10 +8,11 @@ type Props = {
     sidebarOpen: boolean,
     setSidebarOpen: any,
     logo: any,
-    title: any
+    title: any,
+    images: string
 }
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title }: Props) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title, images }: Props) => {
     const location = useRouter()
     const { pathname, query } = location
 
@@ -146,7 +147,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title }: Props) => {
                         <div>
                             <div className='w-full flex justify-between items-center mb-6 px-4 py-2.5 bg-white rounded-lg'>
                                 <div className='flex items-center gap-2'>
-                                    <img src='./image/logo/building-logo.svg' alt='building logo' />
+                                    <img src={`${images ? images : "./image/logo/building-logo.svg"}`} alt='building logo' />
                                     <h3 className='text-lg font-semibold text-black'>
                                         Building Name
                                     </h3>

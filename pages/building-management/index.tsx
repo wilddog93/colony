@@ -15,6 +15,8 @@ const Dashboard = (props: any) => {
       head="Dashboard"
       logo="image/logo/logo-icon.svg"
       description=""
+      images="image/logo/building-logo.svg"
+      userDefault="image/user/user-01.png"
     >
       <div className='absolute left-0 top-20 bottom-0 right-0 z-99 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

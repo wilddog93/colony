@@ -10,9 +10,11 @@ type Props = {
     title: any,
     description: any,
     logo: string,
+    images: string,
+    userDefault: string
 }
 
-const DefaultLayout = ({ children, title, description, logo, header, head }: Props) => {
+const DefaultLayout = ({ children, title, description, logo, header, head, images, userDefault }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
@@ -25,13 +27,13 @@ const DefaultLayout = ({ children, title, description, logo, header, head }: Pro
             {/* <!-- ===== Page Wrapper Start ===== --> */}
             <div className='flex h-screen overflow-hidden'>
                 {/* <!-- ===== Sidebar Start ===== --> */}
-                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} />
+                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} />
                 {/* <!-- ===== Sidebar End ===== --> */}
 
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} />
+                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} userDefault={userDefault} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}

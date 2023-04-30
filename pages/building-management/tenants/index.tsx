@@ -13,6 +13,8 @@ const Tenants = (props: any) => {
       header="Building Management"
       head="Tenant Management"
       logo="../image/logo/logo-icon.svg"
+      images="../image/logo/building-logo.svg"
+      userDefault="../image/user/user-01.png"
       description=""
     >
       <div className='absolute left-0 top-20 bottom-0 right-0 z-99 bg-boxdark flex text-white'>

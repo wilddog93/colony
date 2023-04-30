@@ -4,7 +4,8 @@ import Link from 'next/link'
 // import UserOne from 'image/user/user-01.png'
 import Image from 'next/image'
 
-const DropdownUser = () => {
+const DropdownUser = (props: any) => {
+    const { userDefault } = props
     const [dropdownOpen, setDropdownOpen] = useState(false)
 
     const trigger = useRef<HTMLButtonElement>(null)
@@ -66,7 +67,7 @@ const DropdownUser = () => {
                 <span className='h-12 w-12 rounded-full'>
                     <Image
                         loader={myLoader}
-                        src="image/user/user-01.png"
+                        src={userDefault || "image/user/user-01.png"}
                         alt="Picture of the author"
                         width={500}
                         height={500}

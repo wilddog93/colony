@@ -102,7 +102,7 @@ const Header = (props: any) => {
                         {/* <!-- Dark Mode Toggler --> */}
 
                         {/* <!-- Notification Menu Area --> */}
-                        <DropdownUser />
+                        <DropdownUser userDefault={props?.userDefault} />
                         {/* <!-- Notification Menu Area --> */}
 
                         {/* <!-- Chat Notification Area --> */}
