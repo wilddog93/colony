@@ -112,7 +112,7 @@ const CardTower = (props: Props) => {
             </div>
 
             {/* floor */}
-            <div className='w-full flex items-center justify-between border-t border-b border-gray mt-3'>
+            <div className='w-full flex items-start lg:items-center justify-between border-t border-b border-gray mt-3 gap-2'>
                 <div className='flex flex-wrap w-10/12 gap-2 items-center'>
                     <DropdownDefault
                         className=''
@@ -174,15 +174,17 @@ const CardTower = (props: Props) => {
                         5F
                     </Button>
                 </div>
-                <Button
-                    className='text-xs py-1 px-2 font-semibold rounded-md mr-4'
-                    variant='primary'
-                    type="button"
-                    onClick={() => console.log("add floor")}
-                >
-                    <span className='hidden lg:inline-block'>New Floor</span>
-                    <MdAdd className='w-4 h-4' />
-                </Button>
+                <div className='p-2'>
+                    <Button
+                        className='text-xs py-1 px-2 font-semibold rounded-md'
+                        variant='primary'
+                        type="button"
+                        onClick={() => console.log("add floor")}
+                    >
+                        <span className='hidden lg:inline-block'>New Floor</span>
+                        <MdAdd className='w-4 h-4' />
+                    </Button>
+                </div>
             </div>
 
             {/* units */}
