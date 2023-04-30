@@ -3,14 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 type Props = {
     title: React.ReactNode,
     className: string,
-    data: any
+    data: any,
+    position: string,
 }
 
-const DropdownDefault = ({ title, className, data }: Props) => {
+const DropdownDefault = ({ title, className, data, position }: Props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false)
 
     const trigger = useRef<HTMLButtonElement>(null)
     const dropdown = useRef<HTMLDivElement>(null)
+    const [positions, setPositions] = useState("");
 
     // close on click outside
     useEffect(() => {
@@ -39,7 +41,15 @@ const DropdownDefault = ({ title, className, data }: Props) => {
         }
         document.addEventListener('keydown', keyHandler)
         return () => document.removeEventListener('keydown', keyHandler)
-    })
+    });
+
+    useEffect(() => {
+        if (position === "left") setPositions("left-0")
+        else if (position === "right") setPositions("right-0")
+        else if (position === "center") setPositions("-inset-x-11");
+        else setPositions("right-0")
+    }, [position])
+
 
     return (
         <div className={`relative`}>
@@ -50,8 +60,8 @@ const DropdownDefault = ({ title, className, data }: Props) => {
                 ref={dropdown}
                 onFocus={() => setDropdownOpen(true)}
                 onBlur={() => setDropdownOpen(false)}
-                className={`absolute right-0 top-full z-40 w-40 space-y-1 rounded-sm border border-stroke bg-white p-1.5 shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? 'block' : 'hidden'
-                    }`}
+                className={`absolute top-full z-40 w-40 space-y-1 rounded-sm border border-stroke bg-white p-1.5 shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? 'block' : 'hidden'
+                    } ${positions}`}
             >
                 <button className='flex w-full items-center gap-2 rounded-sm py-1.5 px-4 text-left text-sm hover:bg-gray dark:hover:bg-meta-4'>
                     <svg

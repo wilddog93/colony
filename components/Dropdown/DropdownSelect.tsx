@@ -1,4 +1,4 @@
-import Select, { components } from "react-select";
+import Select, { IndicatorSeparatorProps, components } from "react-select";
 import React from "react";
 import { MdArrowDropDown, MdSearch } from "react-icons/md";
 
@@ -14,7 +14,8 @@ type Props = {
     isMulti: boolean,
     isDisabled: boolean,
     className: string,
-    classNamePrefix: string
+    classNamePrefix: string,
+    customStyles: any,
 }
 
 export default function DropdownSelect({
@@ -29,31 +30,21 @@ export default function DropdownSelect({
     isMulti,
     isDisabled,
     className,
-    classNamePrefix
+    classNamePrefix,
+    customStyles
 }: Props) {
+
     const DropdownIndicator = (p: any) => {
-        const style = {
-            indicatorsContainer: (provided: any, state: any) => {
-                return {
-                    ...provided,
-                    padding: '0px',
-                    paddingLeft: '0px',
-                    paddingTop: '0px',
-                    paddingRight: '0px',
-                    paddingDown: '0px',
-                };
-            }
-        }
-        console.log(p, 'indicator')
+
         if (isSearch) {
             return (
-                <components.DropdownIndicator {...p} styles={style}>
+                <components.DropdownIndicator {...p}>
                     <MdSearch className={`text-gray-600 w-5 h-5`} />
                 </components.DropdownIndicator>
             );
         }
         return (
-            <components.DropdownIndicator {...p} styles={style}>
+            <components.DropdownIndicator {...p}>
                 <MdArrowDropDown
                     className={`transform transition-all duration-700 text-gray-600 w-5 h-5 p-0 ${p.isFocused && !p.hasValue ? "" : "-rotate-90"
                         }`}
@@ -65,29 +56,6 @@ export default function DropdownSelect({
     const NoOptionsMessage = (props: any) => {
         return <components.NoOptionsMessage {...props} />;
     };
-
-    const customStyles = {
-        // menu: (provided: any, state: any) => {
-        //     console.log(provided, 'menu')
-        //     return ({
-        //         ...provided,
-        //         marginBottom: 0,
-        //         marginTop: 0
-        //     })
-        // },
-        control: (provided: any, state: any) => {
-            console.log(provided, "control")
-            return ({
-                ...provided,
-                background: "#F5F9FD",
-                borderColor: state.isFocused ? "#5F59F7" : "#5F59F7",
-                "&:hover": {
-                    borderColor: state.isFocused ? "gray" : "#5F59F7"
-                },
-                minHeight: 20
-            })
-        }
-    }
 
     return (
         <Select

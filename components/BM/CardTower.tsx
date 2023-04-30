@@ -9,8 +9,68 @@ type Props = {
     items: any
 }
 
+const options = [
+    { value: "restaurant", label: "Restaurant" },
+    { value: "unit-001", label: "Unit - 001" },
+    { value: "unit-002", label: "Unit - 002" },
+    { value: "unit-003", label: "Unit - 003" },
+]
+
 const CardTower = (props: Props) => {
     const [value, setValue] = useState(null);
+
+    const customStylesSelect = {
+        indicatorSeparator: (provided: any) => ({
+            ...provided,
+            display: 'none',
+        }),
+        dropdownIndicator: (provided: any) => {
+            return ({
+                ...provided,
+                color: '#5F59F7',
+                padding: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+            })
+        },
+        clearIndicator: (provided: any) => {
+            return ({
+                ...provided,
+                color: '#5F59F7',
+                padding: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+            })
+        },
+        singleValue: (provided: any) => {
+            return ({
+                ...provided,
+                color: '#5F59F7',
+            })
+        },
+        control: (provided: any, state: any) => {
+            console.log(provided, "control")
+            return ({
+                ...provided,
+                background: "#F5F9FD",
+                borderColor: state.isFocused ? "#5F59F7" : "#5F59F7",
+                color: "#5F59F7",
+                "&:hover": {
+                    color: state.isFocused ? "gray" : "#5F59F7",
+                    borderColor: state.isFocused ? "gray" : "#5F59F7"
+                },
+                minHeight: 20
+            })
+        },
+        menuList: (provided: any) => ({
+            ...provided,
+            padding: 0
+        })
+    };
 
     return (
         <Cards className='w-full py-4 border border-gray rounded-xl shadow-1'>
@@ -52,14 +112,17 @@ const CardTower = (props: Props) => {
             {/* floor */}
             <div className='w-full flex items-center justify-between border-t border-b border-gray mt-3'>
                 <div className='flex flex-wrap w-10/12 gap-2 items-center'>
-                    <Button
-                        className='font-semibold'
-                        variant=''
-                        type="button"
-                        onClick={() => console.log("tabs")}
-                    >
-                        LG
-                    </Button>
+                    <DropdownDefault
+                        className=''
+                        position='left'
+                        data={""}
+                        title={
+                            <div className='inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold'>
+                                LG
+                                <MdMoreHoriz className='w-4 h-4' />
+                            </div>
+                        }
+                    />
                     <Button
                         className='font-semibold'
                         variant=''
@@ -76,16 +139,14 @@ const CardTower = (props: Props) => {
                     >
                         1F
                     </Button>
-                    <DropdownDefault
-                        className=''
-                        data={""}
-                        title={
-                            <div className='inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold'>
-                                2F
-                                <MdMoreHoriz className='w-4 h-4' />
-                            </div>
-                        }
-                    />
+                    <Button
+                        className='font-semibold'
+                        variant=''
+                        type="button"
+                        onClick={() => console.log("tabs")}
+                    >
+                        2F
+                    </Button>
                     <Button
                         className='font-semibold'
                         variant=''
@@ -141,6 +202,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -152,11 +214,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -184,6 +242,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -195,11 +254,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -227,6 +282,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -238,11 +294,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -270,6 +322,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -281,11 +334,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -313,6 +362,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -324,11 +374,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -356,6 +402,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -367,11 +414,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -399,6 +442,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -410,11 +454,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -442,6 +482,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -453,11 +494,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -485,6 +522,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -496,11 +534,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -528,6 +562,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -539,11 +574,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -571,6 +602,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -582,11 +614,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
@@ -614,6 +642,7 @@ const CardTower = (props: Props) => {
                 <Cards className='relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between'>
                     <div>
                         <DropdownSelect
+                            customStyles={customStylesSelect}
                             value={value}
                             onChange={setValue}
                             error=""
@@ -625,11 +654,7 @@ const CardTower = (props: Props) => {
                             isMulti={false}
                             isSearch=""
                             placeholder='Unit'
-                            options={[
-                                { value: "aaa", label: "aaa" },
-                                { value: "bb", label: "bb" },
-                                { value: "cc", label: "cc" }
-                            ]}
+                            options={options}
                         />
 
                         <div className='border border-t w-full border-gray mt-3'></div>
