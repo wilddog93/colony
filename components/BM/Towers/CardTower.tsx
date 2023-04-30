@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react'
-import Cards from '../Cards/Cards'
+import Cards from '../../Cards/Cards'
 import { MdAdd, MdArrowDropDown, MdEdit, MdLocationOn, MdMoreHoriz } from 'react-icons/md'
-import Button from '../Button/Button'
-import DropdownDefault from '../Dropdown/DropdownDefault'
-import DropdownSelect from '../Dropdown/DropdownSelect'
-import FloorUnit from './towers/FloorUnit'
+import Button from '../../Button/Button'
+import DropdownDefault from '../../Dropdown/DropdownDefault'
+import DropdownSelect from '../../Dropdown/DropdownSelect'
+import FloorUnit from './FloorUnit'
 
 type Props = {
     items: any

@@ -5,7 +5,7 @@ import Button from '../../../components/Button/Button';
 import { MdAdd, MdArrowDropDown, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdLocationOn, MdMoreHoriz } from 'react-icons/md';
 import Cards from '../../../components/Cards/Cards';
 import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
-import CardTower from '../../../components/BM/CardTower';
+import CardTower from '../../../components/BM/Towers/CardTower';
 
 type Props = {}
 
