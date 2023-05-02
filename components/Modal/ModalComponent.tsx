@@ -12,7 +12,7 @@ const ModalHeader = (props: any) => {
                 type="button"
                 onClick={onClick}
                 variant=''
-                className={`border border-gray rounded-md px-1 py-[0.25rem] ml-auto mr-2 bg-gray focus:outline-none ${isClose ? "hidden" : "inline-block"}`}
+                className={`border border-gray rounded-md px-1 py-[0.25rem] ml-auto mr-2 bg-gray focus:outline-none ${!isClose ? "hidden" : "inline-block"}`}
             >
                 <MdClose className='text-gray-4 w-5 h-5' />
             </Button>
@@ -30,7 +30,7 @@ const ModalFooter = (props: any) => {
                 type="button"
                 onClick={onClick}
                 variant='danger'
-                className={`rounded-md text-sm focus:outline-none ${isClose ? "hidden" : "inline-block"}`}
+                className={`rounded-md text-sm focus:outline-none ${!isClose ? "hidden" : "inline-block"}`}
             >
                 Close
             </Button>

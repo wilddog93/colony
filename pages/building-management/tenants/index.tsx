@@ -137,7 +137,7 @@ const Tenants = (props: any) => {
       >
         <ModalHeader
           className='p-4 border-b-2 border-gray mb-3'
-          isClose={false}
+          isClose={true}
         >
           <h3 className='text-lg font-semibold'>Modal Header</h3>
         </ModalHeader>
@@ -146,6 +146,7 @@ const Tenants = (props: any) => {
         </div>
         <ModalFooter
           className='p-4 border-t-2 border-gray mt-3'
+          isClose={true}
         ></ModalFooter>
       </Modal>
     </DefaultLayout>

@@ -6,11 +6,19 @@ import { MdAdd, MdArrowDropDown, MdArrowRightAlt, MdCleaningServices, MdEdit, Md
 import Cards from '../../../components/Cards/Cards';
 import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
 import CardTower from '../../../components/BM/Towers/CardTower';
+import Modal from '../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 
 type Props = {}
 
 const Towers = (props: any) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // modal
+  const [isOpenTower, setIsOpenTower] = useState(false);
+  const [isOpenAmenities, setIsOpenAmenities] = useState(false);
+  const [isOpenFacilities, setIsOpenFacilities] = useState(false);
+
   return (
     <DefaultLayout
       title="Colony"
@@ -66,9 +74,8 @@ const Towers = (props: any) => {
               <Button
                 type="button"
                 className='rounded-lg text-sm font-semibold py-3'
-                onClick={() => console.log("klik")}
+                onClick={() => setIsOpenTower(true)}
                 variant='primary'
-                key={'3'}
               >
                 <span className='hidden lg:inline-block'>New Tower</span>
                 <MdAdd className='w-4 h-4' />
@@ -88,6 +95,24 @@ const Towers = (props: any) => {
           </main>
         </div>
       </div>
+
+      {/* modal */}
+      <Modal
+        isOpen={isOpenTower}
+        onClose={() => setIsOpenTower(false)}
+        size=''
+      >
+        <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
+          <h3 className='text-lg font-semibold'>New Tower</h3>
+        </ModalHeader>
+        <div className="w-full px-6">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
+        </div>
+        <ModalFooter
+          className='sticky bottom-0 bg-white p-4 border-t-2 border-gray mt-3'
+          isClose={true}
+        ></ModalFooter>
+      </Modal>
     </DefaultLayout>
   )
 }

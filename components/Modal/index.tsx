@@ -52,7 +52,7 @@ function Modal({ children, isOpen, onClose, size }: {
                             transition={{ duration: 0.2 }}
                             onAnimationComplete={handleAnimationComplete}
                         >
-                            <div className={`w-full bg-white m-auto rounded-md ${sizes}`}>
+                            <div className={`w-full bg-white m-auto rounded-md ${sizes} h-auto max-h-[700px] overflow-x-hidden`}>
                                 {children}
                             </div>
                         </motion.div>
