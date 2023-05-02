@@ -80,24 +80,6 @@ const Towers = (props: any) => {
                 <span className='hidden lg:inline-block'>New Tower</span>
                 <MdAdd className='w-4 h-4' />
               </Button>
-
-              {/* modal Amenities*/}
-              <Modal
-                isOpen={isOpenAmenities}
-                onClose={() => setIsOpenAmenities(false)}
-                size=''
-              >
-                <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
-                  <h3 className='text-lg font-semibold'>New Amenities</h3>
-                </ModalHeader>
-                <div className="w-full px-6">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
-                </div>
-                <ModalFooter
-                  className='sticky bottom-0 bg-white p-4 border-t-2 border-gray mt-3'
-                  isClose={true}
-                ></ModalFooter>
-              </Modal>
             </div>
           </div>
 
@@ -140,6 +122,24 @@ const Towers = (props: any) => {
       >
         <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
           <h3 className='text-lg font-semibold'>New Tower</h3>
+        </ModalHeader>
+        <div className="w-full px-6">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
+        </div>
+        <ModalFooter
+          className='sticky bottom-0 bg-white p-4 border-t-2 border-gray mt-3'
+          isClose={true}
+        ></ModalFooter>
+      </Modal>
+
+      {/* modal Amenities*/}
+      <Modal
+        isOpen={isOpenAmenities}
+        onClose={() => setIsOpenAmenities(false)}
+        size=''
+      >
+        <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
+          <h3 className='text-lg font-semibold'>New Amenities</h3>
         </ModalHeader>
         <div className="w-full px-6">
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
