@@ -34,7 +34,7 @@ function Modal({ children, isOpen, onClose, size }: {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className='fixed inset-0 z-9998 overflow-y-auto'>
+                <div className='fixed inset-0 z-99999 overflow-y-auto text-graydark'>
                     <motion.div
                         className="fixed z-9998 inset-0 bg-black/30"
                         initial={{ opacity: 0 }}

@@ -103,7 +103,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
         <Fragment>
             <aside
                 ref={sidebar}
-                className={`absolute left-0 top-0 bottom-0 z-9999 flex w-90 flex-col overflow-y-hidden bg-boxdark duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`absolute left-0 top-0 bottom-0 z-999 flex w-90 flex-col overflow-y-hidden bg-boxdark duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     // className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
