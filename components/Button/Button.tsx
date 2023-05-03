@@ -8,7 +8,7 @@ type Props = {
     onClick: any
 }
 
-const Button = (props: Props) => {
+const Button = (props: any) => {
     const { children, variant, className } = props;
     const [variants, setVariants] = useState("")
     // variant 
@@ -40,7 +40,7 @@ const Button = (props: Props) => {
     return (
         <button
             {...props}
-            className={`${variants} inline-flex gap-2.5 items-center justify-center py-2 px-4 text-center hover:bg-opacity-90 ${className}`}
+            className={`${variants} inline-flex gap-2.5 items-center justify-center py-2 px-4 text-center hover:bg-opacity-90 ${className} ${props?.disabled ? "opacity-25" : ""}`}
         >
             {children}
         </button>

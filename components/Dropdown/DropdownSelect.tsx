@@ -73,7 +73,7 @@ export default function DropdownSelect({
             options={options}
             isMulti={isMulti}
             value={value}
-            className={`text-xs font-semibold ${className}`}
+            className={`font-semibold ${className}`}
             aria-errormessage={error}
             classNamePrefix={classNamePrefix}
             isDisabled={isDisabled}
