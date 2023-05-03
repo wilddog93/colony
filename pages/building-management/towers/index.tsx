@@ -8,7 +8,7 @@ import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
 import CardTower from '../../../components/BM/Towers/CardTower';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
-import { useCheckbox, useInput, useSelect, useTextArea } from '../../../utils/useHooks/useHooks';
+import { useCheckbox, useInput, useRadioInput, useSelect, useTextArea } from '../../../utils/useHooks/useHooks';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { validation } from '../../../utils/useHooks/validation';
 
@@ -51,13 +51,13 @@ const customStylesSelect = {
     console.log(provided, "control")
     return ({
       ...provided,
-      background: "#F5F9FD",
+      background: "",
       padding: '.5rem',
-      borderColor: state.isFocused ? "#5F59F7" : "#5F59F7",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
       "&:hover": {
-        color: state.isFocused ? "gray" : "#5F59F7",
-        borderColor: state.isFocused ? "gray" : "#5F59F7"
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
       },
       minHeight: 38
     })
@@ -115,6 +115,11 @@ const Towers = (props: any) => {
     defaultValue: null,
     validate: (value) => validation.select(value),
   });
+  const radioOpt = ['Option 1', 'Option 2', 'Option 3'];
+  const { value: radio, setValue: setRadio, error: radioError, onChange: onRadioChange, reset: resetRadio } = useRadioInput(radioOpt, {
+    defaultValue: '',
+    validate: (value) => validation?.radio(value)
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -130,6 +135,7 @@ const Towers = (props: any) => {
     resetName()
     resetDescription()
     resetJobs()
+    resetRadio()
   }
 
   useEffect(() => {
@@ -139,7 +145,7 @@ const Towers = (props: any) => {
     } else {
       setSubmitting(true)
     }
-  }, [emailError, passwordError, genderError, nameError, descriptionError, jobsError]);
+  }, [emailError, passwordError, genderError, nameError, descriptionError, jobsError, name, email, password, gender]);
 
   useEffect(() => {
     if (jobChecked) {
@@ -302,7 +308,7 @@ const Towers = (props: any) => {
             </label>
             <div className='relative'>
               <input
-                type='text'
+                type='password'
                 placeholder='6+ Characters, 1 Capital letter'
                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                 value={password}
@@ -419,6 +425,20 @@ const Towers = (props: any) => {
               </div>
               <p>Remember me</p>
             </label>
+          </div>
+
+          <div className="mb-4 px-4 flex flex-wrap items-center gap-2">
+            {radioOpt.map((option) => (
+              <label key={option} className='flex items-center gap-2'>
+                <input
+                  type="radio"
+                  value={option}
+                  checked={radio === option}
+                  onChange={onRadioChange}
+                />
+                {option}
+              </label>
+            ))}
           </div>
 
           <div className='mb-4 px-4'>

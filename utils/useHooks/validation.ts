@@ -1,5 +1,5 @@
 export const validation = {
-    required: (value:string) => {
+    required: (value: string) => {
         if (!value) {
             return 'Fill is required';
         }
@@ -30,10 +30,16 @@ export const validation = {
         return null;
     },
     description: (value: any) => {
-        if(!value) {
+        if (!value) {
             return 'Description is required. ';
         }
         return null
+    },
+    radio: (value: any) => {
+        if (!value) {
+            return 'Please select an option';
+        }
+        return null;
     }
 }
 

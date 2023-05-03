@@ -28,8 +28,7 @@ const useInput = ({
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = event.target.value;
         const validationError = validate?.(newValue);
-        //@ts-ignore
-        setError(validationError);
+        setError(validationError as SetStateAction<string | null>);
         setValue(newValue);
     };
 
@@ -71,8 +70,7 @@ const useTextArea = ({
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newValue = event.target.value;
         const validationError = validate?.(newValue);
-        // @ts-ignore
-        setError(validationError);
+        setError(validationError as SetStateAction<string | null>);
         setValue(newValue);
     };
 
@@ -114,8 +112,7 @@ const useCheckbox = ({
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newChecked = event.target.checked;
         const validationError = validate?.(newChecked);
-        //@ts-ignore
-        setError(validationError);
+        setError(validationError as SetStateAction<string | null>);
         setChecked(newChecked);
     };
 
@@ -133,6 +130,47 @@ const useCheckbox = ({
     };
 };
 
+// radio - input
+interface UseRadioInputResult {
+    value: string;
+    setValue: Dispatch<SetStateAction<string>>;
+    error: string | null;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    reset: () => void;
+}
+
+interface UseRadioInputOptions {
+    defaultValue?: string;
+    validate?: (value: string) => string | null;
+}
+
+const useRadioInput = (
+    options: string[],
+    { defaultValue = '', validate }: UseRadioInputOptions = {}
+): UseRadioInputResult => {
+    const [value, setValue] = useState<string>(defaultValue);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.value;
+        const validationError = validate?.(newValue);
+        setError(validationError as SetStateAction<string | null>);
+        setValue(newValue);
+    };
+
+    const reset = () => {
+        setError(null);
+        setValue(defaultValue);
+    };
+
+    return {
+        value,
+        setValue,
+        error,
+        onChange: handleChange,
+        reset,
+    };
+};
 
 // react-select useHook
 interface UseSelectResult<T extends OptionTypeBase> {
@@ -181,4 +219,4 @@ const useSelect = <T extends OptionTypeBase>({
 };
 
 
-export { useInput, useTextArea, useCheckbox, useSelect };
+export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput };
