@@ -46,14 +46,14 @@ function Modal({ children, isOpen, onClose, size }: {
                     >
                     </motion.div>
                     <motion.div
-                        className={`w-full h-screen flex justify-center items-center`}
+                        className={`w-full h-full flex justify-center items-center`}
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 50, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                         onAnimationComplete={handleAnimationComplete}
                     >
-                        <div className={`relative z-9999 w-full bg-white m-auto rounded-md ${sizes} h-auto max-h-[700px] overflow-x-hidden`}>
+                        <div className={`relative z-9999 w-full bg-white rounded-md ${sizes} h-auto max-h-[700px] overflow-x-hidden`}>
                             {children}
                         </div>
                     </motion.div>
