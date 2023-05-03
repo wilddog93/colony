@@ -7,6 +7,7 @@ type Validator<T> = (value: T) => string | undefined;
 // input
 interface UseInputResult {
     value: string;
+    setValue: Dispatch<SetStateAction<string>>;
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     reset: () => void;
@@ -39,45 +40,45 @@ const useInput = ({
 
     return {
         value,
+        setValue,
         error,
         onChange: handleChange,
         reset,
     };
 };
 
-
 // text-area
 interface UseTextAreaResult {
     value: string;
     setValue: Dispatch<SetStateAction<string>>;
-    error: string | undefined;
+    error: string | null;
     onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     reset: () => void;
 }
 
-const useTextArea = (initialValue: string, validator?: Validator<string>): UseTextAreaResult => {
-    const [value, setValue] = useState(initialValue);
-    const [error, setError] = useState<string | undefined>(undefined);
+interface UseTextAreaOptions {
+    defaultValue?: string;
+    validate?: (value: string) => string | null;
+}
 
-    const validate = (value: string) => {
-        if (!validator) {
-            return undefined;
-        }
-
-        return validator(value);
-    };
+const useTextArea = ({
+    defaultValue = '',
+    validate,
+}: UseTextAreaOptions = {}): UseTextAreaResult => {
+    const [value, setValue] = useState<string>(defaultValue);
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newValue = event.target.value;
-        const newError = validate(newValue);
-
+        const validationError = validate?.(newValue);
+        // @ts-ignore
+        setError(validationError);
         setValue(newValue);
-        setError(newError);
     };
 
     const reset = () => {
-        setValue(initialValue);
-        setError(undefined);
+        setError(null);
+        setValue(defaultValue);
     };
 
     return {
@@ -92,6 +93,7 @@ const useTextArea = (initialValue: string, validator?: Validator<string>): UseTe
 // checkbox
 interface UseCheckboxResult {
     checked: boolean;
+    setChecked: Dispatch<SetStateAction<boolean>>;
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     reset: () => void;
@@ -124,13 +126,12 @@ const useCheckbox = ({
 
     return {
         checked,
+        setChecked,
         error,
         onChange: handleChange,
         reset,
     };
 };
-
-export default useCheckbox;
 
 
 // react-select useHook
@@ -170,6 +171,7 @@ const useSelect = <T extends OptionTypeBase>({
 
     return {
         value,
+        setValue,
         // @ts-ignore
         options,
         error,
@@ -179,4 +181,4 @@ const useSelect = <T extends OptionTypeBase>({
 };
 
 
-export { useInput, useTextArea, useSelect };
+export { useInput, useTextArea, useCheckbox, useSelect };

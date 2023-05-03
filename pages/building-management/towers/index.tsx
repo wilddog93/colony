@@ -2,13 +2,13 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowDropDown, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdLocationOn, MdMoreHoriz } from 'react-icons/md';
+import { MdAdd, MdArrowDropDown, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdLocationOn, MdMoreHoriz, MdOutlinePerson, MdPerson } from 'react-icons/md';
 import Cards from '../../../components/Cards/Cards';
 import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
 import CardTower from '../../../components/BM/Towers/CardTower';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
-import { useInput, useSelect } from '../../../utils/useHooks/useHooks';
+import { useCheckbox, useInput, useSelect, useTextArea } from '../../../utils/useHooks/useHooks';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { validation } from '../../../utils/useHooks/validation';
 
@@ -76,26 +76,39 @@ const Towers = (props: any) => {
   const [isOpenAmenities, setIsOpenAmenities] = useState(false);
   const [isOpenFacilities, setIsOpenFacilities] = useState(false);
 
+  const [jobChecked, setJobChecked] = useState(true);
+
   interface Option {
     label: string;
     value: string;
   }
-  
+
   const genderOpt: Option[] = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },
     { label: 'Any', value: 'any' },
   ];
-  
+
   let data = "ridho@gmail.com"
   const [submitting, setSubmitting] = useState(false);
-  const { value: email, reset: resetEmail, error: emailError, onChange: onEmailChange } = useInput({ 
-    defaultValue: "", 
+  const { value: name, reset: resetName, error: nameError, onChange: onNameChange } = useInput({
+    defaultValue: "",
+    validate: (value) => validation?.required(value),
+  });
+  const { value: email, reset: resetEmail, error: emailError, onChange: onEmailChange } = useInput({
+    defaultValue: "",
     validate: (value) => validation?.email(value),
-});
+  });
   const { value: password, reset: resetPassword, error: passwordError, onChange: onPasswordChange } = useInput({
     defaultValue: "",
     validate: (value) => validation?.password(value),
+  });
+  const { value: description, setValue: setDescription, reset: resetDescription, error: descriptionError, onChange: onDescriptionChange } = useTextArea({
+    defaultValue: "",
+    validate: (value) => validation?.description(value),
+  });
+  const { checked: jobs, setChecked: setJobs, reset: resetJobs, error: jobsError, onChange: onJobsChange } = useCheckbox({
+    defaultChecked: false
   });
   // @ts-ignore
   const { value: gender, error: genderError, onChange: onGenderChange, reset: resetGender } = useSelect<Option>({
@@ -106,7 +119,7 @@ const Towers = (props: any) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting) {
-      console.log({ email, password, gender }, 'event form')
+      console.log({ name, email, password, gender, description }, 'event form')
     }
   };
 
@@ -114,16 +127,28 @@ const Towers = (props: any) => {
     resetEmail()
     resetPassword()
     resetGender()
+    resetName()
+    resetDescription()
+    resetJobs()
   }
 
   useEffect(() => {
-    if (emailError || passwordError || genderError) {
+    if (emailError || passwordError || genderError || nameError || descriptionError || jobsError || !name || !email || !password || !gender) {
       setSubmitting(false);
       // perform submission logic
     } else {
       setSubmitting(true)
     }
-  }, [emailError, passwordError, genderError]);
+  }, [emailError, passwordError, genderError, nameError, descriptionError, jobsError]);
+
+  useEffect(() => {
+    if (jobChecked) {
+      setJobs(jobChecked)
+    }
+  }, [jobChecked])
+
+  console.log({ emailError, passwordError, genderError, nameError, descriptionError, jobsError }, 'submit')
+
 
   return (
     <DefaultLayout
@@ -208,7 +233,7 @@ const Towers = (props: any) => {
         onClose={() => setIsOpenTower(false)}
         size='small'
       >
-        <ModalHeader onClick={() => setIsOpenTower(false)} isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
+        <ModalHeader onClick={() => setIsOpenTower(false)} isClose={true} className="sticky z-9 top-0 p-4 bg-white border-b-2 border-gray mb-3">
           <div className='flex flex-col'>
             <h3 className='text-lg font-semibold'>Add/Edit Tower</h3>
             <p className='text-gray-4'>Fill your tower information.</p>
@@ -216,6 +241,26 @@ const Towers = (props: any) => {
         </ModalHeader>
 
         <form onSubmit={handleSubmit}>
+          <div className='mb-4 px-4'>
+            <label className='mb-2.5 block font-medium text-black dark:text-white'>
+              Name
+            </label>
+            <div className='relative'>
+              <input
+                type='text'
+                placeholder='Enter your name'
+                className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                value={name}
+                onChange={onNameChange}
+              />
+
+              <span className='absolute right-4 top-4'>
+                <MdOutlinePerson className='w-6 h-6 fill-current text-gray-4 opacity-80' />
+              </span>
+              {nameError && <div className='mt-1 text-danger'>{nameError}</div>}
+            </div>
+          </div>
+
           <div className='mb-4 px-4'>
             <label className='mb-2.5 block font-medium text-black dark:text-white'>
               Email
@@ -339,6 +384,56 @@ const Towers = (props: any) => {
               />
 
               {genderError && <div className='mt-1 text-danger'>{genderError}</div>}
+            </div>
+          </div>
+
+          <div className="mb-4 px-4">
+            <label htmlFor='1' className='flex cursor-pointer'>
+              <div className='relative pt-0.5'>
+                <input
+                  type='checkbox'
+                  id='1'
+                  className='taskCheckbox sr-only'
+                  checked={jobs}
+                  onChange={onJobsChange}
+                />
+                <div className={`box mr-3 flex h-5 w-5 items-center justify-center rounded border border-stroke dark:border-strokedark ${jobs ? "border-primary" : ""}`}>
+                  <span className={`text-primary ${jobs ? "opacity-100" : "opacity-0"}`}>
+                    <svg
+                      className='fill-current'
+                      width='10'
+                      height='7'
+                      viewBox='0 0 10 7'
+                      fill='none'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M9.70685 0.292804C9.89455 0.480344 10 0.734667 10 0.999847C10 1.26503 9.89455 1.51935 9.70685 1.70689L4.70059 6.7072C4.51283 6.89468 4.2582 7 3.9927 7C3.72721 7 3.47258 6.89468 3.28482 6.7072L0.281063 3.70701C0.0986771 3.5184 -0.00224342 3.26578 3.785e-05 3.00357C0.00231912 2.74136 0.10762 2.49053 0.29326 2.30511C0.4789 2.11969 0.730026 2.01451 0.992551 2.01224C1.25508 2.00996 1.50799 2.11076 1.69683 2.29293L3.9927 4.58607L8.29108 0.292804C8.47884 0.105322 8.73347 0 8.99896 0C9.26446 0 9.51908 0.105322 9.70685 0.292804Z'
+                        fill=''
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <p>Remember me</p>
+            </label>
+          </div>
+
+          <div className='mb-4 px-4'>
+            <label className='mb-2.5 block font-medium text-black dark:text-white'>
+              Description
+            </label>
+            <div className='relative'>
+              <textarea
+                rows={6}
+                value={description}
+                onChange={onDescriptionChange}
+                placeholder='Type your message'
+                className='w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+              ></textarea>
+              {descriptionError && <div className='mt-1 text-danger'>{descriptionError}</div>}
             </div>
           </div>
 

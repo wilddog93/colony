@@ -1,4 +1,10 @@
 export const validation = {
+    required: (value:string) => {
+        if (!value) {
+            return 'Fill is required';
+        }
+        return null;
+    },
     email: (value: any) => {
         if (!value) {
             return 'Email is required';
@@ -22,6 +28,12 @@ export const validation = {
             return 'Select item is required';
         }
         return null;
+    },
+    description: (value: any) => {
+        if(!value) {
+            return 'Description is required. ';
+        }
+        return null
     }
 }
 
