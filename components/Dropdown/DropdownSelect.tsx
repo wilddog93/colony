@@ -1,13 +1,31 @@
 import Select, { IndicatorSeparatorProps, components } from "react-select";
-import React from "react";
+import React, { FC } from "react";
 import { MdArrowDropDown, MdSearch } from "react-icons/md";
+
+import * as IconMd from 'react-icons/md';
+import * as IconFa from 'react-icons/fa';
+
+type IconProps = {
+    icon: string;
+    className: string;
+};
+
+const Icon: FC<IconProps> = ({ icon, className, ...props }) => {
+    // @ts-ignore
+    const Icon = IconMd[icon] || IconFa[icon]; // Dynamically get the icon component based on the "icon" prop
+
+    if (!Icon) {
+        throw new Error(`Invalid icon "${icon}"`);
+    }
+
+    return <Icon className={className} {...props} />;
+}
 
 type Props = {
     value: any,
     onChange: any,
     options: any,
     error: any,
-    isSearch: any,
     placeholder: string,
     formatOptionLabel: any,
     instanceId: string,
@@ -16,14 +34,14 @@ type Props = {
     className: string,
     classNamePrefix: string,
     customStyles: any,
-}
+    icon: string
+};
 
 export default function DropdownSelect({
     value,
     onChange,
     options,
     error,
-    isSearch,
     placeholder,
     formatOptionLabel,
     instanceId,
@@ -31,7 +49,8 @@ export default function DropdownSelect({
     isDisabled,
     className,
     classNamePrefix,
-    customStyles
+    customStyles,
+    icon
 }: Props) {
 
     const onChangeMulti = (selected: any) => {
@@ -40,20 +59,15 @@ export default function DropdownSelect({
     }
 
     const DropdownIndicator = (p: any) => {
-
-        if (isSearch) {
-            return (
-                <components.DropdownIndicator {...p}>
-                    <MdSearch className={`text-gray-600 w-5 h-5`} />
-                </components.DropdownIndicator>
-            );
-        }
         return (
             <components.DropdownIndicator {...p}>
-                <MdArrowDropDown
-                    className={`transform transition-all duration-700 text-gray-600 w-5 h-5 p-0 ${p.isFocused && !p.hasValue ? "" : "-rotate-90"
-                        }`}
-                />
+                {!icon ?
+                    <MdArrowDropDown
+                        className={`transform transition-all duration-700 text-gray-600 w-5 h-5 p-0 ${p.isFocused && !p.hasValue ? "" : "-rotate-90"
+                            }`}
+                    /> : 
+                    <Icon className="transform transition-all duration-700 text-gray-600 w-5 h-5 p-0" icon={icon} />
+                }
             </components.DropdownIndicator>
         );
     };
@@ -73,7 +87,7 @@ export default function DropdownSelect({
             options={options}
             isMulti={isMulti}
             value={value}
-            className={`font-semibold ${className}`}
+            className={`w-full font-semibold ${className}`}
             aria-errormessage={error}
             classNamePrefix={classNamePrefix}
             isDisabled={isDisabled}

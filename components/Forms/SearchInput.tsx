@@ -40,23 +40,23 @@ export const SearchInput = ({ filter, setFilter, placeholder, className, classNa
                 onSubmit={handleSubmit}
                 className="flex my-auto items-center relative w-full mr-6 text-gray-500 focus-within:text-primary"
             >
-                <div className='relative'>
+                <div className='relative w-full'>
+                    {filter ? (
+                        <MdClose
+                            onClick={handleDeleteSearch}
+                            className={`w-6 h-6 absolute z-20 left-3 top-4 hover:cursor-pointer text-gray-5 ${classNamePrefix}`}
+                        />
+
+                    ) :
+                        <MdSearch onClick={handleSubmit} className={`w-6 h-6 absolute z-20 left-3 top-4 hover:cursor-pointer text-gray-5 ${classNamePrefix}`} />
+                    }
                     <input
                         type='text'
                         placeholder={placeholder}
                         onChange={handleChange}
                         ref={inputRef}
-                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${className}`}
+                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-10 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${className}`}
                     />
-                    {filter ? (
-                        <MdClose
-                            onClick={handleDeleteSearch}
-                            className={`w-6 h-6 absolute z-20 right-4 top-4 hover:cursor-pointer ${classNamePrefix}`}
-                        />
-
-                    ) :
-                        <MdSearch onClick={handleSubmit} className={`w-6 h-6 absolute z-20 right-4 top-4 hover:cursor-pointer ${classNamePrefix}`} />
-                    }
                 </div>
                 {/* <button
                     type="submit"

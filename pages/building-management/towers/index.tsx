@@ -84,7 +84,7 @@ const Towers = (props: any) => {
           </div>
 
           <main className='relative tracking-wide text-left text-boxdark-2'>
-            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
+            <div className="w-full flex flex-1 flex-col gap-2.5 lg:gap-6">
               {/* cards */}
               <CardTower items={""} />
 

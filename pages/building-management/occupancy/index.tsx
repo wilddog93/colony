@@ -9,6 +9,115 @@ import Modal from '../../../components/Modal';
 import { motion } from "framer-motion";
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+
+const stylesSelect = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const stylesSelectStatus = {
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const sortOpt = [
+  { value: "A-Z", label: "A-Z" },
+  { value: "Z-A", label: "Z-A" },
+]
+
+const towerOpt = [
+  { value: "Tower A", label: "Tower A" },
+  { value: "Tower B", label: "Tower B" },
+  { value: "Tower C", label: "Tower C" },
+  { value: "Tower D", label: "Tower D" },
+  { value: "Tower F", label: "Tower F" },
+  { value: "Tower F", label: "Tower F" },
+]
+
+const statusOpt = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Non - Active" },
+]
 
 type Props = {}
 
@@ -44,7 +153,7 @@ const Occupancy = (props: any) => {
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='shadow-bottom sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
+          <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
             <div className='w-full flex items-center justify-between py-3'>
               <button
                 aria-controls='sidebar'
@@ -85,39 +194,68 @@ const Occupancy = (props: any) => {
             </div>
           </div>
 
-          <main className='relative tracking-wide text-left text-boxdark-2 mt-5'>
-            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 focus-within:text-primary">
+          <main className='tracking-wide text-left text-boxdark-2 mt-5'>
+            <div className="w-full flex flex-col focus-within:text-primary">
               {/* content */}
               <div className='w-full flex flex-col lg:flex-row gap-2.5'>
-                <div>
+                <div className='w-full lg:w-1/2'>
                   <SearchInput
-                    className=''
+                    className='w-full text-sm rounded-xl'
                     classNamePrefix=''
                     filter={search}
                     setFilter={setSearch}
                     placeholder='Search...'
                   />
                 </div>
-                <div>
-                  <Button
-                    onClick={() => (isOpenModal ? onClose() : onOpen())}
-                    className=''
-                    type="button"
-                    variant='primary'
-                  >
-                    Open
-                  </Button>
-                  {/* <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="save-button"
-                    onClick={() => (isOpenModal ? onClose() : onOpen())}
-                  >
-                    Launch modal
-                  </motion.button> */}
+                <div className='w-full lg:w-1/2 flex flex-col lg:flex-row items-center gap-2'>
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='Sorts...'
+                    options={sortOpt}
+                    icon='MdSort'
+                  />
+
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={towers}
+                    onChange={setTowers}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-4/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='Towers...'
+                    options={towerOpt}
+                    icon='MdPlace'
+                  />
+
+                  <DropdownSelect
+                    customStyles={stylesSelectStatus}
+                    value={status}
+                    onChange={setStatus}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-4/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='All Status...'
+                    options={statusOpt}
+                    icon=''
+                  />
                 </div>
-                <div></div>
-                <div></div>
               </div>
             </div>
           </main>
@@ -131,6 +269,7 @@ const Occupancy = (props: any) => {
         <ModalHeader
           className='p-4 border-b-2 border-gray mb-3'
           isClose={true}
+          onClick={onClose}
         >
           <h3 className='text-lg font-semibold'>Modal Header</h3>
         </ModalHeader>
@@ -140,6 +279,7 @@ const Occupancy = (props: any) => {
         <ModalFooter
           className='p-4 border-t-2 border-gray mt-3'
           isClose={true}
+          onClick={onClose}
         ></ModalFooter>
       </Modal>
     </DefaultLayout>

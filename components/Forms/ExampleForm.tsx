@@ -262,9 +262,9 @@ const ExampleForm = (props: any) => {
                             instanceId='1'
                             isDisabled={false}
                             isMulti={false}
-                            isSearch=""
                             placeholder='Unit'
                             options={genderOpt}
+                            icon=''
                         />
 
                         {genderError && <div className='mt-1 text-danger'>{genderError}</div>}
