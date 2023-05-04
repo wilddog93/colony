@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdLocalHotel } from 'react-icons/md';
-import Button from '../../../components/Button/Button';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import Modal from '../../../components/Modal';
+import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
+import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
+import { MdAdd, MdArrowRightAlt, MdChevronLeft, MdCleaningServices, MdClose, MdLocalHotel } from 'react-icons/md';
+import Button from '../../../../components/Button/Button';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import Modal from '../../../../components/Modal';
 
-import { motion } from "framer-motion";
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
+import { useRouter } from 'next/router';
 
 type Props = {}
 
 const Tenants = (props: any) => {
+  const router = useRouter();
+  const { pathname, query } = router
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState(false);
@@ -31,9 +34,9 @@ const Tenants = (props: any) => {
       title="Colony"
       header="Building Management"
       head="Tenant Management"
-      logo="../image/logo/logo-icon.svg"
-      images="../image/logo/building-logo.svg"
-      userDefault="../image/user/user-01.png"
+      logo="../../image/logo/logo-icon.svg"
+      images="../../image/logo/building-logo.svg"
+      userDefault="../../image/user/user-01.png"
       description=""
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
@@ -41,7 +44,7 @@ const Tenants = (props: any) => {
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className='shadow-bottom sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
-            <div className='w-full flex items-center justify-between py-3'>
+            <div className='w-full flex items-center justify-between py-3 lg:hidden'>
               <button
                 aria-controls='sidebar'
                 aria-expanded={sidebarOpen}
@@ -53,7 +56,22 @@ const Tenants = (props: any) => {
               >
                 <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
               </button>
-              <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Tenant Management</h3>
+            </div>
+
+            <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                onClick={() => router.back()}
+                variant='secondary-outline'
+                key={'1'}
+              >
+                <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                <div className='flex flex-col gap-1 items-start'>
+                  <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Tenant List</h3>
+                  <span className='text-gray-4 font-semibold text-lg'>322 Registered User</span>
+                </div>
+              </Button>
             </div>
 
             <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
@@ -130,6 +148,8 @@ const Tenants = (props: any) => {
           </main>
         </div>
       </div>
+
+      {/* modal example */}
       <Modal
         size=''
         onClose={onClose}

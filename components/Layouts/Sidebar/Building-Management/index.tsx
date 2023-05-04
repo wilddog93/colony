@@ -153,22 +153,22 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                 </li>
                                 {/* <!-- Menu Item Dashboard --> */}
 
-                                {/* <!-- Menu Item Tenant Management --> */}
+                                {/* <!-- Menu Item Occupancy --> */}
                                 <li>
                                     <Link
-                                        href='/building-management/tenants'
+                                        href='/building-management/occupancy'
                                     >
                                         <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/tenants" || pathname.includes('tenants') &&
+                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/occupancy" || pathname.includes('occupancy') &&
                                                 'bg-primary dark:bg-primary'
                                                 }`}
                                         >
                                             <MdOutlinePeopleAlt className='w-5 h-5' />
-                                            Tenant Management
+                                            Occupancy
                                         </div>
                                     </Link>
                                 </li>
-                                {/* <!-- Menu Item Tenant Management --> */}
+                                {/* <!-- Menu Item Occupancy --> */}
 
                                 {/* <!-- Menu Item Tower Management --> */}
                                 <li>
