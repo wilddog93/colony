@@ -8,6 +8,9 @@ import Modal from '../../../../components/Modal';
 
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
+import DefaultTables from '../../../../components/tables/layouts/DefaultTables';
+import RowSelectTables from '../../../../components/tables/layouts/RowSelectTables';
+import Tables from '../../../../components/tables/layouts/Tables';
 
 type Props = {}
 
@@ -20,6 +23,8 @@ const Tenants = (props: any) => {
   const [sort, setSort] = useState(false);
   const [towers, setTowers] = useState(null);
   const [status, setStatus] = useState(null);
+
+  const [loading, setLoading] = useState(false)
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -111,7 +116,7 @@ const Tenants = (props: any) => {
           </div>
 
           <main className='relative tracking-wide text-left text-boxdark-2'>
-            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 focus-within:text-primary">
+            <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
               <div className='w-full flex flex-col lg:flex-row gap-2.5'>
                 <div>
@@ -144,6 +149,12 @@ const Tenants = (props: any) => {
                 <div></div>
                 <div></div>
               </div>
+
+              {/* table */}
+              <Tables loading={loading} setLoading={setLoading} />
+              {/* <div className='w-full mt-5'>
+                <RowSelectTables />
+              </div> */}
             </div>
           </main>
         </div>
