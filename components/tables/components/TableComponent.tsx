@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, useEffect, useMemo, useState } from "react"
+import { HTMLProps, InputHTMLAttributes, useEffect, useMemo, useRef, useState } from "react"
 import { Column, FilterFn, SortingFn, Table, sortingFns } from "@tanstack/react-table";
 import { RankingInfo, compareItems, rankItem } from "@tanstack/match-sorter-utils";
 
@@ -147,3 +147,27 @@ export const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
     // Provide an alphanumeric fallback for when the item ranks are equal
     return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir
 };
+
+// checkbox
+export const IndeterminateCheckbox = ({
+    indeterminate,
+    className = '',
+    ...rest
+}: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) => {
+    const ref = useRef<HTMLInputElement>(null!)
+
+    useEffect(() => {
+        if (typeof indeterminate === 'boolean') {
+            ref.current.indeterminate = !rest.checked && indeterminate
+        }
+    }, [ref, indeterminate])
+
+    return (
+        <input
+            type="checkbox"
+            ref={ref}
+            className={className + ' cursor-pointer'}
+            {...rest}
+        />
+    )
+}

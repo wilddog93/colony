@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { SetStateAction, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import Modal from '../../../components/Modal';
@@ -10,6 +10,11 @@ import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalCompone
 import { useRouter } from 'next/router';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import { ColumnDef } from '@tanstack/react-table';
+import { ColumnItems } from '../../../components/tables/components/makeData';
+import { formatPhone } from '../../../utils/useHooks/useFunction';
+import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
 
 const stylesSelect = {
   indicatorsContainer: (provided: any) => ({
@@ -125,6 +130,8 @@ const Occupancy = (props: any) => {
   const router = useRouter();
   const { pathname, query } = router;
 
+  const [loading, setLoading] = useState(false);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState(false);
@@ -133,11 +140,225 @@ const Occupancy = (props: any) => {
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
+  const [details, setDetails] = useState<ColumnItems>();
+  const [isSelectedRow, setIsSelectedRow] = useState({});
 
+  // form modal
   const onClose = () => setIsOpenModal(false);
   const onOpen = () => setIsOpenModal(true);
 
-  console.log(isOpenModal, 'open')
+  // detail modal
+  const onCloseDetail = () => {
+    setDetails(undefined)
+    setIsOpenDetail(false)
+  };
+  const onOpenDetail = (items: any) => {
+    setDetails(items)
+    setIsOpenDetail(true)
+  };
+
+  // detail modal
+  const onCloseDelete = () => {
+    setDetails(undefined)
+    setIsOpenDelete(false)
+  };
+  const onOpenDelete = (items: any) => {
+    setDetails(items)
+    setIsOpenDelete(true)
+  };
+
+  console.log(isSelectedRow, 'selected')
+
+  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+    () => [
+      {
+        accessorKey: 'fullName',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      },
+      {
+        accessorKey: 'email',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: () => <span>Email</span>,
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'phoneNumber',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {formatPhone("+", info.getValue())}
+            </div>
+          )
+        },
+        header: 'Phone',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'owned',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Owned',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'occupied',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Occ',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'date',
+        cell: info => {
+          let date = info.getValue()
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {date}
+            </div>
+          )
+        },
+        header: 'Date Added',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'id',
+        cell: ({ row, getValue }) => {
+          console.log(row.original, "info")
+          return (
+            <div onClick={() => onOpenDelete(row.original)} className='w-full text-center flex items-center justify-center cursor-pointer'>
+              <MdDelete className='text-gray-5 w-4 h-4' />
+            </div>
+          )
+        },
+        header: props => {
+          return (
+            <div>Actions</div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      }
+    ],
+    []
+  );
+
+  const column = useMemo<ColumnDef<ColumnItems>[]>(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => {
+          return (
+            <IndeterminateCheckbox
+              {...{
+                checked: table?.getIsAllRowsSelected(),
+                indeterminate: table?.getIsSomeRowsSelected(),
+                onChange: table?.getToggleAllRowsSelectedHandler()
+              }}
+            />
+          )
+        },
+        cell: ({ row }) => (
+          <div className="px-1">
+            <IndeterminateCheckbox
+              {...{
+                checked: row.getIsSelected(),
+                disabled: !row.getCanSelect(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler()
+              }}
+            />
+          </div>
+        ),
+      },
+      {
+        header: 'Name',
+        footer: props => props.column.id,
+        columns: [
+          {
+            accessorKey: 'firstName',
+            cell: info => info.getValue(),
+            footer: props => props.column.id,
+          },
+          {
+            accessorFn: row => row.lastName,
+            id: 'lastName',
+            cell: info => info.getValue(),
+            header: () => <span>Last Name</span>,
+            footer: props => props.column.id,
+          },
+        ],
+      },
+      {
+        header: 'Info',
+        footer: props => props.column.id,
+        columns: [
+          {
+            accessorKey: 'age',
+            header: () => 'Age',
+            footer: props => props.column.id,
+          },
+          {
+            header: 'More Info',
+            columns: [
+              {
+                accessorKey: 'visits',
+                header: () => <span>Visits</span>,
+                footer: props => props.column.id,
+              },
+              {
+                accessorKey: 'status',
+                header: 'Status',
+                footer: props => props.column.id,
+              },
+              {
+                accessorKey: 'progress',
+                header: 'Profile Progress',
+                footer: props => props.column.id,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    []
+  );
 
   return (
     <DefaultLayout
@@ -197,7 +418,7 @@ const Occupancy = (props: any) => {
           <main className='tracking-wide text-left text-boxdark-2 mt-5'>
             <div className="w-full flex flex-col">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5'>
+              <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
                 <div className='w-full lg:w-1/2'>
                   <SearchInput
                     className='w-full text-sm rounded-xl'
@@ -258,7 +479,13 @@ const Occupancy = (props: any) => {
                 </div>
               </div>
 
-              <RowSelectTables />
+              <SelectTables
+                loading={loading}
+                setLoading={setLoading}
+                columns={column}
+                setIsSelected={setIsSelectedRow}
+                isSelected={isSelectedRow}
+              />
             </div>
           </main>
         </div>
