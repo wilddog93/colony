@@ -9,6 +9,7 @@ import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
 
 const stylesSelect = {
   indicatorsContainer: (provided: any) => ({
@@ -256,6 +257,8 @@ const Occupancy = (props: any) => {
                   />
                 </div>
               </div>
+
+              <RowSelectTables />
             </div>
           </main>
         </div>

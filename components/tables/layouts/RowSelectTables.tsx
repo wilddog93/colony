@@ -1,5 +1,6 @@
 import React, { HTMLProps } from 'react'
 
+
 import { makeData, Person } from '../components/makeDatas'
 
 import {
@@ -101,6 +102,7 @@ export default function RowSelectTables() {
     const [data, setData] = React.useState(() => makeData(100000))
     const refreshData = () => setData(() => makeData(100000))
 
+    // @ts-ignore
     const table = useReactTable({
         data,
         columns,
