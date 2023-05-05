@@ -11,8 +11,61 @@ import { useRouter } from 'next/router';
 import DefaultTables from '../../../../components/tables/layouts/DefaultTables';
 import RowSelectTables from '../../../../components/tables/layouts/RowSelectTables';
 import Tables from '../../../../components/tables/layouts/Tables';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 
 type Props = {}
+
+const sortOpt = [
+  { value: "A-Z", label: "A-Z" },
+  { value: "Z-A", label: "Z-A" },
+];
+
+const stylesSelect = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
 
 const Tenants = (props: any) => {
   const router = useRouter();
@@ -21,9 +74,6 @@ const Tenants = (props: any) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState(false);
-  const [towers, setTowers] = useState(null);
-  const [status, setStatus] = useState(null);
-
   const [loading, setLoading] = useState(false);
 
   const [pages, setPages] = useState(1);
@@ -52,7 +102,7 @@ const Tenants = (props: any) => {
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='shadow-bottom sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
+          <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
             <div className='w-full flex items-center justify-between py-3 lg:hidden'>
               <button
                 aria-controls='sidebar'
@@ -122,51 +172,45 @@ const Tenants = (props: any) => {
           <main className='relative tracking-wide text-left text-boxdark-2'>
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5'>
-                <div>
+              <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
+                <div className='w-full lg:w-3/4'>
                   <SearchInput
-                    className=''
+                    className='w-full text-sm rounded-xl'
                     classNamePrefix=''
                     filter={search}
                     setFilter={setSearch}
                     placeholder='Search...'
                   />
                 </div>
-                <div>
-                  <Button
-                    onClick={() => (isOpenModal ? onClose() : onOpen())}
-                    className=''
-                    type="button"
-                    variant='primary'
-                  >
-                    Open
-                  </Button>
-                  {/* <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="save-button"
-                    onClick={() => (isOpenModal ? onClose() : onOpen())}
-                  >
-                    Launch modal
-                  </motion.button> */}
+                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='Sorts...'
+                    options={sortOpt}
+                    icon='MdSort'
+                  />
                 </div>
-                <div></div>
-                <div></div>
               </div>
 
               {/* table */}
-              <Tables 
-                loading={loading} 
-                setLoading={setLoading} 
+              <Tables
+                loading={loading}
+                setLoading={setLoading}
                 page={pages}
                 setPage={setPages}
                 limit={limit}
                 setLimit={setLimit}
                 totalPage={pageCount}
               />
-              <div className='w-full mt-5'>
-                <DefaultTables />
-              </div>
             </div>
           </main>
         </div>

@@ -234,20 +234,20 @@ function Tables(props: any) {
         setPageCount(table.getPageCount())
     }, [table.getPageCount()])
 
-    // console.log(pageIndex, activePage, 'page')
+    console.log(table.getState(), 'page')
 
     return (
         <div className="grid grid-cols-1">
-            <div className='col-span-1 overflow-x-auto p-4'>
+            <div className='col-span-1 p-4 overflow-x-auto'>
                 {/* <div>
-                <DebouncedInput
-                    value={globalFilter ?? ''}
-                    onChange={value => setGlobalFilter(String(value))}
-                    className="p-2 font-lg shadow border border-block"
-                    placeholder="Search all columns..."
-                />
-            </div> */}
-                <table className='w-full table-auto overflow-hidden border border-gray-5 rounded-lg'>
+                    <DebouncedInput
+                        value={globalFilter ?? ''}
+                        onChange={value => setGlobalFilter(String(value))}
+                        className="p-2 font-lg shadow border border-gray rounded-lg bg-white focus:ring-2 focus:ring-primary"
+                        placeholder="Search..."
+                    />
+                </div> */}
+                <table className='w-full table-auto overflow-hidden rounded-xl shadow-md'>
                     {/* <thead className='text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'> */}
                     <thead className='divide-y divide-gray-4 text-xs text-graydark bg-gray tracking-wide'>
                         {table.getHeaderGroups().map(headerGroup => (
@@ -306,26 +306,25 @@ function Tables(props: any) {
                             )
                         })}
                     </tbody>
-                    <tfoot>
+                    <tfoot className='border-t border-gray-4 text-gray-5 font-normal'>
                         <tr className='w-full'>
                             <th colSpan={table.getVisibleLeafColumns().length}>
                                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
                                     <div className="flex flex-row items-center text-xs">
                                         {table.getPageCount() >= 1 ? (
                                             <>
-                                                <div className="mr-10 font-bold text-gray-500">
-                                                    Show <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong>
+                                                <div className="mr-10 text-gray-500 font-normal">
                                                     Rows per page
                                                 </div>
 
                                                 <select
-                                                    className="focus:outline-none bg-transparent text-gray-500"
+                                                    className="focus:outline-none bg-transparent text-gray-500 font-normal"
                                                     value={table.getState().pagination.pageSize}
                                                     onChange={(e) => table.setPageSize(Number(e.target.value))}
                                                 >
                                                     {
                                                         [5, 10, 20, 30].map((pageSize, idx) => (
-                                                            <option key={idx} value={pageSize}>Show {pageSize}</option>
+                                                            <option key={idx} value={pageSize}>{pageSize}</option>
                                                         ))
                                                     }
                                                 </select>
@@ -338,6 +337,9 @@ function Tables(props: any) {
                                     </div>
 
                                     <div className="flex items-center justify-between">
+                                        <div className="text-xs text-gray-500 font-normal">
+                                            <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong> pages
+                                        </div>
                                         <div className="">
                                             <Button
                                                 variant="primary-outline"
@@ -392,14 +394,14 @@ function Tables(props: any) {
                 </table>
 
 
-                <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
+                {/* <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
                 <div>
                     <button onClick={() => rerender()}>Force Rerender</button>
                 </div>
                 <div>
                     <button onClick={() => refreshData()}>Refresh Data</button>
                 </div>
-                <pre>{JSON.stringify(table.getState(), null, 2)}</pre>
+                <pre>{JSON.stringify(table.getState(), null, 2)}</pre> */}
             </div>
         </div>
     )
