@@ -26,7 +26,7 @@ import {
     compareItems,
 } from '@tanstack/match-sorter-utils'
 
-import { makeData, Person } from '../components/makeData'
+import { makeData, ColumnItems } from '../components/makeData'
 import { DebouncedInput, Filter, fuzzyFilter, fuzzySort } from '../components/TableComponent';
 import { MdArrowDownward, MdArrowDropDown, MdArrowDropUp, MdArrowUpward, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { NextRouter, useRouter } from 'next/router';
@@ -48,6 +48,10 @@ function Tables(props: any) {
         setLoading,
         setIsSelected,
         totalPages,
+        page,
+        setPages,
+        limit,
+        setLimit,
         total
     } = props;
 
@@ -64,80 +68,63 @@ function Tables(props: any) {
     )
     const [globalFilter, setGlobalFilter] = useState('')
 
-    const columns = useMemo<ColumnDef<Person, any>[]>(
+    const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
         () => [
             {
-                id: 'name',
-                header: () => <div className='w-full text-center px-6 py-4'>Name</div>,
+                accessorKey: 'firstName',
+                cell: info => {
+                    return info.getValue()
+                },
                 footer: props => props.column.id,
-                columns: [
-                    {
-                        accessorKey: 'firstName',
-                        cell: info => {
-                            return info.getValue()
-                        },
-                        footer: props => props.column.id,
-                        // enableSorting: false,
-                        enableColumnFilter: false,
-                        size: 10,
-                        minSize: 10
-                    },
-                    {
-                        accessorFn: (row) => {
-                            return (row.lastName)
-                        },
-                        id: 'lastName',
-                        cell: info => info.getValue(),
-                        header: () => <span>Last Name</span>,
-                        footer: props => props.column.id,
-                        enableColumnFilter: false
-                    },
-                    {
-                        accessorFn: row => `${row.firstName} ${row.lastName}`,
-                        id: 'fullName',
-                        header: 'Full Name',
-                        cell: info => info.getValue(),
-                        footer: props => props.column.id,
-                        // filterFn: 'fuzzy',
-                        // sortingFn: fuzzySort,
-                        enableColumnFilter: false
-                    },
-                ],
+                // enableSorting: false,
+                enableColumnFilter: false,
+                size: 10,
+                minSize: 10
             },
             {
-                id: 'info',
-                header: () => <div className='w-full text-center px-6 py-4'>Info</div>,
+                accessorFn: (row) => {
+                    return (row.lastName)
+                },
+                id: 'lastName',
+                cell: info => info.getValue(),
+                header: () => <span>Last Name</span>,
                 footer: props => props.column.id,
-                columns: [
-                    {
-                        accessorKey: 'age',
-                        header: () => 'Age',
-                        footer: props => props.column.id,
-                        size: 50,
-                        enableColumnFilter: false
-                    },
-                    {
-                        id: 'moreInfo',
-                        header: () => <div className='w-full text-center px-6 py-4'>More Info</div>,
-                        columns: [
-                            {
-                                accessorKey: 'visits',
-                                header: () => <span>Visits</span>,
-                                footer: props => props.column.id,
-                            },
-                            {
-                                accessorKey: 'status',
-                                header: 'Status',
-                                footer: props => props.column.id,
-                            },
-                            {
-                                accessorKey: 'progress',
-                                header: 'Profile Progress',
-                                footer: props => props.column.id,
-                            },
-                        ],
-                    },
-                ],
+                enableColumnFilter: false
+            },
+            {
+                accessorFn: row => `${row.firstName} ${row.lastName}`,
+                id: 'fullName',
+                header: 'Full Name',
+                cell: info => info.getValue(),
+                footer: props => props.column.id,
+                // filterFn: 'fuzzy',
+                // sortingFn: fuzzySort,
+                enableColumnFilter: false
+            },
+            {
+                accessorKey: 'visits',
+                header: () => <span>Visits</span>,
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'status',
+                header: 'Status',
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'progress',
+                header: 'Profile Progress',
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'age',
+                header: () => 'Age',
+                footer: props => props.column.id,
+                size: 50,
+                enableColumnFilter: false
             },
         ],
         []
@@ -159,7 +146,7 @@ function Tables(props: any) {
     //     [columns, loading]
     // );
 
-    const [data, setData] = React.useState<Person[]>(() => makeData(50000))
+    const [data, setData] = React.useState<ColumnItems[]>(() => makeData(50000))
     const refreshData = () => setData(old => makeData(50000))
 
     const table = useReactTable({
@@ -197,12 +184,10 @@ function Tables(props: any) {
 
     // Custom Pagination
     const filterPages = useCallback((visiblePages: any, totalPages: any) => {
-        // console.log(visiblePages, "filter pages", totalPages)
         return visiblePages.filter((page: any) => page <= totalPages);
     }, [])
 
     const getVisiblePages = useCallback((page: any, total: any) => {
-        // console.log(page, "visible", total)
         if (total < 7) {
             return filterPages([1, 2, 3, 4, 5, 6], total);
         } else {
@@ -222,34 +207,23 @@ function Tables(props: any) {
 
     const changePage = useCallback((p: any) => {
         setLoading(true);
-        console.log(p, activePage, 'cek')
-        // if (p === activePage) {
-        //     return;
-        // }
+        if (p === pageIndex - 1) {
+            return;
+        }
         const vps = getVisiblePages(p, pageCount);
         setVisiblePages(filterPages(vps, pageCount));
-        // onPageChange(p - 1);
-        // gotoPage(p - 1)
         table.setPageIndex(p - 1)
-        // console.log(p, 'arg p')
     }, [pageCount])
 
     useEffect(() => {
-        // @ts-ignore
-        changePage(1)
-    }, [changePage])
+        setVisiblePages(getVisiblePages(pageIndex, pageCount))
+    }, [pageIndex, pageCount])
 
     useEffect(() => {
         setTimeout(() => {
             setLoading(false);
         }, 1000);
     }, [loading]);
-
-    // console.log(table.getPageCount(), 'page count')
-    // console.log(table.getPageOptions(), 'page options')
-    // console.log(table.getState().pagination.pageIndex, 'page options')
-    // console.log(table.getPaginationRowModel(), 'page 1')
-    console.log(table.getVisibleLeafColumns().length, 'page visible')
 
     useEffect(() => {
         setPageIndex(table.getState().pagination.pageIndex);
@@ -281,7 +255,7 @@ function Tables(props: any) {
                                 {headerGroup.headers.map(header => {
                                     // console.log(header.column.getIsSorted() as string, 'header')
                                     return (
-                                        <th className='px-4 py-1.5' key={header.id} colSpan={header.colSpan} style={{
+                                        <th className='px-4 py-6' key={header.id} colSpan={header.colSpan} style={{
                                             width: header.getSize()
                                         }}>
                                             {header.isPlaceholder ? null : (
@@ -332,148 +306,91 @@ function Tables(props: any) {
                             )
                         })}
                     </tbody>
-                </table>
-                <div className="h-2" />
-                {/* <div className="flex items-center gap-2">
-                    <button
-                        className="border rounded p-1"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        {'<<'}
-                    </button>
-                    <button
-                        className="border rounded p-1"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        {'<'}
-                    </button>
-                    <button
-                        className="border rounded p-1"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        {'>'}
-                    </button>
-                    <button
-                        className="border rounded p-1"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        {'>>'}
-                    </button>
-                    <span className="flex items-center gap-1">
-                        <div>Page</div>
-                        <strong>
-                            {table.getState().pagination.pageIndex + 1} of{' '}
-                            {table.getPageCount()}
-                        </strong>
-                    </span>
-                    <span className="flex items-center gap-1">
-                        | Go to page:
-                        <input
-                            type="number"
-                            defaultValue={table.getState().pagination.pageIndex + 1}
-                            onChange={e => {
-                                const page = e.target.value ? Number(e.target.value) - 1 : 0
-                                table.setPageIndex(page)
-                            }}
-                            className="border p-1 rounded w-16"
-                        />
-                    </span>
-                    <select
-                        value={table.getState().pagination.pageSize}
-                        onChange={e => {
-                            table.setPageSize(Number(e.target.value))
-                        }}
-                    >
-                        {[10, 20, 30, 40, 50].map(pageSize => (
-                            <option key={pageSize} value={pageSize}>
-                                Show {pageSize}
-                            </option>
-                        ))}
-                    </select>
-                </div> */}
+                    <tfoot>
+                        <tr className='w-full'>
+                            <th colSpan={table.getVisibleLeafColumns().length}>
+                                <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
+                                    <div className="flex flex-row items-center text-xs">
+                                        {table.getPageCount() >= 1 ? (
+                                            <>
+                                                <div className="mr-10 font-bold text-gray-500">
+                                                    Show <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong>
+                                                    Rows per page
+                                                </div>
 
-                <div className='w-full'>
-                    <div className="py-4 px-4 my-4 w-full flex flex-row justify-between items-center leading-relaxed">
-                        <div className="flex flex-row items-center text-xs">
-                            {table.getPageCount() >= 1 ? (
-                                <>
-                                    <div className="mr-10 font-bold text-gray-500">
-                                        Show <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong>
-                                        Rows per page
+                                                <select
+                                                    className="focus:outline-none bg-transparent text-gray-500"
+                                                    value={table.getState().pagination.pageSize}
+                                                    onChange={(e) => table.setPageSize(Number(e.target.value))}
+                                                >
+                                                    {
+                                                        [5, 10, 20, 30].map((pageSize, idx) => (
+                                                            <option key={idx} value={pageSize}>Show {pageSize}</option>
+                                                        ))
+                                                    }
+                                                </select>
+                                            </>
+                                        ) : (
+                                            <div className="mr-10 text-sm">
+                                                Search : data not found...
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <select
-                                        className="focus:outline-none bg-transparent text-gray-500"
-                                        value={table.getState().pagination.pageSize}
-                                        onChange={(e) => table.setPageSize(Number(e.target.value))}
-                                    >
-                                        {
-                                            [5, 10, 20, 30].map((pageSize, idx) => (
-                                                <option key={idx} value={pageSize}>Show {pageSize}</option>
-                                            ))
-                                        }
-                                    </select>
-                                </>
-                            ) : (
-                                <div className="mr-10 text-sm">
-                                    Search : data not found...
+                                    <div className="flex items-center justify-between">
+                                        <div className="">
+                                            <Button
+                                                variant="primary-outline"
+                                                className={"px-1.5 py-1.5 rounded-sm border-0"}
+                                                onClick={() => {
+                                                    if (activePage === 1) return;
+                                                    changePage(activePage - 1);
+                                                }}
+                                                disabled={table.getState().pagination.pageIndex === 0}
+                                            >
+                                                <MdChevronLeft className="h-5 w-5" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex text-gray-500 text-xs">
+                                            {visiblePages.map((p: any, index: any, array: any) => {
+                                                return (
+                                                    <button
+                                                        key={index}
+                                                        className={`focus:outline-none px-1.5 py-1.5 flex justify-center items-center text-center rounded w-8 border mx-1 ${activePage === p
+                                                            ? "border-primary  bg-gray text-primary font-bold"
+                                                            : "border-gray bg-white"
+                                                            }`}
+                                                        onClick={() => changePage(p)}
+                                                    >
+                                                        {array[index - 1] + 2 < p ? `${p}` : p}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <div className="flex justify-end items-center">
+                                            <div className="">
+                                                <Button
+                                                    variant="primary-outline"
+                                                    className={"px-1.5 py-1.5 rounded-sm border-0"}
+                                                    onClick={() => {
+                                                        if (activePage === pageCount) return;
+                                                        changePage(activePage + 1);
+                                                    }}
+                                                    // disabled={activePage === pageCount}
+                                                    disabled={!table.getCanNextPage()}
+                                                >
+                                                    <MdChevronRight className="h-5 w-5" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="">
-                                <Button
-                                    variant="primary-outline"
-                                    className={"px-1.5 py-1.5 rounded-sm border-0"}
-                                    onClick={() => {
-                                        if (activePage === 1) return;
-                                        changePage(activePage - 1);
-                                    }}
-                                    disabled={table.getState().pagination.pageIndex + 1 === 1}
-                                >
-                                    <MdChevronLeft className="h-5 w-5" />
-                                </Button>
-                            </div>
-                            <div className="flex text-gray-500 text-xs">
-                                {visiblePages.map((p: any, index: any, array: any) => {
-                                    return (
-                                        <button
-                                            key={index}
-                                            className={`focus:outline-none px-1.5 py-1.5 flex justify-center items-center text-center rounded w-8 border mx-1 ${activePage === p
-                                                ? "border-primary  bg-gray text-primary font-bold"
-                                                : "border-gray bg-white"
-                                                }`}
-                                            onClick={() => changePage(p)}
-                                        >
-                                            {array[index - 1] + 2 < p ? `${p}` : p}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <div className="flex justify-end items-center">
-                                <div className="">
-                                    <Button
-                                        variant="primary-outline"
-                                        className={"px-1.5 py-1.5 rounded-sm border-0"}
-                                        onClick={() => {
-                                            if (activePage === pageCount) return;
-                                            changePage(activePage + 1);
-                                        }}
-                                        // disabled={activePage === pageCount}
-                                        disabled={!table.getCanNextPage()}
-                                    >
-                                        <MdChevronRight className="h-5 w-5" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+
 
                 <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
                 <div>

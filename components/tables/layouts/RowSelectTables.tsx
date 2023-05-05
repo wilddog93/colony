@@ -1,6 +1,6 @@
 import React, { HTMLProps } from 'react'
 
-import { makeData, Person } from '../components/makeData'
+import { makeData, ColumnItems } from '../components/makeData'
 
 import {
     Column,
@@ -19,7 +19,7 @@ export default function RowSelectTables() {
     const [rowSelection, setRowSelection] = React.useState({})
     const [globalFilter, setGlobalFilter] = React.useState('')
 
-    const columns = React.useMemo<ColumnDef<Person>[]>(
+    const columns = React.useMemo<ColumnDef<ColumnItems>[]>(
         () => [
             {
                 id: 'select',

@@ -26,7 +26,7 @@ import {
     compareItems,
 } from '@tanstack/match-sorter-utils'
 
-import { makeData, Person } from '../components/makeData'
+import { makeData, ColumnItems } from '../components/makeData'
 import { DebouncedInput, Filter, fuzzyFilter, fuzzySort } from '../components/TableComponent';
 
 declare module '@tanstack/table-core' {
@@ -46,7 +46,7 @@ function DefaultTables() {
     )
     const [globalFilter, setGlobalFilter] = useState('')
 
-    const columns = useMemo<ColumnDef<Person, any>[]>(
+    const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
         () => [
             {
                 header: 'Name',
@@ -120,7 +120,7 @@ function DefaultTables() {
         []
     )
 
-    const [data, setData] = React.useState<Person[]>(() => makeData(50000))
+    const [data, setData] = React.useState<ColumnItems[]>(() => makeData(50000))
     const refreshData = () => setData(old => makeData(50000))
 
     const table = useReactTable({

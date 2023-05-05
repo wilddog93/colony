@@ -24,7 +24,11 @@ const Tenants = (props: any) => {
   const [towers, setTowers] = useState(null);
   const [status, setStatus] = useState(null);
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -151,10 +155,18 @@ const Tenants = (props: any) => {
               </div>
 
               {/* table */}
-              <Tables loading={loading} setLoading={setLoading} />
-              {/* <div className='w-full mt-5'>
-                <RowSelectTables />
-              </div> */}
+              <Tables 
+                loading={loading} 
+                setLoading={setLoading} 
+                page={pages}
+                setPage={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                totalPage={pageCount}
+              />
+              <div className='w-full mt-5'>
+                <DefaultTables />
+              </div>
             </div>
           </main>
         </div>
