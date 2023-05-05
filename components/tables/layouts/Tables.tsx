@@ -52,7 +52,8 @@ function Tables(props: any) {
         setPages,
         limit,
         setLimit,
-        total
+        total,
+        columns
     } = props;
 
     const router: NextRouter = useRouter();
@@ -68,90 +69,28 @@ function Tables(props: any) {
     )
     const [globalFilter, setGlobalFilter] = useState('')
 
-    const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
-        () => [
-            {
-                accessorKey: 'firstName',
-                cell: info => {
-                    return info.getValue()
+    const columnsTable = useMemo(() =>
+        loading
+            ? columns.map((column: any) => ({
+                ...column,
+                Cell: () => {
+                    return (
+                        <div className="px-1 py-3 animate-pulse flex items-center justify-center">
+                            <div className="h-2 w-20 bg-gray-200 rounded"></div>
+                        </div>
+                    );
                 },
-                footer: props => props.column.id,
-                // enableSorting: false,
-                enableColumnFilter: false,
-                size: 10,
-                minSize: 10
-            },
-            {
-                accessorFn: (row) => {
-                    return (row.lastName)
-                },
-                id: 'lastName',
-                cell: info => info.getValue(),
-                header: () => <span>Last Name</span>,
-                footer: props => props.column.id,
-                enableColumnFilter: false
-            },
-            {
-                accessorFn: row => `${row.firstName} ${row.lastName}`,
-                id: 'fullName',
-                header: 'Full Name',
-                cell: info => info.getValue(),
-                footer: props => props.column.id,
-                // filterFn: 'fuzzy',
-                // sortingFn: fuzzySort,
-                enableColumnFilter: false
-            },
-            {
-                accessorKey: 'visits',
-                header: () => <span>Visits</span>,
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'status',
-                header: 'Status',
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'progress',
-                header: 'Profile Progress',
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'age',
-                header: () => 'Age',
-                footer: props => props.column.id,
-                size: 50,
-                enableColumnFilter: false
-            },
-        ],
-        []
-    )
-
-    // const columnsTable = useMemo(() =>
-    //     loading
-    //         ? columns.map((column) => ({
-    //             ...column,
-    //             Cell: () => {
-    //                 return (
-    //                     <div className="px-1 py-3 animate-pulse flex items-center justify-center">
-    //                         <div className="h-2 w-20 bg-gray-200 rounded"></div>
-    //                     </div>
-    //                 );
-    //             },
-    //         }))
-    //         : columns,
-    //     [columns, loading]
-    // );
+            }))
+            : columns,
+        [columns, loading]
+    );
 
     const [data, setData] = React.useState<ColumnItems[]>(() => makeData(50000))
     const refreshData = () => setData(old => makeData(50000))
 
     const table = useReactTable({
         data,
-        columns,
+        columns: columnsTable,
         filterFns: {
             fuzzy: fuzzyFilter,
         },

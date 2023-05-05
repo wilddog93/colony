@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
@@ -6,7 +6,6 @@ import Button from '../../../components/Button/Button';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import Modal from '../../../components/Modal';
 
-import { motion } from "framer-motion";
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';

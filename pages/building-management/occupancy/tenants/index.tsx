@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdChevronLeft, MdCleaningServices, MdClose, MdLocalHotel } from 'react-icons/md';
@@ -12,6 +12,8 @@ import DefaultTables from '../../../../components/tables/layouts/DefaultTables';
 import RowSelectTables from '../../../../components/tables/layouts/RowSelectTables';
 import Tables from '../../../../components/tables/layouts/Tables';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import { ColumnDef } from '@tanstack/react-table';
+import { ColumnItems } from '../../../../components/tables/components/makeData';
 
 type Props = {}
 
@@ -85,6 +87,68 @@ const Tenants = (props: any) => {
 
   const onClose = () => setIsOpenModal(false);
   const onOpen = () => setIsOpenModal(true);
+
+  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+    () => [
+      {
+        accessorKey: 'firstName',
+        cell: info => {
+          return info.getValue()
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      },
+      {
+        accessorFn: (row) => {
+          return (row.lastName)
+        },
+        id: 'lastName',
+        cell: info => info.getValue(),
+        header: () => <span>Last Name</span>,
+        footer: props => props.column.id,
+        enableColumnFilter: false
+      },
+      {
+        accessorFn: row => `${row.firstName} ${row.lastName}`,
+        id: 'fullName',
+        header: 'Full Name',
+        cell: info => info.getValue(),
+        footer: props => props.column.id,
+        // filterFn: 'fuzzy',
+        // sortingFn: fuzzySort,
+        enableColumnFilter: false
+      },
+      {
+        accessorKey: 'visits',
+        header: () => <span>Visits</span>,
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'progress',
+        header: 'Profile Progress',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'age',
+        header: () => 'Age',
+        footer: props => props.column.id,
+        size: 50,
+        enableColumnFilter: false
+      },
+    ],
+    []
+  )
 
   console.log(isOpenModal, 'open')
 
@@ -172,7 +236,7 @@ const Tenants = (props: any) => {
           <main className='relative tracking-wide text-left text-boxdark-2'>
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
+              <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
                 <div className='w-full lg:w-3/4'>
                   <SearchInput
                     className='w-full text-sm rounded-xl'
@@ -210,6 +274,7 @@ const Tenants = (props: any) => {
                 limit={limit}
                 setLimit={setLimit}
                 totalPage={pageCount}
+                columns={columns}
               />
             </div>
           </main>
