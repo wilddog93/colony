@@ -195,7 +195,7 @@ const Occupancy = (props: any) => {
           </div>
 
           <main className='tracking-wide text-left text-boxdark-2 mt-5'>
-            <div className="w-full flex flex-col focus-within:text-primary">
+            <div className="w-full flex flex-col">
               {/* content */}
               <div className='w-full flex flex-col lg:flex-row gap-2.5'>
                 <div className='w-full lg:w-1/2'>
