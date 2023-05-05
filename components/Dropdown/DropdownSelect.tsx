@@ -63,7 +63,7 @@ export default function DropdownSelect({
             <components.DropdownIndicator {...p}>
                 {!icon ?
                     <MdArrowDropDown
-                        className={`transform transition-all duration-700 text-gray-600 w-5 h-5 p-0 ${p.isFocused && !p.hasValue ? "" : "-rotate-90"
+                        className={`transform transition-all duration-700 text-gray-600 w-5 h-5 p-0 ${p.isFocused && !p.hasValue ? "-rotate-90" : ""
                             }`}
                     /> : 
                     <Icon className="transform transition-all duration-700 text-gray-600 w-5 h-5 p-0" icon={icon} />

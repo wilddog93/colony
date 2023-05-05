@@ -86,7 +86,7 @@ const FloorUnit = (props: Props) => {
                     isMulti={false}
                     placeholder='Unit'
                     options={options}
-                    icon='MdSearch'
+                    icon=''
                 />
 
                 <div className='border border-t w-full border-gray mt-3'></div>
