@@ -86,6 +86,7 @@ const Tenants = (props: any) => {
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [details, setDetails] = useState<ColumnItems>();
 
   // form modal
@@ -100,6 +101,16 @@ const Tenants = (props: any) => {
   const onOpenDetail = (items: any) => {
     setDetails(items)
     setIsOpenDetail(true)
+  };
+
+  // detail modal
+  const onCloseDelete = () => {
+    setDetails(undefined)
+    setIsOpenDelete(false)
+  };
+  const onOpenDelete = (items: any) => {
+    setDetails(items)
+    setIsOpenDelete(true)
   };
 
   console.log(details, 'details')
@@ -192,7 +203,7 @@ const Tenants = (props: any) => {
         cell: ({ row, getValue }) => {
           console.log(row.original, "info")
           return (
-            <div className='w-full text-center flex items-center justify-center'>
+            <div onClick={() => onOpenDelete(row.original)} className='w-full text-center flex items-center justify-center cursor-pointer'>
               <MdDelete className='text-gray-5 w-4 h-4' />
             </div>
           )
@@ -407,12 +418,34 @@ const Tenants = (props: any) => {
       {/* delete modal */}
       <Modal
         size='small'
-        onClose={onCloseDetail}
-        isOpen={isOpenDetail}
+        onClose={onCloseDelete}
+        isOpen={isOpenDelete}
       >
-        <div className='w-full'>
-            <h3>Are you sure to delete tenant data ?</h3>
+        <ModalHeader
+          className='p-4 border-b-2 border-gray mb-3'
+          isClose={true}
+          onClick={onCloseDelete}
+        >
+          <h3 className='text-lg font-semibold'>Delete Tenant</h3>
+        </ModalHeader>
+        <div className='w-full my-5 px-4'>
+          <h3>Are you sure to delete tenant data ?</h3>
         </div>
+
+        <ModalFooter
+          className='p-4 border-t-2 border-gray'
+          isClose={true}
+          onClick={onCloseDelete}
+        >
+          <Button
+            variant="primary"
+            className="rounded-md text-sm"
+            type="button"
+            onClick={onCloseDelete}
+          >
+            Yes, Delete it!
+          </Button>
+        </ModalFooter>
       </Modal>
     </DefaultLayout>
   )
