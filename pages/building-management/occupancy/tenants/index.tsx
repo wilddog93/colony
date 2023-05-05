@@ -202,32 +202,10 @@ const Tenants = (props: any) => {
                 type="button"
                 className='rounded-lg text-sm font-semibold py-3'
                 onClick={() => console.log("klik")}
-                variant='primary-outline'
-                key={'1'}
-              >
-                <span className='hidden lg:inline-block'>Amenities</span>
-                <MdLocalHotel className='w-4 h-4' />
-              </Button>
-
-              <Button
-                type="button"
-                className='rounded-lg text-sm font-semibold py-3'
-                onClick={() => console.log("klik")}
-                variant='primary-outline'
-                key={'2'}
-              >
-                <span className='hidden lg:inline-block'>Facilities</span>
-                <MdCleaningServices className='w-4 h-4' />
-              </Button>
-
-              <Button
-                type="button"
-                className='rounded-lg text-sm font-semibold py-3'
-                onClick={() => console.log("klik")}
                 variant='primary'
                 key={'3'}
               >
-                <span className='hidden lg:inline-block'>New Tower</span>
+                <span className='hidden lg:inline-block'>New Tenant</span>
                 <MdAdd className='w-4 h-4' />
               </Button>
             </div>
