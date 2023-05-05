@@ -1,12 +1,21 @@
-import { faker } from '@faker-js/faker'
+import { DateModule, PhoneModule, faker } from '@faker-js/faker'
 
 export type ColumnItems = {
+    id: any
+    fullName: string
     firstName: string
     lastName: string
+    gender: string
     age: number
+    email: string,
+    phoneNumber: string | number
+    images: string
+    owned: number
+    occupied: number
+    date: string | number
     visits: number
     progress: number
-    status: 'relationship' | 'complicated' | 'single'
+    status: 'active' | 'inactive'
     subRows?: ColumnItems[]
 }
 
@@ -20,16 +29,29 @@ const range = (len: number) => {
 
 const newPerson = (): ColumnItems => {
     return {
+        id: faker.datatype.uuid(),
+        fullName: `${faker.name.firstName()} ${faker.name.lastName()}`,
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
+        images: faker.image.dataUri(),
+        email: `${faker.name.firstName()}@gmail.com`,
+        gender: faker.helpers.shuffle<ColumnItems['gender']>([
+            'male',
+            'female',
+            'any',
+        ])[0]!,
+        phoneNumber: faker.phone.phoneNumber('6281#########'),
+        date: faker.date.recent().toDateString(),
+        owned: faker.datatype.number(40),
+        occupied: faker.datatype.number(100),
         age: faker.datatype.number(40),
         visits: faker.datatype.number(1000),
         progress: faker.datatype.number(100),
         status: faker.helpers.shuffle<ColumnItems['status']>([
-            'relationship',
-            'complicated',
-            'single',
+            'active',
+            'inactive',
         ])[0]!,
+
     }
 }
 

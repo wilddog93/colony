@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { ReactNode, useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdChevronLeft, MdCleaningServices, MdClose, MdLocalHotel } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import Modal from '../../../../components/Modal';
@@ -14,6 +14,7 @@ import Tables from '../../../../components/tables/layouts/Tables';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
 import { ColumnItems } from '../../../../components/tables/components/makeData';
+import { formatPhone } from '../../../../utils/useHooks/useFunction';
 
 type Props = {}
 
@@ -84,16 +85,35 @@ const Tenants = (props: any) => {
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [details, setDetails] = useState<ColumnItems>();
 
+  // form modal
   const onClose = () => setIsOpenModal(false);
   const onOpen = () => setIsOpenModal(true);
+
+  // detail modal
+  const onCloseDetail = () => {
+    setDetails(undefined)
+    setIsOpenDetail(false)
+  };
+  const onOpenDetail = (items: any) => {
+    setDetails(items)
+    setIsOpenDetail(true)
+  };
+
+  console.log(details, 'details')
 
   const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
     () => [
       {
-        accessorKey: 'firstName',
+        accessorKey: 'fullName',
         cell: info => {
-          return info.getValue()
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
         },
         footer: props => props.column.id,
         // enableSorting: false,
@@ -102,53 +122,95 @@ const Tenants = (props: any) => {
         minSize: 10
       },
       {
-        accessorFn: (row) => {
-          return (row.lastName)
+        accessorKey: 'email',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
         },
-        id: 'lastName',
-        cell: info => info.getValue(),
-        header: () => <span>Last Name</span>,
-        footer: props => props.column.id,
-        enableColumnFilter: false
-      },
-      {
-        accessorFn: row => `${row.firstName} ${row.lastName}`,
-        id: 'fullName',
-        header: 'Full Name',
-        cell: info => info.getValue(),
-        footer: props => props.column.id,
-        // filterFn: 'fuzzy',
-        // sortingFn: fuzzySort,
-        enableColumnFilter: false
-      },
-      {
-        accessorKey: 'visits',
-        header: () => <span>Visits</span>,
+        header: () => <span>Email</span>,
         footer: props => props.column.id,
         enableColumnFilter: false,
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: 'phoneNumber',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {formatPhone("+", info.getValue())}
+            </div>
+          )
+        },
+        header: 'Phone',
         footer: props => props.column.id,
         enableColumnFilter: false,
       },
       {
-        accessorKey: 'progress',
-        header: 'Profile Progress',
+        accessorKey: 'owned',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Owned',
         footer: props => props.column.id,
         enableColumnFilter: false,
       },
       {
-        accessorKey: 'age',
-        header: () => 'Age',
+        accessorKey: 'occupied',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Occ',
         footer: props => props.column.id,
-        size: 50,
-        enableColumnFilter: false
+        enableColumnFilter: false,
       },
+      {
+        accessorKey: 'date',
+        cell: info => {
+          let date = info.getValue()
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {date}
+            </div>
+          )
+        },
+        header: 'Date Added',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'id',
+        cell: ({ row, getValue }) => {
+          console.log(row.original, "info")
+          return (
+            <div className='w-full text-center flex items-center justify-center'>
+              <MdDelete className='text-gray-5 w-4 h-4' />
+            </div>
+          )
+        },
+        header: props => {
+          return (
+            <div>Actions</div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      }
     ],
     []
-  )
+  );
 
   console.log(isOpenModal, 'open')
 
@@ -201,7 +263,7 @@ const Tenants = (props: any) => {
               <Button
                 type="button"
                 className='rounded-lg text-sm font-semibold py-3'
-                onClick={() => console.log("klik")}
+                onClick={onOpen}
                 variant='primary'
                 key={'3'}
               >
@@ -268,6 +330,7 @@ const Tenants = (props: any) => {
         <ModalHeader
           className='p-4 border-b-2 border-gray mb-3'
           isClose={true}
+          onClick={onClose}
         >
           <h3 className='text-lg font-semibold'>Modal Header</h3>
         </ModalHeader>
@@ -277,7 +340,79 @@ const Tenants = (props: any) => {
         <ModalFooter
           className='p-4 border-t-2 border-gray mt-3'
           isClose={true}
+          onClick={onClose}
         ></ModalFooter>
+      </Modal>
+
+      {/* detail modal */}
+      <Modal
+        size='small'
+        onClose={onCloseDetail}
+        isOpen={isOpenDetail}
+      >
+        <ModalHeader
+          className='p-6 mb-3'
+          isClose={true}
+          onClick={onCloseDetail}
+        >
+          <div className="flex-flex-col gap-2">
+            <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
+            <div className="flex items-center gap-2">
+              <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
+              <p className='text-sm text-gray-5 capitalize flex items-center'>
+                <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
+                {details?.gender || ""}
+              </p>
+            </div>
+          </div>
+        </ModalHeader>
+        <div className="w-full px-6 mb-5">
+          <div className='w-full flex gap-2.5'>
+            <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
+
+            <div className='w-full flex flex-col gap-2 text-gray-5'>
+              <h3 className='font-bold text-lg'>{details?.fullName}</h3>
+              <div className='flex items-center gap-2'>
+                <MdEmail />
+                {details?.email}
+              </div>
+              <div className='flex items-center gap-2'>
+                <MdPhone />
+                {formatPhone("+", details?.phoneNumber)}
+              </div>
+              <div className='flex items-center gap-2'>
+                <MdCalendarToday />
+                {details?.date}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
+          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+            <div className='text-lg text-primary'>Unit_05</div>
+            <p>Occupant</p>
+          </div>
+          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+            <div className='text-lg text-primary'>Unit_12</div>
+            <p>Occupant & Owner</p>
+          </div>
+          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+            <div className='text-lg text-primary'>Unit_55</div>
+            <p>Owner</p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* delete modal */}
+      <Modal
+        size='small'
+        onClose={onCloseDetail}
+        isOpen={isOpenDetail}
+      >
+        <div className='w-full'>
+            <h3>Are you sure to delete tenant data ?</h3>
+        </div>
       </Modal>
     </DefaultLayout>
   )
