@@ -73,8 +73,8 @@ const SignUp = (props: Props) => {
     const [phone, setPhone] = useState("");
 
     return (
-        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-1000 ease-linear ${isOpen ? 'translate-y-0 lg:translate-x-0' : 'translate-y-full lg:translate-x-full opacity-0'}`}>
-            <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between pr-6 pb-6 lg:pl-10 gap-2.5 overflow-auto'>
+        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-1000 ease-linear ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
+            <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between pr-6 pb-6 lg:pl-10 gap-2.5 overflow-auto text-gray-5'>
                 <div className='sticky top-0 z-50 w-full bg-white flex flex-col gap-2 py-2 mb-4'>
                     <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Register</h2>
                     <p className='text-gray-5 text-sm sm:text-title-sm'>Sign your informations to continue</p>
@@ -143,7 +143,7 @@ const SignUp = (props: Props) => {
                                     buttonClass='shadow-default'
                                     placeholder='1 123 4567 8910'
                                     inputClass='form-control py-4 px-6 border border-stroke focus:border-primary rounded-lg text-sm lg:text-md'
-                                    dropdownClass='right-0'
+                                    dropdownClass='right-0 text-sm lg:text-md'
                                     searchClass='focus:border-primary selected:border-primary'
                                     containerClass='flex flex-row-reverse'
                                 />
