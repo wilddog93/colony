@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import AuthLayout from '../../components/Layouts/AuthLayouts';
-import SingIn from '../../components/Forms/SingIn';
+import SignIn from '../../components/Forms/authentication/SignIn';
+import SignUp from '../../components/Forms/authentication/SignUp';
 
 const Authentication = () => {
-    const [signIn, setSignIn] = useState(true);
-    const [signUp, setSignUp] = useState(false);
+    const [signIn, setSignIn] = useState(false);
+    const [signUp, setSignUp] = useState(true);
 
     const handleChangePage = () => {
         if (!signIn) {
@@ -23,12 +24,12 @@ const Authentication = () => {
             logo="../image/logo/logo-icon.svg"
             description=""
         >
-            <div className="w-full h-full p-10">
+            <div className="w-full h-full p-6 lg:p-10">
                 {/* <Breadcrumb pageName='Sign In' /> */}
-                <div className='relative w-full h-full flex flex-wrap items-center rounded-xl bg-white shadow-default'>
-                    <SingIn onChangePage={handleChangePage} isOpen={signIn} />
+                <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default'>
+                    <SignIn onChangePage={handleChangePage} isOpen={signIn} />
 
-                    <div className='hidden w-full h-full xl:block xl:w-1/2 transition-transform duration-500 border bg-primary text-white border-stroke rounded-xl translate-x-0'>
+                    <div className={`hidden w-full lg:w-1/2 h-full xl:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-xl translate-x-0 ease-linear ${signIn ? "translate-x-full" : ""}`}>
                         <div className='w-full h-2/3 flex flex-col py-17.5 px-26 justify-center'>
                             <div className='flex flex-col justify-center'>
                                 <h2 className='text-title-md2 lg:text-title-lg mb-5'>
@@ -44,6 +45,9 @@ const Authentication = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* sign up */}
+                    <SignUp onChangePage={handleChangePage} isOpen={signUp} />
                 </div>
                 {/* <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark'>
         </div> */}
