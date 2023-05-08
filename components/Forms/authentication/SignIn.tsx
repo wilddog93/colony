@@ -59,7 +59,7 @@ const SignIn = (props: Props) => {
                     </div>
 
                     <div className='mb-5 sm:mb-20 text-center lg:text-left'>
-                        <Link href={"forgor-password"} className='w-full font-bold text-sm sm:text-title-sm mb-5'>
+                        <Link href={"/authentication/forgot-password"} className='w-full font-bold text-sm sm:text-title-sm mb-5 hover:text-graydark'>
                             Forgot your Password?
                         </Link>
                     </div>
