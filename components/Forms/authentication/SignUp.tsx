@@ -4,6 +4,8 @@ import { MdEmail, MdLockOutline, MdOutlineCalendarToday, MdOutlineEmail, MdOutli
 import Button from '../../Button/Button'
 import DropdownSelect from '../../Dropdown/DropdownSelect'
 import PhoneInput from 'react-phone-input-2';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 type Props = {
     onChangePage: () => void
@@ -69,6 +71,7 @@ const SignUp = (props: Props) => {
     const { onChangePage, isOpen } = props;
     const [gender, setGender] = useState(null);
     const [phone, setPhone] = useState("");
+    const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-500 ease-linear ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
@@ -129,7 +132,7 @@ const SignUp = (props: Props) => {
 
                     <div className="w-full flex flex-col lg:flex-row mb-0 lg:mb-3 gap-2">
                         <div className='w-full lg:w-1/2 mb-3 lg:mb-0'>
-                            <label htmlFor='name' className='mb-2.5 block font-medium text-black dark:text-white'>
+                            <label htmlFor='phone' className='mb-2.5 block font-medium text-black dark:text-white'>
                                 Phone Number *
                             </label>
                             <div className='text-gray-5'>
@@ -142,28 +145,32 @@ const SignUp = (props: Props) => {
                                     placeholder='1 123 4567 8910'
                                     inputClass='form-control py-4 px-6 border border-stroke focus:border-primary rounded-lg text-sm lg:text-md'
                                     dropdownClass='right-0 text-sm lg:text-md'
-                                    searchClass='focus:border-primary selected:border-primary'
+                                    searchClass='p-2 outline-none sticky z-10 bg-white top-0 shadow-2'
                                     containerClass='flex flex-row-reverse'
+                                    enableSearch
+                                // disableSearchIcon
                                 />
                             </div>
                         </div>
 
                         <div className='w-full lg:w-1/2 mb-3 lg:mb-0'>
-                            <label htmlFor='date' className='mb-2.5 block font-medium text-black dark:text-white'>
-                                Date of birth *
-                            </label>
-                            <div className='relative'>
-                                <input
-                                    id='date'
-                                    type='date'
-                                    placeholder='Date of birth'
-                                    className='text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                                />
-
-                                <label htmlFor="date">
+                            <label className='w-full text-gray-5 overflow-hidden'>
+                                <span className='mb-2.5 block font-medium text-black dark:text-white'>Date of Birth *</span>
+                                <div className='relative'>
+                                    <DatePicker
+                                        selected={dateOfBirth}
+                                        onChange={setDateOfBirth}
+                                        placeholderText={"Date of birth"}
+                                        // customInput={<ExampleCustomInput />}
+                                        dropdownMode="select"                              
+                                        peekNextMonth
+                                        showMonthDropdown
+                                        showYearDropdown
+                                        className='text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                                    />
                                     <MdOutlineCalendarToday className='absolute right-4 top-4 h-6 w-6 text-gray-5' />
-                                </label>
-                            </div>
+                                </div>
+                            </label>
                         </div>
                     </div>
 

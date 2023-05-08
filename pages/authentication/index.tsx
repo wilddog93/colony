@@ -32,12 +32,12 @@ const Authentication = () => {
     }, [tabs]);
 
     const signIn = useMemo(() => {
-        let res = true;
+        let res;
         res = tabs === "sign-in"
         return res
     }, [tabs])
     const signUp = useMemo(() => {
-        let res = true;
+        let res;
         res = tabs === "sign-up"
         return res
     }, [tabs])

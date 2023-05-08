@@ -1145,7 +1145,7 @@
   margin-right: 6px;
 }
 
-.react-tel-input .country-list .search {
+/* .react-tel-input .country-list .search {
   z-index: 2;
   position: sticky;
   top: 0;
@@ -1166,7 +1166,7 @@
   margin-left: 6px;
   padding: 3px 8px 5px;
   outline: none;
-}
+} */
 
 .react-tel-input .country-list .no-entries-message {
   padding: 7px 10px 11px;
