@@ -6,6 +6,7 @@ import '../styles/globals.css'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
+import NextNProgress from "nextjs-progressbar";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);
@@ -28,6 +29,13 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   )
   return (
     <Provider store={store}>
+      <NextNProgress
+        color="#5F59F7"
+        startPosition={0.3}
+        stopDelayMs={200}
+        height={4}
+        showOnShallow={true}
+      />
       <Component {...props} />
       <ToastContainer position='top-right' limit={500} />
     </Provider>
