@@ -86,6 +86,8 @@ td,
   padding: 0.25rem;
 } */
 
+@import url('react-phone.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
