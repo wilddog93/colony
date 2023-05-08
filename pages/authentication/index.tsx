@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
+import React, { SetStateAction, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import AuthLayout from '../../components/Layouts/AuthLayouts';
 import SignIn from '../../components/Forms/authentication/SignIn';
 import SignUp from '../../components/Forms/authentication/SignUp';
+import { useRouter } from 'next/router';
 
 const Authentication = () => {
-    const [signIn, setSignIn] = useState(true);
-    const [signUp, setSignUp] = useState(false);
+    const router = useRouter();
+    const { query, pathname } = router;
+
+    const [tabs, setTabs] = useState("sign-in");
 
     const handleChangePage = () => {
-        if (!signIn) {
-            setSignIn(true);
-            setSignUp(false);
+        if(tabs === "sign-in") {
+            setTabs("sign-up")
             return;
         }
-        setSignIn(false);
-        setSignUp(true);
+        setTabs("sign-in")
     };
+
+    // query
+    useEffect(() => {
+        query?.page ? setTabs(query?.page as SetStateAction<string>) : setTabs("");
+    }, [query]);
+
+    // set state query
+    useEffect(() => {
+        let qr = {};
+        if (tabs) qr = { ...qr, page: tabs };
+        router.replace({ pathname, query: qr });
+    }, [tabs]);
+
+    const signIn = useMemo(() => (tabs === "sign-in"), [tabs])
+    const signUp = useMemo(() => (tabs === "sign-up"), [tabs])
 
     return (
         <AuthLayout
