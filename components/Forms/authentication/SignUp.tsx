@@ -214,12 +214,6 @@ const SignUp = (props: Props) => {
                         </div>
                     </div>
 
-                    <div className='mb-5 sm:mb-20 text-center lg:text-left'>
-                        <Link href={"forgor-password"} className='w-full font-bold text-sm sm:text-title-sm mb-5'>
-                            Forgot your Password?
-                        </Link>
-                    </div>
-
                     <div className='w-full flex flex-col gap-2 items-center mb-5'>
                         <div className='w-full'>
                             <Button

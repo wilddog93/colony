@@ -9,7 +9,7 @@ const Authentication = () => {
     const router = useRouter();
     const { query, pathname } = router;
 
-    const [tabs, setTabs] = useState("sign-in");
+    const [tabs, setTabs] = useState("");
 
     const handleChangePage = () => {
         if(tabs === "sign-in") {
@@ -21,7 +21,7 @@ const Authentication = () => {
 
     // query
     useEffect(() => {
-        query?.page ? setTabs(query?.page as SetStateAction<string>) : setTabs("");
+        query?.page ? setTabs(query?.page as SetStateAction<string>) : setTabs("sign-in");
     }, [query]);
 
     // set state query
@@ -31,8 +31,16 @@ const Authentication = () => {
         router.replace({ pathname, query: qr });
     }, [tabs]);
 
-    const signIn = useMemo(() => (tabs === "sign-in"), [tabs])
-    const signUp = useMemo(() => (tabs === "sign-up"), [tabs])
+    const signIn = useMemo(() => {
+        let res = true;
+        res = tabs === "sign-in"
+        return res
+    }, [tabs])
+    const signUp = useMemo(() => {
+        let res = true;
+        res = tabs === "sign-up"
+        return res
+    }, [tabs])
 
     return (
         <AuthLayout

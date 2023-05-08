@@ -55,7 +55,7 @@ const ForgotPassword = (props: Props) => {
                                             variant="primary"
                                             className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90'
                                         >
-                                            Reset Password
+                                            Send Email
                                         </Button>
                                     </div>
                                 </div>
