@@ -5,8 +5,8 @@ import SignIn from '../../components/Forms/authentication/SignIn';
 import SignUp from '../../components/Forms/authentication/SignUp';
 
 const Authentication = () => {
-    const [signIn, setSignIn] = useState(false);
-    const [signUp, setSignUp] = useState(true);
+    const [signIn, setSignIn] = useState(true);
+    const [signUp, setSignUp] = useState(false);
 
     const handleChangePage = () => {
         if (!signIn) {
