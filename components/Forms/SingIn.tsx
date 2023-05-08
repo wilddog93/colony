@@ -41,7 +41,7 @@ const SingIn = (props: Props) => {
                         </div>
                     </div>
 
-                    <div className='mb-5 sm:mb-15'>
+                    <div className='mb-5 sm:mb-20'>
                         <label className='mb-2.5 block font-medium text-black dark:text-white'>
                             Password *
                         </label>
@@ -56,22 +56,35 @@ const SingIn = (props: Props) => {
                         </div>
                     </div>
 
-                    <div className='mb-5 sm:mb-15'>
-                        <Link href={"forgor-password"} className='font-bold text-sm sm:text-title-sm mb-5'>
+                    <div className='mb-5 sm:mb-20 text-center lg:text-left'>
+                        <Link href={"forgor-password"} className='w-full font-bold text-sm sm:text-title-sm mb-5'>
                             Forgot your Password?
                         </Link>
                     </div>
 
                     <div className='w-full flex flex-col sm:flex-row gap-2 items-center mb-5'>
-                        <Button
-                            type='submit'
-                            variant="primary"
-                            className='cursor-pointer rounded-lg border py-4 px-4 text-white transition hover:bg-opacity-90'
-                        >
-                            Sign In
-                        </Button>
+                        <div className='w-full max-w-max flex lg:hidden flex-col items-center lg:items-start'>
+                            <p>Don’t have any account?</p>
+                            <Button
+                                type="button"
+                                className='text-primary px-0 py-0 text-left'
+                                onClick={onChangePage}
+                            >
+                                Sign Up Here
+                            </Button>
+                        </div>
 
-                        <div className='w-full max-w-max flex flex-col items-start'>
+                        <div className='w-full lg:max-w-max'>
+                            <Button
+                                type='submit'
+                                variant="primary"
+                                className='w-full lg:max-w-max cursor-pointer rounded-lg border py-4 sm:py-2 px-4 text-white transition hover:bg-opacity-90'
+                            >
+                                Sign In
+                            </Button>
+                        </div>
+
+                        <div className='hidden w-full max-w-max lg:flex flex-col items-start'>
                             <p>Don’t have any account?</p>
                             <Button
                                 type="button"
