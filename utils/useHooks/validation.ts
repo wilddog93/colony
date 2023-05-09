@@ -15,12 +15,21 @@ export const validation = {
         return null;
     },
     password: (value: any) => {
+        let capital = value.match(/[A-Z]/g)?.length === 1
+        let number = value.match(/\d/g)?.length >= 1
         if (!value) {
             return 'Password is required';
+        }
+        if(!capital) {
+            return "Password must be in 1 Capital letter."
+        }
+        if(!number) {
+            return "Password must be in 1 Number."
         }
         if (value.length < 6) {
             return 'Password must be 6 characters or more';
         }
+
         return null;
     },
     select: (value: any) => {

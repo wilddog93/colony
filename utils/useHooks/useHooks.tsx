@@ -11,6 +11,7 @@ interface UseInputResult {
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     reset: () => void;
+    setError: Dispatch<SetStateAction<string | null>>;
 }
 
 interface UseInputOptions {
@@ -41,6 +42,7 @@ const useInput = ({
         value,
         setValue,
         error,
+        setError,
         onChange: handleChange,
         reset,
     };
@@ -53,6 +55,7 @@ interface UseTextAreaResult {
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     reset: () => void;
+    setError: Dispatch<SetStateAction<string | null>>;
 }
 
 interface UseTextAreaOptions {
@@ -83,6 +86,7 @@ const useTextArea = ({
         value,
         setValue,
         error,
+        setError,
         onChange: handleChange,
         reset,
     };
@@ -95,6 +99,7 @@ interface UseCheckboxResult {
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     reset: () => void;
+    setError: Dispatch<SetStateAction<string | null>>;
 }
 
 interface UseCheckboxOptions {
@@ -125,6 +130,7 @@ const useCheckbox = ({
         checked,
         setChecked,
         error,
+        setError,
         onChange: handleChange,
         reset,
     };
@@ -137,6 +143,7 @@ interface UseRadioInputResult {
     error: string | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     reset: () => void;
+    setError: Dispatch<SetStateAction<string | null>>;
 }
 
 interface UseRadioInputOptions {
@@ -167,6 +174,7 @@ const useRadioInput = (
         value,
         setValue,
         error,
+        setError,
         onChange: handleChange,
         reset,
     };
@@ -179,6 +187,7 @@ interface UseSelectResult<T extends OptionTypeBase> {
     error: string | null;
     onChange: (newValue: T | null) => void;
     reset: () => void;
+    setError: Dispatch<SetStateAction<string | null>>;
 }
 
 interface UseSelectOptions<T extends OptionTypeBase> extends SelectProps<T> {
@@ -213,6 +222,7 @@ const useSelect = <T extends OptionTypeBase>({
         // @ts-ignore
         options,
         error,
+        setError,
         onChange: handleChange,
         reset,
     };

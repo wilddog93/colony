@@ -27,13 +27,13 @@ const DefaultLayout = ({ children, title, description, logo, header, head, image
             {/* <!-- ===== Page Wrapper Start ===== --> */}
             <div className='flex h-screen overflow-hidden'>
                 {/* <!-- ===== Sidebar Start ===== --> */}
-                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} />
+                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={""} />
                 {/* <!-- ===== Sidebar End ===== --> */}
 
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} userDefault={userDefault} />
+                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} userDefault={userDefault} token={""} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}

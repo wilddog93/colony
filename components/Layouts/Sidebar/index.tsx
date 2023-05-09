@@ -9,10 +9,12 @@ type Props = {
     setSidebarOpen: any,
     logo: any,
     title: any,
-    images: string
+    images: string,
+    token: string
 }
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, logo, title, images }: Props) => {
+const Sidebar = (props: any) => {
+    const { sidebarOpen, setSidebarOpen, logo, title, images, token } = props;
     const location = useRouter()
     const { pathname, query } = location
 

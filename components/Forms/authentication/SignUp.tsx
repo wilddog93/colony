@@ -75,13 +75,13 @@ const SignUp = (props: Props) => {
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-500 ease-linear ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
-            <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between pr-6 pb-6 lg:pl-10 gap-2.5 overflow-auto text-gray-5'>
-                <div className='sticky top-0 z-50 w-full bg-white flex flex-col gap-2 py-2 mb-4'>
+            <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between gap-2.5 text-gray-5 py-6 lg:10'>
+                <div className=' w-full flex flex-col gap-2 p-6 xl:pl-10'>
                     <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Register</h2>
                     <p className='text-gray-5 text-sm sm:text-title-sm'>Sign your informations to continue</p>
                 </div>
 
-                <form>
+                <form className='relative overflow-auto p-6 xl:px-10'>
                     <div className='mb-3'>
                         <label htmlFor='name' className='mb-2.5 block font-medium text-black dark:text-white'>
                             Contact Name *
