@@ -6,7 +6,7 @@ import SignUp from '../../components/Forms/authentication/SignUp';
 import { useRouter } from 'next/router';
 import { MdArrowBack } from 'react-icons/md';
 import Button from '../../components/Button/Button';
-import CustomTooltip from '../../components/Tooltip/CustomTooltip';
+import Tooltip from '../../components/Tooltip/Tooltip';
 
 const Authentication = () => {
     const router = useRouter();
@@ -68,7 +68,7 @@ const Authentication = () => {
                             </div>
                         </div>
                         <div className='w-full h-1/3 flex flex-col justify-end py-10 px-26 tracking-wider'>
-                            <div className='w-full p-6 rounded-lg bg-[#111f2c3d] text-sm'>
+                            <div className='w-full p-6 rounded-lg bg-[#111F2C3D] text-sm'>
                                 <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. In tempore debitis beatae doloremque eveniet eos sunt repellendus accusantium ab distinctio.</p>
                             </div>
                         </div>
@@ -84,26 +84,16 @@ const Authentication = () => {
                                 </div>
                             </div>
                         </div> */}
-                        <div className='w-full absolute z-1 inset-y-1/2 left-0 bg-graydark'>
-                            {/* <Button
-                                type="button"
-                                className='text-gray-4'
+                        <div className={`absolute z-40 inset-y-1/2 ${signIn ? "right-0" : ""}`}>
+                            <Tooltip 
+                                className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${signIn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
+                                classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
+                                tooltip={!signIn ? "Go to Sign in" : "Go to Sign up please"}
+                                color='light'
+                                position={!signIn ? "right" : "left"}
                             >
-                                <MdArrowBack className='w-10 h-10' />
-                            </Button> */}
-                            {/* <CustomTooltip 
-                                trigger={<MdArrowBack className='w-10 h-10' />}
-                                placement='top'
-                                className='w-full max-w-max absolute -top-10'
-                            >
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Click me
-                                </button>
-                            </CustomTooltip> */}
-                            <div className="tooltip">
-                                <MdArrowBack className='w-10 h-10' />
-                                <span data-position="left" className="tooltiptext text-sm rounded-md">Tooltip text</span>
-                            </div>
+                                <MdArrowBack onClick={handleChangePage} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${signIn ? "" : "rotate-180"}`} />
+                            </Tooltip>
                         </div>
                     </div>
 

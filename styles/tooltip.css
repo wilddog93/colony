@@ -2,8 +2,6 @@
 .tooltip {
     position: relative;
     display: inline-block;
-    width: 100%;
-    max-width: max-content;
 
     /* If you want dots under the hoverable text */
 }
@@ -11,14 +9,9 @@
 /* Tooltip text */
 .tooltip .tooltiptext {
     visibility: hidden;
-    width: 100%;
-    min-width: 120px;
     text-align: center;
-    padding: 5px 0;
     position: absolute;
-    z-index: 1;
     opacity: 0;
-    padding: .15rem;
     transition: .5s ease-in-out;
     transform: translate(var(--tw-translate-x),
             var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -26,11 +19,11 @@
 
 .tooltiptext[aria-color="dark"] {
     background-color: #24303F;
-    color: #EFF4FB;
+    color: #FFF;
 }
 
 .tooltiptext[aria-color="light"] {
-    background-color: #EFF4FB;
+    background-color: #FFF;
     color: #24303F;
 }
 
@@ -100,7 +93,7 @@
 .tooltiptext[aria-position="top"][aria-color="light"]::after,
 .tooltiptext[aria-position="top-left"][aria-color="light"]::after,
 .tooltiptext[aria-position="top-right"][aria-color="light"]::after {
-    border-color: #EFF4FB transparent transparent transparent;
+    border-color: #FFF transparent transparent transparent;
 }
 
 /* bottom tooltip content */
@@ -161,7 +154,7 @@
 .tooltiptext[aria-position="bottom"][aria-color="light"]::after,
 .tooltiptext[aria-position="bottom-left"][aria-color="light"]::after,
 .tooltiptext[aria-position="bottom-right"][aria-color="light"]::after {
-    border-color: transparent transparent #EFF4FB transparent;
+    border-color: transparent transparent #FFF transparent;
 }
 
 /* right tooltip content */
@@ -174,8 +167,10 @@
 .tooltip .tooltiptext[aria-position="right"]::after {
     content: " ";
     position: absolute;
-    top: 15px;
-    left: -10px;
+    /* top: 15px;
+    left: -10px; */
+    top: 50%;
+    right: 100%;
     margin-top: -5px;
     border-width: 5px;
     border-style: solid;
@@ -186,7 +181,7 @@
 }
 
 .tooltiptext[aria-position="right"][aria-color="light"]::after {
-    border-color: transparent #EFF4FB transparent transparent;
+    border-color: transparent #FFF transparent transparent;
 }
 
 /* left tooltip content */
@@ -199,8 +194,10 @@
 .tooltip .tooltiptext[aria-position="left"]::after {
     content: " ";
     position: absolute;
-    top: 15px;
-    right: -10px;
+    /* top: 15px;
+    right: -10px; */
+    top: 50%;
+    left: 100%;
     margin-top: -5px;
     border-width: 5px;
     border-style: solid;
@@ -212,7 +209,7 @@
 }
 
 .tooltiptext[aria-position="left"][aria-color="light"]::after {
-    border-color: transparent transparent transparent #EFF4FB;
+    border-color: transparent transparent transparent #FFF;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
