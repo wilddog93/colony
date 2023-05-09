@@ -1,6 +1,4 @@
 import {
-    Action,
-    AnyAction,
     createAsyncThunk,
     createSlice,
 } from '@reduxjs/toolkit';
@@ -8,46 +6,36 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import type { RootState } from '../../store';
 import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
-import { useRouter } from 'next/router';
 
 // here we are typing the types for the state
-export type KanyeState = {
-    data: { quote: string, pathname: string };
+export type AuthState = {
+    data: any;
+    isLogin: boolean;
     pending: boolean;
     error: boolean;
     message: any;
 };
 
-const initialState: KanyeState = {
-    data: { quote: 'click that button', pathname: "" },
+const initialState: AuthState = {
+    data: {},
+    isLogin: false,
     pending: false,
     error: false,
     message: "",
 };
 
-interface RejectedAction extends Action {
-    error: Error
-}
-
-function isRejectedAction(action: AnyAction): action is RejectedAction {
-    return action.type.endsWith('rejected')
-}
+const baseURL = process.env.API_ENDPOINT || "https://incom-api.dev001.incom.id/";
 
 // This action is what we will call using the dispatch in order to trigger the API call.
-export const getKanyeQuote = createAsyncThunk('kanye/kanyeQuote', async (params: any) => {
-    console.log(params.pathname, 'result')
-    let newData = {}
+export const login = createAsyncThunk('auth/login', async (params: any) => {
+    console.log(params, 'result')
     try {
-        const response = await axios.get('https://api.kanye.rest/');
+        const response = await axios.post(`${baseURL}`);
         const { data, status } = response
         if (status == 200) {
             toast.success("sukses")
-            setCookie('quote', data?.quote, { maxAge: 60 * 60 * 24 })
-            newData = {
-                quote: data.quote,
-                pathname: params.pathname
-            }
-            return newData
+            setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
+            return data
         } else {
             throw response
         }
@@ -58,8 +46,8 @@ export const getKanyeQuote = createAsyncThunk('kanye/kanyeQuote', async (params:
     }
 });
 
-export const kanyeSlice = createSlice({
-    name: 'kanye',
+export const authSlice = createSlice({
+    name: 'authentication',
     initialState,
     reducers: {
         // leave this empty here
@@ -69,32 +57,26 @@ export const kanyeSlice = createSlice({
     // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
     extraReducers: builder => {
         builder
-            .addCase(getKanyeQuote.pending, state => {
-                // state.pending = true;
-                return {
-                    ...state,
-                    pending: true
-                }
+            .addCase(login.pending, state => {
+                state.pending = true;
             })
-            .addCase(getKanyeQuote.fulfilled, (state, { payload }) => {
-                // When the API call is successful and we get some data,the data becomes the `fulfilled` action payload
+            .addCase(login.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
                     pending: false,
                     error: false,
-                    data: payload.data
+                    data: {
+                        user: payload.user,
+                        accessToken: payload.accessToken,
+                        refreshToken: payload.refreshToken
+                    },
                 }
             })
-            .addCase(getKanyeQuote.rejected, (state, { payload }) => {
+            .addCase(login.rejected, (state, { payload }) => {
                 state.pending = false;
                 state.error = true;
-                // return {
-                //     ...state,
-                //     pending: false,
-                //     error: true
-                // }
+                state.message = payload;
             })
-            .addMatcher(isRejectedAction, (state, action) => { })
             .addDefaultCase((state, action) => {
                 let base = {
                     ...state,
@@ -105,6 +87,6 @@ export const kanyeSlice = createSlice({
     },
 });
 
-export const selectKanye = (state: RootState) => state.kanyeQuote;
+export const selectAuth = (state: RootState) => state.authReducers;
 
-export default kanyeSlice.reducer;
+export default authSlice.reducer;
