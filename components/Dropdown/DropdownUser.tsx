@@ -12,10 +12,10 @@ const DropdownUser = (props: any) => {
     const dropdown = useRef<HTMLDivElement>(null)
 
     const myLoader = (props: any) => {
-        const { src, width, quality } = props;
+        const { src, width, quality, optimized } = props;
         console.log(props, 'loader')
         // return `https://example.com/${src}?w=${width}&q=${quality || 75}`
-        return `${src}`
+        return `${src}&optimized=true`
     }
 
     // close on click outside
@@ -65,13 +65,7 @@ const DropdownUser = (props: any) => {
                 </span>
 
                 <span className='h-12 w-12 rounded-full'>
-                    <Image
-                        loader={myLoader}
-                        src={userDefault || "image/user/user-01.png"}
-                        alt="Picture of the author"
-                        width={500}
-                        height={500}
-                    />
+                    <img src={userDefault || "image/user/user-01.png"} alt='avatar' className='object-cover object-center' />
                 </span>
 
                 <svg

@@ -94,10 +94,10 @@ const Sidebar = (props: any) => {
     }, [sidebarExpanded]);
 
     const myLoader = (props: any) => {
-        const { src, width, quality } = props;
+        const { src, width, quality, optimized } = props;
         console.log(props, 'loader')
         // return `https://example.com/${src}?w=${width}&q=${quality || 75}`
-        return `${src}`
+        return `${src}&q=${quality || 75}`
     }
 
     return (
@@ -112,7 +112,7 @@ const Sidebar = (props: any) => {
                 <div className='flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5'>
                     <Link href='/'>
                         <div className="flex items-center gap-2">
-                            <Image loader={myLoader} src={!logo ? "image/logo/logo-icon.png" : logo} alt='Logo' width={30} height={30} />
+                            <img src={logo || "image/logo/logo-icon.png"} alt='logo-icon' className='object-cover object-center' />
                             <span className='flex-shrink-0 lg:flex text-white text-2xl font-semibold'>{!title ? "Building" : title}</span>
                         </div>
                     </Link>
