@@ -43,7 +43,7 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
     setTimeout(() => setLoading(false), 1000)
   }, []);
 
-  console.log({ isTokenFound, firebaseToken }, 'notification')
+  console.log({ isTokenFound, firebaseToken, isNotification, notification }, 'app state')
 
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">

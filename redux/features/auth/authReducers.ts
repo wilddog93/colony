@@ -40,18 +40,19 @@ let config: HeadersConfiguration = {
 };
 
 // This action is what we will call using the dispatch in order to trigger the API call.
-export const webLogin = createAsyncThunk('auth/web/login', async (params: any) => {
+export const webLogin = createAsyncThunk('login', async (params: any) => {
     let newData = {}
     try {
         const response = await axios.post("auth/web/login", params?.data, config);
         const { data, status } = response
-        if (status == 201) {
+        // console.log(response, "response")
+        if (status == 200) {
             toast.success("sukses")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
+            setCookie('access', data?.access)
             newData = {
                 ...data,
-                pathname: params.pathname,
                 access: data.access
             }
             return newData
@@ -65,7 +66,7 @@ export const webLogin = createAsyncThunk('auth/web/login', async (params: any) =
     }
 });
 
-export const authMe = createAsyncThunk('auth/me', async (params: any) => {
+export const authMe = createAsyncThunk('profile', async (params: any) => {
     config = {
         ...config,
         headers: {
@@ -73,27 +74,21 @@ export const authMe = createAsyncThunk('auth/me', async (params: any) => {
             Authorization: `Bearer ${params?.token}`
         }
     }
-    let newData = initialState
     try {
-        const response = await axios.get("auth/me", config);
-        const { data, status } = response
+        const response = await axios.get("auth/web/me", config);
+        const { data, status } = response;
+        console.log(response, "response")
         if (status == 200) {
             toast.success("sukses")
-            newData = {
-                ...newData,
-                data: {
-                    ...newData.data,
-                    user: data
-                }
-            }
-            return newData
+            return data;
         } else {
             throw response
         }
     } catch (error: any) {
-        console.log(error.message, "error")
-        toast.error("error")
-        return error.response.data
+        const { data } = error.response.data
+        console.log(data.message[0], "error")
+        toast.error(data.message[0] || data.error)
+        return data.message[0] || data.error
     }
 });
 

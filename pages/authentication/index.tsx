@@ -1,16 +1,22 @@
 import React, { SetStateAction, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import AuthLayout from '../../components/Layouts/AuthLayouts';
 import SignIn from '../../components/Forms/authentication/SignIn';
 import SignUp from '../../components/Forms/authentication/SignUp';
 import { useRouter } from 'next/router';
 import { MdArrowBack } from 'react-icons/md';
-import Button from '../../components/Button/Button';
 import Tooltip from '../../components/Tooltip/Tooltip';
+import { useAppDispatch, useAppSelector } from '../../redux/Hook';
+import { authMe, selectAuth, selectLogin } from '../../redux/features/auth/authReducers';
+import { getCookie, getCookies } from 'cookies-next';
+import { GetServerSideProps } from 'next';
 
-const Authentication = () => {
+const Authentication = (props: any) => {
     const router = useRouter();
     const { query, pathname } = router;
+
+    // auth me
+    const dispatch = useAppDispatch();
+    const { data, isLogin, error, pending, message } = useAppSelector(selectLogin);
 
     const [tabs, setTabs] = useState("");
 
@@ -46,6 +52,13 @@ const Authentication = () => {
         return res
     }, [tabs])
 
+    useEffect(() => {
+        if (!isLogin) {
+            return;
+        }
+        router.push("/")
+    }, [isLogin]);
+
     return (
         <AuthLayout
             title="Authentication"
@@ -73,19 +86,8 @@ const Authentication = () => {
                             </div>
                         </div>
 
-
-                        {/* <div className="absolute z-50 inset-y-1/2 left-0 text-gray-4">
-                            <div className='relative'>
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Hover me
-                                </button>
-                                <div className="absolute bg-gray text-gray-700 px-4 py-2 rounded-lg shadow-md tooltip">
-                                    This is a tooltip
-                                </div>
-                            </div>
-                        </div> */}
                         <div className={`absolute z-40 inset-y-1/2 ${signIn ? "right-0" : ""}`}>
-                            <Tooltip 
+                            <Tooltip
                                 className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${signIn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
                                 classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
                                 tooltip={!signIn ? "Go to Sign in" : "Go to Sign up please"}
@@ -105,6 +107,36 @@ const Authentication = () => {
             </div>
         </AuthLayout>
     )
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    // Parse cookies from the request headers
+    const cookies = getCookies(context)
+
+    // Access cookies using the cookie name
+    const token = cookies['accessToken'];
+    const access = cookies['access'];
+
+    if (token && access == "resendEmail") {
+        return {
+            redirect: {
+                destination: "/authentication/resend-email", // Redirect to the home page
+                permanent: false,
+                token: token,
+            },
+        };
+    } else if (token) {
+        return {
+            redirect: {
+                destination: "/", // Redirect to the home page
+                permanent: false,
+            },
+        };
+    }
+
+    return {
+        props: {},
+    };
 }
 
 export default Authentication;

@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { authMe, selectAuth, selectLogin, webLogin } from '../../../redux/features/auth/authReducers'
 import { useInput } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
+import { getCookie } from 'cookies-next'
 
 type Props = {
     onChangePage: () => void
@@ -14,10 +15,14 @@ type Props = {
 }
 
 const SignIn = (props: any) => {
+    // cookie
+    const firebaseToken = getCookie("firebaseToken");
+    const token = getCookie("accessToken");
+    const access = getCookie("access");
+
     const dispatch = useAppDispatch();
     const router = useRouter();
-    // const { data, error, isLogin, message, pending } = useAppSelector(selectLogin);
-    const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
+    const { data, error, isLogin, message, pending } = useAppSelector(selectLogin);
     const { onChangePage, isOpen } = props;
 
     // state
@@ -35,9 +40,9 @@ const SignIn = (props: any) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
-            console.log({ email, password }, 'event form')
+            console.log({ email, password, firebaseToken }, 'event form')
             dispatch(webLogin({
-                data: { email, password },
+                data: { email, password, firebaseToken },
                 pathname: "/",
             }))
         }
@@ -59,24 +64,7 @@ const SignIn = (props: any) => {
         }
     }, [emailError, passwordError, email, password]);
 
-    useEffect(() => {
-        if (!isLogin) {
-            return;
-        }
-        if (data?.pathname) {
-            router.push(data?.pathname)
-        }
-    }, [data.access, isLogin]);
-
-    useEffect(() => {
-        dispatch(authMe({
-            data: {},
-            pathname: "/",
-            token: data?.accessToken
-        }))
-    }, [data.accessToken])
-
-    console.log({ data, error, isLogin, message, pending }, 'perbarui')
+    console.log({data, error, isLogin, message,}, 'login')
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
@@ -215,6 +203,6 @@ const SignIn = (props: any) => {
         </div>
 
     )
-}
+};
 
-export default SignIn
+export default SignIn;
