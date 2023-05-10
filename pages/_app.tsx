@@ -17,14 +17,14 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const [isNotification, setIsNotification] = useState(false);
   const [notification, setNotification]  = useState({ title: "", body: "", context: "" });
   const [isTokenFound, setIsTokenFound] = useState(false);
-  const [token, setToken] = useState("");
+  const [firebaseToken, setFirebaseToken] = useState("");
 
   useEffect(() => {
     (async () => {
       const hasFirebaseMessagingSupport = await isSupported();
       if (hasFirebaseMessagingSupport) {
         const { requestForToken, messaging } = await import("./api/firebaseConfig");
-        await requestForToken({ setIsTokenFound, setToken });
+        await requestForToken({ setIsTokenFound, setFirebaseToken });
         onMessage(messaging, (payload: any) => {
           setIsNotification(true);
           setNotification({
@@ -41,7 +41,9 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000)
-  }, [])
+  }, []);
+
+  console.log({ isTokenFound, firebaseToken }, 'notification')
 
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">

@@ -24,12 +24,12 @@ export const database = getDatabase(app);
 
 type FirebaseTokenProps = {
     setIsTokenFound: Dispatch<SetStateAction<boolean>>;
-    setToken: Dispatch<SetStateAction<string>>;
+    setFirebaseToken: Dispatch<SetStateAction<string>>;
 }
 
 
 export const requestForToken = async (props: FirebaseTokenProps) => {
-    const { setIsTokenFound, setToken } = props;
+    const { setIsTokenFound, setFirebaseToken } = props;
     try {
         const messagingResolve = await messaging;
         const currentToken = await getToken(messagingResolve, {
@@ -38,7 +38,7 @@ export const requestForToken = async (props: FirebaseTokenProps) => {
         });
         if (currentToken) {
             setIsTokenFound(true);
-            setToken(currentToken)
+            setFirebaseToken(currentToken)
             setCookie("firebaseToken", currentToken);
 
             // database user 
@@ -55,7 +55,7 @@ export const requestForToken = async (props: FirebaseTokenProps) => {
         } else {
             console.log("No registration token available. Request permission to generate one.");
             setIsTokenFound(false);
-            setToken("")
+            setFirebaseToken("")
             setCookie("firebaseToken", "");
         }
     } catch (err) {
