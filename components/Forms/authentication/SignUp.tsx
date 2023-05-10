@@ -73,8 +73,10 @@ const SignUp = (props: Props) => {
     const [phone, setPhone] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
 
+    console.log(dateOfBirth?.toDateString(), 'date')
+
     return (
-        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-500 ease-linear ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
+        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
             <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between gap-2.5 text-gray-5 py-6 lg:10'>
                 <div className=' w-full flex flex-col gap-2 p-6 xl:pl-10'>
                     <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Register</h2>

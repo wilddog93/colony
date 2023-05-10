@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import type { AppProps } from "next/app";
 import { wrapper } from "../redux/store";
@@ -7,11 +7,37 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 import NextNProgress from "nextjs-progressbar";
+import { isSupported, onMessage } from "@firebase/messaging";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);
   axios.defaults.baseURL = process.env.API_ENDPOINT;
   const [loading, setLoading] = useState(true);
+
+  const [isNotification, setIsNotification] = useState(false);
+  const [notification, setNotification]  = useState({ title: "", body: "", context: "" });
+  const [isTokenFound, setIsTokenFound] = useState(false);
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const hasFirebaseMessagingSupport = await isSupported();
+      if (hasFirebaseMessagingSupport) {
+        const { requestForToken, messaging } = await import("./api/firebaseConfig");
+        await requestForToken({ setIsTokenFound, setToken });
+        onMessage(messaging, (payload: any) => {
+          setIsNotification(true);
+          setNotification({
+            title: payload?.data.title,
+            context: payload?.data.context,
+            body: payload?.data.data,
+          });
+          console.log(payload, "test");
+        });
+      }
+    })();
+  }, []);
+
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000)

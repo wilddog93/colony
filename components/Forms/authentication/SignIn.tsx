@@ -4,7 +4,7 @@ import { MdEmail, MdLockOutline, MdOutlineEmail, MdOutlineLockClock, MdOutlineLo
 import Button from '../../Button/Button'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
 import { useRouter } from 'next/router'
-import { selectAuth, selectLogin } from '../../../redux/features/auth/authReducers'
+import { authMe, selectAuth, selectLogin, webLogin } from '../../../redux/features/auth/authReducers'
 import { useInput } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
 
@@ -16,11 +16,9 @@ type Props = {
 const SignIn = (props: any) => {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const login = useAppSelector(selectLogin);
-    const profile = useAppSelector(selectAuth);
+    // const { data, error, isLogin, message, pending } = useAppSelector(selectLogin);
+    const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
     const { onChangePage, isOpen } = props;
-
-    console.log(profile)
 
     // state
     const [isHidden, setIsHidden] = useState(false);
@@ -38,6 +36,10 @@ const SignIn = (props: any) => {
         event.preventDefault()
         if (submitting) {
             console.log({ email, password }, 'event form')
+            dispatch(webLogin({
+                data: { email, password },
+                pathname: "/",
+            }))
         }
     };
 
@@ -57,9 +59,28 @@ const SignIn = (props: any) => {
         }
     }, [emailError, passwordError, email, password]);
 
+    useEffect(() => {
+        if (!isLogin) {
+            return;
+        }
+        if (data?.pathname) {
+            router.push(data?.pathname)
+        }
+    }, [data.access, isLogin]);
+
+    useEffect(() => {
+        dispatch(authMe({
+            data: {},
+            pathname: "/",
+            token: data?.accessToken
+        }))
+    }, [data.accessToken])
+
+    console.log({ data, error, isLogin, message, pending }, 'perbarui')
+
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
-        <div className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-500 ease-linear ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0'}`}>
+        <div className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0'}`}>
             <div className='w-full h-full flex flex-col justify-between gap-2 text-gray-5 py-6 lg:10'>
                 <Link className='mb-5.5 flex items-center gap-2.5 p-6 xl:px-10' href='/'>
                     <img className='' src={"../image/logo/logo-icon.svg"} alt='Logo' />
@@ -114,8 +135,8 @@ const SignIn = (props: any) => {
                                 onClick={() => handleIsPassword(isHidden)}
                             >
                                 {isHidden ? <MdLockOutline className='w-6 h-6' /> :
-                                <MdOutlineLockOpen className='w-6 h-6' />
-                            }
+                                    <MdOutlineLockOpen className='w-6 h-6' />
+                                }
                             </button>
 
                         </div>
@@ -135,6 +156,7 @@ const SignIn = (props: any) => {
                                 variant="primary"
                                 className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90'
                                 onSubmit={onSubmit}
+                                disabled={!submitting || pending}
                             >
                                 Sign In
                             </Button>

@@ -24,18 +24,37 @@ const initialState: AuthState = {
     message: "",
 };
 
-const baseURL = process.env.API_ENDPOINT || "https://api-dev.dgcolony.com/";
+interface HeadersConfiguration {
+    headers: {
+        "Content-Type"?: string;
+        "Accept"?: string
+        "Authorization"?: string
+    }
+}
+
+let config: HeadersConfiguration = {
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    },
+};
 
 // This action is what we will call using the dispatch in order to trigger the API call.
-export const login = createAsyncThunk('auth/web/login', async (params: any) => {
-    console.log(params, 'result')
+export const webLogin = createAsyncThunk('auth/web/login', async (params: any) => {
+    let newData = {}
     try {
-        const response = await axios.post(`${baseURL}`);
+        const response = await axios.post("auth/web/login", params?.data, config);
         const { data, status } = response
         if (status == 201) {
             toast.success("sukses")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
-            return data
+            setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
+            newData = {
+                ...data,
+                pathname: params.pathname,
+                access: data.access
+            }
+            return newData
         } else {
             throw response
         }
@@ -47,12 +66,27 @@ export const login = createAsyncThunk('auth/web/login', async (params: any) => {
 });
 
 export const authMe = createAsyncThunk('auth/me', async (params: any) => {
+    config = {
+        ...config,
+        headers: {
+            ...config.headers,
+            Authorization: `Bearer ${params?.token}`
+        }
+    }
+    let newData = initialState
     try {
-        const response = await axios.get(`${baseURL}`);
+        const response = await axios.get("auth/me", config);
         const { data, status } = response
         if (status == 200) {
             toast.success("sukses")
-            return data
+            newData = {
+                ...newData,
+                data: {
+                    ...newData.data,
+                    user: data
+                }
+            }
+            return newData
         } else {
             throw response
         }
@@ -74,22 +108,26 @@ export const loginSlice = createSlice({
     // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
     extraReducers: builder => {
         builder
-            .addCase(login.pending, state => {
+            .addCase(webLogin.pending, state => {
                 state.pending = true;
             })
-            .addCase(login.fulfilled, (state, { payload }) => {
+            .addCase(webLogin.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
+                    isLogin: true,
                     pending: false,
                     error: false,
                     data: {
+                        ...state.data,
                         user: payload.user,
                         accessToken: payload.accessToken,
-                        refreshToken: payload.refreshToken
+                        refreshToken: payload.refreshToken,
+                        access: payload.access,
+                        pathname: payload.pathname
                     },
                 }
             })
-            .addCase(login.rejected, (state, { payload }) => {
+            .addCase(webLogin.rejected, (state, { payload }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = payload;
@@ -121,15 +159,17 @@ export const profileSlice = createSlice({
             .addCase(authMe.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
+                    isLogin: true,
                     pending: false,
                     error: false,
                     data: {
                         ...state.data,
-                        user: payload.user
+                        user: payload
                     },
                 }
             })
             .addCase(authMe.rejected, (state, { payload }) => {
+                state.isLogin  = false;
                 state.pending = false;
                 state.error = true;
                 state.message = payload;

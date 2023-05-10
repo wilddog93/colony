@@ -22,8 +22,8 @@ const Tooltip: React.FC<TooltipProps> = ({
         <button type='button' className={'tooltip ' + className}>
             {children}
             <span 
-                aria-position={position} 
-                aria-color={color} 
+                data-position={position} 
+                data-color={color} 
                 className={'tooltiptext ' + classTooltip}>{tooltip}</span>
         </button>
     );

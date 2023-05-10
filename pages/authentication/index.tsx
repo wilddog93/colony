@@ -57,7 +57,7 @@ const Authentication = () => {
                 <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                     <SignIn onChangePage={handleChangePage} isOpen={signIn} />
 
-                    <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-xl translate-x-0 ease-linear ${signIn ? "translate-x-full" : ""}`}>
+                    <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${signIn ? "translate-x-full" : ""}`}>
                         <div className='w-full h-2/3 flex flex-col py-17.5 px-26 justify-center'>
                             <div className='flex flex-col justify-center'>
                                 <h2 className='text-title-md2 lg:text-title-lg mb-5'>
