@@ -1,3 +1,5 @@
+import isValidPhoneNumber from "react-phone-input-2"
+
 export const validation = {
     required: (value: string) => {
         if (!value) {
@@ -20,14 +22,35 @@ export const validation = {
         if (!value) {
             return 'Password is required';
         }
-        if(!capital) {
+        if (!capital) {
             return "Password must be in 1 Capital letter."
         }
-        if(!number) {
+        if (!number) {
             return "Password must be in 1 Number."
         }
         if (value.length < 6) {
             return 'Password must be 6 characters or more';
+        }
+
+        return null;
+    },
+    confirmPassword: (value: any, old: any) => {
+        let capital = value.match(/[A-Z]/g)?.length === 1
+        let number = value.match(/\d/g)?.length >= 1
+        if (!value) {
+            return 'Password is required';
+        }
+        if (!capital) {
+            return "Password must be in 1 Capital letter."
+        }
+        if (!number) {
+            return "Password must be in 1 Number."
+        }
+        if (value.length < 6) {
+            return 'Password must be 6 characters or more';
+        }
+        if (value !== old) {
+            return 'Password do not match.';
         }
 
         return null;
@@ -47,6 +70,15 @@ export const validation = {
     radio: (value: any) => {
         if (!value) {
             return 'Please select an option';
+        }
+        return null;
+    },
+    phone: (value: any) => {
+        if (!isValidPhoneNumber(value)) {
+            return 'Please enter a valid phone number';
+        }
+        if (!value) {
+            return 'Phone number is required';
         }
         return null;
     }

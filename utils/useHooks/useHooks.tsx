@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
 import OptionTypeBase from "react-select";
+import { CountryData } from 'react-phone-input-2';
 
 type Validator<T> = (value: T) => string | undefined;
 
@@ -228,5 +229,59 @@ const useSelect = <T extends OptionTypeBase>({
     };
 };
 
+// usePhoneInput
+interface UsePhoneInputResult {
+    value: string;
+    setValue: Dispatch<SetStateAction<string>>;
+    error: string | null;
+    setError: Dispatch<SetStateAction<string | null>>;
+    onChange: (
+        value: string,
+        data?: {} | CountryData,
+        event?: React.ChangeEvent<HTMLInputElement>,
+        formattedValue?: string,
+        enableSearch?: boolean,
+        containerClass?: string,
+        inputClass?: string,
+        searchClass?: string,
+        dropdownClass?: string,
+        buttonClass?: string
+    ) => void;
+    reset: () => void;
+}
 
-export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput };
+interface UsePhoneInputOptions {
+    defaultCountry?: string;
+    validate?: (value: string) => string | null;
+}
+
+const usePhoneInput = (
+    { defaultCountry = 'id', validate }: UsePhoneInputOptions = {}
+): UsePhoneInputResult => {
+    const [value, setValue] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
+
+    // const handleChange = (value: string, country?: string, event?: React.ChangeEvent<HTMLInputElement>, formattedValue?: string) => {
+    const handleChange = (value: string, data?: {} | CountryData, event?: React.ChangeEvent<HTMLInputElement>, formattedValue?: string, enableSearch?: boolean, containerClass?: string, inputClass?: string, searchClass?: string, dropdownClass?: string, buttonClass?: string) => {
+        const validationError = validate?.(value);
+        setError(validationError as SetStateAction<string | null>);
+        setValue(value);
+    };
+
+    const reset = () => {
+        setError(null);
+        setValue('');
+    };
+
+    return {
+        value,
+        setValue,
+        error,
+        setError,
+        onChange: handleChange,
+        reset,
+    };
+};
+
+
+export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput };

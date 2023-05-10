@@ -6,6 +6,10 @@ import DropdownSelect from '../../Dropdown/DropdownSelect'
 import PhoneInput from 'react-phone-input-2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useInput, usePhoneInput } from '../../../utils/useHooks/useHooks'
+import { validation } from '../../../utils/useHooks/validation'
+import { useAppDispatch } from '../../../redux/Hook'
+import { webRegister } from '../../../redux/features/auth/authReducers'
 
 type Props = {
     onChangePage: () => void
@@ -72,6 +76,90 @@ const SignUp = (props: Props) => {
     const [gender, setGender] = useState(null);
     const [phone, setPhone] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
+
+    // redux
+    const dispatch = useAppDispatch();
+
+    // state
+    const [isHidden, setIsHidden] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const { value: email, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.email(value),
+    });
+    const { value: firstName, reset: resetFirstName, error: firstNameError, setError: setFirstNameError, onChange: onFirstNameChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.required(value),
+    });
+    const { value: lastName, reset: resetLastName, error: lastNameError, setError: setLastNameError, onChange: onLastNameChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.required(value),
+    });
+    const { value: nickName, reset: resetNickName, error: nickNameError, setError: setNickNameError, onChange: onNickNameChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.required(value),
+    });
+    const { value: phoneNumber, reset: resetPhoneNumber, error: phoneNumberError, setError: setPhoneNumberError, onChange: onPhoneNumberChange } = usePhoneInput({
+        defaultCountry: "",
+        validate: (value) => validation?.required(value),
+    });
+    const { value: birthday, reset: resetBirthday, error: birthdayError, setError: setBirthdayError, onChange: onBirthdayChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.required(value),
+    });
+    const { value: password, reset: resetPassword, error: passwordError, setError: setPasswordError, onChange: onPasswordChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.password(value),
+    });
+    const { value: confirmPassword, reset: resetConfirmPassword, error: confirmConfirmPasswordError, setError: setConfirmPasswordError, onChange: onConfirmPasswordChange } = useInput({
+        defaultValue: "",
+        validate: (value) => validation?.confirmPassword(value, password),
+    });
+
+    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        if (submitting) {
+            console.log({
+                email,
+                firstName,
+                lastName,
+                nickName,
+                phoneNumber,
+                birthday,
+                password,
+                confirmPassword
+            }, 'event form')
+            dispatch(webRegister({
+                data: {
+                    email,
+                    firstName,
+                    lastName,
+                    nickName,
+                    phoneNumber,
+                    birthday,
+                    password,
+                    confirmPassword
+                },
+                pathname: "/aithentication?page=sign-in"
+            }))
+        }
+    };
+
+    const handleReset = () => {
+        resetEmail()
+        resetPassword()
+    };
+
+    const handleIsPassword = (value: boolean) => setIsHidden(!value);
+
+    useEffect(() => {
+        if (emailError || passwordError || !email || !password) {
+            setSubmitting(false);
+            // perform submission logic
+        } else {
+            setSubmitting(true)
+        }
+    }, [emailError, passwordError, email, password]);
 
     console.log(dateOfBirth?.toDateString(), 'date')
 
@@ -141,8 +229,8 @@ const SignUp = (props: Props) => {
                                 <PhoneInput
                                     specialLabel=''
                                     country={"id"}
-                                    value={phone}
-                                    onChange={setPhone}
+                                    value={phoneNumber}
+                                    onChange={onPhoneNumberChange}
                                     buttonClass='shadow-default'
                                     placeholder='1 123 4567 8910'
                                     inputClass='form-control py-4 px-6 border border-stroke focus:border-primary rounded-lg text-sm lg:text-md'
@@ -164,7 +252,7 @@ const SignUp = (props: Props) => {
                                         onChange={setDateOfBirth}
                                         placeholderText={"Date of birth"}
                                         // customInput={<ExampleCustomInput />}
-                                        dropdownMode="select"                              
+                                        dropdownMode="select"
                                         peekNextMonth
                                         showMonthDropdown
                                         showYearDropdown

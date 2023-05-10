@@ -17,7 +17,7 @@ import { GetServerSideProps } from 'next';
 import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import Button from '../components/Button/Button';
-import { selectAuth, selectLogin } from '../redux/features/auth/authReducers';
+import { authMe, selectAuth, selectLogin } from '../redux/features/auth/authReducers';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
 import { MdArrowBack, MdArrowRightAlt } from 'react-icons/md';
 import Tooltip from '../components/Tooltip/Tooltip';
@@ -27,15 +27,24 @@ type Props = {
 }
 
 const Home = ({ pageProps }: Props) => {
+  // props
+  const { token, access, firebaseToken } = pageProps;
+
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const login = useAppSelector(selectLogin);
-  const auth = useAppSelector(selectAuth);
+  const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
 
   // sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  console.log(auth, 'auth-me', login)
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    dispatch(authMe({ token }))
+  }, [token])
+
+  console.log({ data, isLogin, pending, error, message }, 'auth data')
 
   return (
     <DefaultLayout
@@ -68,20 +77,27 @@ const Home = ({ pageProps }: Props) => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context: any) => {
-  const token = await getCookie("accessToken", context)
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context)
 
-  if (token) {
+  // Access cookies using the cookie name
+  const token = cookies['accessToken'];
+  const access = cookies['access'];
+  const firebaseToken = cookies['firebaseToken'];
+
+  if (!token) {
     return {
-      props: {
-        token
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false
       },
     };
   }
 
   return {
-    props: {},
-  }
-}
+    props: { token, access, firebaseToken },
+  };
+};
 
 export default Home;
