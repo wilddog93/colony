@@ -24,7 +24,7 @@ const Authentication = ({ pageProps }: Props) => {
     const dispatch = useAppDispatch();
     const { data, isLogin, error, pending, message } = useAppSelector(selectAuth);
 
-    const [tabs, setTabs] = useState("");
+    const [tabs, setTabs] = useState<string | string[] | undefined>("");
 
     const handleChangePage = () => {
         if (tabs === "sign-in") {
@@ -36,13 +36,15 @@ const Authentication = ({ pageProps }: Props) => {
 
     // query
     useEffect(() => {
-        query?.page ? setTabs(query?.page as SetStateAction<string>) : setTabs("sign-in");
-    }, [query]);
+        query?.page ? setTabs(query?.page) : setTabs("")
+    }, [query.page]);
 
     // set state query
     useEffect(() => {
-        let qr = {};
-        if (tabs) qr = { ...qr, page: tabs };
+        let qr = {
+            page: tabs
+        };
+        if (!tabs) qr = { ...qr, page: query?.page }
         router.replace({ pathname, query: qr });
     }, [tabs]);
 
@@ -58,21 +60,7 @@ const Authentication = ({ pageProps }: Props) => {
         return res
     }, [tabs])
 
-    // useEffect(() => {
-    //     if (!isLogin) {
-    //         return;
-    //     }
-    //     router.push("/")
-    // }, [isLogin]);
-
-    console.log({ data, isLogin, error, pending, message }, 'data auth')
-
-    useEffect(() => {
-        if (!token) {
-            return;
-        }
-        dispatch(getAuthMe({ token }))
-    }, [])
+    console.log(query, 'query')
 
     return (
         <AuthLayout
