@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useMemo, useState } from 'react';
+import React, { SetStateAction, useEffect, useMemo, useState, FC } from 'react';
 import AuthLayout from '../../components/Layouts/AuthLayouts';
 import SignIn from '../../components/Forms/authentication/SignIn';
 import SignUp from '../../components/Forms/authentication/SignUp';
@@ -6,17 +6,23 @@ import { useRouter } from 'next/router';
 import { MdArrowBack } from 'react-icons/md';
 import Tooltip from '../../components/Tooltip/Tooltip';
 import { useAppDispatch, useAppSelector } from '../../redux/Hook';
-import { authMe, selectAuth, selectLogin } from '../../redux/features/auth/authReducers';
-import { getCookie, getCookies } from 'cookies-next';
+import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
+import { getAuthMe, selectAuth } from '../../redux/features/auth/authReducers';
 
-const Authentication = (props: any) => {
+type Props = {
+    pageProps: any
+}
+
+const Authentication = ({ pageProps }: Props) => {
     const router = useRouter();
     const { query, pathname } = router;
 
+    const { token } = pageProps
+
     // auth me
     const dispatch = useAppDispatch();
-    const { data, isLogin, error, pending, message } = useAppSelector(selectLogin);
+    const { data, isLogin, error, pending, message } = useAppSelector(selectAuth);
 
     const [tabs, setTabs] = useState("");
 
@@ -52,12 +58,21 @@ const Authentication = (props: any) => {
         return res
     }, [tabs])
 
+    // useEffect(() => {
+    //     if (!isLogin) {
+    //         return;
+    //     }
+    //     router.push("/")
+    // }, [isLogin]);
+
+    console.log({ data, isLogin, error, pending, message }, 'data auth')
+
     useEffect(() => {
-        if (!isLogin) {
+        if (!token) {
             return;
         }
-        router.push("/")
-    }, [isLogin]);
+        dispatch(getAuthMe({ token }))
+    }, [])
 
     return (
         <AuthLayout
@@ -114,28 +129,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const cookies = getCookies(context)
 
     // Access cookies using the cookie name
-    const token = cookies['accessToken'];
-    const access = cookies['access'];
-
-    if (token && access == "resendEmail") {
-        return {
-            redirect: {
-                destination: "/authentication/resend-email", // Redirect to the home page
-                permanent: false,
-                token: token,
-            },
-        };
-    } else if (token) {
-        return {
-            redirect: {
-                destination: "/", // Redirect to the home page
-                permanent: false,
-            },
-        };
-    }
+    const token = cookies['accessToken'] || null;
+    const access = cookies['access'] || null;
+    const firebaseToken = cookies['firebaseToken'] || null;
 
     return {
-        props: {},
+        props: { token, access, firebaseToken },
     };
 };
 

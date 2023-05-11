@@ -4,10 +4,13 @@ import { MdEmail, MdLockOutline, MdOutlineEmail, MdOutlineLockClock, MdOutlineLo
 import Button from '../../Button/Button'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
 import { useRouter } from 'next/router'
-import { authMe, selectAuth, selectLogin, webLogin } from '../../../redux/features/auth/authReducers'
 import { useInput } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
 import { getCookie } from 'cookies-next'
+
+// google
+import { useGoogleLogin } from '@react-oauth/google';
+import { selectAuth, webLogin, webLoginGoogle } from '../../../redux/features/auth/authReducers'
 
 type Props = {
     onChangePage: () => void
@@ -22,12 +25,14 @@ const SignIn = (props: any) => {
 
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const { data, error, isLogin, message, pending } = useAppSelector(selectLogin);
+    const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
     const { onChangePage, isOpen } = props;
 
     // state
     const [isHidden, setIsHidden] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [googleData, setGoogleData] = useState({});
+
     const { value: email, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.email(value),
@@ -41,9 +46,10 @@ const SignIn = (props: any) => {
         event.preventDefault()
         if (submitting) {
             console.log({ email, password, firebaseToken }, 'event form')
+            let data = { email, password, firebaseToken }
             dispatch(webLogin({
-                data: { email, password, firebaseToken },
-                pathname: "/",
+                data,
+                callback: () => router.push("/")
             }))
         }
     };
@@ -52,6 +58,20 @@ const SignIn = (props: any) => {
         resetEmail()
         resetPassword()
     };
+
+    const loginWithGoogle = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            await setGoogleData(tokenResponse);
+            await dispatch(webLoginGoogle({
+                data: {
+                    token: tokenResponse.access_token,
+                    firebaseToken
+                },
+                callback: () => router.push("/")
+            }));
+        },
+        onError: responseGoogle => console.log(responseGoogle, 'error google')
+    });
 
     const handleIsPassword = (value: boolean) => setIsHidden(!value);
 
@@ -63,8 +83,6 @@ const SignIn = (props: any) => {
             setSubmitting(true)
         }
     }, [emailError, passwordError, email, password]);
-
-    console.log({data, error, isLogin, message,}, 'login')
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
@@ -150,7 +168,11 @@ const SignIn = (props: any) => {
                             </Button>
                         </div>
 
-                        <button className='flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50'>
+                        <button
+                            type='button'
+                            // @ts-ignore
+                            onClick={loginWithGoogle}
+                            className='flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50'>
                             <span>
                                 <svg
                                     width='20'

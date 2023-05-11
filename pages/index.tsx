@@ -17,10 +17,10 @@ import { GetServerSideProps } from 'next';
 import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import Button from '../components/Button/Button';
-import { authMe, selectAuth, selectLogin } from '../redux/features/auth/authReducers';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
 import { MdArrowBack, MdArrowRightAlt } from 'react-icons/md';
 import Tooltip from '../components/Tooltip/Tooltip';
+import { getAuthMe, selectAuth } from '../redux/features/auth/authReducers';
 
 type Props = {
   pageProps: any
@@ -41,7 +41,7 @@ const Home = ({ pageProps }: Props) => {
     if (!token) {
       return;
     }
-    dispatch(authMe({ token }))
+    dispatch(getAuthMe({ token }))
   }, [token])
 
   console.log({ data, isLogin, pending, error, message }, 'auth data')
@@ -82,9 +82,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const cookies = getCookies(context)
 
   // Access cookies using the cookie name
-  const token = cookies['accessToken'];
-  const access = cookies['access'];
-  const firebaseToken = cookies['firebaseToken'];
+  const token = cookies['accessToken'] || null;
+  const access = cookies['access'] || null;
+  const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token) {
     return {

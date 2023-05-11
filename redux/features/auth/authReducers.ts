@@ -5,11 +5,16 @@ import {
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import type { RootState } from '../../store';
-import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { setCookie, deleteCookie } from 'cookies-next';
 
 // here we are typing the types for the state
 export type AuthState = {
-    data: any;
+    data: {
+        user: any,
+        accessToken: string,
+        refreshToken: string,
+        access: string
+    };
     isLogin: boolean;
     pending: boolean;
     error: boolean;
@@ -17,7 +22,12 @@ export type AuthState = {
 };
 
 const initialState: AuthState = {
-    data: {},
+    data: {
+        user: {},
+        accessToken: "",
+        refreshToken: "",
+        access: ""
+    },
     isLogin: false,
     pending: false,
     error: false,
@@ -39,22 +49,27 @@ let config: HeadersConfiguration = {
     },
 };
 
+interface AuthData {
+    data: any;
+    callback: () => void
+}
+
+interface MyData {
+    token?: any
+}
+
 // Login
-export const webLogin = createAsyncThunk('login', async (params: any) => {
-    let newData = {}
+export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/login', async (params, { getState }) => {
     try {
-        const response = await axios.post("auth/web/login", params?.data, config);
-        const { data, status } = response
+        const response = await axios.post("auth/web/login", params.data, config);
+        const { data, status } = response;
         if (status == 200) {
             toast.dark("Sign in successfully!")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
             setCookie('access', data?.access)
-            newData = {
-                ...data,
-                access: data.access
-            }
-            return newData
+            params.callback()
+            return data
         } else {
             throw response
         }
@@ -66,89 +81,101 @@ export const webLogin = createAsyncThunk('login', async (params: any) => {
     }
 });
 
-// Login
-export const webLoginGoogle = createAsyncThunk('loginGoogle', async (params: any) => {
-    let newData = {}
+// Login-google
+export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/login/google', async (params, { getState }) => {
     try {
-        const response = await axios.post("auth/web/login/google", params?.data, config);
-        const { data, status } = response
-        console.log(response, "response login google rd")
+        const response = await axios.post("auth/web/login/google", params.data, config);
+        const { data, status } = response;
+        console.log(data, "response ")
         if (status == 200) {
-            toast.dark("Sign in with google successfully!");
+            toast.dark("Sign in successfully!")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
             setCookie('access', data?.access)
-            newData = {
-                data: data.user,
-                access: data.access,
-                refreshToken: data.refreshToken,
-                accessToke: data.accessToke,
-            }
-            return newData
+            params.callback()
+            return data
         } else {
             throw response
         }
     } catch (error: any) {
+        const { data } = error.response
         console.log(error.message, "error")
-        toast.dark("error")
-        return error.response.data
+        toast.dark(data.message[0] || data.error)
+        return data
     }
 });
 
 // Register
-export const webRegister = createAsyncThunk('register', async (params: any) => {
-    let newData = {}
+export const webRegister = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/register', async (params, { getState }) => {
     try {
-        const response = await axios.post("auth/web/register", params?.data, config);
-        const { data, status } = response
-        console.log(response, "response")
+        const response = await axios.post("auth/web/register", params.data, config);
+        const { data, status } = response;
         if (status == 201) {
-            toast.dark("Register is successfully")
-            newData = {
-                ...data,
-                pathname: params?.pathname
-            }
-            return newData
+            toast.dark("Sign up successfully!")
+            params.callback()
+            return data
         } else {
             throw response
         }
     } catch (error: any) {
-        const { data } = error?.response
-        console.log(data?.message[0], "error")
-        toast.dark(data?.message[0] || data?.error)
-        return data?.message[0] || data?.error
+        const { data } = error.response
+        console.log(error.message, "error")
+        toast.dark(data.message[0] || data.error)
+        return data
     }
 });
 
-// Profile - auth me
-export const authMe = createAsyncThunk('my-profile', async (params: any) => {
-    config = {
-        ...config,
+// Auth me
+export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('auth/web/me', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
         headers: {
-            ...config.headers,
-            Authorization: `Bearer ${params?.token}`
-        }
-    }
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
     try {
         const response = await axios.get("auth/web/me", config);
         const { data, status } = response;
-        // console.log(response, "response")
         if (status == 200) {
-            return data;
+            return data
         } else {
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response.data
-        console.log(data.message[0], "error")
+        const { data } = error.response
+        console.log(error.message, "error")
         toast.dark(data.message[0] || data.error)
-        return data.message[0] || data.error
+        return data
+    }
+});
+
+// logout
+export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/logout', async (params, { getState }) => {
+    try {
+        const response = await axios.get("auth/web/logout", config);
+        const { data, status } = response;
+        if (status == 201) {
+            toast.dark("Sign out successfully!")
+            deleteCookie("access")
+            deleteCookie("accessToken")
+            deleteCookie("refreshToken")
+            params.callback()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data } = error.response
+        console.log(error.message, "error")
+        toast.dark(data.message[0] || data.error)
+        return data
     }
 });
 
 // SLICER
-export const loginSlice = createSlice({
-    name: 'login',
+export const authSlice = createSlice({
+    name: 'auth',
     initialState,
     reducers: {
         // leave this empty here
@@ -158,8 +185,12 @@ export const loginSlice = createSlice({
     // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
     extraReducers: builder => {
         builder
+            // login
             .addCase(webLogin.pending, state => {
-                state.pending = true;
+                return {
+                    ...state,
+                    pending: true
+                }
             })
             .addCase(webLogin.fulfilled, (state, { payload }) => {
                 return {
@@ -169,42 +200,27 @@ export const loginSlice = createSlice({
                     error: false,
                     data: {
                         ...state.data,
-                        user: payload.user,
-                        accessToken: payload.accessToken,
-                        refreshToken: payload.refreshToken,
                         access: payload.access,
-                        pathname: payload.pathname
-                    },
+                        accessToken: payload.accessToken,
+                        refreshToken: payload.refreshToken
+                    }
                 }
             })
             .addCase(webLogin.rejected, (state, { payload }) => {
-                state.pending = false;
-                state.error = true;
-                state.message = payload;
-            })
-            .addDefaultCase((state, action) => {
-                let base = {
+                return {
                     ...state,
-                    ...action.state
+                    pending: false,
+                    error: true,
+                    message: payload
                 }
-                return base
             })
-    }
-});
 
-export const loginGoogleSlice = createSlice({
-    name: 'login',
-    initialState,
-    reducers: {
-        // leave this empty here
-    },
-    // The `extraReducers` field lets the slice handle actions defined elsewhere, including actions generated by createAsyncThunk or in other slices. 
-    // Since this is an API call we have 3 possible outcomes: pending, fulfilled and rejected. We have made allocations for all 3 outcomes. 
-    // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
-    extraReducers: builder => {
-        builder
+            // login google
             .addCase(webLoginGoogle.pending, state => {
-                state.pending = true;
+                return {
+                    ...state,
+                    pending: true
+                }
             })
             .addCase(webLoginGoogle.fulfilled, (state, { payload }) => {
                 return {
@@ -214,122 +230,50 @@ export const loginGoogleSlice = createSlice({
                     error: false,
                     data: {
                         ...state.data,
-                        user: payload.user,
-                        accessToken: payload.accessToken,
-                        refreshToken: payload.refreshToken,
                         access: payload.access,
-                        pathname: payload.pathname
-                    },
+                        accessToken: payload.accessToken,
+                        refreshToken: payload.refreshToken
+                    }
                 }
             })
             .addCase(webLoginGoogle.rejected, (state, { payload }) => {
-                state.pending = false;
-                state.error = true;
-                state.message = payload;
-            })
-            .addDefaultCase((state, action) => {
-                let base = {
-                    ...state,
-                    ...action.state
-                }
-                return base
-            })
-    }
-});
-
-export const registerSlice = createSlice({
-    name: 'register',
-    initialState,
-    reducers: {
-        // leave this empty here
-    },
-    // The `extraReducers` field lets the slice handle actions defined elsewhere, including actions generated by createAsyncThunk or in other slices. 
-    // Since this is an API call we have 3 possible outcomes: pending, fulfilled and rejected. We have made allocations for all 3 outcomes. 
-    // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
-    extraReducers: builder => {
-        builder
-            .addCase(webRegister.pending, state => {
-                state.pending = true;
-            })
-            .addCase(webRegister.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
-                    isLogin: false,
                     pending: false,
-                    error: false,
-                    data: {
-                        ...state.data,
-                        user: payload.user,
-                        pathname: payload.pathname
-                    },
+                    error: true,
+                    message: payload
                 }
             })
-            .addCase(webRegister.rejected, (state, { payload }) => {
-                state.pending = false;
-                state.error = true;
-                state.message = payload;
-            })
-            .addDefaultCase((state, action) => {
-                let base = {
-                    ...state,
-                    ...action.state
-                }
-                return base
-            })
-    }
-});
 
-export const profileSlice = createSlice({
-    name: 'my-profile',
-    initialState,
-    reducers: {
-        // leave this empty here
-    },
-    // The `extraReducers` field lets the slice handle actions defined elsewhere, including actions generated by createAsyncThunk or in other slices. 
-    // Since this is an API call we have 3 possible outcomes: pending, fulfilled and rejected. We have made allocations for all 3 outcomes. 
-    // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
-    extraReducers: builder => {
-        builder
-            .addCase(authMe.pending, state => {
-                state.pending = true;
-            })
-            .addCase(authMe.fulfilled, (state, { payload }) => {
+            // auth-me
+            .addCase(getAuthMe.pending, state => {
                 return {
                     ...state,
-                    isLogin: true,
+                    pending: true
+                }
+            })
+            .addCase(getAuthMe.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
                     pending: false,
                     error: false,
                     data: {
                         ...state.data,
                         user: payload
-                    },
+                    }
                 }
             })
-            .addCase(authMe.rejected, (state, { payload }) => {
-                state.isLogin  = false;
+            .addCase(getAuthMe.rejected, (state, { payload }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = payload;
-            })
-            .addDefaultCase((state, action) => {
-                let base = {
-                    ...state,
-                    ...action.state
-                }
-                return base
             })
     }
 });
 // SLICER
 
-const loginReducers = loginSlice.reducer;
-const loginGoogleReducers = loginGoogleSlice.reducer;
-const registerReducers = registerSlice.reducer;
-const profileReducers = profileSlice.reducer;
+const authReducers = authSlice.reducer;
 
-export const selectLogin = (state: RootState) => state.loginReducers;
-export const selectLoginGoogle = (state: RootState) => state.loginGoogleReducers;
-export const selectRegister = (state: RootState) => state.registerReducers;
-export const selectAuth = (state: RootState) => state.profileReducers;
+export const selectAuth = (state: RootState) => state.authentiication;
 
-export { loginReducers, profileReducers, registerReducers, loginGoogleReducers };
+export default authReducers;

@@ -9,8 +9,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useDatePicker, useInput, usePhoneInput, useSelect } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
-import { selectRegister, webRegister } from '../../../redux/features/auth/authReducers'
+import { selectAuth, webRegister } from '../../../redux/features/auth/authReducers'
 import { FaCircleNotch } from 'react-icons/fa'
+import { useRouter } from 'next/router'
 
 type Props = {
     onChangePage: () => void
@@ -74,10 +75,11 @@ const stylesSelect = {
 
 const SignUp = (props: Props) => {
     const { onChangePage, isOpen } = props;
+    const router = useRouter();
 
     // redux
     const dispatch = useAppDispatch();
-    const { data, error, isLogin, message, pending } = useAppSelector(selectRegister);
+    const { data, error, message, pending } = useAppSelector(selectAuth);
 
     // state
     const [isHiddenPass, setIsHiddenPass] = useState(true);
@@ -143,7 +145,7 @@ const SignUp = (props: Props) => {
                     password,
                     confirmPassword
                 },
-                pathname: "/authentication?page=sign-in"
+                callback:() => router.push("/authentication?page=sign-in")
             }))
         }
     };
