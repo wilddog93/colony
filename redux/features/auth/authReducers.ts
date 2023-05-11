@@ -152,10 +152,17 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
 
 // logout
 export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/logout', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.data.token}`
+        },
+    };
     try {
         const response = await axios.get("auth/web/logout", config);
         const { data, status } = response;
-        if (status == 201) {
+        if (status == 200) {
             toast.dark("Sign out successfully!")
             deleteCookie("access")
             deleteCookie("accessToken")
@@ -172,6 +179,7 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
         return data
     }
 });
+
 
 // SLICER
 export const authSlice = createSlice({
@@ -245,6 +253,31 @@ export const authSlice = createSlice({
                 }
             })
 
+            // login
+            .addCase(webLogout.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webLogout.fulfilled, (state, { payload }) => {
+                state.isLogin = false;
+                state.pending = false;
+                state.error = false;
+                state.data.user= {}
+                state.data.access= ""
+                state.data.accessToken= ""
+                state.data.refreshToken= ""
+            })
+            .addCase(webLogout.rejected, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: payload
+                }
+            })
+
             // auth-me
             .addCase(getAuthMe.pending, state => {
                 return {
@@ -269,6 +302,8 @@ export const authSlice = createSlice({
                 state.error = true;
                 state.message = payload;
             })
+
+            .addDefaultCase((state, action) => {})
     }
 });
 // SLICER

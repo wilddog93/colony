@@ -29,7 +29,7 @@ const SignIn = (props: any) => {
     const { onChangePage, isOpen } = props;
 
     // state
-    const [isHidden, setIsHidden] = useState(false);
+    const [isHidden, setIsHidden] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [googleData, setGoogleData] = useState({});
 

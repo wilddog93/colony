@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react'
 import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from '../../redux/Hook'
-import { selectAuth } from '../../redux/features/auth/authReducers'
+import authReducers, { selectAuth, webLogout } from '../../redux/features/auth/authReducers'
 import Modal from '../Modal'
 import { ModalFooter, ModalHeader } from '../Modal/ModalComponent'
+import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa'
+import Button from '../Button/Button'
+import { useRouter } from 'next/router'
 
 type DropdownUserProps = {
     userDefault?: string,
@@ -11,6 +14,7 @@ type DropdownUserProps = {
 }
 
 const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
+    const router = useRouter();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isSignOut, setIsSignOut] = useState(false);
 
@@ -19,8 +23,8 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
 
     // redux auth
     const dispatch = useAppDispatch();
-    const { data, isLogin, pending } = useAppSelector(selectAuth);
-    const { user } = data
+    const auth = useAppSelector(selectAuth);
+    const { data, isLogin, pending } = auth;
 
     // close on click outside
     useEffect(() => {
@@ -56,6 +60,16 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
 
     const isOpenSignOut = () => setIsSignOut(true)
     const isCloseSignOut = () => setIsSignOut(false)
+
+    const onSignOut = () => {
+        let data = { token }
+        dispatch(webLogout({ data, callback: () => {
+            isCloseSignOut()
+            router.push("/")
+        } }))
+    }
+
+    console.log(data, 'log')
 
     return (
         <div className='relative'>
@@ -222,19 +236,31 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
                 onClose={isCloseSignOut}
                 size='small'
             >
-                <Fragment>
-                    <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
-                        <h3 className='text-lg font-semibold'>New Facilities</h3>
-                    </ModalHeader>
-                    <div className="w-full px-6">
-                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
+                <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[350px] max-h-[650px] gap-4 text-graydark tracking-wider">
+                    <h3 className='text-title-xl2 font-bold'>Sign Out</h3>
+                    <FaRegQuestionCircle className='w-20 h-20 text-primary' />
+                    <p>Are you sure to Sign Out ?</p>
+                    <div className='w-full flex items-center gap-2 justify-center'>
+                        <Button
+                            className="rounded-lg px-4"
+                            variant="primary"
+                            type="button"
+                            onClick={onSignOut}
+                            disabled={pending}
+                        >
+                            {pending ? <Fragment>
+                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                Signing out ....
+                            </Fragment> : "Yes, Sign out!"}
+                        </Button>
+                        <Button
+                            className="rounded-lg px-4"
+                            variant="danger"
+                            type="button"
+                            onClick={isCloseSignOut}
+                        >No</Button>
                     </div>
-                    <ModalFooter
-                        className='sticky bottom-0 bg-white p-4 border-t-2 border-gray mt-3'
-                        isClose={true}
-                        
-                    ></ModalFooter>
-                </Fragment>
+                </div>
             </Modal>
         </div>
     )

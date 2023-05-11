@@ -114,7 +114,7 @@ const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title,
                         {/* <!-- Dark Mode Toggler --> */}
 
                         {/* <!-- Notification Menu Area --> */}
-                        <DropdownUser userDefault={userDefault} />
+                        <DropdownUser userDefault={userDefault} token={token} />
                         {/* <!-- Notification Menu Area --> */}
 
                         <div className="relative h-10 mx-3">
