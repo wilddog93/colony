@@ -25,11 +25,12 @@ export const database = getDatabase(app);
 type FirebaseTokenProps = {
     setIsTokenFound: Dispatch<SetStateAction<boolean>>;
     setFirebaseToken: Dispatch<SetStateAction<string>>;
+    user?: any
 }
 
 
 export const requestForToken = async (props: FirebaseTokenProps) => {
-    const { setIsTokenFound, setFirebaseToken } = props;
+    const { setIsTokenFound, setFirebaseToken, user } = props;
     try {
         const messagingResolve = await messaging;
         const currentToken = await getToken(messagingResolve, {
@@ -43,8 +44,8 @@ export const requestForToken = async (props: FirebaseTokenProps) => {
 
             // database user 
             const sRef: DatabaseReference = ref(database, "users/" + currentToken);
-            set(sRef, { online: true })
-            onDisconnect(sRef).set({ online: false })
+            set(sRef, { online: true, user })
+            onDisconnect(sRef).set({ online: false, user })
             onValue(sRef, (snap) => {
                 if (snap.val().online === true) {
                     console.log("connected / online");

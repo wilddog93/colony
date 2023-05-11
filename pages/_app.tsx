@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 import NextNProgress from "nextjs-progressbar";
 import { isSupported, onMessage } from "@firebase/messaging";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);
@@ -15,7 +16,7 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const [loading, setLoading] = useState(true);
 
   const [isNotification, setIsNotification] = useState(false);
-  const [notification, setNotification]  = useState({ title: "", body: "", context: "" });
+  const [notification, setNotification] = useState({ title: "", body: "", context: "" });
   const [isTokenFound, setIsTokenFound] = useState(false);
   const [firebaseToken, setFirebaseToken] = useState("");
 
@@ -56,17 +57,19 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
     </div>
   )
   return (
-    <Provider store={store}>
-      <NextNProgress
-        color="#5F59F7"
-        startPosition={0.3}
-        stopDelayMs={200}
-        height={4}
-        showOnShallow={true}
-      />
-      <Component {...props} />
-      <ToastContainer position='top-right' limit={500} />
-    </Provider>
+    <GoogleOAuthProvider clientId="51774239059-2i802tboo27kv3k78qv5tmkdg6aaa1v9.apps.googleusercontent.com">
+      <Provider store={store}>
+        <NextNProgress
+          color="#5F59F7"
+          startPosition={0.3}
+          stopDelayMs={200}
+          height={4}
+          showOnShallow={true}
+        />
+        <Component {...props} />
+        <ToastContainer position='top-right' limit={500} />
+      </Provider>
+    </GoogleOAuthProvider>
   );
 };
 
