@@ -1,15 +1,16 @@
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
-import { MdEmail, MdLockOutline, MdOutlineCalendarToday, MdOutlineEmail, MdOutlinePerson } from 'react-icons/md'
+import React, { Fragment, useEffect, useState } from 'react'
+import { MdEmail, MdLockOutline, MdOutlineCalendarToday, MdOutlineEmail, MdOutlineLockOpen, MdOutlinePerson } from 'react-icons/md'
 import Button from '../../Button/Button'
 import DropdownSelect from '../../Dropdown/DropdownSelect'
 import PhoneInput from 'react-phone-input-2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useDatePicker, useInput, usePhoneInput } from '../../../utils/useHooks/useHooks'
+import { useDatePicker, useInput, usePhoneInput, useSelect } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
-import { useAppDispatch } from '../../../redux/Hook'
-import { webRegister } from '../../../redux/features/auth/authReducers'
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
+import { selectRegister, webRegister } from '../../../redux/features/auth/authReducers'
+import { FaCircleNotch } from 'react-icons/fa'
 
 type Props = {
     onChangePage: () => void
@@ -73,44 +74,47 @@ const stylesSelect = {
 
 const SignUp = (props: Props) => {
     const { onChangePage, isOpen } = props;
-    const [gender, setGender] = useState(null);
-    const [phone, setPhone] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
 
     // redux
     const dispatch = useAppDispatch();
+    const { data, error, isLogin, message, pending } = useAppSelector(selectRegister);
 
     // state
-    const [isHidden, setIsHidden] = useState(false);
+    const [isHiddenPass, setIsHiddenPass] = useState(true);
+    const [isHiddenCPass, setIsHiddenCPass] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const { value: email, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
+
+    const { value: email, setValue: setEmail, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.email(value),
     });
-    const { value: firstName, reset: resetFirstName, error: firstNameError, setError: setFirstNameError, onChange: onFirstNameChange } = useInput({
+    const { value: gender, setValue: setGender, reset: resetGender, error: genderError, setError: setGenderError, onChange: onGenderChange } = useSelect({
+        validate: (value) => validation?.required(value),
+    });
+    const { value: firstName, setValue: setFirstName, reset: resetFirstName, error: firstNameError, setError: setFirstNameError, onChange: onFirstNameChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.required(value),
     });
-    const { value: lastName, reset: resetLastName, error: lastNameError, setError: setLastNameError, onChange: onLastNameChange } = useInput({
+    const { value: lastName, setValue: setLastName, reset: resetLastName, error: lastNameError, setError: setLastNameError, onChange: onLastNameChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.required(value),
     });
-    const { value: nickName, reset: resetNickName, error: nickNameError, setError: setNickNameError, onChange: onNickNameChange } = useInput({
+    const { value: nickName, setValue: setNickName, reset: resetNickName, error: nickNameError, setError: setNickNameError, onChange: onNickNameChange } = useInput({
         defaultValue: "",
         // validate: (value) => validation?.required(value),
     });
-    const { value: phoneNumber, reset: resetPhoneNumber, error: phoneNumberError, setError: setPhoneNumberError, onChange: onPhoneNumberChange } = usePhoneInput({
+    const { value: phoneNumber, setValue: setPhoneNumber, reset: resetPhoneNumber, error: phoneNumberError, setError: setPhoneNumberError, onChange: onPhoneNumberChange } = usePhoneInput({
         defaultCountry: "",
-        validate: (value) => validation?.phone(value),
+        validate: (value) => validation?.required(value),
     });
-    const { value: birthday, reset: resetBirthday, error: birthdayError, setError: setBirthdayError, onChange: onBirthdayChange } = useDatePicker({
+    const { value: birthday, setValue: setBirthday, reset: resetBirthday, error: birthdayError, setError: setBirthdayError, onChange: onBirthdayChange } = useDatePicker({
         validate: (date) => validation?.required(date),
     });
-    const { value: password, reset: resetPassword, error: passwordError, setError: setPasswordError, onChange: onPasswordChange } = useInput({
+    const { value: password, setValue: setPassword, reset: resetPassword, error: passwordError, setError: setPasswordError, onChange: onPasswordChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.password(value),
     });
-    const { value: confirmPassword, reset: resetConfirmPassword, error: confirmConfirmPasswordError, setError: setConfirmPasswordError, onChange: onConfirmPasswordChange } = useInput({
+    const { value: confirmPassword, setValue: setConfirmPassword, reset: resetConfirmPassword, error: confirmPasswordError, setError: setConfirmPasswordError, onChange: onConfirmPasswordChange } = useInput({
         defaultValue: "",
         validate: (value) => validation?.confirmPassword(value, password),
     });
@@ -139,7 +143,7 @@ const SignUp = (props: Props) => {
                     password,
                     confirmPassword
                 },
-                pathname: "/aithentication?page=sign-in"
+                pathname: "/authentication?page=sign-in"
             }))
         }
     };
@@ -149,18 +153,63 @@ const SignUp = (props: Props) => {
         resetPassword()
     };
 
-    const handleIsPassword = (value: boolean) => setIsHidden(!value);
+    const handleIsPassword = (value: boolean) => setIsHiddenPass(!value);
+    const handleIsCPassword = (value: boolean) => setIsHiddenCPass(!value);
 
     useEffect(() => {
-        if (emailError || passwordError || !email || !password) {
+        if (
+            !email ||
+            !password ||
+            !confirmPassword ||
+            !firstName ||
+            !lastName ||
+            !phoneNumber ||
+            !birthday ||
+            emailError ||
+            passwordError ||
+            confirmPasswordError ||
+            firstNameError ||
+            lastNameError ||
+            phoneNumberError ||
+            birthdayError
+        ) {
             setSubmitting(false);
             // perform submission logic
         } else {
             setSubmitting(true)
         }
-    }, [emailError, passwordError, email, password]);
+    }, 
+    [
+        email, 
+        password, 
+        confirmPassword, 
+        firstName, 
+        lastName, 
+        phoneNumber, 
+        birthday,
+        emailError, 
+        passwordError, 
+        confirmPasswordError, 
+        firstNameError, 
+        lastNameError, 
+        phoneNumberError, 
+        birthdayError,
+    ]);
 
-    console.log(dateOfBirth?.toDateString(), 'date')
+    console.log(
+        "errors :",
+        {
+            emailError,
+            passwordError,
+            confirmPasswordError,
+            firstNameError,
+            lastNameError,
+            nickNameError,
+            phoneNumberError,
+            birthdayError
+        }
+    )
+
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
@@ -170,18 +219,18 @@ const SignUp = (props: Props) => {
                     <p className='text-gray-5 text-sm sm:text-title-sm'>Sign your informations to continue</p>
                 </div>
 
-                <form className='relative overflow-auto p-6 xl:px-10'>
+                <form onSubmit={onSubmit} className='relative overflow-auto p-6 xl:px-10'>
                     <div className='mb-3'>
                         <label htmlFor='name' className='mb-2.5 block font-medium text-black dark:text-white'>
                             Contact Name *
                         </label>
-                        <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                        <div className="w-full flex flex-col lg:flex-row gap-2">
                             <div className="w-full lg:w-1/3">
                                 <DropdownSelect
                                     customStyles={stylesSelect}
                                     value={gender}
-                                    onChange={setGender}
-                                    error=""
+                                    onChange={onGenderChange}
+                                    options={genderOption}
                                     className='text-sm lg:text-md font-normal'
                                     classNamePrefix=""
                                     formatOptionLabel=""
@@ -189,31 +238,38 @@ const SignUp = (props: Props) => {
                                     isDisabled={false}
                                     isMulti={false}
                                     placeholder='Choose...'
-                                    options={genderOption}
                                     icon=''
+                                    error=""
                                 />
+                                {genderError && <div className='mt-1 text-danger text-sm lg:text-md'>{genderError}</div>}
                             </div>
 
-                            <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center gap-2">
+                            <div className="w-full lg:w-2/3 flex flex-col lg:flex-row gap-2">
                                 <div className='w-full lg:w-1/2 relative'>
                                     <input
                                         id='name'
+                                        value={firstName}
+                                        onChange={onFirstNameChange}
                                         type='text'
                                         placeholder='Firstname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
 
                                     <MdOutlinePerson className='absolute right-4 top-4 h-6 w-6 text-gray-5' />
+                                    {firstNameError && <div className='mt-1 text-danger text-sm lg:text-md'>{firstNameError}</div>}
                                 </div>
                                 <div className='w-full lg:w-1/2 relative'>
                                     <input
                                         id='name'
+                                        value={lastName}
+                                        onChange={onLastNameChange}
                                         type='text'
                                         placeholder='Lastname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
 
                                     <MdOutlinePerson className='absolute right-4 top-4 h-6 w-6 text-gray-5' />
+                                    {lastNameError && <div className='mt-1 text-danger text-sm lg:text-md'>{lastNameError}</div>}
                                 </div>
                             </div>
                         </div>
@@ -240,6 +296,7 @@ const SignUp = (props: Props) => {
                                 // disableSearchIcon
                                 />
                             </div>
+                            {phoneNumberError && <div className='mt-1 text-danger text-sm lg:text-md'>{phoneNumberError}</div>}
                         </div>
 
                         <div className='w-full lg:w-1/2 mb-3 lg:mb-0'>
@@ -271,12 +328,15 @@ const SignUp = (props: Props) => {
                         </label>
                         <div className='relative'>
                             <input
+                                value={email}
+                                onChange={onEmailChange}
                                 type='email'
                                 placeholder='Enter your email'
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
 
                             <MdOutlineEmail className='absolute right-4 top-4 h-6 w-6 text-gray-5' />
+                            {emailError && <div className='mt-1 text-danger text-sm lg:text-md'>{emailError}</div>}
                         </div>
                     </div>
 
@@ -286,13 +346,24 @@ const SignUp = (props: Props) => {
                         </label>
                         <div className='relative'>
                             <input
+                                value={password}
+                                onChange={onPasswordChange}
+                                type={isHiddenPass ? "password" : "text"}
                                 id="password"
-                                type='password'
                                 placeholder='Enter your password'
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
 
-                            <MdLockOutline className='w-6 h-6 absolute right-4 top-4 text-gray-5' />
+                            <button
+                                type='button'
+                                className='absolute z-40 right-4 top-4 text-gray-5 focus:outline-none'
+                                onClick={() => handleIsPassword(isHiddenPass)}
+                            >
+                                {isHiddenPass ? <MdLockOutline className='w-6 h-6' /> :
+                                    <MdOutlineLockOpen className='w-6 h-6' />
+                                }
+                            </button>
+                            {passwordError && <div className='mt-1 text-danger text-sm lg:text-md'>{passwordError}</div>}
                         </div>
                     </div>
 
@@ -302,13 +373,24 @@ const SignUp = (props: Props) => {
                         </label>
                         <div className='relative'>
                             <input
+                                value={confirmPassword}
+                                onChange={onConfirmPasswordChange}
+                                type={isHiddenCPass ? "password" : "text"}
                                 id="verify-password"
-                                type='password'
                                 placeholder='Enter your verify password'
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
 
-                            <MdLockOutline className='w-6 h-6 absolute right-4 top-4 text-gray-5' />
+                            <button
+                                type='button'
+                                className='absolute z-40 right-4 top-4 text-gray-5 focus:outline-none'
+                                onClick={() => handleIsCPassword(isHiddenCPass)}
+                            >
+                                {isHiddenCPass ? <MdLockOutline className='w-6 h-6' /> :
+                                    <MdOutlineLockOpen className='w-6 h-6' />
+                                }
+                            </button>
+                            {confirmPasswordError && <div className='mt-1 text-danger text-sm lg:text-md'>{confirmPasswordError}</div>}
                         </div>
                     </div>
 
@@ -317,9 +399,16 @@ const SignUp = (props: Props) => {
                             <Button
                                 type='submit'
                                 variant="primary"
-                                className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90'
+                                className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90 gap-2'
+                                onClick={onSubmit}
+                                disabled={pending || !submitting}
                             >
-                                Sign Up
+                                {pending ?
+                                    (<Fragment>
+                                        Loading...
+                                        <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                    </Fragment>)
+                                    : "Sign up Here"}
                             </Button>
                         </div>
 

@@ -105,7 +105,8 @@ export const webRegister = createAsyncThunk('register', async (params: any) => {
         if (status == 201) {
             toast.dark("Register is successfully")
             newData = {
-                ...data
+                ...data,
+                pathname: params?.pathname
             }
             return newData
         } else {

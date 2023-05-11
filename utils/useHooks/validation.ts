@@ -40,6 +40,9 @@ export const validation = {
         if (!value) {
             return 'Password is required';
         }
+        if (value !== old) {
+            return 'Password do not match.';
+        }
         if (!capital) {
             return "Password must be in 1 Capital letter."
         }
@@ -48,9 +51,6 @@ export const validation = {
         }
         if (value.length < 6) {
             return 'Password must be 6 characters or more';
-        }
-        if (value !== old) {
-            return 'Password do not match.';
         }
 
         return null;

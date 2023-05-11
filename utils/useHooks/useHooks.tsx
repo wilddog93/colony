@@ -3,6 +3,7 @@ import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-
 import OptionTypeBase from "react-select";
 import { CountryData } from 'react-phone-input-2';
 import { ReactDatePickerProps } from 'react-datepicker';
+import StateManagedSelect from 'react-select/dist/declarations/src/stateManager';
 
 type Validator<T> = (value: T) => string | undefined;
 
@@ -184,7 +185,8 @@ const useRadioInput = (
 
 // react-select useHook
 interface UseSelectResult<T extends OptionTypeBase> {
-    value: T | null;
+    value: any;
+    setValue: Dispatch<SetStateAction<StateManagedSelect | null>>;
     options: T[] | OptionsOrGroups<T, GroupBase<T>>;
     error: string | null;
     onChange: (newValue: T | null) => void;
@@ -203,13 +205,12 @@ const useSelect = <T extends OptionTypeBase>({
     validate,
     ...selectProps
 }: UseSelectOptions<T>): UseSelectResult<T> => {
-    const [value, setValue] = useState<T | null>(defaultValue ?? null);
+    const [value, setValue] = useState<StateManagedSelect | null>(defaultValue ?? null);
     const [error, setError] = useState<string | null>(null);
 
     const handleChange = (newValue: T | null) => {
         const validationError = validate?.(newValue);
-        // @ts-ignore
-        setError(validationError);
+        setError(validationError as SetStateAction<string | null>);
         setValue(newValue);
     };
 
