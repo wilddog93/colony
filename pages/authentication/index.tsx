@@ -60,7 +60,7 @@ const Authentication = ({ pageProps }: Props) => {
         return res
     }, [tabs])
 
-    console.log(query, 'query')
+    console.log({error, message}, 'auth data')
 
     return (
         <AuthLayout

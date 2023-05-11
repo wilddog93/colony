@@ -1,4 +1,6 @@
 import {
+    Action,
+    AnyAction,
     createAsyncThunk,
     createSlice,
 } from '@reduxjs/toolkit';
@@ -58,6 +60,15 @@ interface MyData {
     token?: any
 }
 
+// rejection
+interface RejectedAction extends Action {
+    error: Error
+}
+
+function isRejectedAction(action: AnyAction): action is RejectedAction {
+    return action.type.endsWith('rejected')
+}
+
 // Login
 export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/login', async (params, { getState }) => {
     try {
@@ -74,10 +85,14 @@ export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('a
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response
-        console.log(error.message, "error")
+        const { data, status } = error.response;
+        let newError = { message: data.message[0] || data.error }
         toast.dark(data.message[0] || data.error)
-        return data
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
     }
 });
 
@@ -86,7 +101,7 @@ export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState
     try {
         const response = await axios.post("auth/web/login/google", params.data, config);
         const { data, status } = response;
-        console.log(data, "response ")
+        console.log(data, "response :", params?.data)
         if (status == 200) {
             toast.dark("Sign in successfully!")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
@@ -98,10 +113,14 @@ export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response
-        console.log(error.message, "error")
+        const { data, status } = error.response;
+        let newError = { message: data.message[0] || data.error }
         toast.dark(data.message[0] || data.error)
-        return data
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
     }
 });
 
@@ -118,10 +137,14 @@ export const webRegister = createAsyncThunk<any, AuthData, { state: RootState }>
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response
-        console.log(error.message, "error")
+        const { data, status } = error.response;
+        let newError = { message: data.message[0] || data.error }
         toast.dark(data.message[0] || data.error)
-        return data
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
     }
 });
 
@@ -143,10 +166,14 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response
-        console.log(error.message, "error")
+        const { data, status } = error.response;
+        let newError = { message: data.message[0] || data.error }
         toast.dark(data.message[0] || data.error)
-        return data
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
     }
 });
 
@@ -173,10 +200,14 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
             throw response
         }
     } catch (error: any) {
-        const { data } = error.response
-        console.log(error.message, "error")
+        const { data, status } = error.response;
+        let newError = { message: data.message[0] || data.error }
         toast.dark(data.message[0] || data.error)
-        return data
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
     }
 });
 
@@ -264,10 +295,10 @@ export const authSlice = createSlice({
                 state.isLogin = false;
                 state.pending = false;
                 state.error = false;
-                state.data.user= {}
-                state.data.access= ""
-                state.data.accessToken= ""
-                state.data.refreshToken= ""
+                state.data.user = {}
+                state.data.access = ""
+                state.data.accessToken = ""
+                state.data.refreshToken = ""
             })
             .addCase(webLogout.rejected, (state, { payload }) => {
                 return {
@@ -303,7 +334,19 @@ export const authSlice = createSlice({
                 state.message = payload;
             })
 
-            .addDefaultCase((state, action) => {})
+            .addMatcher(isRejectedAction, (state, action) => {
+                state.error = true;
+                state.isLogin = false;
+                state.pending = false;
+                state.message = action.error.message
+            })
+            .addDefaultCase((state, action) => {
+                let base = {
+                    ...state,
+                    ...action.state
+                }
+                return base
+            })
     }
 });
 // SLICER

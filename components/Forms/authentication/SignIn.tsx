@@ -59,6 +59,8 @@ const SignIn = (props: any) => {
         resetPassword()
     };
 
+    console.log("google data:", googleData)
+
     const loginWithGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             await setGoogleData(tokenResponse);
