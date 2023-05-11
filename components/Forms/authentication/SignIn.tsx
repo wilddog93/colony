@@ -18,6 +18,7 @@ type Props = {
 }
 
 const SignIn = (props: any) => {
+    const { value, setValue } = props;
     // cookie
     const firebaseToken = getCookie("firebaseToken");
     const token = getCookie("accessToken");
@@ -59,8 +60,6 @@ const SignIn = (props: any) => {
         resetPassword()
     };
 
-    console.log("google data:", googleData)
-
     const loginWithGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             await setGoogleData(tokenResponse);
@@ -85,6 +84,11 @@ const SignIn = (props: any) => {
             setSubmitting(true)
         }
     }, [emailError, passwordError, email, password]);
+
+    useEffect(() => {
+        setValue({ email, password })
+    }, [email, password])
+    
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
@@ -116,6 +120,8 @@ const SignIn = (props: any) => {
                                 `}
                                 value={email}
                                 onChange={onEmailChange}
+                                autoFocus
+                                autoComplete='true'
                             />
 
                             <MdOutlineEmail className={`absolute right-4 top-4 h-6 w-6 text-gray-5`} />

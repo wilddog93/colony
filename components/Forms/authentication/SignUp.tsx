@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
 import { MdEmail, MdLockOutline, MdOutlineCalendarToday, MdOutlineEmail, MdOutlineLockOpen, MdOutlinePerson } from 'react-icons/md'
 import Button from '../../Button/Button'
 import DropdownSelect from '../../Dropdown/DropdownSelect'
@@ -16,6 +16,8 @@ import { useRouter } from 'next/router'
 type Props = {
     onChangePage: () => void
     isOpen: boolean
+    value: any
+    setValue: Dispatch<SetStateAction<any>>
 };
 
 const genderOption = [
@@ -74,7 +76,7 @@ const stylesSelect = {
 };
 
 const SignUp = (props: Props) => {
-    const { onChangePage, isOpen } = props;
+    const { onChangePage, isOpen, value, setValue } = props;
     const router = useRouter();
 
     // redux
@@ -211,6 +213,10 @@ const SignUp = (props: Props) => {
             birthdayError
         }
     )
+
+    useEffect(() => {
+        setValue({ email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday })
+    }, [email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday])
 
 
     return (

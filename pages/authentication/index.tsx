@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useMemo, useState, FC } from 'react';
+import React, { SetStateAction, useEffect, useMemo, useState, FC, Fragment } from 'react';
 import AuthLayout from '../../components/Layouts/AuthLayouts';
 import SignIn from '../../components/Forms/authentication/SignIn';
 import SignUp from '../../components/Forms/authentication/SignUp';
@@ -8,7 +8,10 @@ import Tooltip from '../../components/Tooltip/Tooltip';
 import { useAppDispatch, useAppSelector } from '../../redux/Hook';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
-import { getAuthMe, selectAuth } from '../../redux/features/auth/authReducers';
+import { getAuthMe, resetAuth, selectAuth } from '../../redux/features/auth/authReducers';
+import Modal from '../../components/Modal';
+import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
+import Button from '../../components/Button/Button';
 
 type Props = {
     pageProps: any
@@ -24,7 +27,12 @@ const Authentication = ({ pageProps }: Props) => {
     const dispatch = useAppDispatch();
     const { data, isLogin, error, pending, message } = useAppSelector(selectAuth);
 
+    // state
     const [tabs, setTabs] = useState<string | string[] | undefined>("");
+    const [isNotif, setIsNotif] = useState(false);
+    const [loadingNotif, setLoadingNotif] = useState(false);
+
+    const [form, setForm] = useState<any | undefined>({})
 
     const handleChangePage = () => {
         if (tabs === "sign-in") {
@@ -58,9 +66,18 @@ const Authentication = ({ pageProps }: Props) => {
         let res;
         res = tabs === "sign-up"
         return res
-    }, [tabs])
+    }, [tabs]);
 
-    console.log({error, message}, 'auth data')
+    useEffect(() => {
+        let notif = (message === "Email Not Registered!");
+        if(error && notif) {
+            setIsNotif(true)
+        } else {
+            setIsNotif(false)
+        }
+    }, [error, message])
+    
+    console.log({data, isLogin, error, message}, 'auth data')
 
     return (
         <AuthLayout
@@ -71,7 +88,7 @@ const Authentication = ({ pageProps }: Props) => {
             <div className="w-full h-full p-6 lg:p-10">
                 {/* <Breadcrumb pageName='Sign In' /> */}
                 <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
-                    <SignIn onChangePage={handleChangePage} isOpen={signIn} />
+                    <SignIn onChangePage={handleChangePage} isOpen={signIn} value={form} setValue={setForm} />
 
                     <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${signIn ? "translate-x-full" : ""}`}>
                         <div className='w-full h-2/3 flex flex-col py-17.5 px-26 justify-center'>
@@ -103,11 +120,49 @@ const Authentication = ({ pageProps }: Props) => {
                     </div>
 
                     {/* sign up */}
-                    <SignUp onChangePage={handleChangePage} isOpen={signUp} />
+                    <SignUp onChangePage={handleChangePage} isOpen={signUp} value={form} setValue={setForm} />
                 </div>
                 {/* <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark'>
         </div> */}
             </div>
+
+            <Modal
+                isOpen={isNotif}
+                onClose={() => setIsNotif(false)}
+                size='small'
+            >
+                <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[350px] max-h-[650px] gap-4 text-graydark tracking-wider">
+                    <h3 className='text-title-lg font-bold text-center'>{message}</h3>
+                    <FaRegQuestionCircle className='w-20 h-20 text-primary' />
+                    <p>Do you want to register ?</p>
+                    <div className='w-full flex items-center gap-2 justify-center'>
+                        <Button
+                            className="rounded-lg px-4"
+                            variant="primary"
+                            type="button"
+                            onClick={() => {
+                                router.push("/authentication?page=sign-up")
+                                setIsNotif(false)
+                                dispatch(resetAuth())
+                            }}
+                        >
+                            {pending ? <Fragment>
+                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                Loading ....
+                            </Fragment> : "Yes, Register!"}
+                        </Button>
+                        <Button
+                            className="rounded-lg px-4"
+                            variant="danger"
+                            type="button"
+                            onClick={() => {
+                                setIsNotif(false)
+                                dispatch(resetAuth())
+                            }}
+                        >No</Button>
+                    </div>
+                </div>
+            </Modal>
         </AuthLayout>
     )
 };
