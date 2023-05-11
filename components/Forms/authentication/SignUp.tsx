@@ -6,7 +6,7 @@ import DropdownSelect from '../../Dropdown/DropdownSelect'
 import PhoneInput from 'react-phone-input-2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useInput, usePhoneInput } from '../../../utils/useHooks/useHooks'
+import { useDatePicker, useInput, usePhoneInput } from '../../../utils/useHooks/useHooks'
 import { validation } from '../../../utils/useHooks/validation'
 import { useAppDispatch } from '../../../redux/Hook'
 import { webRegister } from '../../../redux/features/auth/authReducers'
@@ -97,15 +97,14 @@ const SignUp = (props: Props) => {
     });
     const { value: nickName, reset: resetNickName, error: nickNameError, setError: setNickNameError, onChange: onNickNameChange } = useInput({
         defaultValue: "",
-        validate: (value) => validation?.required(value),
+        // validate: (value) => validation?.required(value),
     });
     const { value: phoneNumber, reset: resetPhoneNumber, error: phoneNumberError, setError: setPhoneNumberError, onChange: onPhoneNumberChange } = usePhoneInput({
         defaultCountry: "",
-        validate: (value) => validation?.required(value),
+        validate: (value) => validation?.phone(value),
     });
-    const { value: birthday, reset: resetBirthday, error: birthdayError, setError: setBirthdayError, onChange: onBirthdayChange } = useInput({
-        defaultValue: "",
-        validate: (value) => validation?.required(value),
+    const { value: birthday, reset: resetBirthday, error: birthdayError, setError: setBirthdayError, onChange: onBirthdayChange } = useDatePicker({
+        validate: (date) => validation?.required(date),
     });
     const { value: password, reset: resetPassword, error: passwordError, setError: setPasswordError, onChange: onPasswordChange } = useInput({
         defaultValue: "",
@@ -244,13 +243,14 @@ const SignUp = (props: Props) => {
                         </div>
 
                         <div className='w-full lg:w-1/2 mb-3 lg:mb-0'>
+                            <span className='mb-2.5 block font-medium text-black dark:text-white'>Date of Birth *</span>
                             <label className='w-full text-gray-5 overflow-hidden'>
-                                <span className='mb-2.5 block font-medium text-black dark:text-white'>Date of Birth *</span>
                                 <div className='relative'>
                                     <DatePicker
-                                        selected={dateOfBirth}
-                                        onChange={setDateOfBirth}
+                                        selected={birthday}
+                                        onChange={onBirthdayChange}
                                         placeholderText={"Date of birth"}
+                                        todayButton
                                         // customInput={<ExampleCustomInput />}
                                         dropdownMode="select"
                                         peekNextMonth
@@ -261,6 +261,7 @@ const SignUp = (props: Props) => {
                                     <MdOutlineCalendarToday className='absolute right-4 top-4 h-6 w-6 text-gray-5' />
                                 </div>
                             </label>
+                            {birthdayError && <div className='mt-1 text-danger text-sm lg:text-md'>{birthdayError}</div>}
                         </div>
                     </div>
 

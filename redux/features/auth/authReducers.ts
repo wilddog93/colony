@@ -45,9 +45,8 @@ export const webLogin = createAsyncThunk('login', async (params: any) => {
     try {
         const response = await axios.post("auth/web/login", params?.data, config);
         const { data, status } = response
-        // console.log(response, "response")
         if (status == 200) {
-            toast.success("sukses")
+            toast.dark("Sign in successfully!")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
             setCookie('access', data?.access)
@@ -60,9 +59,10 @@ export const webLogin = createAsyncThunk('login', async (params: any) => {
             throw response
         }
     } catch (error: any) {
+        const { data } = error.response
         console.log(error.message, "error")
-        toast.error("error")
-        return error.response.data
+        toast.dark(data.message[0] || data.error)
+        return data
     }
 });
 
@@ -74,7 +74,7 @@ export const webLoginGoogle = createAsyncThunk('loginGoogle', async (params: any
         const { data, status } = response
         console.log(response, "response login google rd")
         if (status == 200) {
-            toast.success("Sign in with google successfully!");
+            toast.dark("Sign in with google successfully!");
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
             setCookie('access', data?.access)
@@ -90,7 +90,7 @@ export const webLoginGoogle = createAsyncThunk('loginGoogle', async (params: any
         }
     } catch (error: any) {
         console.log(error.message, "error")
-        toast.error("error")
+        toast.dark("error")
         return error.response.data
     }
 });
@@ -103,7 +103,7 @@ export const webRegister = createAsyncThunk('register', async (params: any) => {
         const { data, status } = response
         console.log(response, "response")
         if (status == 201) {
-            toast.success("Register is successfully")
+            toast.dark("Register is successfully")
             newData = {
                 ...data
             }
@@ -114,7 +114,7 @@ export const webRegister = createAsyncThunk('register', async (params: any) => {
     } catch (error: any) {
         const { data } = error?.response
         console.log(data?.message[0], "error")
-        toast.error(data?.message[0] || data?.error)
+        toast.dark(data?.message[0] || data?.error)
         return data?.message[0] || data?.error
     }
 });
@@ -140,7 +140,7 @@ export const authMe = createAsyncThunk('my-profile', async (params: any) => {
     } catch (error: any) {
         const { data } = error.response.data
         console.log(data.message[0], "error")
-        toast.error(data.message[0] || data.error)
+        toast.dark(data.message[0] || data.error)
         return data.message[0] || data.error
     }
 });

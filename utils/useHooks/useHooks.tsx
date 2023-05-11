@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
 import OptionTypeBase from "react-select";
 import { CountryData } from 'react-phone-input-2';
+import { ReactDatePickerProps } from 'react-datepicker';
 
 type Validator<T> = (value: T) => string | undefined;
 
@@ -283,5 +284,44 @@ const usePhoneInput = (
     };
 };
 
+// useDatePicker
+interface UseDatePickerResult {
+    value: Date | null;
+    setValue: Dispatch<SetStateAction <Date | null>>
+    error: string | null;
+    setError: Dispatch<SetStateAction <string | null>>
+    onChange: ReactDatePickerProps['onChange'];
+    reset: () => void;
+}
 
-export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput };
+interface UseDatePickerOptions {
+    validate?: (value: Date | null) => string | null;
+}
+
+const useDatePicker = ({ validate }: UseDatePickerOptions = {}): UseDatePickerResult => {
+    const [value, setValue] = useState<Date | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange: ReactDatePickerProps['onChange'] = (date) => {
+        const validationError = validate?.(date);
+        setError(validationError as SetStateAction<string | null>);
+        setValue(date);
+    };
+
+    const reset = () => {
+        setError(null);
+        setValue(null);
+    };
+
+    return {
+        value,
+        setValue,
+        error,
+        setError,
+        onChange: handleChange,
+        reset,
+    };
+};
+
+
+export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput, useDatePicker };

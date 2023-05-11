@@ -90,7 +90,7 @@ const Authentication = (props: any) => {
                             <Tooltip
                                 className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${signIn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
                                 classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
-                                tooltip={!signIn ? "Go to Sign in" : "Go to Sign up please"}
+                                tooltip={!signIn ? "Go to Sign in" : "Go to Sign up"}
                                 color='light'
                                 position={!signIn ? "right" : "left"}
                             >

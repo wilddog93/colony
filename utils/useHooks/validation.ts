@@ -1,7 +1,7 @@
 import isValidPhoneNumber from "react-phone-input-2"
 
 export const validation = {
-    required: (value: string) => {
+    required: (value: any) => {
         if (!value) {
             return 'Fill is required';
         }
@@ -79,6 +79,12 @@ export const validation = {
         }
         if (!value) {
             return 'Phone number is required';
+        }
+        return null;
+    },
+    date: (date: any) => {
+        if (date && date < new Date()) {
+            return 'Please select a date in the future';
         }
         return null;
     }

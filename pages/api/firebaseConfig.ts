@@ -44,8 +44,8 @@ export const requestForToken = async (props: FirebaseTokenProps) => {
 
             // database user 
             const sRef: DatabaseReference = ref(database, "users/" + currentToken);
-            set(sRef, { online: true, user })
-            onDisconnect(sRef).set({ online: false, user })
+            set(sRef, { online: true })
+            onDisconnect(sRef).set({ online: false })
             onValue(sRef, (snap) => {
                 if (snap.val().online === true) {
                     console.log("connected / online");
