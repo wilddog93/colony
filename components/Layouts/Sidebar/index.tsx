@@ -5,15 +5,15 @@ import Image from 'next/image';
 import { MdArrowBack, MdHelpOutline, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWork } from 'react-icons/md';
 
 type Props = {
-    sidebarOpen: boolean,
-    setSidebarOpen: any,
-    logo: any,
-    title: any,
-    images: string,
-    token: string
+    sidebarOpen?: boolean,
+    setSidebarOpen?: any,
+    logo?: any,
+    title?: any,
+    images?: string,
+    token?: any
 }
 
-const Sidebar = (props: any) => {
+const Sidebar = (props: Props) => {
     const { sidebarOpen, setSidebarOpen, logo, title, images, token } = props;
     const location = useRouter()
     const { pathname, query } = location

@@ -1,25 +1,12 @@
-import Head from 'next/head';
-import Cards from '../components/Cards/Cards';
 import {
   useAppDispatch,
   useAppSelector,
 } from '../redux/Hook';
-import {
-  decrement,
-  increment,
-  incrementByAmount,
-  selectCount,
-} from '../redux/features/counter/counterSlice';
 import { useEffect, useState } from 'react';
-import { getKanyeQuote, selectKanye } from '../redux/features/kanye/kanyeReducer';
-import { AppProps } from 'next/app';
 import { GetServerSideProps } from 'next';
-import { getCookies, getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import Button from '../components/Button/Button';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
-import { MdArrowBack, MdArrowRightAlt } from 'react-icons/md';
-import Tooltip from '../components/Tooltip/Tooltip';
 import { getAuthMe, selectAuth } from '../redux/features/auth/authReducers';
 
 type Props = {
@@ -44,8 +31,6 @@ const Home = ({ pageProps }: Props) => {
     dispatch(getAuthMe({ token }))
   }, [token])
 
-  console.log({ data, isLogin, pending, error, message }, 'auth data')
-
   return (
     <DefaultLayout
       title="Colony"
@@ -55,6 +40,7 @@ const Home = ({ pageProps }: Props) => {
       description=""
       images="image/logo/building-logo.svg"
       userDefault="image/user/user-01.png"
+      token={token}
     >
       <div className='absolute inset-0 mt-20 z-99 bg-boxdark flex text-white'>
         <div className="relative w-full bg-white p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">

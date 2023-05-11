@@ -255,6 +255,7 @@ export const authSlice = createSlice({
             .addCase(getAuthMe.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
+                    isLogin: true,
                     pending: false,
                     error: false,
                     data: {

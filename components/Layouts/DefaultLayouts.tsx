@@ -4,17 +4,18 @@ import Header from './Header';
 import Head from 'next/head';
 
 type Props = {
-    children: any,
-    header: any,
-    head: any,
-    title: any,
-    description: any,
-    logo: string,
-    images: string,
-    userDefault: string
+    children?: any,
+    header?: any,
+    head?: any,
+    title?: any,
+    description?: any,
+    logo?: string,
+    images?: string,
+    userDefault?: string,
+    token?: any
 }
 
-const DefaultLayout = ({ children, title, description, logo, header, head, images, userDefault }: Props) => {
+const DefaultLayout = ({ children, title, description, logo, header, head, images, userDefault, token }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
@@ -27,21 +28,19 @@ const DefaultLayout = ({ children, title, description, logo, header, head, image
             {/* <!-- ===== Page Wrapper Start ===== --> */}
             <div className='flex h-screen overflow-hidden'>
                 {/* <!-- ===== Sidebar Start ===== --> */}
-                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={""} />
+                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={token} />
                 {/* <!-- ===== Sidebar End ===== --> */}
 
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} header={header} userDefault={userDefault} token={""} />
+                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} header={header} userDefault={userDefault} token={token} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}
-                    <main>
-                        {/* <div className='mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10'> */}
-                        <div className='mx-auto max-w-screen-2xl'>
-                            {children}
-                        </div>
+                    {/* <div className='mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10'> */}
+                    <main className='mx-auto max-w-screen-2xl'>
+                        {children}
                     </main>
                     {/* <!-- ===== Main Content End ===== --> */}
                 </div>

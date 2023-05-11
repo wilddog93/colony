@@ -4,8 +4,20 @@ import DropdownUser from '../../Dropdown/DropdownUser'
 import DarkModeSwitcher from '../../DarkMode/DarkModeSwitcher'
 import Link from 'next/link'
 import { MdMuseum } from 'react-icons/md'
+import { Dispatch, SetStateAction } from 'react'
 
-const Header = (props: any) => {
+type HeaderProps = {
+    header?: string,
+    userDefault?: string,
+    sidebarOpen?: boolean, 
+    setSidebarOpen: Dispatch<SetStateAction<boolean>>,
+    logo?: string,
+    title?: any,
+    token?:any
+}
+
+const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title, token }: HeaderProps) => {
+
     return (
         <header className='sticky top-0 z-999 flex w-full bg-boxdark-2 drop-shadow-none'>
             <div className='flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11'>
@@ -13,35 +25,35 @@ const Header = (props: any) => {
                     {/* <!-- Hamburger Toggle BTN --> */}
                     <button
                         aria-controls='sidebar'
-                        aria-expanded={props.sidebarOpen}
+                        aria-expanded={sidebarOpen}
                         onClick={(e) => {
                             e.stopPropagation()
-                            props.setSidebarOpen(!props.sidebarOpen)
+                            setSidebarOpen(!sidebarOpen)
                         }}
                         className='z-99999 block rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark'
                     >
                         <span className='relative block h-5.5 w-5.5 cursor-pointer'>
                             <span className='du-block absolute right-0 h-full w-full'>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!w-full delay-300'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-300'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!props.sidebarOpen && 'delay-400 !w-full'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarOpen && 'delay-400 !w-full'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!w-full delay-500'
+                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-500'
                                         }`}
                                 ></span>
                             </span>
                             <span className='absolute right-0 h-full w-full rotate-45'>
                                 <span
-                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!h-0 !delay-[0]'
+                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-[0]'
                                         }`}
                                 ></span>
                                 <span
-                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!props.sidebarOpen && '!h-0 !delay-200'
+                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-200'
                                         }`}
                                 ></span>
                             </span>
@@ -51,9 +63,9 @@ const Header = (props: any) => {
 
                     <Link href='/'>
                         <div className='flex flex-shrink-0 items-center gap-2 text-white'>
-                            {/* <img src={!props.logo ? "./image/logo/logo-icon.svg" : props.logo} alt='Logo' /> */}
+                            {/* <img src={!logo ? "./image/logo/logo-icon.svg" : logo} alt='Logo' /> */}
                             <MdMuseum className='w-8 h-8 text-[#44C2FD]' />
-                            <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!props.header ? "Building" : props.header}</span>
+                            <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!header ? "Building" : header}</span>
                         </div>
                     </Link>
 
@@ -102,7 +114,7 @@ const Header = (props: any) => {
                         {/* <!-- Dark Mode Toggler --> */}
 
                         {/* <!-- Notification Menu Area --> */}
-                        <DropdownUser userDefault={props?.userDefault} />
+                        <DropdownUser userDefault={userDefault} />
                         {/* <!-- Notification Menu Area --> */}
 
                         <div className="relative h-10 mx-3">

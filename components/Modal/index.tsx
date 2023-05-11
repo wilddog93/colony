@@ -1,27 +1,15 @@
-import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import Button from '../Button/Button';
-import { MdClose } from 'react-icons/md';
+import { Dialog, Transition } from '@headlessui/react'
+import React, { Fragment, useEffect, useState } from 'react'
 
-function Modal({ children, isOpen, onClose, size }: {
-    children: React.ReactNode;
-    isOpen: boolean;
-    onClose: () => void;
-    size: string;
-}) {
-    const [isAnimating, setIsAnimating] = useState(false);
+type Props = {
+    isOpen: boolean,
+    onClose: () => void,
+    children: JSX.Element | string | undefined,
+    size?: string | "small" | "medium" | "large"
+}
+
+const Modal = ({ isOpen, onClose, children, size }: Props) => {
     const [sizes, setSizes] = useState("max-w-2xl");
-
-    const handleAnimationComplete = () => {
-        setIsAnimating(false);
-    };
-
-    const handleClose = () => {
-        setIsAnimating(true);
-        setTimeout(() => {
-            onClose();
-        }, 200); // Set a delay to match the exit animation duration
-    };
 
     useEffect(() => {
         if (size === "large") setSizes("max-w-5xl");
@@ -29,39 +17,38 @@ function Modal({ children, isOpen, onClose, size }: {
         else if (size === "small") setSizes("max-w-sm");
         else setSizes("max-w-2xl")
     }, [size])
-
-
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className='fixed inset-0 z-9998 overflow-y-auto text-graydark'>
-                    <motion.div
-                        className="fixed z-9999 inset-0 bg-black/30"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        onAnimationComplete={handleAnimationComplete}
-                        onClick={handleClose}
-                    >
-                    </motion.div>
-                    <motion.div
-                        className={`w-full h-full flex justify-center items-center`}
-                        initial={{ y: 50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 50, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        onAnimationComplete={handleAnimationComplete}
-                    >
-                        <div className={`relative z-9999 w-full bg-white rounded-md ${sizes} h-auto max-h-[700px] overflow-x-hidden`}>
+        <Transition
+            as={Fragment} appear show={isOpen}
+        >
+            <Dialog as="div" onClose={onClose} className="fixed inset-0 z-[1000] overflow-y-auto">
+                <div
+                    className="fixed inset-0 bg-black/30"
+                    aria-hidden="true"
+                    onClick={onClose}
+                />
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-in-out duration-300"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in-out duration-200"
+                    leaveFrom="opacity-100 scale-95"
+                    leaveTo="opacity-0 scale-100"
+                >
+                    <div className="flex min-h-screen items-center">
+                        <Dialog.Panel
+                            as='div'
+                            className={`bg-white rounded-lg overflow-hidden shadow-boxdark mx-auto w-full relative ${sizes}`}
+                        >
                             {children}
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
-    );
+                            <div className='' tabIndex={0}></div>
+                        </Dialog.Panel>
+                    </div>
+                </Transition.Child>
+            </Dialog>
+        </Transition>
+    )
 }
 
-
-export default Modal;
+export default Modal

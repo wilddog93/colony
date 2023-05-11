@@ -150,7 +150,7 @@ const ExampleForm = (props: any) => {
                     <p className='text-gray-4'>Fill your tower information.</p>
                 </div>
             </ModalHeader>
-            
+
             <form onSubmit={handleSubmit}>
                 <div className='mb-4 px-4'>
                     <label className='mb-2.5 block font-medium text-black dark:text-white'>
@@ -340,24 +340,26 @@ const ExampleForm = (props: any) => {
                     isClose={true}
                     onClick={isCloseModal}
                 >
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        className="rounded-md text-sm"
-                        onClick={handleSubmit}
-                        disabled={!submitting}
-                    >
-                        Submit
-                    </Button>
+                    <Fragment>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            className="rounded-md text-sm"
+                            onClick={handleSubmit}
+                            disabled={!submitting}
+                        >
+                            Submit
+                        </Button>
 
-                    <Button
-                        type="buuton"
-                        variant="danger"
-                        className="rounded-md text-sm"
-                        onClick={handleReset}
-                    >
-                        Reset
-                    </Button>
+                        <Button
+                            type="buuton"
+                            variant="danger"
+                            className="rounded-md text-sm"
+                            onClick={handleReset}
+                        >
+                            Reset
+                        </Button>
+                    </Fragment>
                 </ModalFooter>
             </form>
         </Fragment>

@@ -1,22 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, Fragment } from 'react'
 import Link from 'next/link'
+import { useAppDispatch, useAppSelector } from '../../redux/Hook'
+import { selectAuth } from '../../redux/features/auth/authReducers'
+import Modal from '../Modal'
+import { ModalFooter, ModalHeader } from '../Modal/ModalComponent'
 
-// import UserOne from 'image/user/user-01.png'
-import Image from 'next/image'
+type DropdownUserProps = {
+    userDefault?: string,
+    token?: any | string
+}
 
-const DropdownUser = (props: any) => {
-    const { userDefault } = props
-    const [dropdownOpen, setDropdownOpen] = useState(false)
+const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isSignOut, setIsSignOut] = useState(false);
 
     const trigger = useRef<HTMLButtonElement>(null)
     const dropdown = useRef<HTMLDivElement>(null)
 
-    const myLoader = (props: any) => {
-        const { src, width, quality, optimized } = props;
-        console.log(props, 'loader')
-        // return `https://example.com/${src}?w=${width}&q=${quality || 75}`
-        return `${src}&optimized=true`
-    }
+    // redux auth
+    const dispatch = useAppDispatch();
+    const { data, isLogin, pending } = useAppSelector(selectAuth);
+    const { user } = data
 
     // close on click outside
     useEffect(() => {
@@ -50,40 +54,56 @@ const DropdownUser = (props: any) => {
         return () => document.removeEventListener('keydown', keyHandler)
     })
 
+    const isOpenSignOut = () => setIsSignOut(true)
+    const isCloseSignOut = () => setIsSignOut(false)
+
     return (
         <div className='relative'>
-            <button
-                ref={trigger}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className='flex items-center gap-4'
-            >
-                <span className='hidden text-right lg:block text-white'>
-                    <span className='block text-sm font-medium'>
-                        Thomas Anree
-                    </span>
-                    <span className='block text-xs'>UX Designer</span>
-                </span>
-
-                <span className='h-12 w-12 rounded-full'>
-                    <img src={userDefault || "image/user/user-01.png"} alt='avatar' className='object-cover object-center' />
-                </span>
-
-                <svg
-                    className={`hidden fill-current sm:block text-white ${dropdownOpen ? 'rotate-180' : ''}`}
-                    width='12'
-                    height='8'
-                    viewBox='0 0 12 8'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
+            {isLogin ?
+                <button
+                    ref={trigger}
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className='flex items-center gap-4'
                 >
-                    <path
-                        fillRule='evenodd'
-                        clipRule='evenodd'
-                        d='M0.410765 0.910734C0.736202 0.585297 1.26384 0.585297 1.58928 0.910734L6.00002 5.32148L10.4108 0.910734C10.7362 0.585297 11.2638 0.585297 11.5893 0.910734C11.9147 1.23617 11.9147 1.76381 11.5893 2.08924L6.58928 7.08924C6.26384 7.41468 5.7362 7.41468 5.41077 7.08924L0.410765 2.08924C0.0853277 1.76381 0.0853277 1.23617 0.410765 0.910734Z'
-                        fill=''
-                    />
-                </svg>
-            </button>
+                    <span className='hidden text-right lg:block text-white'>
+                        <span className='block text-sm font-medium'>
+                            Thomas Anree
+                        </span>
+                        <span className='block text-xs'>UX Designer</span>
+                    </span>
+
+                    <span className='h-12 w-12 rounded-full'>
+                        <img src={userDefault || "image/user/user-01.png"} alt='avatar' className='object-cover object-center' />
+                    </span>
+
+                    <svg
+                        className={`hidden fill-current sm:block text-white ${dropdownOpen ? 'rotate-180' : ''}`}
+                        width='12'
+                        height='8'
+                        viewBox='0 0 12 8'
+                        fill='none'
+                        xmlns='http://www.w3.org/2000/svg'
+                    >
+                        <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M0.410765 0.910734C0.736202 0.585297 1.26384 0.585297 1.58928 0.910734L6.00002 5.32148L10.4108 0.910734C10.7362 0.585297 11.2638 0.585297 11.5893 0.910734C11.9147 1.23617 11.9147 1.76381 11.5893 2.08924L6.58928 7.08924C6.26384 7.41468 5.7362 7.41468 5.41077 7.08924L0.410765 2.08924C0.0853277 1.76381 0.0853277 1.23617 0.410765 0.910734Z'
+                            fill=''
+                        />
+                    </svg>
+                </button> :
+                <button
+                    ref={trigger}
+                    onClick={isOpenSignOut}
+                    className='flex items-center gap-4'
+                >
+                    <span className='hidden text-right lg:block text-white'>
+                        <span className='block text-sm font-medium'>
+                            Login
+                        </span>
+                    </span>
+                </button>
+            }
 
             {/* <!-- Dropdown Start --> */}
             <div
@@ -170,7 +190,10 @@ const DropdownUser = (props: any) => {
                         </Link>
                     </li>
                 </ul>
-                <button className='flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
+                <button
+                    type='button'
+                    onClick={isOpenSignOut}
+                    className='flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'>
                     <svg
                         className='fill-current'
                         width='22'
@@ -192,6 +215,27 @@ const DropdownUser = (props: any) => {
                 </button>
             </div>
             {/* <!-- Dropdown End --> */}
+
+            {/* signout */}
+            <Modal
+                isOpen={isSignOut}
+                onClose={isCloseSignOut}
+                size='small'
+            >
+                <Fragment>
+                    <ModalHeader isClose={true} className="sticky top-0 p-4 bg-white border-b-2 border-gray mb-3">
+                        <h3 className='text-lg font-semibold'>New Facilities</h3>
+                    </ModalHeader>
+                    <div className="w-full px-6">
+                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit, distinctio ullam. Cupiditate, nostrum eligendi voluptatibus beatae laboriosam odit facilis ea nihil corporis id dolorum totam, expedita, repellendus nemo natus eius sed qui deleniti molestias maiores ipsam distinctio aliquam? Quaerat reprehenderit, quae in fugit odit mollitia molestias qui possimus nostrum rem ipsa consequatur corrupti sed nemo repellat optio debitis architecto eligendi. Pariatur sed blanditiis dicta aspernatur, cumque sunt, eligendi obcaecati magni eaque tempore dolorem possimus tenetur. Aut distinctio veniam rerum commodi laboriosam laborum reprehenderit earum asperiores praesentium molestiae vel consequuntur dolore, dolorum nihil quisquam? Similique assumenda nostrum eius esse qui nihil!
+                    </div>
+                    <ModalFooter
+                        className='sticky bottom-0 bg-white p-4 border-t-2 border-gray mt-3'
+                        isClose={true}
+                        
+                    ></ModalFooter>
+                </Fragment>
+            </Modal>
         </div>
     )
 }
