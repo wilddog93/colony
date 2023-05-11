@@ -333,13 +333,6 @@ export const authSlice = createSlice({
                 state.error = true;
                 state.message = payload;
             })
-
-            .addMatcher(isRejectedAction, (state, action) => {
-                state.error = true;
-                state.isLogin = false;
-                state.pending = false;
-                state.message = action.error.message
-            })
             .addDefaultCase((state, action) => {
                 let base = {
                     ...state,
