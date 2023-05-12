@@ -63,10 +63,11 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
 
     const onSignOut = () => {
         let data = { token }
-        dispatch(webLogout({ data, callback: () => {
-            isCloseSignOut()
-            router.push("/")
-        } }))
+        dispatch(webLogout({
+            data, 
+            callback: () => router.push("/"),
+            callbackLoading: () => isCloseSignOut()
+        }))
     }
 
     console.log(data, 'log')
@@ -107,14 +108,11 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
                     </svg>
                 </button> :
                 <button
-                    ref={trigger}
-                    onClick={isOpenSignOut}
-                    className='flex items-center gap-4'
+                    onClick={() => router.push("/authentication?page=sign-in")}
+                    className='flex items-center gap-4 bg-primary rounded-xl px-4 py-2 my-1.5'
                 >
-                    <span className='hidden text-right lg:block text-white'>
-                        <span className='block text-sm font-medium'>
-                            Login
-                        </span>
+                    <span className='block text-sm font-medium text-white'>
+                        Sign In
                     </span>
                 </button>
             }

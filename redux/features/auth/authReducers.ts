@@ -53,12 +53,13 @@ let config: HeadersConfiguration = {
 
 interface AuthData {
     data: any;
-    callback: () => void
+    callback: () => void,
+    callbackLoading: () => void
 }
 
 interface MyData {
     token?: any,
-    callback: () => void 
+    callback: () => void
 }
 
 // rejection
@@ -94,6 +95,8 @@ export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('a
         } else {
             throw new Error(newError.message);
         }
+    } finally {
+        params.callbackLoading()
     }
 });
 
@@ -122,6 +125,8 @@ export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState
         } else {
             throw new Error(newError.message);
         }
+    } finally {
+        params.callbackLoading()
     }
 });
 
@@ -146,6 +151,8 @@ export const webRegister = createAsyncThunk<any, AuthData, { state: RootState }>
         } else {
             throw new Error(newError.message);
         }
+    } finally {
+        params.callbackLoading()
     }
 });
 
@@ -212,6 +219,8 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
         } else {
             throw new Error(newError.message);
         }
+    } finally {
+        params.callbackLoading()
     }
 });
 

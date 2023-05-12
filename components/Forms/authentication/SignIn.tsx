@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { FormEventHandler, useEffect, useState } from 'react'
+import React, { FormEventHandler, Fragment, useEffect, useState } from 'react'
 import { MdEmail, MdLockOutline, MdOutlineEmail, MdOutlineLockClock, MdOutlineLockOpen } from 'react-icons/md'
 import Button from '../../Button/Button'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
@@ -11,6 +11,7 @@ import { getCookie } from 'cookies-next'
 // google
 import { useGoogleLogin } from '@react-oauth/google';
 import { selectAuth, webLogin, webLoginGoogle } from '../../../redux/features/auth/authReducers'
+import { FaCircleNotch } from 'react-icons/fa'
 
 type Props = {
     onChangePage: () => void
@@ -33,6 +34,8 @@ const SignIn = (props: any) => {
     const [isHidden, setIsHidden] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [googleData, setGoogleData] = useState({});
+    const [isLoadingLogin, setIsLoadingLogin] = useState(false);
+    const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
     const { value: email, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
@@ -46,11 +49,13 @@ const SignIn = (props: any) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
+            setIsLoadingLogin(true)
             console.log({ email, password, firebaseToken }, 'event form')
             let data = { email, password, firebaseToken }
             dispatch(webLogin({
                 data,
-                callback: () => router.push("/")
+                callback: () => router.push("/"),
+                callbackLoading: () => setIsLoadingLogin(false)
             }))
         }
     };
@@ -62,13 +67,15 @@ const SignIn = (props: any) => {
 
     const loginWithGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
+            await setIsLoadingGoogle(true)
             await setGoogleData(tokenResponse);
             await dispatch(webLoginGoogle({
                 data: {
                     token: tokenResponse.access_token,
                     firebaseToken
                 },
-                callback: () => router.push("/")
+                callback: () => router.push("/"),
+                callbackLoading: () => setIsLoadingGoogle(false)
             }));
         },
         onError: responseGoogle => console.log(responseGoogle, 'error google')
@@ -88,7 +95,7 @@ const SignIn = (props: any) => {
     useEffect(() => {
         setValue({ email, password })
     }, [email, password])
-    
+
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
@@ -170,9 +177,14 @@ const SignIn = (props: any) => {
                                 variant="primary"
                                 className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90'
                                 onSubmit={onSubmit}
-                                disabled={!submitting || pending}
+                                disabled={!submitting || pending || isLoadingLogin}
                             >
-                                Sign In
+                                {pending || isLoadingLogin ?
+                                    (<Fragment>
+                                        Loading...
+                                        <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                    </Fragment>)
+                                    : "Sign in"}
                             </Button>
                         </div>
 
@@ -180,7 +192,9 @@ const SignIn = (props: any) => {
                             type='button'
                             // @ts-ignore
                             onClick={loginWithGoogle}
-                            className='flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50'>
+                            className='flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50'
+                            disabled={isLoadingGoogle}
+                        >
                             <span>
                                 <svg
                                     width='20'
@@ -214,7 +228,12 @@ const SignIn = (props: any) => {
                                     </defs>
                                 </svg>
                             </span>
-                            Sign in with Google
+                            {isLoadingGoogle ?
+                                (<Fragment>
+                                    Loading...
+                                    <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                </Fragment>)
+                                : "Sign in with Google"}
                         </button>
 
                         <div className='w-full flex flex-col items-center justify-center'>

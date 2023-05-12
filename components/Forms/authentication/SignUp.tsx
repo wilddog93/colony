@@ -87,6 +87,7 @@ const SignUp = (props: Props) => {
     const [isHiddenPass, setIsHiddenPass] = useState(true);
     const [isHiddenCPass, setIsHiddenCPass] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [isRegister, setIsRegister] = useState(false);
 
     const { value: email, setValue: setEmail, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
@@ -126,6 +127,7 @@ const SignUp = (props: Props) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
+            setIsRegister(true);
             console.log({
                 email,
                 firstName,
@@ -147,7 +149,8 @@ const SignUp = (props: Props) => {
                     password,
                     confirmPassword
                 },
-                callback:() => router.push("/authentication?page=sign-in")
+                callback:() => router.push("/authentication?page=sign-in"),
+                callbackLoading: () => setIsRegister(false)
             }))
         }
     };
@@ -409,14 +412,14 @@ const SignUp = (props: Props) => {
                                 variant="primary"
                                 className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90 gap-2'
                                 onClick={onSubmit}
-                                disabled={pending || !submitting}
+                                disabled={pending || !submitting || isRegister}
                             >
-                                {pending ?
+                                {pending || isRegister ?
                                     (<Fragment>
                                         Loading...
                                         <FaCircleNotch className='w-5 h-5 animate-spin-2' />
                                     </Fragment>)
-                                    : "Sign up Here"}
+                                    : "Sign up"}
                             </Button>
                         </div>
 

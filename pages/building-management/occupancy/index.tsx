@@ -10,14 +10,24 @@ import { useRouter } from 'next/router';
 import { ColumnItems } from '../../../components/tables/components/makeData';
 import Cards from '../../../components/Cards/Cards';
 import { useScrollPosition } from '../../../utils/useHooks/useHooks';
+import { GetServerSideProps } from 'next';
+import { getCookies } from 'cookies-next';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { selectAuth } from '../../../redux/features/auth/authReducers';
+import { getAuthMe } from '../../../redux/features/auth/authReducers';
 
-type Props = {}
+type Props = {
+  pageProps: any
+}
 
-const Occupancy = (props: any) => {
+const Occupancy = ({ pageProps }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
+  const { token, accessToken, firebaseToken } = pageProps;
 
-  const [loading, setLoading] = useState(false);
+  // redux
+  const dispatch = useAppDispatch();
+  const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -86,6 +96,13 @@ const Occupancy = (props: any) => {
     setDetails(items)
     setIsOpenDetail(true)
   };
+
+  useEffect(() => {
+    if(token) {
+      dispatch(getAuthMe({ token, callback : () => router.push("/authentication?page=sign-in") }))
+    }
+  }, [token])
+
 
   return (
     <DefaultLayout
@@ -229,9 +246,9 @@ const Occupancy = (props: any) => {
 
               {/* table */}
               <div className="grid grid-cols-1">
-                <div ref={refTable} onScroll={handleScroll} className='col-span-1 h-[560px] overflow-x-auto rounded-lg'>
-                  <table className='relative w-full overflow-y-auto border-separate border-0 border-spacing-y-4 px-6'>
-                    <thead className='sticky bg-white top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
+                <div ref={refTable} onScroll={handleScroll} className='relative h-full max-h-[560px] col-span-1 overflow-x-auto rounded-lg'>
+                  <table className='sticky bg-white top-0 w-full overflow-y-auto border-separate border-0 border-spacing-y-4 px-6'>
+                    <thead className='transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                       <tr>
                         <th className='px-4 py-6'>1</th>
                         <th className='px-4 py-6'>2</th>
@@ -239,7 +256,7 @@ const Occupancy = (props: any) => {
                       </tr>
                     </thead>
                   </table>
-                  <table className='relative bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
+                  <table className=' bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
                     {/* <thead className='sticky bg-white top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                       <tr>
                         <th className='px-4 py-6'>1</th>
@@ -346,6 +363,29 @@ const Occupancy = (props: any) => {
       </Modal>
     </DefaultLayout >
   )
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context)
+
+  // Access cookies using the cookie name
+  const token = cookies['accessToken'] || null;
+  const access = cookies['access'] || null;
+  const firebaseToken = cookies['firebaseToken'] || null;
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false
+      },
+    };
+  }
+
+  return {
+    props: { token, access, firebaseToken },
+  };
+};
 
 export default Occupancy;
