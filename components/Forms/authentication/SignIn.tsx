@@ -19,7 +19,7 @@ type Props = {
 }
 
 const SignIn = (props: any) => {
-    const { value, setValue } = props;
+    const { value, setValue, onChangePage, isOpen } = props;
     // cookie
     const firebaseToken = getCookie("firebaseToken");
     const token = getCookie("accessToken");
@@ -28,7 +28,6 @@ const SignIn = (props: any) => {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
-    const { onChangePage, isOpen } = props;
 
     // state
     const [isHidden, setIsHidden] = useState(true);
@@ -92,6 +91,7 @@ const SignIn = (props: any) => {
         setValue({ email, password })
     }, [email, password])
 
+    console.log({ isOpen, value }, "result")
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
@@ -237,7 +237,7 @@ const SignIn = (props: any) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0'
-                                onClick={() => onChangePage()}
+                                onClick={() => onChangePage(handleReset)}
                             >
                                 Sign Up Here
                             </Button>

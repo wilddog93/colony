@@ -75,9 +75,11 @@ const stylesSelect = {
     }
 };
 
-const SignUp = (props: Props) => {
-    const { onChangePage, isOpen, value, setValue } = props;
+const SignUp = (props: any) => {
+    const { value, setValue, onChangePage, isOpen } = props;
     const router = useRouter();
+
+    console.log({ isOpen, value }, "result")
 
     // redux
     const dispatch = useAppDispatch();
@@ -87,7 +89,6 @@ const SignUp = (props: Props) => {
     const [isHiddenPass, setIsHiddenPass] = useState(true);
     const [isHiddenCPass, setIsHiddenCPass] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [isRegister, setIsRegister] = useState(false);
 
     const { value: email, setValue: setEmail, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
@@ -127,16 +128,6 @@ const SignUp = (props: Props) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
-            console.log({
-                email,
-                firstName,
-                lastName,
-                nickName,
-                phoneNumber,
-                birthday,
-                password,
-                confirmPassword
-            }, 'event form')
             dispatch(webRegister({
                 data: {
                     email,
@@ -154,8 +145,15 @@ const SignUp = (props: Props) => {
     };
 
     const handleReset = () => {
+        resetFirstName()
+        resetLastName()
+        resetNickName()
+        resetGender()
+        resetPhoneNumber()
+        resetBirthday()
         resetEmail()
         resetPassword()
+        resetConfirmPassword()
     };
 
     const handleIsPassword = (value: boolean) => setIsHiddenPass(!value);
@@ -201,24 +199,31 @@ const SignUp = (props: Props) => {
         birthdayError,
     ]);
 
-    console.log(
-        "errors :",
-        {
-            emailError,
-            passwordError,
-            confirmPasswordError,
-            firstNameError,
-            lastNameError,
-            nickNameError,
-            phoneNumberError,
-            birthdayError
-        }
-    )
-
     useEffect(() => {
         setValue({ email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday })
-    }, [email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday])
+    }, [email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday]);
 
+    console.log({
+        email,
+        firstName,
+        lastName,
+        nickName,
+        phoneNumber,
+        birthday,
+        password,
+        confirmPassword
+    }, 'event form')
+
+    useEffect(() => {
+      if(isOpen && value.email) {
+        setEmail(value.email)
+      } else if(isOpen && value.password) {
+        setEmail(value.password)
+      }
+    }, [isOpen, value.email])
+    
+
+    console.log({ isOpen, value }, "result")
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
@@ -260,6 +265,7 @@ const SignUp = (props: Props) => {
                                         value={firstName}
                                         onChange={onFirstNameChange}
                                         type='text'
+                                        autoFocus
                                         placeholder='Firstname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
@@ -273,6 +279,7 @@ const SignUp = (props: Props) => {
                                         value={lastName}
                                         onChange={onLastNameChange}
                                         type='text'
+                                        autoFocus
                                         placeholder='Lastname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
@@ -340,6 +347,7 @@ const SignUp = (props: Props) => {
                                 value={email}
                                 onChange={onEmailChange}
                                 type='email'
+                                autoFocus
                                 placeholder='Enter your email'
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
@@ -360,6 +368,7 @@ const SignUp = (props: Props) => {
                                 type={isHiddenPass ? "password" : "text"}
                                 id="password"
                                 placeholder='Enter your password'
+                                autoFocus
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
 
@@ -387,6 +396,7 @@ const SignUp = (props: Props) => {
                                 type={isHiddenCPass ? "password" : "text"}
                                 id="verify-password"
                                 placeholder='Enter your verify password'
+                                autoFocus
                                 className='w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                             />
 
@@ -426,7 +436,7 @@ const SignUp = (props: Props) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0 text-left'
-                                onClick={onChangePage}
+                                onClick={() => onChangePage(handleReset)}
                             >
                                 Sign in Here
                             </Button>
