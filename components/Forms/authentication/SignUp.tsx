@@ -139,7 +139,13 @@ const SignUp = (props: any) => {
                     password,
                     confirmPassword
                 },
-                callback:() => router.push("/authentication?page=sign-in"),
+                callback:() => router.push({ 
+                    pathname: "/authentication/verify",
+                    query: {
+                        page: "verify-account",
+                        email
+                    }
+                }),
             }))
         }
     };
