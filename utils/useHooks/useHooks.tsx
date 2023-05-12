@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
 import OptionTypeBase from "react-select";
 import { CountryData } from 'react-phone-input-2';
@@ -288,9 +288,9 @@ const usePhoneInput = (
 // useDatePicker
 interface UseDatePickerResult {
     value: Date | null;
-    setValue: Dispatch<SetStateAction <Date | null>>
+    setValue: Dispatch<SetStateAction<Date | null>>
     error: string | null;
-    setError: Dispatch<SetStateAction <string | null>>
+    setError: Dispatch<SetStateAction<string | null>>
     onChange: ReactDatePickerProps['onChange'];
     reset: () => void;
 }
@@ -324,5 +324,24 @@ const useDatePicker = ({ validate }: UseDatePickerOptions = {}): UseDatePickerRe
     };
 };
 
+// useScrollPosition
+const useScrollPosition = () => {
+    const [scrollPosition, setScrollPosition] = useState(0);
+    const lastScrollPositionRef = useRef(0);
 
-export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput, useDatePicker };
+    useEffect(() => {
+        function handleScroll() {
+            const currentPosition = window.pageYOffset;
+            setScrollPosition(currentPosition);
+            lastScrollPositionRef.current = currentPosition;
+        }
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    return { scrollPosition, lastScrollPosition: lastScrollPositionRef.current };
+}
+
+
+export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput, useDatePicker, useScrollPosition };

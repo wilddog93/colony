@@ -28,7 +28,7 @@ const Home = ({ pageProps }: Props) => {
     if (!token) {
       return;
     }
-    dispatch(getAuthMe({ token }))
+    dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
   }, [token])
 
   return (

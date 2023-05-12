@@ -57,7 +57,8 @@ interface AuthData {
 }
 
 interface MyData {
-    token?: any
+    token?: any,
+    callback: () => void 
 }
 
 // rejection
@@ -172,6 +173,9 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
         if (error.response && error.response.status === 404) {
             throw new Error('User not found');
         } else {
+            if(status == 401){
+                params.callback()
+            }
             throw new Error(newError.message);
         }
     }

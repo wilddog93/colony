@@ -70,14 +70,14 @@ const Authentication = ({ pageProps }: Props) => {
 
     useEffect(() => {
         let notif = (message === "Email Not Registered!");
-        if(error && notif) {
+        if (error && notif) {
             setIsNotif(true)
         } else {
             setIsNotif(false)
         }
     }, [error, message])
-    
-    console.log({data, isLogin, error, message}, 'auth data')
+
+    console.log({ data, isLogin, error, message }, 'auth data')
 
     return (
         <AuthLayout
@@ -176,8 +176,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
+    if (token) {
+        return {
+            redirect: {
+                destination: "/", // Redirect to the home page
+                permanent: false
+            },
+        }
+    }
+
     return {
-        props: { token, access, firebaseToken },
+        props: { firebaseToken },
     };
 };
 

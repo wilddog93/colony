@@ -1,128 +1,15 @@
-import React, { SetStateAction, useMemo, useState } from 'react'
+import React, { Fragment, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
-import { SearchInput } from '../../../components/Forms/SearchInput';
 import Modal from '../../../components/Modal';
 
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { ColumnDef } from '@tanstack/react-table';
 import { ColumnItems } from '../../../components/tables/components/makeData';
-import { formatPhone } from '../../../utils/useHooks/useFunction';
-import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
-
-const stylesSelect = {
-  indicatorsContainer: (provided: any) => ({
-    ...provided,
-    flexDirection: "row-reverse"
-  }),
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    display: 'none'
-  }),
-  dropdownIndicator: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#7B8C9E',
-    })
-  },
-  clearIndicator: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#7B8C9E',
-    })
-  },
-  singleValue: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#5F59F7',
-    })
-  },
-  control: (provided: any, state: any) => {
-    console.log(provided, "control")
-    return ({
-      ...provided,
-      background: "",
-      padding: '.6rem',
-      borderRadius: ".75rem",
-      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-      color: "#5F59F7",
-      "&:hover": {
-        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
-      },
-      minHeight: 40,
-      flexDirection: "row-reverse"
-    })
-  },
-  menuList: (provided: any) => (provided)
-};
-
-const stylesSelectStatus = {
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    display: 'none'
-  }),
-  dropdownIndicator: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#7B8C9E',
-    })
-  },
-  clearIndicator: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#7B8C9E',
-    })
-  },
-  singleValue: (provided: any) => {
-    return ({
-      ...provided,
-      color: '#5F59F7',
-    })
-  },
-  control: (provided: any, state: any) => {
-    console.log(provided, "control")
-    return ({
-      ...provided,
-      background: "",
-      padding: '.6rem',
-      borderRadius: ".75rem",
-      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-      color: "#5F59F7",
-      "&:hover": {
-        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
-      },
-      minHeight: 40
-    })
-  },
-  menuList: (provided: any) => (provided)
-};
-
-const sortOpt = [
-  { value: "A-Z", label: "A-Z" },
-  { value: "Z-A", label: "Z-A" },
-]
-
-const towerOpt = [
-  { value: "Tower A", label: "Tower A" },
-  { value: "Tower B", label: "Tower B" },
-  { value: "Tower C", label: "Tower C" },
-  { value: "Tower D", label: "Tower D" },
-  { value: "Tower F", label: "Tower F" },
-  { value: "Tower F", label: "Tower F" },
-]
-
-const statusOpt = [
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Non - Active" },
-]
+import Cards from '../../../components/Cards/Cards';
+import { useScrollPosition } from '../../../utils/useHooks/useHooks';
 
 type Props = {}
 
@@ -133,10 +20,6 @@ const Occupancy = (props: any) => {
   const [loading, setLoading] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [search, setSearch] = useState(null);
-  const [sort, setSort] = useState(false);
-  const [towers, setTowers] = useState(null);
-  const [status, setStatus] = useState(null);
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -144,6 +27,51 @@ const Occupancy = (props: any) => {
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [details, setDetails] = useState<ColumnItems>();
   const [isSelectedRow, setIsSelectedRow] = useState({});
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  // const { scrollPosition, lastScrollPosition } = useScrollPosition();
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
+  const [offsetHight, setOffsetHight] = useState<number>(0);
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
+
+
+  let refTable = useRef<HTMLTableSectionElement>(null)
+
+  const loadHandler = () => {
+    setLimit(limit => limit + 10);
+  }
+
+  const handleScroll = () => {
+    const table = refTable.current;
+    const scrollTo = table?.scrollTop;
+    const offsetHeight = table?.offsetHeight;
+    const scrollHeight = table?.scrollHeight;
+    console.log('scroll To:', scrollTo);
+    console.log('scroll Heigh:', scrollHeight);
+    console.log("scroll scrollOffsetHeight: ", offsetHeight)
+
+    if (scrollTo) setScrollPosition(scrollTo)
+    if (scrollHeight) setScrollHeight(scrollHeight)
+    if (offsetHeight) setOffsetHight(offsetHeight)
+
+    if (!scrollHeight || !offsetHeight || !scrollTo) {
+      return;
+    } else {
+      if (scrollHeight - scrollTo === offsetHeight) {
+        loadHandler()
+      }
+    }
+  };
+
+  // useEffect(() => {
+  //   if(scrollHeight - scrollPosition === offsetHight){
+  //     loadHandler()
+  //   }
+  // }, [scrollHeight, scrollPosition, offsetHight]);
+
+  console.log(limit, 'limits')
+
 
   // form modal
   const onClose = () => setIsOpenModal(false);
@@ -158,207 +86,6 @@ const Occupancy = (props: any) => {
     setDetails(items)
     setIsOpenDetail(true)
   };
-
-  // detail modal
-  const onCloseDelete = () => {
-    setDetails(undefined)
-    setIsOpenDelete(false)
-  };
-  const onOpenDelete = (items: any) => {
-    setDetails(items)
-    setIsOpenDelete(true)
-  };
-
-  console.log(isSelectedRow, 'selected')
-
-  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
-    () => [
-      {
-        accessorKey: 'fullName',
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        footer: props => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10
-      },
-      {
-        accessorKey: 'email',
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        header: () => <span>Email</span>,
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'phoneNumber',
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {formatPhone("+", info.getValue())}
-            </div>
-          )
-        },
-        header: 'Phone',
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'owned',
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        header: 'Owned',
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'occupied',
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        header: 'Occ',
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'date',
-        cell: info => {
-          let date = info.getValue()
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {date}
-            </div>
-          )
-        },
-        header: 'Date Added',
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'id',
-        cell: ({ row, getValue }) => {
-          console.log(row.original, "info")
-          return (
-            <div onClick={() => onOpenDelete(row.original)} className='w-full text-center flex items-center justify-center cursor-pointer'>
-              <MdDelete className='text-gray-5 w-4 h-4' />
-            </div>
-          )
-        },
-        header: props => {
-          return (
-            <div>Actions</div>
-          )
-        },
-        footer: props => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10
-      }
-    ],
-    []
-  );
-
-  const column = useMemo<ColumnDef<ColumnItems>[]>(
-    () => [
-      {
-        id: 'select',
-        header: ({ table }) => {
-          return (
-            <IndeterminateCheckbox
-              {...{
-                checked: table?.getIsAllRowsSelected(),
-                indeterminate: table?.getIsSomeRowsSelected(),
-                onChange: table?.getToggleAllRowsSelectedHandler()
-              }}
-            />
-          )
-        },
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler()
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        header: 'Name',
-        footer: props => props.column.id,
-        columns: [
-          {
-            accessorKey: 'firstName',
-            cell: info => info.getValue(),
-            footer: props => props.column.id,
-          },
-          {
-            accessorFn: row => row.lastName,
-            id: 'lastName',
-            cell: info => info.getValue(),
-            header: () => <span>Last Name</span>,
-            footer: props => props.column.id,
-          },
-        ],
-      },
-      {
-        header: 'Info',
-        footer: props => props.column.id,
-        columns: [
-          {
-            accessorKey: 'age',
-            header: () => 'Age',
-            footer: props => props.column.id,
-          },
-          {
-            header: 'More Info',
-            columns: [
-              {
-                accessorKey: 'visits',
-                header: () => <span>Visits</span>,
-                footer: props => props.column.id,
-              },
-              {
-                accessorKey: 'status',
-                header: 'Status',
-                footer: props => props.column.id,
-              },
-              {
-                accessorKey: 'progress',
-                header: 'Profile Progress',
-                footer: props => props.column.id,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    []
-  );
 
   return (
     <DefaultLayout
@@ -418,100 +145,197 @@ const Occupancy = (props: any) => {
           <main className='tracking-wide text-left text-boxdark-2 mt-5'>
             <div className="w-full flex flex-col">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
-                <div className='w-full lg:w-1/2'>
-                  <SearchInput
-                    className='w-full text-sm rounded-xl'
-                    classNamePrefix=''
-                    filter={search}
-                    setFilter={setSearch}
-                    placeholder='Search...'
-                  />
-                </div>
-                <div className='w-full lg:w-1/2 flex flex-col lg:flex-row items-center gap-2'>
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={sort}
-                    onChange={setSort}
-                    error=""
-                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId='1'
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder='Sorts...'
-                    options={sortOpt}
-                    icon='MdSort'
-                  />
+              <div className="w-full flex flex-col sm:flex-row gap-2.5 tracking-wider mb-5">
+                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Occupancy Level</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full max-w-max font-semibold'>86%</span>
+                      <div className="w-full h-full flex justify-center items-center">
+                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
+                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
+                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
+                      <p>322 Occupied</p>
+                      <p>400 Owned</p>
+                      <p>500 Units</p>
+                    </div>
+                  </div>
+                </Cards>
 
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={towers}
-                    onChange={setTowers}
-                    error=""
-                    className='text-sm font-normal text-gray-5 w-full lg:w-4/10'
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId='1'
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder='Towers...'
-                    options={towerOpt}
-                    icon='MdPlace'
-                  />
+                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Occupancy Level</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full max-w-max font-semibold'>86%</span>
+                      <div className="w-full h-full flex justify-center items-center">
+                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
+                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
+                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
+                      <p>322 Occupied</p>
+                      <p>400 Owned</p>
+                      <p>500 Units</p>
+                    </div>
+                  </div>
+                </Cards>
 
-                  <DropdownSelect
-                    customStyles={stylesSelectStatus}
-                    value={status}
-                    onChange={setStatus}
-                    error=""
-                    className='text-sm font-normal text-gray-5 w-full lg:w-4/10'
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId='1'
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder='All Status...'
-                    options={statusOpt}
-                    icon=''
-                  />
-                </div>
+                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Occupancy Level</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full max-w-max font-semibold'>86%</span>
+                      <div className="w-full h-full flex justify-center items-center">
+                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
+                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
+                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
+                      <p>322 Occupied</p>
+                      <p>400 Owned</p>
+                      <p>500 Units</p>
+                    </div>
+                  </div>
+                </Cards>
+
+                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Occupancy Level</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full max-w-max font-semibold'>86%</span>
+                      <div className="w-full h-full flex justify-center items-center">
+                        <div className="overflow-hidden h-[.5rem] text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
+                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
+                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
+                      <p>322 Occupied</p>
+                      <p>400 Owned</p>
+                      <p>500 Units</p>
+                    </div>
+                  </div>
+                </Cards>
               </div>
 
-              <SelectTables
-                loading={loading}
-                setLoading={setLoading}
-                columns={column}
-                setIsSelected={setIsSelectedRow}
-                isSelected={isSelectedRow}
-              />
+              {/* table */}
+              <div className="grid grid-cols-1">
+                <div ref={refTable} onScroll={handleScroll} className='col-span-1 h-[560px] overflow-x-auto rounded-lg'>
+                  <table className='relative bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
+                    <thead className='sticky bg-gray top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
+                      <tr>
+                        <th className='px-4 py-6'>1</th>
+                        <th className='px-4 py-6'>2</th>
+                        <th className='px-4 py-6'>3</th>
+                      </tr>
+                    </thead>
+                    <tbody className='text-gray-700 dark:text-gray-400 text-xs px-4'>
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+
+                      <tr className='bg-white rounded-sm'>
+                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
+                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </main>
-        </div>
-      </div>
+        </div >
+      </div >
       <Modal
         size=''
         onClose={onClose}
         isOpen={isOpenModal}
       >
-        <ModalHeader
-          className='p-4 border-b-2 border-gray mb-3'
-          isClose={true}
-          onClick={onClose}
-        >
-          <h3 className='text-lg font-semibold'>Modal Header</h3>
-        </ModalHeader>
-        <div className="w-full px-4">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
-        </div>
-        <ModalFooter
-          className='p-4 border-t-2 border-gray mt-3'
-          isClose={true}
-          onClick={onClose}
-        ></ModalFooter>
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onClose}
+          >
+            <h3 className='text-lg font-semibold'>Modal Header</h3>
+          </ModalHeader>
+          <div className="w-full px-4">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+          </div>
+          <ModalFooter
+            className='p-4 border-t-2 border-gray mt-3'
+            isClose={true}
+            onClick={onClose}
+          ></ModalFooter>
+        </Fragment>
       </Modal>
-    </DefaultLayout>
+    </DefaultLayout >
   )
 }
 
