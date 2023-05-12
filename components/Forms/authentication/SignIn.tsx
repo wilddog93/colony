@@ -49,13 +49,11 @@ const SignIn = (props: any) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
-            setIsLoadingLogin(true)
             console.log({ email, password, firebaseToken }, 'event form')
             let data = { email, password, firebaseToken }
             dispatch(webLogin({
                 data,
-                callback: () => router.push("/"),
-                callbackLoading: () => setIsLoadingLogin(false)
+                callback: () => router.push("/")
             }))
         }
     };
@@ -67,15 +65,13 @@ const SignIn = (props: any) => {
 
     const loginWithGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
-            await setIsLoadingGoogle(true)
             await setGoogleData(tokenResponse);
             await dispatch(webLoginGoogle({
                 data: {
                     token: tokenResponse.access_token,
                     firebaseToken
                 },
-                callback: () => router.push("/"),
-                callbackLoading: () => setIsLoadingGoogle(false)
+                callback: () => router.push("/")
             }));
         },
         onError: responseGoogle => console.log(responseGoogle, 'error google')
@@ -177,9 +173,9 @@ const SignIn = (props: any) => {
                                 variant="primary"
                                 className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90'
                                 onSubmit={onSubmit}
-                                disabled={!submitting || pending || isLoadingLogin}
+                                disabled={!submitting || pending}
                             >
-                                {pending || isLoadingLogin ?
+                                {pending ?
                                     (<Fragment>
                                         Loading...
                                         <FaCircleNotch className='w-5 h-5 animate-spin-2' />
@@ -193,7 +189,7 @@ const SignIn = (props: any) => {
                             // @ts-ignore
                             onClick={loginWithGoogle}
                             className='flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50'
-                            disabled={isLoadingGoogle}
+                            disabled={pending}
                         >
                             <span>
                                 <svg
@@ -228,7 +224,7 @@ const SignIn = (props: any) => {
                                     </defs>
                                 </svg>
                             </span>
-                            {isLoadingGoogle ?
+                            {pending ?
                                 (<Fragment>
                                     Loading...
                                     <FaCircleNotch className='w-5 h-5 animate-spin-2' />

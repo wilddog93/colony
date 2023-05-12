@@ -65,8 +65,7 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
         let data = { token }
         dispatch(webLogout({
             data, 
-            callback: () => router.push("/"),
-            callbackLoading: () => isCloseSignOut()
+            callback: () => router.push("/")
         }))
     }
 

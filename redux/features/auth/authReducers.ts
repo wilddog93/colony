@@ -53,8 +53,7 @@ let config: HeadersConfiguration = {
 
 interface AuthData {
     data: any;
-    callback: () => void,
-    callbackLoading: () => void
+    callback: () => void
 }
 
 interface MyData {
@@ -95,8 +94,6 @@ export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('a
         } else {
             throw new Error(newError.message);
         }
-    } finally {
-        params.callbackLoading()
     }
 });
 
@@ -107,7 +104,7 @@ export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState
         const { data, status } = response;
         console.log(data, "response :", params?.data)
         if (status == 200) {
-            toast.dark("Sign in successfully!")
+            toast.dark("Sign in with Google successfully!")
             setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
             setCookie('access', data?.access)
@@ -125,8 +122,6 @@ export const webLoginGoogle = createAsyncThunk<any, AuthData, { state: RootState
         } else {
             throw new Error(newError.message);
         }
-    } finally {
-        params.callbackLoading()
     }
 });
 
@@ -151,8 +146,6 @@ export const webRegister = createAsyncThunk<any, AuthData, { state: RootState }>
         } else {
             throw new Error(newError.message);
         }
-    } finally {
-        params.callbackLoading()
     }
 });
 
@@ -219,8 +212,6 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
         } else {
             throw new Error(newError.message);
         }
-    } finally {
-        params.callbackLoading()
     }
 });
 
@@ -307,7 +298,31 @@ export const authSlice = createSlice({
                 }
             })
 
-            // login
+            // login google
+            .addCase(webRegister.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webRegister.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: false,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(webRegister.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
+            // logout
             .addCase(webLogout.pending, state => {
                 return {
                     ...state,

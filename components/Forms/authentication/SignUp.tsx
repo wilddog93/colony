@@ -127,7 +127,6 @@ const SignUp = (props: Props) => {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (submitting) {
-            setIsRegister(true);
             console.log({
                 email,
                 firstName,
@@ -150,7 +149,6 @@ const SignUp = (props: Props) => {
                     confirmPassword
                 },
                 callback:() => router.push("/authentication?page=sign-in"),
-                callbackLoading: () => setIsRegister(false)
             }))
         }
     };
@@ -412,9 +410,9 @@ const SignUp = (props: Props) => {
                                 variant="primary"
                                 className='w-full cursor-pointer rounded-lg border py-4 text-white transition hover:bg-opacity-90 gap-2'
                                 onClick={onSubmit}
-                                disabled={pending || !submitting || isRegister}
+                                disabled={pending || !submitting}
                             >
-                                {pending || isRegister ?
+                                {pending ?
                                     (<Fragment>
                                         Loading...
                                         <FaCircleNotch className='w-5 h-5 animate-spin-2' />
