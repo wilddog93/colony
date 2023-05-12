@@ -230,14 +230,23 @@ const Occupancy = (props: any) => {
               {/* table */}
               <div className="grid grid-cols-1">
                 <div ref={refTable} onScroll={handleScroll} className='col-span-1 h-[560px] overflow-x-auto rounded-lg'>
-                  <table className='relative bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
-                    <thead className='sticky bg-gray top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
+                  <table className='relative w-full overflow-y-auto border-separate border-0 border-spacing-y-4 px-6'>
+                    <thead className='sticky bg-white top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                       <tr>
                         <th className='px-4 py-6'>1</th>
                         <th className='px-4 py-6'>2</th>
                         <th className='px-4 py-6'>3</th>
                       </tr>
                     </thead>
+                  </table>
+                  <table className='relative bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
+                    {/* <thead className='sticky bg-white top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
+                      <tr>
+                        <th className='px-4 py-6'>1</th>
+                        <th className='px-4 py-6'>2</th>
+                        <th className='px-4 py-6'>3</th>
+                      </tr>
+                    </thead> */}
                     <tbody className='text-gray-700 dark:text-gray-400 text-xs px-4'>
                       <tr className='bg-white rounded-sm'>
                         <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>

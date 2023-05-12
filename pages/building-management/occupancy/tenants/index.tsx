@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useState } from 'react'
+import React, { Fragment, ReactNode, useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
@@ -338,21 +338,23 @@ const Tenants = (props: any) => {
         onClose={onClose}
         isOpen={isOpenModal}
       >
-        <ModalHeader
-          className='p-4 border-b-2 border-gray mb-3'
-          isClose={true}
-          onClick={onClose}
-        >
-          <h3 className='text-lg font-semibold'>Modal Header</h3>
-        </ModalHeader>
-        <div className="w-full px-4">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
-        </div>
-        <ModalFooter
-          className='p-4 border-t-2 border-gray mt-3'
-          isClose={true}
-          onClick={onClose}
-        ></ModalFooter>
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onClose}
+          >
+            <h3 className='text-lg font-semibold'>Modal Header</h3>
+          </ModalHeader>
+          <div className="w-full px-4">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+          </div>
+          <ModalFooter
+            className='p-4 border-t-2 border-gray mt-3'
+            isClose={true}
+            onClick={onClose}
+          ></ModalFooter>
+        </Fragment>
       </Modal>
 
       {/* detail modal */}
@@ -361,58 +363,60 @@ const Tenants = (props: any) => {
         onClose={onCloseDetail}
         isOpen={isOpenDetail}
       >
-        <ModalHeader
-          className='p-6 mb-3'
-          isClose={true}
-          onClick={onCloseDetail}
-        >
-          <div className="flex-flex-col gap-2">
-            <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
-            <div className="flex items-center gap-2">
-              <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
-              <p className='text-sm text-gray-5 capitalize flex items-center'>
-                <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
-                {details?.gender || ""}
-              </p>
-            </div>
-          </div>
-        </ModalHeader>
-        <div className="w-full px-6 mb-5">
-          <div className='w-full flex gap-2.5'>
-            <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
-
-            <div className='w-full flex flex-col gap-2 text-gray-5'>
-              <h3 className='font-bold text-lg'>{details?.fullName}</h3>
-              <div className='flex items-center gap-2'>
-                <MdEmail />
-                {details?.email}
-              </div>
-              <div className='flex items-center gap-2'>
-                <MdPhone />
-                {formatPhone("+", details?.phoneNumber)}
-              </div>
-              <div className='flex items-center gap-2'>
-                <MdCalendarToday />
-                {details?.date}
+        <Fragment>
+          <ModalHeader
+            className='p-6 mb-3'
+            isClose={true}
+            onClick={onCloseDetail}
+          >
+            <div className="flex-flex-col gap-2">
+              <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
+              <div className="flex items-center gap-2">
+                <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
+                <p className='text-sm text-gray-5 capitalize flex items-center'>
+                  <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
+                  {details?.gender || ""}
+                </p>
               </div>
             </div>
-          </div>
-        </div>
+          </ModalHeader>
+          <div className="w-full px-6 mb-5">
+            <div className='w-full flex gap-2.5'>
+              <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
 
-        <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
-          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-            <div className='text-lg text-primary'>Unit_05</div>
-            <p>Occupant</p>
+              <div className='w-full flex flex-col gap-2 text-gray-5'>
+                <h3 className='font-bold text-lg'>{details?.fullName}</h3>
+                <div className='flex items-center gap-2'>
+                  <MdEmail />
+                  {details?.email}
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MdPhone />
+                  {formatPhone("+", details?.phoneNumber)}
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MdCalendarToday />
+                  {details?.date}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-            <div className='text-lg text-primary'>Unit_12</div>
-            <p>Occupant & Owner</p>
+
+          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_05</div>
+              <p>Occupant</p>
+            </div>
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_12</div>
+              <p>Occupant & Owner</p>
+            </div>
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_55</div>
+              <p>Owner</p>
+            </div>
           </div>
-          <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-            <div className='text-lg text-primary'>Unit_55</div>
-            <p>Owner</p>
-          </div>
-        </div>
+        </Fragment>
       </Modal>
 
       {/* delete modal */}
@@ -421,31 +425,33 @@ const Tenants = (props: any) => {
         onClose={onCloseDelete}
         isOpen={isOpenDelete}
       >
-        <ModalHeader
-          className='p-4 border-b-2 border-gray mb-3'
-          isClose={true}
-          onClick={onCloseDelete}
-        >
-          <h3 className='text-lg font-semibold'>Delete Tenant</h3>
-        </ModalHeader>
-        <div className='w-full my-5 px-4'>
-          <h3>Are you sure to delete tenant data ?</h3>
-        </div>
-
-        <ModalFooter
-          className='p-4 border-t-2 border-gray'
-          isClose={true}
-          onClick={onCloseDelete}
-        >
-          <Button
-            variant="primary"
-            className="rounded-md text-sm"
-            type="button"
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
             onClick={onCloseDelete}
           >
-            Yes, Delete it!
-          </Button>
-        </ModalFooter>
+            <h3 className='text-lg font-semibold'>Delete Tenant</h3>
+          </ModalHeader>
+          <div className='w-full my-5 px-4'>
+            <h3>Are you sure to delete tenant data ?</h3>
+          </div>
+
+          <ModalFooter
+            className='p-4 border-t-2 border-gray'
+            isClose={true}
+            onClick={onCloseDelete}
+          >
+            <Button
+              variant="primary"
+              className="rounded-md text-sm"
+              type="button"
+              onClick={onCloseDelete}
+            >
+              Yes, Delete it!
+            </Button>
+          </ModalFooter>
+        </Fragment>
       </Modal>
     </DefaultLayout>
   )
