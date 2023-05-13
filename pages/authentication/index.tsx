@@ -70,7 +70,7 @@ const Authentication = ({ pageProps }: Props) => {
         setIsSignIn(tabs === "sign-in" ? true : false)
         setIsSignUp(tabs === "sign-up" ? true : false)
     }, [tabs])
-    
+
 
     useEffect(() => {
         let notif = (message === "Email Not Registered!");
@@ -81,6 +81,8 @@ const Authentication = ({ pageProps }: Props) => {
             setForm({})
         }
     }, [error, message])
+
+    console.log({ isSignIn, isSignUp }, 'login')
 
     return (
         <AuthLayout
