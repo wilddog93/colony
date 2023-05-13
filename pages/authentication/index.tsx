@@ -54,7 +54,6 @@ const Authentication = ({ pageProps }: Props) => {
     // query
     useEffect(() => {
         if (query?.page) setTabs(query?.page)
-        else setTabs("sign-in");
     }, [query.page]);
 
     // set state query
@@ -62,8 +61,7 @@ const Authentication = ({ pageProps }: Props) => {
         let qr = {
             page: tabs
         };
-        if (!tabs) return;
-        else router.replace({ pathname, query: qr });
+        router.replace({ pathname, query: qr });
     }, [tabs]);
 
     useEffect(() => {
