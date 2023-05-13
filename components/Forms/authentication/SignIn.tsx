@@ -91,8 +91,6 @@ const SignIn = (props: any) => {
         setValue({ email, password })
     }, [email, password])
 
-    console.log({ isOpen, value }, "result")
-
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
         <div className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0'}`}>
@@ -118,9 +116,7 @@ const SignIn = (props: any) => {
                             <input
                                 type='email'
                                 placeholder='Enter your email'
-                                className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary
-                                    ${emailError ? "focus:border-danger dark:focus:border-danger" : ""}
-                                `}
+                                className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                                 value={email}
                                 onChange={onEmailChange}
                                 autoFocus
@@ -140,9 +136,7 @@ const SignIn = (props: any) => {
                             <input
                                 type={isHidden ? "password" : "text"}
                                 placeholder='6+ Characters, 1 Capital letter'
-                                className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary
-                                    ${passwordError ? "focus:border-danger dark:focus:border-danger" : ""}
-                                `}
+                                className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                                 value={password}
                                 onChange={onPasswordChange}
                             />
@@ -224,12 +218,7 @@ const SignIn = (props: any) => {
                                     </defs>
                                 </svg>
                             </span>
-                            {pending ?
-                                (<Fragment>
-                                    Loading...
-                                    <FaCircleNotch className='w-5 h-5 animate-spin-2' />
-                                </Fragment>)
-                                : "Sign in with Google"}
+                            Sign in with Google
                         </button>
 
                         <div className='w-full flex flex-col items-center justify-center'>

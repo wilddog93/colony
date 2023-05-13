@@ -12,6 +12,8 @@ import { getAuthMe, resetAuth, selectAuth } from '../../redux/features/auth/auth
 import Modal from '../../components/Modal';
 import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
+import Link from 'next/link';
+import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent';
 
 type Props = {
     pageProps: any
@@ -98,18 +100,27 @@ const Authentication = ({ pageProps }: Props) => {
                 <SignIn onChangePage={handleChangePage} isOpen={signIn} value={form} setValue={setForm} />
 
                 <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${signIn ? "translate-x-full" : ""}`}>
-                    <div className='w-full h-2/3 flex flex-col py-17.5 px-26 justify-center'>
-                        <div className='flex flex-col justify-center'>
-                            <h2 className='text-title-md2 lg:text-title-lg mb-5'>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                            </h2>
 
-                            <p className='leading-1 text-sm'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod, minus cumque molestias voluptatibus veniam minima soluta accusamus aspernatur praesentium maiores?</p>
+                    <div className="w-full h-full flex flex-col items-center justify-between">
+                        <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${signIn ? "hidden" : ""}`} href='/'>
+                            <img src="../image/logo/logo-icon-white.png" alt="logo" />
+                            <h2 className='text-lg text-white sm:text-title-lg'>
+                                Colony.
+                            </h2>
+                        </Link>
+                        <div className={`w-full flex flex-col px-10 justify-center ${signIn ? "h-full" : ""}`}>
+                            <div className='flex flex-col justify-center'>
+                                <h2 className='text-title-md2 lg:text-title-lg mb-5'>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                                </h2>
+
+                                <p className='leading-1 text-sm'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod, minus cumque molestias voluptatibus veniam minima soluta accusamus aspernatur praesentium maiores?</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className='w-full h-1/3 flex flex-col justify-end py-10 px-26 tracking-wider'>
-                        <div className='w-full p-6 rounded-lg bg-[#111F2C3D] text-sm'>
-                            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. In tempore debitis beatae doloremque eveniet eos sunt repellendus accusantium ab distinctio.</p>
+                        <div className='w-full flex flex-col justify-end py-10 px-10 tracking-wider'>
+                            <div className='w-full p-6 rounded-lg bg-[#111f2c3d] text-sm'>
+                                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. In tempore debitis beatae doloremque eveniet eos sunt repellendus accusantium ab distinctio.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -135,37 +146,48 @@ const Authentication = ({ pageProps }: Props) => {
                 onClose={() => setIsNotif(false)}
                 size='small'
             >
-                <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[350px] max-h-[650px] gap-4 text-graydark tracking-wider">
-                    <h3 className='text-title-lg font-bold text-center'>{message}</h3>
-                    <FaRegQuestionCircle className='w-20 h-20 text-primary' />
-                    <p>Do you want to register ?</p>
-                    <div className='w-full flex items-center gap-2 justify-center'>
-                        <Button
-                            className="rounded-lg px-4"
-                            variant="primary"
-                            type="button"
-                            onClick={() => {
-                                router.push("/authentication?page=sign-up")
-                                setIsNotif(false)
-                                dispatch(resetAuth())
-                            }}
-                        >
-                            {pending ? <Fragment>
-                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
-                                Loading ....
-                            </Fragment> : "Yes, Register!"}
-                        </Button>
-                        <Button
-                            className="rounded-lg px-4"
-                            variant="danger"
-                            type="button"
-                            onClick={() => {
-                                setIsNotif(false)
-                                dispatch(resetAuth())
-                            }}
-                        >No</Button>
-                    </div>
-                </div>
+                <Fragment>
+                    <ModalHeader
+                        className='p-6 border-b-2 border-gray'
+                        isClose
+                        onClick={() => setIsNotif(false)}
+                    >
+                        <div className="w-full flex-col items-start text-graydark">
+                            <h3 className='text-[22px] font-bold'>Do you want to register ?</h3>
+                            <p className='text-sm text-gray-5'>this email hasn’t been registered in our system</p>
+                        </div>
+                    </ModalHeader>
+                    <ModalFooter
+                        className='px-8 py-4'
+                    >
+                        <div className='w-full flex items-center gap-2 justify-end'>
+                            <Button
+                                variant="secondary-outline"
+                                className="rounded-lg px-4 border-gray-4 shadow-lg text-sm"
+                                type="button"
+                                onClick={() => {
+                                    setIsNotif(false)
+                                    dispatch(resetAuth())
+                                }}
+                            >Discard</Button>
+                            <Button
+                                className="rounded-lg px-4 text-sm shadow-lg"
+                                variant="primary"
+                                type="button"
+                                onClick={() => {
+                                    router.push("/authentication?page=sign-up")
+                                    setIsNotif(false)
+                                    dispatch(resetAuth())
+                                }}
+                            >
+                                {pending ? <Fragment>
+                                    <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                                    Loading ....
+                                </Fragment> : "Save"}
+                            </Button>
+                        </div>
+                    </ModalFooter>
+                </Fragment>
             </Modal>
         </AuthLayout>
     )

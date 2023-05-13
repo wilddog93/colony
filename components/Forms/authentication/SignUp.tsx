@@ -79,8 +79,6 @@ const SignUp = (props: any) => {
     const { value, setValue, onChangePage, isOpen } = props;
     const router = useRouter();
 
-    console.log({ isOpen, value }, "result")
-
     // redux
     const dispatch = useAppDispatch();
     const { data, error, message, pending } = useAppSelector(selectAuth);
@@ -140,10 +138,9 @@ const SignUp = (props: any) => {
                     confirmPassword
                 },
                 callback:() => router.push({ 
-                    pathname: "/authentication/verify",
+                    pathname: "/authentication",
                     query: {
-                        page: "verify-account",
-                        email
+                        page: "sign-in",
                     }
                 }),
             }))
@@ -221,12 +218,12 @@ const SignUp = (props: any) => {
     }, 'event form')
 
     useEffect(() => {
-      if(isOpen && value.email) {
+      if(value.email) {
         setEmail(value.email)
-      } else if(isOpen && value.password) {
-        setEmail(value.password)
+      } else if(value.password) {
+        setPassword(value.password)
       }
-    }, [isOpen, value.email])
+    }, [isOpen, value.email, value.password])
     
 
     console.log({ isOpen, value }, "result")
@@ -235,7 +232,7 @@ const SignUp = (props: any) => {
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
             <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between gap-2.5 text-gray-5 py-6 lg:10'>
                 <div className=' w-full flex flex-col gap-2 p-6 xl:pl-10'>
-                    <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Register</h2>
+                    <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Welcome Back User</h2>
                     <p className='text-gray-5 text-sm sm:text-title-sm'>Sign your informations to continue</p>
                 </div>
 
@@ -419,8 +416,8 @@ const SignUp = (props: any) => {
                         </div>
                     </div>
 
-                    <div className='w-full flex flex-col gap-2 items-center mb-5'>
-                        <div className='w-full'>
+                    <div className='w-full flex flex-col lg:flex-row gap-2 items-center mb-5'>
+                        <div className='w-full max-w-max'>
                             <Button
                                 type='submit'
                                 variant="primary"
@@ -433,11 +430,11 @@ const SignUp = (props: any) => {
                                         Loading...
                                         <FaCircleNotch className='w-5 h-5 animate-spin-2' />
                                     </Fragment>)
-                                    : "Sign up"}
+                                    : "Create an account"}
                             </Button>
                         </div>
 
-                        <div className='w-full flex flex-col items-center justify-center'>
+                        <div className='w-full flex flex-col justify-center items-center lg:items-start'>
                             <p>Already have an account?</p>
                             <Button
                                 type="button"

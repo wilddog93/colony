@@ -215,6 +215,60 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
     }
 });
 
+// Verification
+export const webVerification = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/register/[code]', async (params, { getState }) => {
+    let emptyData = {
+        data: {}
+    }
+    try {
+        const response = await axios.patch(`auth/web/register/${params.data}`, emptyData.data, config);
+        const { data, status } = response;
+        if (status == 200) {
+            toast.dark("Email has been resend!")
+            params.callback()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError?.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+// resend e-mail
+export const webResendEmail = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/register/resendEmail', async (params, { getState }) => {
+    let emptyData = {
+        data: {}
+    }
+    try {
+        const response = await axios.patch(`auth/web/register/resendEmail`, params.data, config);
+        const { data, status } = response;
+        if (status == 200) {
+            toast.dark("Email has been resend!")
+            params.callback()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError?.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const authSlice = createSlice({
@@ -298,7 +352,7 @@ export const authSlice = createSlice({
                 }
             })
 
-            // login google
+            // register
             .addCase(webRegister.pending, state => {
                 return {
                     ...state,
@@ -314,6 +368,54 @@ export const authSlice = createSlice({
                 }
             })
             .addCase(webRegister.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
+            // verification
+            .addCase(webVerification.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webVerification.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: false,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(webVerification.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
+            // verification
+            .addCase(webResendEmail.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webResendEmail.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: false,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(webResendEmail.rejected, (state, { error }) => {
                 return {
                     ...state,
                     pending: false,

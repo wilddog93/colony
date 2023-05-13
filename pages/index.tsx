@@ -72,6 +72,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const access = cookies['access'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
+  if(token && access == "resendEmail") {
+    return {
+      redirect: {
+        destination: "/authentication/verify-account?page=verify", // Redirect to the home page
+        permanent: false,
+      },
+    };
+  }
+
   if (!token) {
     return {
       redirect: {

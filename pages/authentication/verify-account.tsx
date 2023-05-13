@@ -1,26 +1,59 @@
-import React, { ChangeEvent, SetStateAction, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, Fragment, SetStateAction, useEffect, useMemo, useState } from 'react'
 import AuthLayout from '../../components/Layouts/AuthLayouts'
 import Button from '../../components/Button/Button'
 import Link from 'next/link'
-import { MdArrowBack, MdCheckCircleOutline, MdLockOutline, MdOutlineEmail } from 'react-icons/md'
+import { MdArrowBack, MdCheckCircleOutline, MdLockOutline, MdOutlineContactMail, MdOutlineEmail, MdOutlineMail } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import AccountVerify from '../../components/Forms/authentication/AccountVerify'
 import AccountVerified from '../../components/Forms/authentication/AccountVerified'
+import { useAppDispatch, useAppSelector } from '../../redux/Hook'
+import { getAuthMe, selectAuth, webResendEmail, webVerification } from '../../redux/features/auth/authReducers'
+import { GetServerSideProps } from 'next'
+import { getCookies } from 'cookies-next'
+import Modal from '../../components/Modal'
+import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent'
+import { FaCheckCircle, FaCircleNotch, FaEnvelope } from 'react-icons/fa'
 
-const VerifyAccount = (props: any) => {
+type Props = {
+    pageProps: any
+}
+
+type changePageProps = {
+    callback?: () => void
+}
+
+const VerifyAccount = ({ pageProps }: Props) => {
     const router = useRouter();
     const { pathname, query } = router;
+    const { token, access, firebaseToken } = pageProps;
     const [tabs, setTabs] = useState<string | string[]>("");
     const [code, setCode] = useState<string | string[]>("");
     const [email, setEmail] = useState<string | string[]>("");
 
-    const [isVerified, setIsVerified] = useState(false);
+    // redux
+    const dispatch = useAppDispatch();
+    const { data, error, message, pending } = useAppSelector(selectAuth);
+
+    // resend-email
+    const [isResendEmail, setIsResendEmail] = useState(false);
+    const [isResendEmailSuccess, setIsResendEmailSuccess] = useState(false);
+
+    const handleChangePage = ({ callback }: changePageProps) => {
+        if (tabs === "sign-in") {
+            setTabs("sign-up")
+            return;
+        }
+        setTabs("sign-in")
+        if (!callback) {
+            return;
+        }
+        callback()
+    };
 
     // query
     useEffect(() => {
         if (query?.page) setTabs(query?.page)
         if (query?.code) setCode(query?.code)
-        if (query?.email) setEmail(query?.email)
     }, [query]);
 
     // set state query
@@ -28,11 +61,10 @@ const VerifyAccount = (props: any) => {
         let qr = {
             page: tabs || query?.page,
             code: code || query?.code,
-            email: email || query?.email,
         };
-        if (!tabs || !code || !email) return;
+        if (!tabs || !code) return;
         router.replace({ pathname, query: qr });
-    }, [tabs, code, email]);
+    }, [tabs, code]);
 
     const verify = useMemo(() => {
         let res;
@@ -46,7 +78,57 @@ const VerifyAccount = (props: any) => {
         return res
     }, [tabs]);
 
-    console.log({ verified, verify, tabs, code, email }, 'boolean')
+    useEffect(() => {
+        if (verify && code) {
+            dispatch(webVerification({
+                data: code, callback: () => router.push({
+                    pathname: "/authentication/verify-account",
+                    query: {
+                        page: "verified"
+                    }
+                })
+            }))
+        }
+        return;
+    }, [verify, code])
+
+    useEffect(() => {
+        if (token) {
+            dispatch(getAuthMe({
+                token, callback: () => router.push({
+                    pathname: "/authentication",
+                    query: {
+                        page: "sign-in"
+                    }
+                })
+            }))
+        }
+    }, [token]);
+
+    useEffect(() => {
+        let emailUser = data?.user?.email;
+        if (emailUser) {
+            setEmail(emailUser)
+        }
+    }, [data?.user?.email])
+
+    const isOpenResendEmail = () => {
+        setIsResendEmail(true)
+    }
+
+    const onResendEmail = () => {
+        dispatch(webResendEmail({
+            data: {
+                email
+            },
+            callback: () => {
+                setIsResendEmail(false)
+                setIsResendEmailSuccess(true)
+            }
+        }))
+    }
+
+    console.log({ data, error, message, pending }, 'verify data')
 
     return (
         <AuthLayout
@@ -57,10 +139,7 @@ const VerifyAccount = (props: any) => {
             <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                 <AccountVerify
                     isOpen={verify}
-                    code={code}
-                    onCodeChange={setCode}
-                    email={email}
-                    onEmailChange={setEmail}
+                    isOpenResendEmail={isOpenResendEmail}
                 />
 
                 <AccountVerified
@@ -69,7 +148,7 @@ const VerifyAccount = (props: any) => {
 
                 <div className={`hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-3xl ease-in-out`}>
                     <div className="w-full h-full flex flex-col items-center justify-between">
-                        <Link className='w-full pt-5.5 flex items-start gap-4 px-10' href='/authentication?page=sign-in'>
+                        <Link className='w-full pt-5.5 flex items-center gap-4 px-10' href='/authentication?page=sign-in'>
                             <img src="../image/logo/logo-icon-white.png" alt="logo" />
                             <h2 className='text-lg text-white sm:text-title-lg'>
                                 Colony.
@@ -92,8 +171,71 @@ const VerifyAccount = (props: any) => {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={isResendEmail}
+                onClose={() => setIsResendEmail(false)}
+                size='small'
+            >
+                <Fragment>
+                    <ModalHeader
+                        className='w-full p-6 font-bold border-b-2 border-gray'
+                        isClose
+                        onClick={() => setIsResendEmail(false)}
+                    >
+                        <h3 className='text-graydark text-sm lg:text-title-sm'>Email</h3>
+                    </ModalHeader>
+                    <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[300px] max-h-[650px] gap-4 text-graydark tracking-wider">
+                        <h3 className='text-title-xl2 font-bold'>{pending ? "Sending Email..." : "Resend e-mail"}</h3>
+
+                        <FaCircleNotch className={`w-20 h-20 text-primary animate-spin-2 ${!pending ? "hidden" : ""}`} />
+                        <FaCheckCircle className={`w-20 h-20 text-primary ${!isResendEmailSuccess ? "hidden" : ""}`} />
+                        <FaEnvelope className={`w-20 h-20 text-primary ${isResendEmailSuccess || pending ? "hidden" : ""}`} />
+                        <p className={`text-gray-5 ${!isResendEmailSuccess ? "hidden" : ""}`}>Your Email has been resend!</p>
+                    </div>
+                    <ModalFooter
+                        isClose
+                        onClick={() => setIsResendEmail(false)}
+                        className='justify-center p-8'
+                    >
+                        <Button
+                            type="button"
+                            onClick={onResendEmail}
+                            className="rounded-lg focus:outline-none py-2 px-4 text-sm"
+                            variant="primary"
+                            disabled={pending}
+                        >
+                            <span>Resend e-mail</span>
+                            <MdOutlineMail className='w-5 h-5' />
+                        </Button>
+                    </ModalFooter>
+                </Fragment>
+            </Modal>
         </AuthLayout>
     )
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    // Parse cookies from the request headers
+    const cookies = getCookies(context)
+
+    // Access cookies using the cookie name
+    const token = cookies['accessToken'] || null;
+    const access = cookies['access'] || null;
+    const firebaseToken = cookies['firebaseToken'] || null;
+
+    if (!token) {
+        return {
+            redirect: {
+                destination: "/authentication?page=sign-in", // Redirect to the home page
+                permanent: false
+            },
+        };
+    }
+
+    return {
+        props: { token, access, firebaseToken },
+    };
+};
 
 export default VerifyAccount

@@ -246,8 +246,8 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
                             disabled={pending}
                         >
                             {pending ? <Fragment>
-                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
                                 Signing out ....
+                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
                             </Fragment> : "Yes, Sign out!"}
                         </Button>
                         <Button
