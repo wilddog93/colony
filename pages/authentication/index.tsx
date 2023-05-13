@@ -92,16 +92,15 @@ const Authentication = ({ pageProps }: Props) => {
             <div className='relative overflow-hidden w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                 <SignIn onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
 
-                <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${tabs === "sign-in" ? "translate-x-full" : ""}`}>
-
+                <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl ${tabs === "sign-up" ? " translate-x-0" : "translate-x-full"}`}>
                     <div className="w-full h-full flex flex-col items-center justify-between">
-                        <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${tabs === "sign-in" ? "hidden" : ""}`} href='/'>
+                        <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${tabs === "sign-up" ? "" : "hidden"}`} href='/'>
                             <img src="../image/logo/logo-icon-white.png" alt="logo" />
                             <h2 className='text-lg text-white sm:text-title-lg'>
                                 Colony.
                             </h2>
                         </Link>
-                        <div className={`w-full flex flex-col px-10 justify-center ${tabs === "sign-in" ? "h-full" : ""}`}>
+                        <div className={`w-full flex flex-col px-10 justify-center ${tabs === "sign-up" ? "" : "h-full"}`}>
                             <div className='flex flex-col justify-center'>
                                 <h2 className='text-title-md2 lg:text-title-lg mb-5'>
                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit
@@ -117,15 +116,15 @@ const Authentication = ({ pageProps }: Props) => {
                         </div>
                     </div>
 
-                    <div className={`absolute z-40 inset-y-1/2 ${tabs === "sign-in" ? "right-0" : ""}`}>
+                    <div className={`absolute z-40 inset-y-1/2 ${tabs === "sign-up" ? "" : "right-0"}`}>
                         <Tooltip
-                            className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${tabs === "sign-in" ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
+                            className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${tabs === "sign-up" ? "rounded-tl-none rounded-bl-none" : "rounded-tr-none rounded-br-none"}`}
                             classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
                             tooltip={tabs === "sign-up" ? "Go to Sign in" : "Go to Sign up"}
                             color='light'
                             position={tabs === "sign-up" ? "right" : "left"}
                         >
-                            <MdArrowBack onClick={() => handleChangePage({ callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-in" ? "" : "rotate-180"}`} />
+                            <MdArrowBack onClick={() => handleChangePage({ callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-up" ? "rotate-180" : ""}`} />
                         </Tooltip>
                     </div>
                 </div>
