@@ -78,6 +78,7 @@ const stylesSelect = {
 const SignUp = (props: any) => {
     const { value, setValue, onChangePage, isOpen } = props;
     const router = useRouter();
+    const { pathname, query } = router;
 
     // redux
     const dispatch = useAppDispatch();
@@ -218,15 +219,12 @@ const SignUp = (props: any) => {
     }, 'event form')
 
     useEffect(() => {
-      if(value.email) {
+      if(value.email || value.password) {
         setEmail(value.email)
-      } else if(value.password) {
         setPassword(value.password)
       }
-    }, [isOpen, value.email, value.password])
+    }, [isOpen, value, query])
     
-
-    console.log({ isOpen, value }, "result")
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
@@ -439,7 +437,7 @@ const SignUp = (props: any) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0 text-left'
-                                onClick={() => onChangePage(handleReset)}
+                                onClick={() => onChangePage({ callback:() => handleReset() })}
                             >
                                 Sign in Here
                             </Button>

@@ -33,8 +33,6 @@ const SignIn = (props: any) => {
     const [isHidden, setIsHidden] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [googleData, setGoogleData] = useState({});
-    const [isLoadingLogin, setIsLoadingLogin] = useState(false);
-    const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
     const { value: email, reset: resetEmail, error: emailError, setError: setEmailError, onChange: onEmailChange } = useInput({
         defaultValue: "",
@@ -226,7 +224,7 @@ const SignIn = (props: any) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0'
-                                onClick={() => onChangePage(handleReset)}
+                                onClick={() => onChangePage({ callback:() => handleReset() })}
                             >
                                 Sign Up Here
                             </Button>

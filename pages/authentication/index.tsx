@@ -45,9 +45,6 @@ const Authentication = ({ pageProps }: Props) => {
             return;
         }
         setTabs("sign-in")
-        if (!callback) {
-            return;
-        }
         callback()
     };
 
