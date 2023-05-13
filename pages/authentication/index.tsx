@@ -35,6 +35,9 @@ const Authentication = ({ pageProps }: Props) => {
 
     const [form, setForm] = useState<any | undefined>({})
 
+    const [isSignIn, setIsSignIn] = useState(false);
+    const [isSignUp, setIsSignUp] = useState(false);
+
     type changePageProps = {
         callback: () => void
     }
@@ -63,17 +66,11 @@ const Authentication = ({ pageProps }: Props) => {
         else router.replace({ pathname, query: qr });
     }, [tabs]);
 
-    const signIn = useMemo(() => {
-        let res;
-        res = tabs === "sign-in" ? true : false
-        return res
+    useEffect(() => {
+        setIsSignIn(tabs === "sign-in" ? true : false)
+        setIsSignUp(tabs === "sign-up" ? true : false)
     }, [tabs])
-
-    const signUp = useMemo(() => {
-        let res;
-        res = tabs === "sign-up" ? true : false
-        return res
-    }, [tabs]);
+    
 
     useEffect(() => {
         let notif = (message === "Email Not Registered!");
@@ -85,8 +82,6 @@ const Authentication = ({ pageProps }: Props) => {
         }
     }, [error, message])
 
-    console.log({ signIn, signUp }, 'auth data')
-
     return (
         <AuthLayout
             title="Authentication"
@@ -94,18 +89,18 @@ const Authentication = ({ pageProps }: Props) => {
             description=""
         >
             <div className='relative overflow-hidden w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
-                <SignIn onChangePage={handleChangePage} isOpen={signIn} value={form} setValue={setForm} />
+                <SignIn onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
 
-                <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${signIn ? "translate-x-full" : ""}`}>
+                <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl translate-x-0 ${isSignIn ? "translate-x-full" : ""}`}>
 
                     <div className="w-full h-full flex flex-col items-center justify-between">
-                        <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${signIn ? "hidden" : ""}`} href='/'>
+                        <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${isSignIn ? "hidden" : ""}`} href='/'>
                             <img src="../image/logo/logo-icon-white.png" alt="logo" />
                             <h2 className='text-lg text-white sm:text-title-lg'>
                                 Colony.
                             </h2>
                         </Link>
-                        <div className={`w-full flex flex-col px-10 justify-center ${signIn ? "h-full" : ""}`}>
+                        <div className={`w-full flex flex-col px-10 justify-center ${isSignIn ? "h-full" : ""}`}>
                             <div className='flex flex-col justify-center'>
                                 <h2 className='text-title-md2 lg:text-title-lg mb-5'>
                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit
@@ -121,21 +116,21 @@ const Authentication = ({ pageProps }: Props) => {
                         </div>
                     </div>
 
-                    <div className={`absolute z-40 inset-y-1/2 ${signIn ? "right-0" : ""}`}>
+                    <div className={`absolute z-40 inset-y-1/2 ${isSignIn ? "right-0" : ""}`}>
                         <Tooltip
-                            className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${signIn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
+                            className={`tooltip w-full text-sm bg-[#111F2C3D] p-2 rounded-lg focus:outline-none ${isSignIn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"}`}
                             classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
-                            tooltip={!signIn ? "Go to Sign in" : "Go to Sign up"}
+                            tooltip={!isSignIn ? "Go to Sign in" : "Go to Sign up"}
                             color='light'
-                            position={!signIn ? "right" : "left"}
+                            position={!isSignIn ? "right" : "left"}
                         >
-                            <MdArrowBack onClick={() => handleChangePage({ callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${signIn ? "" : "rotate-180"}`} />
+                            <MdArrowBack onClick={() => handleChangePage({ callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${isSignIn ? "" : "rotate-180"}`} />
                         </Tooltip>
                     </div>
                 </div>
 
                 {/* sign up */}
-                <SignUp onChangePage={handleChangePage} isOpen={signUp} value={form} setValue={setForm} />
+                <SignUp onChangePage={handleChangePage} isOpen={isSignUp} value={form} setValue={setForm} />
             </div>
 
             <Modal
