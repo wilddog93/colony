@@ -30,7 +30,7 @@ const Authentication = ({ pageProps }: Props) => {
     const { data, isLogin, error, pending, message } = useAppSelector(selectAuth);
 
     // state
-    const [tabs, setTabs] = useState<string | string[]>("");
+    const [tabs, setTabs] = useState<string | string[] | undefined>("");
     const [isNotif, setIsNotif] = useState(false);
 
     const [form, setForm] = useState<any | undefined>({})
@@ -54,13 +54,14 @@ const Authentication = ({ pageProps }: Props) => {
     // query
     useEffect(() => {
         if (query?.page) setTabs(query?.page)
-    }, [query.page]);
+    }, [query]);
 
     // set state query
     useEffect(() => {
         let qr = {
             page: tabs
         };
+        if (tabs) qr = { ...qr, page: tabs ? tabs : query?.page }
         router.replace({ pathname, query: qr });
     }, [tabs]);
 
