@@ -244,11 +244,19 @@ export const webVerification = createAsyncThunk<any, AuthData, { state: RootStat
 
 // resend e-mail
 export const webResendEmail = createAsyncThunk<any, AuthData, { state: RootState }>('auth/web/register/resendEmail', async (params, { getState }) => {
-    let emptyData = {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.data.token}`
+        },
+    };
+    
+    let newData = {
         data: {}
     }
     try {
-        const response = await axios.patch(`auth/web/register/resendEmail`, params.data, config);
+        const response = await axios.post(`auth/web/register/resendEmail`, newData, config);
         const { data, status } = response;
         if (status == 200) {
             toast.dark("Email has been resend!")

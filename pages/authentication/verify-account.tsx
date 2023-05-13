@@ -119,6 +119,7 @@ const VerifyAccount = ({ pageProps }: Props) => {
     const onResendEmail = () => {
         dispatch(webResendEmail({
             data: {
+                token,
                 email
             },
             callback: () => {
@@ -183,20 +184,22 @@ const VerifyAccount = ({ pageProps }: Props) => {
                         isClose
                         onClick={() => setIsResendEmail(false)}
                     >
-                        <h3 className='text-graydark text-sm lg:text-title-sm'>Email</h3>
-                    </ModalHeader>
-                    <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[300px] max-h-[650px] gap-4 text-graydark tracking-wider">
-                        <h3 className='text-title-xl2 font-bold'>{pending ? "Sending Email..." : "Resend e-mail"}</h3>
+                        <div>
 
-                        <FaCircleNotch className={`w-20 h-20 text-primary animate-spin-2 ${!pending ? "hidden" : ""}`} />
-                        <FaCheckCircle className={`w-20 h-20 text-primary ${!isResendEmailSuccess ? "hidden" : ""}`} />
-                        <FaEnvelope className={`w-20 h-20 text-primary ${isResendEmailSuccess || pending ? "hidden" : ""}`} />
-                        <p className={`text-gray-5 ${!isResendEmailSuccess ? "hidden" : ""}`}>Your Email has been resend!</p>
-                    </div>
+                            <div className='flex items-center gap-2'>
+                                <h3 className='text-graydark text-sm lg:text-title-sm'>Resend e-mail</h3>
+                                <FaCircleNotch className={`w-6 h-6 text-primary animate-spin-2 ${!pending ? "hidden" : ""}`} />
+                                <FaCheckCircle className={`w-6 h-6 text-primary ${!isResendEmailSuccess ? "hidden" : ""}`} />
+                                <FaEnvelope className={`w-6 h-6 text-primary ${isResendEmailSuccess || pending ? "hidden" : ""}`} />
+                            </div>
+                            <p className={`text-gray-5 ${!isResendEmailSuccess ? "hidden" : ""}`}>Your Email has been resend!</p>
+                        </div>
+
+                    </ModalHeader>
                     <ModalFooter
                         isClose
                         onClick={() => setIsResendEmail(false)}
-                        className='justify-center p-8'
+                        className='justify-end p-8'
                     >
                         <Button
                             type="button"
@@ -223,15 +226,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = cookies['accessToken'] || null;
     const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
-
-    if (!token) {
-        return {
-            redirect: {
-                destination: "/authentication?page=sign-in", // Redirect to the home page
-                permanent: false
-            },
-        };
-    }
 
     return {
         props: { token, access, firebaseToken },
