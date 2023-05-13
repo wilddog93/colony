@@ -207,17 +207,6 @@ const SignUp = (props: any) => {
         setValue({ email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday })
     }, [email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday]);
 
-    console.log({
-        email,
-        firstName,
-        lastName,
-        nickName,
-        phoneNumber,
-        birthday,
-        password,
-        confirmPassword
-    }, 'event form')
-
     useEffect(() => {
       if(value.email || value.password) {
         setEmail(value.email)

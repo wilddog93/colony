@@ -85,7 +85,7 @@ const Authentication = ({ pageProps }: Props) => {
         }
     }, [error, message])
 
-    console.log({ form }, 'auth data')
+    // console.log(form, 'auth data')
 
     return (
         <AuthLayout
