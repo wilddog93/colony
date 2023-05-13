@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, Fragment, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { MdEmail, MdLockOutline, MdOutlineCalendarToday, MdOutlineEmail, MdOutlineLockOpen, MdOutlinePerson } from 'react-icons/md'
 import Button from '../../Button/Button'
 import DropdownSelect from '../../Dropdown/DropdownSelect'
@@ -79,6 +79,8 @@ const SignUp = (props: any) => {
     const { value, setValue, onChangePage, isOpen } = props;
     const router = useRouter();
     const { pathname, query } = router;
+
+    const isOpened = useMemo(() => isOpen, [isOpen])
 
     // redux
     const dispatch = useAppDispatch();
@@ -212,11 +214,11 @@ const SignUp = (props: any) => {
         setEmail(value.email)
         setPassword(value.password)
       }
-    }, [isOpen, value, query])
+    }, [isOpened, value, query])
     
 
     return (
-        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
+        <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpened ? 'translate-x-0' : 'translate-x-full opacity-0'}`}>
             <div className='relative bg-white z-50 w-full h-full flex flex-col justify-between gap-2.5 text-gray-5 py-6 lg:10'>
                 <div className=' w-full flex flex-col gap-2 p-6 xl:pl-10'>
                     <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Welcome Back User</h2>

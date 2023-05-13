@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { FormEventHandler, Fragment, useEffect, useState } from 'react'
+import React, { FormEventHandler, Fragment, useEffect, useMemo, useState } from 'react'
 import { MdEmail, MdLockOutline, MdOutlineEmail, MdOutlineLockClock, MdOutlineLockOpen } from 'react-icons/md'
 import Button from '../../Button/Button'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook'
@@ -24,6 +24,8 @@ const SignIn = (props: any) => {
     const firebaseToken = getCookie("firebaseToken");
     const token = getCookie("accessToken");
     const access = getCookie("access");
+
+    const isOpened = useMemo(() => isOpen, [isOpen])
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -91,7 +93,7 @@ const SignIn = (props: any) => {
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
-        <div className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0'}`}>
+        <div className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-300 ease-in-out ${isOpened ? 'translate-x-0' : '-translate-x-full opacity-0'}`}>
             <div className='w-full h-full flex flex-col justify-between gap-2 text-gray-5 py-6 lg:10'>
                 <Link className='mb-5.5 flex items-center gap-2.5 p-6 xl:px-10' href='/'>
                     <img className='' src={"../image/logo/logo-icon.svg"} alt='Logo' />
@@ -224,7 +226,7 @@ const SignIn = (props: any) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0'
-                                onClick={() => onChangePage({ callback:() => handleReset() })}
+                                onClick={() => onChangePage({ callback: () => handleReset() })}
                             >
                                 Sign Up Here
                             </Button>
