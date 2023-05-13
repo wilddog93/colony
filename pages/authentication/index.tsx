@@ -30,7 +30,7 @@ const Authentication = ({ pageProps }: Props) => {
     const { data, isLogin, error, pending, message } = useAppSelector(selectAuth);
 
     // state
-    const [tabs, setTabs] = useState<string | string[] | undefined>("");
+    const [tabs, setTabs] = useState<string | string[]>("");
     const [isNotif, setIsNotif] = useState(false);
 
     const [form, setForm] = useState<any | undefined>({})
@@ -53,8 +53,8 @@ const Authentication = ({ pageProps }: Props) => {
 
     // query
     useEffect(() => {
-        if (!query?.page) return;
-        else setTabs(query?.page)
+        if (query?.page) setTabs(query?.page)
+        else setTabs("sign-in");
     }, [query.page]);
 
     // set state query
@@ -67,8 +67,8 @@ const Authentication = ({ pageProps }: Props) => {
     }, [tabs]);
 
     useEffect(() => {
-        setIsSignIn(tabs === "sign-in" ? true : false)
-        setIsSignUp(tabs === "sign-up" ? true : false)
+        setIsSignIn(tabs == "sign-in" ? true : false)
+        setIsSignUp(tabs == "sign-up" ? true : false)
     }, [tabs])
 
 
