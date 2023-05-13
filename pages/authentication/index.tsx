@@ -59,11 +59,11 @@ const Authentication = ({ pageProps }: Props) => {
     // set state query
     useEffect(() => {
         let qr = {
-            page: tabs
+            page: query?.page
         };
-        if (tabs) qr = { ...qr, page: tabs ? tabs : query?.page }
+        if (tabs) qr = { ...qr, page: tabs }
         router.replace({ pathname, query: qr });
-    }, [tabs]);
+    }, [tabs, query.page]);
 
     useEffect(() => {
         setIsSignIn(tabs == "sign-in" ? true : false)
