@@ -27,6 +27,7 @@ const Home = ({ pageProps }: Props) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
+  const { user } = data;
 
   // sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,9 +62,9 @@ const Home = ({ pageProps }: Props) => {
           <div className="w-full flex flex-col justify-center gap-6">
             <div className='flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0'>
               <div className="w-full flex flex-col lg:flex-row items-center">
-                <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Welcome Back User</h2>
+                <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left'>Welcome Back {user?.firstName || '-'}</h2>
                 <Button
-                  onClick={() => console.log("sign-out")}
+                  onClick={() => console.log("profile")}
                   type='button'
                   variant="primary-outline-none"
                   className='font-semibold ml-0 lg:ml-auto'
@@ -77,21 +78,21 @@ const Home = ({ pageProps }: Props) => {
             </div>
 
             <Cards
-              className='mt-20 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
+              className='mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
             >
               <div className='w-full lg:w-1/5'>
-                <img src="./image/user/user-01.png" alt="avatar" className='rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto sm:mx-0' />
+                <img src="./image/user/user-01.png" alt="avatar" className='rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto' />
               </div>
               <div className='w-full lg:w-5/5'>
                 <div className='w-full flex flex-col lg:flex-row items-center justify-center sm:justify-start gap-2 my-3 sm:my-0'>
-                  <div className='font-semibold text-graydark text-base lg:text-title-md'>John D</div>
-                  <h3 className='text-sm lg:text-base'>John Doe</h3>
+                  <div className='font-semibold text-graydark text-base lg:text-title-md'>{ user?.lastName || '-' }</div>
+                  <h3 className='text-sm lg:text-base'>{`${user?.firstName || ''} ${user?.lastName || ''}`}</h3>
                 </div>
                 <div className='w-full flex flex-1 gap-2 justify-center sm:justify-start'>
                   <div>
                     <MdMail className='w-6 h-6' />
                   </div>
-                  <p>johndoe@gmail.com</p>
+                  <p>{user?.email || "-"}</p>
                 </div>
               </div>
             </Cards>
