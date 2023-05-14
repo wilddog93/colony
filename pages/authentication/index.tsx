@@ -23,7 +23,7 @@ const Authentication = ({ pageProps }: Props) => {
     const router = useRouter();
     const { query, pathname } = router;
 
-    const { token } = pageProps
+    const { token, firebaseToken } = pageProps
 
     // auth me
     const dispatch = useAppDispatch();
@@ -39,35 +39,35 @@ const Authentication = ({ pageProps }: Props) => {
     const [isSignUp, setIsSignUp] = useState(false);
 
     type changePageProps = {
+        page?: string
         callback: () => void
     }
 
-    const handleChangePage = ({ callback }: changePageProps) => {
-        if (tabs === "sign-in") {
-            setTabs("sign-up")
-            return;
-        }
-        setTabs("sign-in")
+    const handleChangePage = ({ page, callback }: changePageProps) => {
+        setTabs(page)
         callback()
     };
 
-    // query
     useEffect(() => {
         if (query?.page) setTabs(query?.page)
-    }, [router]);
+    }, [query]);
 
-    // set state query
     useEffect(() => {
-        let qr = {
+        let qr:any = {
             page: query?.page
         };
+
         if (tabs) qr = { ...qr, page: tabs }
-        router.replace({ pathname, query: qr });
+        router.push({
+            pathname,
+            query: qr,
+        });
     }, [tabs]);
 
+
     useEffect(() => {
-        setIsSignIn(tabs == "sign-in" ? true : false)
-        setIsSignUp(tabs == "sign-up" ? true : false)
+        setIsSignUp(tabs === "sign-up" ? true : false)
+        setIsSignIn(tabs === "sign-in" ? true : false)
     }, [tabs])
 
 
@@ -90,9 +90,9 @@ const Authentication = ({ pageProps }: Props) => {
             description=""
         >
             <div className='relative overflow-hidden w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
-                <SignIn onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
+                <SignIn firebaseToken={firebaseToken} onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
 
-                <div className={`relative hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl ${tabs === "sign-up" ? " translate-x-0" : "translate-x-full"}`}>
+                <div className={`relative hidden w-full lg:w-1/2 h-full lg:inline-block transition-transform duration-100 ease-in-out border bg-primary text-white border-stroke rounded-3xl ${tabs === "sign-in" ? "translate-x-full" : ""}`}>
                     <div className="w-full h-full flex flex-col items-center justify-between">
                         <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${tabs === "sign-up" ? "" : "hidden"}`} href='/'>
                             <img src="../image/logo/logo-icon-white.png" alt="logo" />
@@ -103,7 +103,7 @@ const Authentication = ({ pageProps }: Props) => {
                         <div className={`w-full flex flex-col px-10 justify-center ${tabs === "sign-up" ? "" : "h-full"}`}>
                             <div className='flex flex-col justify-center'>
                                 <h2 className='text-title-md2 lg:text-title-lg mb-5'>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit 
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit
                                 </h2>
 
                                 <p className='leading-1 text-sm'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod, minus cumque molestias voluptatibus veniam minima soluta accusamus aspernatur praesentium maiores?</p>
@@ -124,7 +124,7 @@ const Authentication = ({ pageProps }: Props) => {
                             color='light'
                             position={tabs === "sign-up" ? "right" : "left"}
                         >
-                            <MdArrowBack onClick={() => handleChangePage({ callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-up" ? "rotate-180" : ""}`} />
+                            <MdArrowBack onClick={() => handleChangePage({ page: tabs === "sign-up" ? "sign-in" : "sign-up" ,callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-up" ? "rotate-180" : ""}`} />
                         </Tooltip>
                     </div>
                 </div>
@@ -191,7 +191,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     // Access cookies using the cookie name
     const token = cookies['accessToken'] || null;
-    const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
     if (token) {
@@ -204,7 +203,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     return {
-        props: { firebaseToken },
+        props: { token, firebaseToken },
     };
 };
 
