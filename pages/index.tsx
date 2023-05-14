@@ -2,12 +2,19 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../redux/Hook';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
-import { getAuthMe, selectAuth } from '../redux/features/auth/authReducers';
+import { getAuthMe, selectAuth, webLogout } from '../redux/features/auth/authReducers';
+import AuthLayout from '../components/Layouts/AuthLayouts';
+import Link from 'next/link';
+import { MdArrowBack, MdLogin, MdLogout, MdMail, MdMailOutline } from 'react-icons/md';
+import Button from '../components/Button/Button';
+import Cards from '../components/Cards/Cards';
+import Modal from '../components/Modal';
+import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 
 type Props = {
   pageProps: any
@@ -17,12 +24,13 @@ const Home = ({ pageProps }: Props) => {
   // props
   const { token, access, firebaseToken } = pageProps;
 
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
 
   // sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSignOut, setIsSignOut] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -31,35 +39,171 @@ const Home = ({ pageProps }: Props) => {
     dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
   }, [token])
 
+  const isOpenSignOut = () => setIsSignOut(true)
+  const isCloseSignOut = () => setIsSignOut(false)
+
+  const onSignOut = () => {
+    let data = { token }
+    dispatch(webLogout({
+      data,
+      callback: () => router.push("/")
+    }))
+  }
+
   return (
-    <DefaultLayout
-      title="Colony"
-      header="Home"
-      head=""
-      logo="image/logo/logo-icon.svg"
+    <AuthLayout
+      title="Select Access"
+      logo="./image/logo/logo-icon.svg"
       description=""
-      images="image/logo/building-logo.svg"
-      userDefault="image/user/user-01.png"
-      token={token}
     >
-      <div className='absolute inset-0 mt-20 z-99 bg-boxdark flex text-white'>
-        <div className="relative w-full bg-white p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='sticky bg-white top-0 z-50 w-full flex flex-col items-center py-6 mb-3 gap-2'>
-            <div className='w-full flex items-center justify-between py-3'>
-              <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Home</h3>
+      <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden overflow-y-auto'>
+        <div className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
+          <div className="w-full flex flex-col justify-center gap-6">
+            <div className='flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0'>
+              <div className="w-full flex flex-col lg:flex-row items-center">
+                <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Welcome Back User</h2>
+                <Button
+                  onClick={() => console.log("sign-out")}
+                  type='button'
+                  variant="primary-outline-none"
+                  className='font-semibold ml-0 lg:ml-auto'
+                >
+                  <h2 className='text-sm sm:text-base'>
+                    Manage Profile.
+                  </h2>
+                </Button>
+              </div>
+              <p className='text-gray-5 text-sm sm:text-title-sm text-center lg:text-left'>Do you have any plan today?</p>
+            </div>
+
+            <Cards
+              className='mt-20 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
+            >
+              <div className='w-full lg:w-1/5'>
+                <img src="./image/user/user-01.png" alt="avatar" className='rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto sm:mx-0' />
+              </div>
+              <div className='w-full lg:w-5/5'>
+                <div className='w-full flex flex-col lg:flex-row items-center justify-center sm:justify-start gap-2 my-3 sm:my-0'>
+                  <div className='font-semibold text-graydark text-base lg:text-title-md'>John D</div>
+                  <h3 className='text-sm lg:text-base'>John Doe</h3>
+                </div>
+                <div className='w-full flex flex-1 gap-2 justify-center sm:justify-start'>
+                  <div>
+                    <MdMail className='w-6 h-6' />
+                  </div>
+                  <p>johndoe@gmail.com</p>
+                </div>
+              </div>
+            </Cards>
+          </div>
+
+          <div className='w-full flex flex-col justify-center gap-6'>
+            <h3 className='text-lg tracking-wide'>Select Your Access :</h3>
+            <div className="grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Owner</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </Cards>
+
+              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Employee</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </Cards>
+
+              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Tenant</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </Cards>
+
+              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Third Party</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </Cards>
             </div>
           </div>
 
-
-          <main className='relative tracking-wide text-left text-boxdark-2'>
-            <div className="w-full flex flex-1 flex-col gap-2.5 lg:gap-6">
-              {/* content */}
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid architecto commodi nulla, totam saepe facere doloribus harum mollitia recusandae minima iusto quas distinctio excepturi quidem eos id vel sed esse vitae numquam. Excepturi adipisci magnam quo fugiat, soluta, commodi obcaecati id vel asperiores labore accusamus assumenda. Beatae laboriosam cum voluptas eos nihil architecto iure earum sit dolorum aperiam neque, rerum mollitia est quam? Beatae sed quae eum natus, commodi maiores adipisci odit possimus ipsam obcaecati placeat debitis cum ab architecto minima dolorum tempore id quis recusandae. Ea et nihil officia quos culpa inventore aliquam incidunt placeat ex ad repellendus dolorum deserunt, libero est corporis? Rem error quibusdam harum sint recusandae aut sed autem repellat voluptatibus doloribus ipsa voluptate voluptates rerum voluptas cum minima nemo cupiditate neque ratione vitae esse optio, iusto corrupti? Voluptate optio saepe labore ratione expedita quaerat enim laboriosam est. Magni, minima. Illo aut deserunt quidem inventore voluptate vero explicabo sunt repellendus magnam velit voluptatibus a, aspernatur vitae, nesciunt autem id deleniti sequi, cupiditate sapiente! Sit, sequi minus eos, sint vel quas ab eligendi nam rerum nihil labore earum blanditiis architecto dolore error facilis nostrum, porro eius. A molestias eos consequatur. Facilis eum, nemo optio a quo sint ipsam fugit, rerum vero eius ab, illum accusantium impedit consequuntur id veniam enim? Magnam amet eum repellendus vitae deserunt sunt nihil id consequatur harum fugiat maiores corporis, repellat obcaecati, possimus sit aliquam voluptatum itaque odio dolor fuga commodi delectus blanditiis inventore. Inventore earum ad temporibus dolores illo veritatis numquam quibusdam delectus labore exercitationem, aliquid, rerum tempore voluptate nisi laborum iure quisquam non unde deserunt dolor magni, asperiores aut necessitatibus. Quia, necessitatibus natus. Unde, iure! Ex iste, molestias facere et dolorum cum cupiditate sapiente nisi quae fugit. Suscipit iure facilis minima nesciunt soluta modi. Aliquam nostrum, esse labore tempore hic voluptatum dolorum dolorem ab voluptatem officia expedita voluptates dignissimos veniam ad similique sapiente nulla rerum fuga commodi distinctio? Expedita reiciendis quidem sequi. Illum ullam atque exercitationem, autem repellendus consectetur saepe temporibus praesentium numquam officiis voluptatem mollitia eligendi optio labore consequatur animi itaque hic id a dicta dolor quisquam maiores! Fugiat atque, corrupti odit impedit accusantium dicta explicabo dolorem dolore voluptatibus. Nihil, omnis eveniet rem veniam voluptate consequatur commodi enim mollitia, labore incidunt ut facilis ipsum sed velit eum iusto odio laudantium! At corporis necessitatibus fugit, tempore sit sunt dolorem provident rerum nesciunt velit mollitia nihil tenetur deserunt totam enim commodi, vero qui soluta dolor atque nulla nemo eaque! Nemo et perspiciatis iusto inventore at aliquam quos perferendis possimus ab exercitationem? Perspiciatis veritatis nisi praesentium? Quisquam officiis porro culpa cupiditate delectus quis, dicta voluptates illum. Debitis, iste. Accusantium recusandae ab explicabo repellat non quasi pariatur delectus quae eius, suscipit velit minima, possimus ex rerum magni sint quidem corrupti! Repudiandae eos repellat saepe porro asperiores, temporibus deleniti rem distinctio voluptatem quisquam tempore non corrupti, vitae eveniet, quae optio minima at. Voluptate error distinctio, totam quidem maiores doloribus, fugiat saepe dignissimos alias possimus consequatur iste at corrupti ea asperiores assumenda corporis harum deserunt voluptas sunt nesciunt quis optio velit? Tempora, id vitae ut odit, perferendis magni error animi dolore amet illo sapiente debitis quam doloribus provident esse. Qui reprehenderit assumenda molestiae accusamus facere explicabo alias quae eveniet, voluptatem laborum officia tempore totam eligendi? Cupiditate dolorum, ipsa modi, illo odio tempora delectus veritatis earum hic placeat iusto quae, ex quas velit incidunt cum repellendus nobis excepturi. Soluta nisi molestiae nobis. Modi minima blanditiis fugit ullam alias deleniti accusamus eius, exercitationem nihil consequuntur atque eos animi voluptatum quisquam laboriosam dolorem adipisci. Tenetur pariatur earum architecto impedit enim! Molestias nisi vitae est, aliquam accusantium dicta? Repellendus mollitia corrupti fugiat dicta excepturi magnam quaerat sunt. Qui repellat alias obcaecati accusantium non. Asperiores magnam voluptates iure facere ab perspiciatis dolorem consectetur dignissimos, nostrum quas deserunt laudantium nemo temporibus atque eveniet vitae repudiandae dolore quam numquam libero velit. Alias ex ratione tempore ab magni perspiciatis cupiditate vero quod fugit dolores ut officiis, quam nobis eaque quo rem quis, adipisci molestiae? Corrupti eius placeat nulla sunt aliquam, expedita amet dolor possimus a dolorum fuga iure in deleniti beatae iusto! Suscipit ipsa veniam, natus ipsam doloremque quisquam totam eum cumque maxime et fuga optio recusandae nostrum distinctio qui non cum alias repellat quo blanditiis. Porro dignissimos repudiandae vero eligendi aliquam id maiores quia tempore. Laboriosam iusto ipsum nisi qui! Molestias odio necessitatibus ratione est sunt earum vel aliquam quisquam iure laboriosam ea modi, fugiat sed dolorum optio cumque neque tenetur dolores consequuntur. Ut, corporis facere! Unde quis corporis totam eveniet cum ex expedita explicabo ipsa, non neque illum aspernatur laborum laudantium vel et eaque dolores, quod inventore. At, repudiandae repellat similique error ipsum ratione odio assumenda quis ducimus consequatur adipisci aut! Officiis vitae neque modi nam? Fugit alias, aspernatur voluptas doloribus nihil qui. Repellendus tempora asperiores ad, harum molestiae ratione atque, laudantium vero animi velit vel voluptatibus in ab. Molestias accusantium commodi cum corporis nihil! Reiciendis alias modi numquam nesciunt id quaerat iste labore laudantium hic suscipit, quas recusandae, aperiam iure. Explicabo est quod quasi nihil veritatis molestias, non dolores, ea ullam unde quam voluptas? Vel laudantium, inventore animi autem, unde mollitia a architecto nihil ipsa optio at, accusantium quis? Inventore dolorum quia modi illum saepe laboriosam, magni, totam asperiores assumenda quas voluptate in, cum deleniti optio sapiente officiis error mollitia soluta delectus tempore odit earum! Ad qui error et doloribus similique facere, reprehenderit autem assumenda laudantium architecto fugit minus alias iure ipsam? Atque reprehenderit vel, accusamus reiciendis corrupti molestias quaerat libero eveniet aliquam facere consectetur harum nemo? Adipisci, ex quo. A nam iusto totam quaerat, illo voluptas corporis deleniti ducimus! Similique explicabo animi, eius praesentium at aut aspernatur porro itaque exercitationem quae cum ut esse sapiente! Quia harum inventore, doloremque nobis ratione vel eaque! Assumenda, iusto iure ipsam numquam esse, nulla blanditiis alias repellat at corporis perspiciatis molestiae dicta. Eligendi veniam, soluta, commodi delectus optio aliquid iure odio nemo nam cum mollitia eveniet enim ratione explicabo? Voluptates consectetur dolor fugiat doloribus nam earum iure, velit, voluptas aut, nemo debitis obcaecati sed.
+          <div className="w-full flex flex-col justify-center gap-6">
+            <div className='w-full flex flex-col gap-2 items-start mb-5 text-left'>
+              <Button
+                onClick={isOpenSignOut}
+                type='button'
+                variant="primary-outline-none"
+                className='mb-5.5 px-0 py-0'
+              >
+                <span className='p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1'>
+                  <MdLogin className='w-6 h-6 rotate-180' />
+                </span>
+                <h2 className='text-base lg:text-lg text-graydark dark:text-white'>
+                  Sign Out.
+                </h2>
+              </Button>
             </div>
-          </main>
+          </div>
+        </div>
+
+        <div className={`hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-3xl ease-in-out`}>
+          <div className="w-full h-full flex flex-col items-center justify-between">
+            <Link className='w-full pt-5.5 flex items-center gap-4 px-10' href='/authentication?page=sign-in'>
+              <img src="../image/logo/logo-icon-white.png" alt="logo" />
+              <h2 className='text-lg text-white sm:text-title-lg'>
+                Colony.
+              </h2>
+            </Link>
+            <div className='w-full flex flex-col px-10 justify-center'>
+              <div className='flex flex-col justify-center'>
+                <h2 className='text-title-md2 lg:text-title-lg mb-5'>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                </h2>
+
+                <p className='leading-1 text-sm'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod, minus cumque molestias voluptatibus veniam minima soluta accusamus aspernatur praesentium maiores?</p>
+              </div>
+            </div>
+            <div className='w-full flex flex-col justify-end py-10 px-10 tracking-wider'>
+              <div className='w-full p-6 rounded-lg bg-[#111f2c3d] text-sm'>
+                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. In tempore debitis beatae doloremque eveniet eos sunt repellendus accusantium ab distinctio.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </DefaultLayout>
+
+      {/* signout */}
+      <Modal
+        isOpen={isSignOut}
+        onClose={isCloseSignOut}
+        size='small'
+      >
+        <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[350px] max-h-[650px] gap-4 text-graydark tracking-wider">
+          <h3 className='text-title-xl2 font-bold'>Sign Out</h3>
+          <FaRegQuestionCircle className='w-20 h-20 text-primary' />
+          <p>Are you sure to Sign Out ?</p>
+          <div className='w-full flex items-center gap-2 justify-center'>
+            <Button
+              className="rounded-lg px-4"
+              variant="primary"
+              type="button"
+              onClick={onSignOut}
+              disabled={pending}
+            >
+              {pending ? <Fragment>
+                Signing out ....
+                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+              </Fragment> : "Yes, Sign out!"}
+            </Button>
+            <Button
+              className="rounded-lg px-4"
+              variant="danger"
+              type="button"
+              onClick={isCloseSignOut}
+            >No</Button>
+          </div>
+        </div>
+      </Modal>
+    </AuthLayout>
   )
 }
 
@@ -72,7 +216,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const access = cookies['access'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
-  if(token && access == "resendEmail") {
+  if (token && access == "resendEmail") {
     return {
       redirect: {
         destination: "/authentication/verify-account?page=verify", // Redirect to the home page
