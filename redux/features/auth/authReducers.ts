@@ -77,8 +77,8 @@ export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('a
         const { data, status } = response;
         if (status == 200) {
             toast.dark("Sign in successfully!")
-            setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24, secure: true })
-            setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24, secure: true })
+            setCookie('accessToken', data?.accessToken, { secure: true, maxAge: 60 * 60 * 24, sameSite: "lax", httpOnly: true })
+            setCookie('refreshToken', data?.refreshToken, { secure: true, maxAge: 60 * 60 * 24, sameSite: "lax", httpOnly: true })
             setCookie('access', data?.access, { secure: true })
             params.callback()
             return data
@@ -173,7 +173,7 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
         if (error.response && error.response.status === 404) {
             throw new Error('User not found');
         } else {
-            if(status == 401){
+            if (status == 401) {
                 params.callback()
             }
             throw new Error(newError.message);
@@ -251,7 +251,7 @@ export const webResendEmail = createAsyncThunk<any, AuthData, { state: RootState
             "Authorization": `Bearer ${params.data.token}`
         },
     };
-    
+
     let newData = {
         data: {}
     }
@@ -285,7 +285,7 @@ export const authSlice = createSlice({
     reducers: {
         // leave this empty here
         resetAuth(state) {
-            state.data.user= {}
+            state.data.user = {}
             state.data.access = ""
             state.data.accessToken = ""
             state.data.refreshToken = ""
