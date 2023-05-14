@@ -25,7 +25,7 @@ const ResendEmailSuccess = (props: any) => {
 
 
     return (
-        <div className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-10 text-gray-5 justify-center ${!isOpen ? "hidden" : ""}`}>
+        <div className={`w-full lg:w-1/2 h-full flex flex-col py-6 gap-10 text-gray-5 justify-center ${!isOpen ? "hidden" : ""}`}>
             <div className="w-full flex flex-col justify-center gap-6">
                 <div className='flex flex-col gap-2'>
                     <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Resend E-mail is successfully!</h2>

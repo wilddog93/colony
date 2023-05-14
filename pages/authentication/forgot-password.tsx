@@ -16,7 +16,7 @@ const ForgotPassword = (props: Props) => {
             description=""
         >
             <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
-                <div className='w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5'>
+                <div className='w-full lg:w-1/2 h-full flex flex-col py-6 gap-2 text-gray-5'>
                     <button
                         className='mb-5.5 flex items-center gap-4'
                         type='button'
@@ -67,7 +67,7 @@ const ForgotPassword = (props: Props) => {
                     </div>
                 </div>
 
-                <div className={`hidden w-full lg:w-1/2 h-full xl:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-3xl translate-x-0 ease-in-out`}>
+                <div className={`hidden w-full lg:w-1/2 h-full lg:block transition-transform duration-500 border bg-primary text-white border-stroke rounded-3xl translate-x-0 ease-in-out`}>
                     <div className='w-full h-2/3 flex flex-col py-17.5 px-26 justify-center'>
                         <div className='flex flex-col justify-center'>
                             <h2 className='text-title-md2 lg:text-title-lg mb-5'>

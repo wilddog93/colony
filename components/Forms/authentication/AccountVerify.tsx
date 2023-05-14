@@ -23,7 +23,7 @@ const AccountVerify = (props: any) => {
     }
 
     return (
-        <div className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between ${!isOpen ? "hidden" : ""}`}>
+        <div className={`w-full lg:w-1/2 h-full flex flex-col py-6 gap-2 text-gray-5 justify-between ${!isOpen ? "hidden" : ""}`}>
             <button className='mb-5.5 flex items-center gap-4' type='button' onClick={gotToLogin}>
                 <span className='p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1'>
                     <MdArrowBack className='w-6 h-6' />
