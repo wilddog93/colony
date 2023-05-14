@@ -77,9 +77,9 @@ export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>('a
         const { data, status } = response;
         if (status == 200) {
             toast.dark("Sign in successfully!")
-            setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24 })
-            setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24 })
-            setCookie('access', data?.access)
+            setCookie('accessToken', data?.accessToken, { maxAge: 60 * 60 * 24, secure: true })
+            setCookie('refreshToken', data?.refreshToken, { maxAge: 60 * 60 * 24, secure: true })
+            setCookie('access', data?.access, { secure: true })
             params.callback()
             return data
         } else {
