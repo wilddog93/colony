@@ -62,7 +62,7 @@ const Home = ({ pageProps }: Props) => {
           <div className="w-full flex flex-col justify-center gap-6">
             <div className='flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0'>
               <div className="w-full flex flex-col lg:flex-row items-center">
-                <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left'>Welcome Back {user?.firstName || '-'}</h2>
+                <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left'>Welcome Back {user?.lastName || '-'}</h2>
                 <Button
                   onClick={() => console.log("profile")}
                   type='button'
