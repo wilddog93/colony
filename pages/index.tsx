@@ -15,6 +15,7 @@ import Button from '../components/Button/Button';
 import Cards from '../components/Cards/Cards';
 import Modal from '../components/Modal';
 import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
+import LoadingPage from '../components/LoadingPage';
 
 type Props = {
   pageProps: any

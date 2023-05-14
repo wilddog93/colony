@@ -14,6 +14,7 @@ import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
 import Link from 'next/link';
 import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent';
+import LoadingPage from '../../components/LoadingPage';
 
 type Props = {
     pageProps: any
@@ -87,6 +88,7 @@ const Authentication = ({ pageProps }: Props) => {
             logo="../image/logo/logo-icon.svg"
             description=""
         >
+            <LoadingPage loading={pending} />
             <div className='relative overflow-hidden w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                 <SignIn firebaseToken={firebaseToken} onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
 

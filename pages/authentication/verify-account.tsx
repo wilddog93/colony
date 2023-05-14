@@ -13,6 +13,7 @@ import { getCookies } from 'cookies-next'
 import Modal from '../../components/Modal'
 import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent'
 import { FaCheckCircle, FaCircleNotch, FaEnvelope } from 'react-icons/fa'
+import LoadingPage from '../../components/LoadingPage'
 
 type Props = {
     pageProps: any
@@ -137,6 +138,8 @@ const VerifyAccount = ({ pageProps }: Props) => {
             logo="../image/logo/logo-icon.svg"
             description=""
         >
+            <LoadingPage loading={pending} />
+
             <div className='relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                 <AccountVerify
                     isOpen={verify}
