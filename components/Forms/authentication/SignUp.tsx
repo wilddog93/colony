@@ -206,17 +206,11 @@ const SignUp = (props: any) => {
     ]);
 
     useEffect(() => {
-        setValue({ email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday })
-    }, [email, password, confirmPassword, firstName, lastName, gender, phoneNumber, birthday]);
-
-    useEffect(() => {
       if(value.email || value.password) {
         setEmail(value.email)
         setPassword(value.password)
       }
-    }, [isOpened, value, query])
-    
-    console.log(isOpened, 'sign-up')
+    }, [value.email, value.password])
 
     return (
         <div className={`absolute bg-white right-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-hidden duration-300 ease-in-out ${isOpened ? 'translate-x-0 visible' : 'translate-x-full invisible'}`}>

@@ -84,9 +84,7 @@ const SignIn = (props: any) => {
 
     useEffect(() => {
         setValue({ email, password })
-    }, [email, password])
-
-    console.log(isOpened, 'sign-in')
+    }, [email, password]);
 
     return (
         // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
