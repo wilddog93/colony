@@ -429,7 +429,7 @@ const SignUp = (props: any) => {
                             <Button
                                 type="button"
                                 className='text-primary px-0 py-0 text-left'
-                                onClick={() => onChangePage({ callback:() => handleReset() })}
+                                onClick={() => onChangePage({ page: "sign-in", callback:() => handleReset() })}
                             >
                                 Sign in Here
                             </Button>
