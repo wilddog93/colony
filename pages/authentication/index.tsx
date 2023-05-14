@@ -53,7 +53,7 @@ const Authentication = ({ pageProps }: Props) => {
     }, [query]);
 
     useEffect(() => {
-        let qr:any = {
+        let qr: any = {
             page: query?.page
         };
 
@@ -80,8 +80,6 @@ const Authentication = ({ pageProps }: Props) => {
             setForm({})
         }
     }, [error, message])
-
-    console.log({ isSignIn, isSignUp }, 'login')
 
     return (
         <AuthLayout
@@ -124,7 +122,7 @@ const Authentication = ({ pageProps }: Props) => {
                             color='light'
                             position={tabs === "sign-up" ? "right" : "left"}
                         >
-                            <MdArrowBack onClick={() => handleChangePage({ page: tabs === "sign-up" ? "sign-in" : "sign-up" ,callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-up" ? "rotate-180" : ""}`} />
+                            <MdArrowBack onClick={() => handleChangePage({ page: tabs === "sign-up" ? "sign-in" : "sign-up", callback: () => setForm({}) })} className={`w-10 h-10 transition-transform ease-in-out duration-1000 ${tabs === "sign-up" ? "rotate-180" : ""}`} />
                         </Tooltip>
                     </div>
                 </div>
@@ -142,7 +140,10 @@ const Authentication = ({ pageProps }: Props) => {
                     <ModalHeader
                         className='p-6 border-b-2 border-gray'
                         isClose
-                        onClick={() => setIsNotif(false)}
+                        onClick={() => {
+                            setIsNotif(false)
+                            dispatch(resetAuth())
+                        }}
                     >
                         <div className="w-full flex-col items-start text-graydark">
                             <h3 className='text-[22px] font-bold'>Do you want to register ?</h3>
