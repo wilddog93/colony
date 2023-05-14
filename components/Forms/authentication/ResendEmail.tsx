@@ -5,7 +5,7 @@ import Button from '../../Button/Button';
 import { useRouter } from 'next/router';
 import { deleteCookie } from 'cookies-next';
 
-const AccountVerify = (props: any) => {
+const ResendYourEmail = (props: any) => {
     const router = useRouter();
     const { pathname, query } = router;
     const { isOpen, isOpenResendEmail } = props;
@@ -33,14 +33,14 @@ const AccountVerify = (props: any) => {
                 </h2>
             </button>
 
-            <div className="w-full h-full flex flex-col justify-center gap-6">
+            <div className="w-full flex flex-col justify-center gap-6">
                 <div className='flex flex-col gap-2'>
-                    <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Verify your account!</h2>
+                    <h2 className='font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2'>Resend E-mail!</h2>
                     <p className='text-gray-5 text-sm sm:text-title-sm'>We already sent an email to your account, please check regularly to verify</p>
                 </div>
             </div>
 
-            {/* <div className="w-full flex flex-col justify-center gap-6">
+            <div className="w-full flex flex-col justify-center gap-6">
                 <div className='w-full flex flex-col gap-2 items-start mb-5 text-left'>
                     <p className='text-gray-5 text-sm lg:text-sm'>not receiving e-mail?</p>
                     <div className='w-full max-w-max'>
@@ -54,9 +54,9 @@ const AccountVerify = (props: any) => {
                         </Button>
                     </div>
                 </div>
-            </div> */}
+            </div>
         </div>
     )
 }
 
-export default AccountVerify;
+export default ResendYourEmail;

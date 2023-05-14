@@ -102,29 +102,29 @@ const Home = ({ pageProps }: Props) => {
           <div className='w-full flex flex-col justify-center gap-6'>
             <h3 className='text-lg tracking-wide'>Select Your Access :</h3>
             <div className="grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Owner</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Cards>
+              </Link>
 
-              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Employee</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Cards>
+              </Link>
 
-              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Tenant</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Cards>
+              </Link>
 
-              <Cards className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Third Party</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Cards>
+              </Link>
             </div>
           </div>
 
@@ -221,7 +221,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (token && access == "resendEmail") {
     return {
       redirect: {
-        destination: "/authentication/verify-account?page=verify", // Redirect to the home page
+        destination: "/authentication/resend-email?page=resend", // Redirect to the home page
         permanent: false,
       },
     };
