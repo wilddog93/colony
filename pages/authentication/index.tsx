@@ -92,7 +92,7 @@ const Authentication = ({ pageProps }: Props) => {
             <div className='relative overflow-hidden w-full h-full flex items-center rounded-xl bg-white shadow-default p-10'>
                 <SignIn firebaseToken={firebaseToken} onChangePage={handleChangePage} isOpen={isSignIn} value={form} setValue={setForm} />
 
-                <div className={`relative hidden w-full lg:w-1/2 h-full lg:inline-block transition-transform duration-100 ease-in-out border bg-primary text-white border-stroke rounded-3xl ${tabs === "sign-in" ? "translate-x-full" : ""}`}>
+                <div className={`relative hidden w-full lg:w-1/2 h-full lg:inline-block transition-transform duration-300 ease-in-out border bg-primary text-white border-stroke rounded-3xl ${tabs === "sign-in" ? "translate-x-full" : ""}`}>
                     <div className="w-full h-full flex flex-col items-center justify-between">
                         <Link className={`w-full pt-5.5 flex items-center gap-4 px-10 ${tabs === "sign-up" ? "" : "hidden"}`} href='/'>
                             <img src="../image/logo/logo-icon-white.png" alt="logo" />
