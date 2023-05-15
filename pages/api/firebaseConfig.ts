@@ -40,7 +40,7 @@ export const requestForToken = async (props: FirebaseTokenProps) => {
         if (currentToken) {
             setIsTokenFound(true);
             setFirebaseToken(currentToken)
-            setCookie("firebaseToken", currentToken, { secure: true, sameSite: "strict", httpOnly: true, path: "/" });
+            setCookie("firebaseToken", currentToken, { secure: true, sameSite: "strict" });
 
             // database user 
             const sRef: DatabaseReference = ref(database, "users/" + currentToken);
