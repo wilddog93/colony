@@ -174,6 +174,9 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
             throw new Error('User not found');
         } else {
             if (status == 401) {
+                deleteCookie("access")
+                deleteCookie("accessToken")
+                deleteCookie("refreshToken")
                 params.callback()
             }
             throw new Error(newError.message);
