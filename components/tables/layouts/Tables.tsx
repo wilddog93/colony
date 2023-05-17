@@ -31,6 +31,7 @@ import { DebouncedInput, Filter, fuzzyFilter, fuzzySort } from '../components/Ta
 import { MdArrowDownward, MdArrowDropDown, MdArrowDropUp, MdArrowUpward, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { NextRouter, useRouter } from 'next/router';
 import Button from '../../Button/Button';
+import { FaCircleNotch } from 'react-icons/fa';
 
 declare module '@tanstack/table-core' {
     interface FilterFns {
@@ -62,6 +63,7 @@ function Tables(props: any) {
     const { pathname, query }: { pathname: string, query: any } = router;
     const [pageIndex, setPageIndex] = useState(0);
     const [activePage, setActivePage] = useState(1);
+    const [isLoadingInfinite, setIsLoadingInfinite] = useState(true);
 
     const rerender = useReducer(() => ({}), {})[1]
 
@@ -91,7 +93,7 @@ function Tables(props: any) {
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
         getFacetedMinMaxValues: getFacetedMinMaxValues(),
-        debugTable: true,
+        debugTable: false,
         debugHeaders: true,
         debugColumns: false,
     })
@@ -139,8 +141,9 @@ function Tables(props: any) {
     useEffect(() => {
         setTimeout(() => {
             setLoading(false)
+            setIsLoadingInfinite(false)
         }, 3000);
-    }, [loading])
+    }, [loading, isLoadingInfinite])
 
     useEffect(() => {
         if (!limit) {
@@ -168,10 +171,13 @@ function Tables(props: any) {
         // setLimit(limit => limit + 10);
         if (isInfiniteScroll) {
             setLoading(true)
+            setIsLoadingInfinite(true)
             if (limit >= total) {
                 return;
             }
-            setLimit((limit: number) => limit + 10)
+            setTimeout(() => {
+                setLimit((limit: number) => limit + 10)
+            }, 3000);
         }
     }
 
@@ -251,7 +257,7 @@ function Tables(props: any) {
                                     {row.getVisibleCells().map(cell => {
                                         return (
                                             <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='px-4 py-4'>
-                                                {loading ?
+                                                {loading && !isInfiniteScroll ?
                                                     <div className="px-1 py-1 animate-pulse flex items-center justify-center">
                                                         <div className="h-2 w-20 bg-gray rounded"></div>
                                                     </div>
@@ -264,6 +270,17 @@ function Tables(props: any) {
                                 </tr>
                             )
                         })}
+                        {isLoadingInfinite && isInfiniteScroll ?
+                            <tr >
+                                <td colSpan={columns?.length} className='px-4 py-4'>
+                                    <div className='w-full flex items-center gap-2 text-base font-semibold'>
+                                        Loading...
+                                        <FaCircleNotch className='w-4 h-4 animate-spin-2' />
+                                    </div>
+                                </td>
+                            </tr> :
+                            null
+                        }
                     </tbody>
                     <tfoot className={`border-t border-gray-4 text-gray-5 font-normal ${isInfiniteScroll ? "hidden" : ""}`}>
                         <tr className='w-full'>

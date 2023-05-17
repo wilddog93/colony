@@ -101,7 +101,7 @@ const Occupancy = ({ pageProps }: Props) => {
         accessorKey: 'fullName',
         cell: info => {
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {info.getValue()}
             </div>
           )
@@ -116,7 +116,7 @@ const Occupancy = ({ pageProps }: Props) => {
         accessorKey: 'email',
         cell: info => {
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {info.getValue()}
             </div>
           )
@@ -130,7 +130,7 @@ const Occupancy = ({ pageProps }: Props) => {
         cell: info => {
           let phone = info.getValue();
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {/* {phone ? formatPhone("+", info.getValue()) : ""} */}
               {phone ? phone : ""}
             </div>
@@ -144,7 +144,7 @@ const Occupancy = ({ pageProps }: Props) => {
         accessorKey: 'owned',
         cell: info => {
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {info.getValue()}
             </div>
           )
@@ -157,7 +157,7 @@ const Occupancy = ({ pageProps }: Props) => {
         accessorKey: 'occupied',
         cell: info => {
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {info.getValue()}
             </div>
           )
@@ -171,7 +171,7 @@ const Occupancy = ({ pageProps }: Props) => {
         cell: info => {
           let date = info.getValue()
           return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
               {date}
             </div>
           )
@@ -185,7 +185,7 @@ const Occupancy = ({ pageProps }: Props) => {
         cell: ({ row, getValue }) => {
           // console.log(row.original, "info")
           return (
-            <div onClick={() => console.log('cek')} className='w-full text-center flex items-center justify-center cursor-pointer'>
+            <div onClick={() => console.log('cek')} className='w-full text-center flex items-center justify-center cursor-pointer px-4 py-6'>
               <MdDelete className='text-gray-5 w-4 h-4' />
             </div>
           )
@@ -391,90 +391,6 @@ const Occupancy = ({ pageProps }: Props) => {
                 total={total}
                 isInfiniteScroll
               />
-
-              {/* table */}
-              {/* <div className="grid grid-cols-1">
-                <div ref={refTable} onScroll={e => handleScroll(e.target as HTMLDivElement)} className='relative h-full max-h-[560px] col-span-1 overflow-x-auto rounded-lg'>
-                  <table className='sticky bg-white top-0 w-full overflow-y-auto border-separate border-0 border-spacing-y-4 px-6'>
-                    <thead className='transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
-                      <tr>
-                        <th className='px-4 py-6'>1</th>
-                        <th className='px-4 py-6'>2</th>
-                        <th className='px-4 py-6'>3</th>
-                      </tr>
-                    </thead>
-                  </table>
-                  <table className=' bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
-                    <tbody className='text-gray-700 dark:text-gray-400 text-xs px-4'>
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-
-                      <tr className='bg-white rounded-sm'>
-                        <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>2</td>
-                        <td className='px-4 py-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>3</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div> */}
             </div>
           </main>
         </div >
