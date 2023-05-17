@@ -4,7 +4,7 @@ import {
 } from '../redux/Hook';
 import { Fragment, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { getCookies } from 'cookies-next';
+import { deleteCookie, getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
 import { getAuthMe, selectAuth, webLogout } from '../redux/features/auth/authReducers';
@@ -38,7 +38,12 @@ const Home = ({ pageProps }: Props) => {
     if (!token) {
       return;
     }
-    dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
+    dispatch(getAuthMe({ token, callback: () => {
+      deleteCookie("accessToken")
+      deleteCookie("refreshToken")
+      deleteCookie("access")
+      router.push("/authentication?page=sign-in")
+    } }))
   }, [token])
 
   const isOpenSignOut = () => setIsSignOut(true)

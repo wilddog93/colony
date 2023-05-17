@@ -252,7 +252,6 @@ const SignUp = (props: any) => {
                                         value={firstName}
                                         onChange={onFirstNameChange}
                                         type='text'
-                                        autoFocus
                                         placeholder='Firstname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
@@ -266,7 +265,6 @@ const SignUp = (props: any) => {
                                         value={lastName}
                                         onChange={onLastNameChange}
                                         type='text'
-                                        autoFocus
                                         placeholder='Lastname'
                                         className='text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                                     />
