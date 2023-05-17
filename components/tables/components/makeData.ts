@@ -16,7 +16,8 @@ export type ColumnItems = {
     visits: number
     progress: number
     status: 'active' | 'inactive'
-    subRows?: ColumnItems[]
+    subRows?: ColumnItems[],
+    avatar: string | undefined
 }
 
 const range = (len: number) => {
@@ -40,7 +41,9 @@ const newPerson = (): ColumnItems => {
             'female',
             'any',
         ])[0]!,
-        phoneNumber: faker.phone.phoneNumber('6281#########'),
+        // phoneNumber: faker.phone.phoneNumber('6281#########'),
+        avatar: faker.internet.avatar(),
+        phoneNumber: faker.datatype.number(1000),
         date: faker.date.recent().toDateString(),
         owned: faker.datatype.number(40),
         occupied: faker.datatype.number(100),

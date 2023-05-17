@@ -1,13 +1,13 @@
 import React, { Fragment, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
+import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Modal from '../../../components/Modal';
 
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
-import { ColumnItems } from '../../../components/tables/components/makeData';
+import { ColumnItems, makeData } from '../../../components/tables/components/makeData';
 import Cards from '../../../components/Cards/Cards';
 import { useScrollPosition } from '../../../utils/useHooks/useHooks';
 import { GetServerSideProps } from 'next';
@@ -44,9 +44,12 @@ const Occupancy = ({ pageProps }: Props) => {
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const [offsetHight, setOffsetHight] = useState<number>(0);
   const [scrollHeight, setScrollHeight] = useState<number>(0);
+  let refTable = useRef<HTMLTableSectionElement>(null);
 
-
-  let refTable = useRef<HTMLTableSectionElement>(null)
+  // data
+  const [dataTable, setDataTable] = React.useState<ColumnItems[]>(() => makeData(50000))
+  const refreshData = () => setDataTable(old => makeData(50000));
+  console.log(dataTable, 'data table')
 
   const loadHandler = () => {
     setLimit(limit => limit + 10);
@@ -98,8 +101,8 @@ const Occupancy = ({ pageProps }: Props) => {
   };
 
   useEffect(() => {
-    if(token) {
-      dispatch(getAuthMe({ token, callback : () => router.push("/authentication?page=sign-in") }))
+    if (token) {
+      dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
     }
   }, [token])
 
@@ -185,60 +188,90 @@ const Occupancy = ({ pageProps }: Props) => {
 
                 <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
-                    <h1>Occupancy Level</h1>
+                    <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
-                      <span className='w-full max-w-max font-semibold'>86%</span>
-                      <div className="w-full h-full flex justify-center items-center">
-                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
-                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
-                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                      <span className='w-full lg:w-2/12 font-semibold'>522</span>
+                      <div className="w-full lg:w-10/12 flex items-center justify-between gap-2">
+                        <div className="w-full max-w-max flex items-center gap-2">
+                          <MdArrowDropUp className='w-4 h-4' />
+                          <p>5 new tenants</p>
                         </div>
+                        <Button
+                          className="px-0 py-0"
+                          type="button"
+                          onClick={() => console.log("edit")}
+                          variant="primary-outline-none"
+                        >
+                          <MdEdit className='w-4 h-4' />
+                        </Button>
                       </div>
                     </div>
-                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
-                      <p>322 Occupied</p>
-                      <p>400 Owned</p>
-                      <p>500 Units</p>
+                    <div className='w-full flex flex-col lg:flex-row items-center justify-between text-xs tracking-normal'>
+                      <div className="w-full max-w-max flex items-center gap-2">
+                        <MdArrowDropUp className='w-4 h-4' />
+                        <p>5 new tenants</p>
+                      </div>
+                      <p>123 m2</p>
                     </div>
                   </div>
                 </Cards>
 
                 <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
-                    <h1>Occupancy Level</h1>
+                    <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
-                      <span className='w-full max-w-max font-semibold'>86%</span>
-                      <div className="w-full h-full flex justify-center items-center">
-                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
-                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
-                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                      <span className='w-full lg:w-2/12 font-semibold'>522</span>
+                      <div className="w-full lg:w-10/12 flex items-center justify-between gap-2">
+                        <div className="w-full max-w-max flex items-center gap-2">
+                          <MdArrowDropUp className='w-4 h-4' />
+                          <p>5 new tenants</p>
                         </div>
+                        <Button
+                          className="px-0 py-0"
+                          type="button"
+                          onClick={() => console.log("edit")}
+                          variant="primary-outline-none"
+                        >
+                          <MdEdit className='w-4 h-4' />
+                        </Button>
                       </div>
                     </div>
-                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
-                      <p>322 Occupied</p>
-                      <p>400 Owned</p>
-                      <p>500 Units</p>
+                    <div className='w-full flex flex-col lg:flex-row items-center justify-between text-xs tracking-normal'>
+                      <div className="w-full max-w-max flex items-center gap-2">
+                        <MdArrowDropUp className='w-4 h-4' />
+                        <p>5 new tenants</p>
+                      </div>
+                      <p>123 m2</p>
                     </div>
                   </div>
                 </Cards>
 
                 <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
-                    <h1>Occupancy Level</h1>
+                    <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
-                      <span className='w-full max-w-max font-semibold'>86%</span>
-                      <div className="w-full h-full flex justify-center items-center">
-                        <div className="overflow-hidden h-[.5rem] text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
-                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
-                          <div style={{ width: "10%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">16%</div>
+                      <span className='w-full lg:w-2/12 font-semibold'>522</span>
+                      <div className="w-full lg:w-10/12 flex items-center justify-between gap-2">
+                        <div className="w-full max-w-max flex items-center gap-2">
+                          <MdArrowDropUp className='w-4 h-4' />
+                          <p>5 new tenants</p>
                         </div>
+                        <Button
+                          className="px-0 py-0"
+                          type="button"
+                          onClick={() => console.log("edit")}
+                          variant="primary-outline-none"
+                        >
+                          <MdEdit className='w-4 h-4' />
+                        </Button>
                       </div>
                     </div>
-                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
-                      <p>322 Occupied</p>
-                      <p>400 Owned</p>
-                      <p>500 Units</p>
+                    <div className='w-full flex flex-col lg:flex-row items-center justify-between text-xs tracking-normal'>
+                      <div className="w-full max-w-max flex items-center gap-2">
+                        <MdArrowDropUp className='w-4 h-4' />
+                        <p>5 new tenants</p>
+                      </div>
+                      <p>123 m2</p>
                     </div>
                   </div>
                 </Cards>

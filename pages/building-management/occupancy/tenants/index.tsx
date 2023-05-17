@@ -148,9 +148,11 @@ const Tenants = (props: any) => {
       {
         accessorKey: 'phoneNumber',
         cell: info => {
+          let phone = info.getValue();
           return (
             <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {formatPhone("+", info.getValue())}
+              {/* {phone ? formatPhone("+", info.getValue()) : ""} */}
+              {phone ? phone : ""}
             </div>
           )
         },
@@ -392,7 +394,8 @@ const Tenants = (props: any) => {
                 </div>
                 <div className='flex items-center gap-2'>
                   <MdPhone />
-                  {formatPhone("+", details?.phoneNumber)}
+                  {/* {formatPhone("+", details?.phoneNumber)} */}
+                  {details?.phoneNumber}
                 </div>
                 <div className='flex items-center gap-2'>
                   <MdCalendarToday />
