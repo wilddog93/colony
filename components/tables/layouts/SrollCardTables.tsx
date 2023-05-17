@@ -41,11 +41,9 @@ declare module '@tanstack/table-core' {
     }
 }
 
-function Tables(props: any) {
+function ScrollCardTables(props: any) {
     const {
         divided,
-        dataTable,
-        columns,
         loading,
         setLoading,
         setIsSelected,
@@ -55,24 +53,29 @@ function Tables(props: any) {
         limit,
         setLimit,
         total,
+        columns,
         isInfiniteScroll
     } = props;
 
     const router: NextRouter = useRouter();
     const { pathname, query }: { pathname: string, query: any } = router;
-    const [pageIndex, setPageIndex] = useState(0);
     const [activePage, setActivePage] = useState(1);
+    const [pageIndex, setPageIndex] = useState(0);
 
     const rerender = useReducer(() => ({}), {})[1]
-
+    // scroll ref table
     let refTable = useRef<HTMLDivElement>(null);
+
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
     )
-    const [globalFilter, setGlobalFilter] = useState('')
+    const [globalFilter, setGlobalFilter] = useState('');
+
+    const [data, setData] = React.useState<ColumnItems[]>(() => makeData(1000))
+    const refreshData = () => setData(old => makeData(50000))
 
     const table = useReactTable({
-        data: dataTable,
+        data,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -190,20 +193,13 @@ function Tables(props: any) {
         handleScroll(refTable.current)
     }, [handleScroll]);
 
+    // console.log(table.getState(), 'page')
+
     return (
         <div className="grid grid-cols-1">
-            <div className='col-span-1 p-4 overflow-x-auto'>
-                {/* <div>
-                    <DebouncedInput
-                        value={globalFilter ?? ''}
-                        onChange={value => setGlobalFilter(String(value))}
-                        className="p-2 font-lg shadow border border-gray rounded-lg bg-white focus:ring-2 focus:ring-primary"
-                        placeholder="Search..."
-                    />
-                </div> */}
-                <table className='w-full table-auto overflow-hidden rounded-xl shadow-md'>
-                    {/* <thead className='text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'> */}
-                    <thead className='divide-y divide-gray-4 text-xs text-graydark bg-gray tracking-wide'>
+            <div ref={refTable} onScroll={(e) => handleScroll(e.target as HTMLDivElement)} className='relative col-span-1 p-4 overflow-auto h-[600px]'>
+                <table className='sticky bg-white -top-5 z-10 w-full overflow-y-auto border-separate border-0 border-spacing-y-4'>
+                    <thead className='transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map(header => {
@@ -242,13 +238,16 @@ function Tables(props: any) {
                             </tr>
                         ))}
                     </thead>
-                    <tbody className={`divide-y divide-gray-4 bg-white text-graydark text-xs`}>
+                </table>
+                <table className='bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-2'>
+                    <tbody className={`text-gray-700 dark:text-gray-400 text-xs px-4`}>
                         {table.getRowModel().rows.map(row => {
                             return (
-                                <tr key={row.id}>
+                                <tr key={row.id} className='bg-white'>
                                     {row.getVisibleCells().map(cell => {
+                                        console.log(flexRender(cell.column.columnDef.cell, cell.getContext()), "col")
                                         return (
-                                            <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='px-4 py-4'>
+                                            <td key={cell.id} style={{ width: cell.column.columnDef.size }} className=' overflow-hidden py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray'>
                                                 {loading ?
                                                     <div className="px-1 py-3 animate-pulse flex items-center justify-center">
                                                         <div className="h-2 w-20 bg-gray-4 rounded"></div>
@@ -277,10 +276,10 @@ function Tables(props: any) {
                                                 <select
                                                     className="focus:outline-none bg-transparent text-gray-500 font-normal"
                                                     value={table.getState().pagination.pageSize}
-                                                    onChange={(e) => table.setPageSize(Number(e.target.value))}
+                                                    onChange={(e) => setLimit(Number(e.target.value))}
                                                 >
                                                     {
-                                                        [5, 10, 20, 30].map((pageSize, idx) => (
+                                                        [5, 10, 20, 30, 100].map((pageSize, idx) => (
                                                             <option key={idx} value={pageSize}>{pageSize}</option>
                                                         ))
                                                     }
@@ -297,6 +296,7 @@ function Tables(props: any) {
                                         <div className="text-xs text-gray-500 font-normal">
                                             <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong> pages
                                         </div>
+                                        {/* button left */}
                                         <div className="">
                                             <Button
                                                 variant="primary-outline"
@@ -310,6 +310,7 @@ function Tables(props: any) {
                                                 <MdChevronLeft className="h-5 w-5" />
                                             </Button>
                                         </div>
+                                        {/* button number */}
                                         <div className="flex text-gray-500 text-xs">
                                             {visiblePages.map((p: any, index: any, array: any) => {
                                                 return (
@@ -326,6 +327,7 @@ function Tables(props: any) {
                                                 );
                                             })}
                                         </div>
+                                        {/* button right */}
                                         <div className="flex justify-end items-center">
                                             <div className="">
                                                 <Button
@@ -349,19 +351,9 @@ function Tables(props: any) {
                         </tr>
                     </tfoot>
                 </table>
-
-
-                {/* <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
-                <div>
-                    <button onClick={() => rerender()}>Force Rerender</button>
-                </div>
-                <div>
-                    <button onClick={() => refreshData()}>Refresh Data</button>
-                </div>
-                <pre>{JSON.stringify(table.getState(), null, 2)}</pre> */}
             </div>
         </div>
     )
 };
 
-export default Tables;
+export default ScrollCardTables;

@@ -1,4 +1,4 @@
-import React, { Fragment, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Fragment, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
@@ -15,6 +15,8 @@ import { getCookies } from 'cookies-next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { selectAuth } from '../../../redux/features/auth/authReducers';
 import { getAuthMe } from '../../../redux/features/auth/authReducers';
+import { ColumnDef } from '@tanstack/react-table';
+import ScrollCardTables from '../../../components/tables/layouts/SrollCardTables';
 
 type Props = {
   pageProps: any
@@ -38,53 +40,40 @@ const Occupancy = ({ pageProps }: Props) => {
   const [details, setDetails] = useState<ColumnItems>();
   const [isSelectedRow, setIsSelectedRow] = useState({});
 
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  // const { scrollPosition, lastScrollPosition } = useScrollPosition();
+  // data-table
+  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState<number>(10);
+  const [pageCount, setPageCount] = useState<number>(2000);
+  const [total, setTotal] = useState<number>(1000)
+  const [loading, setLoading] = useState(true);
+  // scroll table
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const [offsetHight, setOffsetHight] = useState<number>(0);
   const [scrollHeight, setScrollHeight] = useState<number>(0);
-  let refTable = useRef<HTMLTableSectionElement>(null);
+  let refTable = useRef<HTMLDivElement>(null);
 
-  // data
-  const [dataTable, setDataTable] = React.useState<ColumnItems[]>(() => makeData(50000))
-  const refreshData = () => setDataTable(old => makeData(50000));
-  console.log(dataTable, 'data table')
+
+  // console.log(dataTable, 'data table')
 
   const loadHandler = () => {
     setLimit(limit => limit + 10);
   }
 
-  const handleScroll = () => {
-    const table = refTable.current;
-    const scrollTo = table?.scrollTop;
-    const offsetHeight = table?.offsetHeight;
-    const scrollHeight = table?.scrollHeight;
-    console.log('scroll To:', scrollTo);
-    console.log('scroll Heigh:', scrollHeight);
-    console.log("scroll scrollOffsetHeight: ", offsetHeight)
-
-    if (scrollTo) setScrollPosition(scrollTo)
-    if (scrollHeight) setScrollHeight(scrollHeight)
-    if (offsetHeight) setOffsetHight(offsetHeight)
-
-    if (!scrollHeight || !offsetHeight || !scrollTo) {
-      return;
-    } else {
-      if (scrollHeight - scrollTo === offsetHeight) {
+  const handleScroll = useCallback((containerRefElement?: HTMLDivElement | null) => {
+    if (containerRefElement) {
+      const { scrollHeight, scrollTop, clientHeight } = containerRefElement
+      if (
+        scrollHeight - scrollTop - clientHeight < 10
+      ) {
         loadHandler()
       }
     }
-  };
+  }, [loadHandler]);
 
-  // useEffect(() => {
-  //   if(scrollHeight - scrollPosition === offsetHight){
-  //     loadHandler()
-  //   }
-  // }, [scrollHeight, scrollPosition, offsetHight]);
-
-  console.log(limit, 'limits')
-
+  useEffect(() => {
+    handleScroll(refTable.current)
+  }, [handleScroll]);
 
   // form modal
   const onClose = () => setIsOpenModal(false);
@@ -104,8 +93,119 @@ const Occupancy = ({ pageProps }: Props) => {
     if (token) {
       dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
     }
-  }, [token])
+  }, [token]);
 
+  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+    () => [
+      {
+        accessorKey: 'fullName',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      },
+      {
+        accessorKey: 'email',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: () => <span>Email</span>,
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'phoneNumber',
+        cell: info => {
+          let phone = info.getValue();
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {/* {phone ? formatPhone("+", info.getValue()) : ""} */}
+              {phone ? phone : ""}
+            </div>
+          )
+        },
+        header: 'Phone',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'owned',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Owned',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'occupied',
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: 'Occ',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'date',
+        cell: info => {
+          let date = info.getValue()
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {date}
+            </div>
+          )
+        },
+        header: 'Date Added',
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'id',
+        cell: ({ row, getValue }) => {
+          // console.log(row.original, "info")
+          return (
+            <div onClick={() => console.log('cek')} className='w-full text-center flex items-center justify-center cursor-pointer'>
+              <MdDelete className='text-gray-5 w-4 h-4' />
+            </div>
+          )
+        },
+        header: props => {
+          return (
+            <div>Actions</div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      }
+    ],
+    []
+  );
+
+  // console.log('pages :', {pages, limit})
 
   return (
     <DefaultLayout
@@ -277,9 +377,24 @@ const Occupancy = ({ pageProps }: Props) => {
                 </Cards>
               </div>
 
+              {/* table test */}
+              <ScrollCardTables
+                columns={columns}
+                dataTable={dataTable}
+                loading={loading}
+                setLoading={setLoading}
+                pages={pages}
+                setPages={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                pageCount={pageCount}
+                total={total}
+                isInfiniteScroll
+              />
+
               {/* table */}
-              <div className="grid grid-cols-1">
-                <div ref={refTable} onScroll={handleScroll} className='relative h-full max-h-[560px] col-span-1 overflow-x-auto rounded-lg'>
+              {/* <div className="grid grid-cols-1">
+                <div ref={refTable} onScroll={e => handleScroll(e.target as HTMLDivElement)} className='relative h-full max-h-[560px] col-span-1 overflow-x-auto rounded-lg'>
                   <table className='sticky bg-white top-0 w-full overflow-y-auto border-separate border-0 border-spacing-y-4 px-6'>
                     <thead className='transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                       <tr>
@@ -290,13 +405,6 @@ const Occupancy = ({ pageProps }: Props) => {
                     </thead>
                   </table>
                   <table className=' bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-6'>
-                    {/* <thead className='sticky bg-white top-0 transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
-                      <tr>
-                        <th className='px-4 py-6'>1</th>
-                        <th className='px-4 py-6'>2</th>
-                        <th className='px-4 py-6'>3</th>
-                      </tr>
-                    </thead> */}
                     <tbody className='text-gray-700 dark:text-gray-400 text-xs px-4'>
                       <tr className='bg-white rounded-sm'>
                         <td className='py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray shadow'>1</td>
@@ -366,7 +474,7 @@ const Occupancy = ({ pageProps }: Props) => {
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </div> */}
             </div>
           </main>
         </div >

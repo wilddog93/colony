@@ -1,4 +1,4 @@
-import React, { Fragment, ReactNode, useMemo, useState } from 'react'
+import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
@@ -15,6 +15,7 @@ import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
 import { ColumnItems } from '../../../../components/tables/components/makeData';
 import { formatPhone } from '../../../../utils/useHooks/useFunction';
+import { makeData } from '../../../../components/tables/components/makeData';
 
 type Props = {}
 
@@ -77,11 +78,14 @@ const Tenants = (props: any) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // data-table
+  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
+  const [pageCount, setPageCount] = useState(2000);
+  const [total, setTotal] = useState(1000)
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -113,7 +117,9 @@ const Tenants = (props: any) => {
     setIsOpenDelete(true)
   };
 
-  console.log(details, 'details')
+  useEffect(() => {
+    setDataTable(() => makeData(50000))
+  }, []);
 
   const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
     () => [
@@ -226,6 +232,7 @@ const Tenants = (props: any) => {
   );
 
   console.log(isOpenModal, 'open')
+  console.log(details, 'details')
 
   return (
     <DefaultLayout
@@ -322,12 +329,14 @@ const Tenants = (props: any) => {
               <Tables
                 loading={loading}
                 setLoading={setLoading}
-                page={pages}
-                setPage={setPages}
+                pages={pages}
+                setPages={setPages}
                 limit={limit}
                 setLimit={setLimit}
-                totalPage={pageCount}
+                pageCount={pageCount}
                 columns={columns}
+                dataTable={dataTable}
+                total={total}
               />
             </div>
           </main>
