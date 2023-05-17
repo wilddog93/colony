@@ -9,10 +9,6 @@ import axios from "axios";
 import NextNProgress from "nextjs-progressbar";
 import { isSupported, onMessage } from "@firebase/messaging";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools/build/lib/devtools";
-
-const queryClient = new QueryClient();
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);
@@ -62,7 +58,6 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   )
   return (
     <GoogleOAuthProvider clientId="51774239059-2i802tboo27kv3k78qv5tmkdg6aaa1v9.apps.googleusercontent.com">
-      <QueryClientProvider client={queryClient}>
         <Provider store={store}>
           <NextNProgress
             color="#5F59F7"
@@ -74,7 +69,6 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
           <Component {...props} />
           <ToastContainer position='top-right' limit={500} />
         </Provider>
-      </QueryClientProvider>
     </GoogleOAuthProvider>
   );
 };

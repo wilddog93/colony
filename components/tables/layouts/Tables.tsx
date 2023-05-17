@@ -177,11 +177,13 @@ function Tables(props: any) {
 
     const handleScroll = useCallback((containerRefElement?: HTMLDivElement | null) => {
         if (containerRefElement) {
-            const { scrollHeight, scrollTop, clientHeight } = containerRefElement
-            if (
-                scrollHeight - scrollTop - clientHeight < 10
-            ) {
+            const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+            // console.log((scrollHeight - scrollTop - clientHeight), 'result')
+            if (scrollHeight - scrollTop - clientHeight < 10) {
                 loadHandler()
+            }
+            if(scrollTop == 0) {
+                setLimit(10)
             }
         }
     }, [loadHandler]);
@@ -250,8 +252,8 @@ function Tables(props: any) {
                                         return (
                                             <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='px-4 py-4'>
                                                 {loading ?
-                                                    <div className="px-1 py-3 animate-pulse flex items-center justify-center">
-                                                        <div className="h-2 w-20 bg-gray-4 rounded"></div>
+                                                    <div className="px-1 py-1 animate-pulse flex items-center justify-center">
+                                                        <div className="h-2 w-20 bg-gray rounded"></div>
                                                     </div>
                                                     :
                                                     flexRender(cell.column.columnDef.cell, cell.getContext())

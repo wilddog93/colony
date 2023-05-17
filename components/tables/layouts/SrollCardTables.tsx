@@ -180,11 +180,13 @@ function ScrollCardTables(props: any) {
 
     const handleScroll = useCallback((containerRefElement?: HTMLDivElement | null) => {
         if (containerRefElement) {
-            const { scrollHeight, scrollTop, clientHeight } = containerRefElement
-            if (
-                scrollHeight - scrollTop - clientHeight < 10
-            ) {
+            const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+            // console.log({result: scrollHeight - scrollTop - clientHeight, top: scrollTop + clientHeight, scrollHeight, scrollTop, clientHeight}, 'result')
+            if (scrollHeight - scrollTop - clientHeight < 10) {
                 loadHandler()
+            }
+            if(scrollTop == 0) {
+                setLimit(10)
             }
         }
     }, [loadHandler]);
@@ -249,8 +251,8 @@ function ScrollCardTables(props: any) {
                                         return (
                                             <td key={cell.id} style={{ width: cell.column.columnDef.size }} className=' overflow-hidden py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray'>
                                                 {loading ?
-                                                    <div className="px-1 py-3 animate-pulse flex items-center justify-center">
-                                                        <div className="h-2 w-20 bg-gray-4 rounded"></div>
+                                                    <div className="px-1 py-1 animate-pulse flex items-center justify-center">
+                                                        <div className="h-2 w-20 bg-gray rounded"></div>
                                                     </div>
                                                     :
                                                     flexRender(cell.column.columnDef.cell, cell.getContext())
