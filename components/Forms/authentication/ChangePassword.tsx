@@ -31,8 +31,10 @@ const ChangePassword: FC<ForgotPasswordProps> = (props) => {
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         let data = {
-            password
+            password,
+            confirmPassword
         }
+        console.log(data, 'cek')
         dispatch(webNewPassword({ data, code }))
     };
 
