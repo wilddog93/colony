@@ -1,7 +1,7 @@
 import React, { Fragment, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdLocalHotel, MdOutlineDelete, MdOutlineEdit, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
+import { MdAdd, MdArrowDropUp, MdArrowRight, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdKeyboardArrowRight, MdLocalHotel, MdOutlineDelete, MdOutlineEdit, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Modal from '../../../components/Modal';
 
@@ -104,6 +104,13 @@ const Occupancy = ({ pageProps }: Props) => {
       dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
     }
   }, [token]);
+
+  const goToDetails = (id: number | string) => {
+    if(!id) {
+      return;
+    }
+    router.push({ pathname: `/building-management/occupancy/${id}`})
+  }
 
   const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
     () => [
@@ -217,6 +224,15 @@ const Occupancy = ({ pageProps }: Props) => {
                 variant="danger-outline-none"
               >
                 <MdOutlineDelete className='w-5 h-5 text-gray-5' />
+              </Button>
+
+              <Button
+                onClick={() => goToDetails(1)}
+                className="px-0 py-0"
+                type="button"
+                variant="danger-outline-none"
+              >
+                <MdKeyboardArrowRight className='w-5 h-5 text-gray-5' />
               </Button>
             </div>
           )

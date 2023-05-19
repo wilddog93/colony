@@ -1,19 +1,31 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { MdKeyboardArrowLeft } from 'react-icons/md';
 
-const Breadcrumb = (props: any) => {
+interface BreadcumbProps {
+    page?: {
+        pathname: string,
+        url: string
+    }
+    pageName?: string;
+    className?: string;
+}
+
+const Breadcrumb: FC<BreadcumbProps> = ({ page, pageName, className }) => {
+    const router = useRouter();
     return (
-        <div className='mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-            <h2 className='text-title-md2 font-semibold text-black dark:text-white'>
-                {props.pageName}
-            </h2>
+        <div className={`w-full py-5 gap-3 flex flex-row items-center tracking-wider ${className}`}>
+            <button onClick={() => router.back()}>
+                <MdKeyboardArrowLeft className='w-6 h-6' />
+            </button>
 
             <nav>
                 <ol className='flex items-center gap-2'>
                     <li>
-                        <Link href='/'>Dashboard /</Link>
+                        <button onClick={() => router.push({ pathname: `${!page?.url ? '/' : page?.url}` })}>{!page?.pathname ? "Dashboard" : page?.pathname} /</button>
                     </li>
-                    <li className='text-primary'>{props.pageName}</li>
+                    <li className='text-graydark font-semibold'>{pageName}</li>
                 </ol>
             </nav>
         </div>
