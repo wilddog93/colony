@@ -1,7 +1,7 @@
 import React, { Fragment, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
+import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdLocalHotel, MdOutlineDelete, MdOutlineEdit, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Modal from '../../../components/Modal';
 
@@ -89,6 +89,16 @@ const Occupancy = ({ pageProps }: Props) => {
     setIsOpenDetail(true)
   };
 
+   // delete modal
+   const onCloseDelete = () => {
+    setDetails(undefined)
+    setIsOpenDelete(false)
+  };
+  const onOpenDelete = (items: any) => {
+    setDetails(items)
+    setIsOpenDelete(true)
+  };
+
   useEffect(() => {
     if (token) {
       dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
@@ -100,16 +110,22 @@ const Occupancy = ({ pageProps }: Props) => {
       {
         accessorKey: 'fullName',
         cell: info => {
+          const avatar = info?.row?.original?.avatar
           return (
-            <div className='cursor-pointer px-4 py-6' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              <div className='w-full flex items-center gap-2'>
+                <img src={avatar} alt="images" className='w-1/2 object-cover object-center' />
+                <div className='w-1/2'>
+                  {info.getValue()}
+                </div>
+              </div>
             </div>
           )
         },
         footer: props => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
-        size: 10,
+        size: 200,
         minSize: 10
       },
       {
@@ -185,8 +201,23 @@ const Occupancy = ({ pageProps }: Props) => {
         cell: ({ row, getValue }) => {
           // console.log(row.original, "info")
           return (
-            <div onClick={() => console.log('cek')} className='w-full text-center flex items-center justify-center cursor-pointer px-4 py-6'>
-              <MdDelete className='text-gray-5 w-4 h-4' />
+            <div className='w-full text-center flex items-center justify-center cursor-pointer px-4 py-6'>
+              <Button
+                onClick={() => onOpenDetail(row?.original)}
+                className="px-0 py-0"
+                type="button"
+                variant="primary-outline-none"
+              >
+                <MdOutlineEdit className='w-5 h-5 text-gray-5' />
+              </Button>
+              <Button
+                onClick={() => onOpenDelete(row?.original)}
+                className="px-0 py-0"
+                type="button"
+                variant="danger-outline-none"
+              >
+                <MdOutlineDelete className='w-5 h-5 text-gray-5' />
+              </Button>
             </div>
           )
         },
@@ -395,6 +426,57 @@ const Occupancy = ({ pageProps }: Props) => {
           </main>
         </div >
       </div >
+      {/* detail edit*/}
+      <Modal
+        size=''
+        onClose={onCloseDetail}
+        isOpen={isOpenDetail}
+      >
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onCloseDetail}
+          >
+            <h3 className='text-lg font-semibold'>Modal Header</h3>
+          </ModalHeader>
+          <div className="w-full px-4">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+          </div>
+          <ModalFooter
+            className='p-4 border-t-2 border-gray mt-3'
+            isClose={true}
+            onClick={onCloseDetail}
+          ></ModalFooter>
+        </Fragment>
+      </Modal>
+
+      {/* detail delete*/}
+      <Modal
+        size='small'
+        onClose={onCloseDelete}
+        isOpen={isOpenDelete}
+      >
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onCloseDelete}
+          >
+            <h3 className='text-lg font-semibold'>Modal Header</h3>
+          </ModalHeader>
+          <div className="w-full px-4">
+            delete
+          </div>
+          <ModalFooter
+            className='p-4 border-t-2 border-gray mt-3'
+            isClose={true}
+            onClick={onCloseDelete}
+          ></ModalFooter>
+        </Fragment>
+      </Modal>
+
+      {/* example */}
       <Modal
         size=''
         onClose={onClose}

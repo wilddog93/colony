@@ -73,6 +73,7 @@ function ScrollCardTables(props: any) {
     const [globalFilter, setGlobalFilter] = useState('');
 
     const [data, setData] = React.useState<ColumnItems[]>(() => makeData(1000))
+    console.log(data, 'data table')
     const [isLoadingInfinite, setIsLoadingInfinite] = useState(true);
     const refreshData = () => setData(old => makeData(50000))
 
@@ -251,10 +252,10 @@ function ScrollCardTables(props: any) {
                     <tbody className={`text-gray-700 dark:text-gray-400 text-xs px-4`}>
                         {table.getRowModel().rows.map(row => {
                             return (
-                                <tr key={row.id} className='bg-white'>
+                                <tr key={row.id} className='bg-white rounded-xl shadow-1'>
                                     {row.getVisibleCells().map(cell => {
                                         return (
-                                            <td key={cell.id} style={{ width: cell.column.columnDef.size }} className=' overflow-hidden border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray'>
+                                            <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='overflow-hidden border-y first:border-l last:border-r first:rounded-l-xl last:rounded-r-xl border-gray'>
                                                 {loading && !isInfiniteScroll ?
                                                     <div className="px-1 py-1 animate-pulse flex items-center justify-center">
                                                         <div className="h-2 w-20 bg-gray rounded"></div>
