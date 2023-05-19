@@ -197,7 +197,7 @@ const Dashboard = ({ pageProps }: Props) => {
     plugins: {
       tooltip: {
         titleFont: {
-          size: 20
+          size: 16
         },
         bodyFont: {
           size: 16
@@ -237,7 +237,7 @@ const Dashboard = ({ pageProps }: Props) => {
     plugins: {
       tooltip: {
         titleFont: {
-          size: 20
+          size: 16
         },
         bodyFont: {
           size: 16
@@ -277,7 +277,7 @@ const Dashboard = ({ pageProps }: Props) => {
     plugins: {
       tooltip: {
         titleFont: {
-          size: 20
+          size: 16
         },
         bodyFont: {
           size: 16
