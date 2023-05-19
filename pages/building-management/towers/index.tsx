@@ -7,10 +7,17 @@ import CardTower from '../../../components/BM/Towers/CardTower';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import ExampleForm from '../../../components/Forms/ExampleForm';
+import { useRouter } from 'next/router';
+import { GetServerSideProps } from 'next';
+import { getCookies } from 'cookies-next';
 
-type Props = {}
+type Props = {
+  pageProps: any
+}
 
-const Towers = (props: any) => {
+const Towers = ({ pageProps } : Props) => {
+  const router = useRouter();
+  const { token, access, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // modal
@@ -28,6 +35,7 @@ const Towers = (props: any) => {
       description=""
       images="../image/logo/building-logo.svg"
       userDefault="../image/user/user-01.png"
+      token={token}
     >
       <div className='absolute inset-0 mt-20 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -52,7 +60,7 @@ const Towers = (props: any) => {
               <Button
                 type="button"
                 className='rounded-lg text-sm font-semibold py-3'
-                onClick={() => setIsOpenAmenities(true)}
+                onClick={() => router.push("/building-management/towers/amenities")}
                 variant='primary-outline'
                 key={'1'}
               >
@@ -146,6 +154,29 @@ const Towers = (props: any) => {
       </Modal>
     </DefaultLayout>
   )
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context)
+
+  // Access cookies using the cookie name
+  const token = cookies['accessToken'] || null;
+  const access = cookies['access'] || null;
+  const firebaseToken = cookies['firebaseToken'] || null;
+
+  if (!token) {
+      return {
+          redirect: {
+              destination: "/authentication?page=sign-in", // Redirect to the home page
+              permanent: false
+          },
+      };
+  }
+
+  return {
+      props: { token, access, firebaseToken },
+  };
+};
 
 export default Towers;
