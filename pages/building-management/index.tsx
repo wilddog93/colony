@@ -1,13 +1,323 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DefaultLayout from '../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdLocalHotel } from 'react-icons/md';
+import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel } from 'react-icons/md';
 import Button from '../../components/Button/Button';
+import Cards from '../../components/Cards/Cards';
+import Barcharts from '../../components/Chart/Barcharts';
+import Doughnutcharts from '../../components/Chart/Doughnutcharts';
+import { getCookies } from 'cookies-next';
+import { GetServerSideProps } from 'next';
+import { useAppDispatch, useAppSelector } from '../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../redux/features/auth/authReducers';
+import { useRouter } from 'next/router';
 
-type Props = {}
+type Props = {
+  pageProps: any
+}
 
-const Dashboard = (props: any) => {
+const Dashboard = ({ pageProps }: Props) => {
+  const router = useRouter();
+  const { pathname, query } = router;
+  const { token, access, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // redux
+  const dispatch = useAppDispatch();
+  const { data } = useAppSelector(selectAuth);
+
+  // state
+  const [doghnutData, setDoghnutData] = useState([]);
+  const [doghnutLabel, setDoghnutLabel] = useState([]);
+
+  let doughnutData = {
+    labels: ['Guest', 'Available', 'Tenants'],
+    datasets: [
+      {
+        label: '# Votes',
+        data: [20, 100, 500],
+        backgroundColor: [
+          '#44C2FD',
+          '#FAEE81',
+          '#5F59F7',
+        ],
+        borderColor: [
+          '#44C2FD',
+          '#FAEE81',
+          '#5F59F7',
+        ],
+        borderWidth: 1,
+      },
+    ]
+  };
+
+  let bardata = {
+    labels: ["B1", "B2", "G"],
+    datasets: [
+      {
+        label: "Single",
+        borderRadius: 0,
+        data: [100, 250, 50],
+        backgroundColor: "#5F59F7",
+        barThickness: 20,
+      },
+      {
+        label: "Tandem",
+        borderRadius: 0,
+        data: [100, 90, 50],
+        backgroundColor: "#FF8859",
+        barThickness: 20,
+      },
+      {
+        label: "Guest",
+        borderRadius: 0,
+        data: [100, 10, 50],
+        backgroundColor: "#44C2FD",
+        barThickness: 20,
+      },
+    ],
+  };
+
+  let bardataMonths = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [
+      {
+        label: "Months",
+        borderRadius: 0,
+        data: [100, 250, 50, 30, 15, 3, 90, 200, 145, 32, 55, 89],
+        backgroundColor: "#5F59F7",
+        barThickness: 20,
+      }
+    ],
+  };
+
+  let bardataHour = {
+    labels: ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"],
+    datasets: [
+      {
+        label: "In",
+        borderRadius: 0,
+        data: [100, 250, 50, 30, 15, 3, 90],
+        backgroundColor: "#5F59F7",
+        barThickness: 20,
+      },
+      {
+        label: "Out",
+        borderRadius: 0,
+        data: [100, 90, 50, 69, 8, 78, 44],
+        backgroundColor: "#FF8859",
+        barThickness: 20,
+      },
+    ],
+  };
+
+  let doughnutOptions = {
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        responsive: true,
+        display: true,
+        position: "right",
+        align: "center",
+        labels: {
+          boxWidth: 20,
+          font: {
+            size: 16,
+          },
+          generateLabels: (chart: any) => {
+            const { labels, datasets } = chart.data;
+            if (labels.length > 0) {
+              return labels.map((label: any, i: any) => {
+                const { borderColor, backgroundColor, data } = datasets[0];
+                const total = data.reduce((a: number, b: number) => a + b, 0);
+
+                const formattedLabel = data.map((val: number, i: any) => {
+                  let currentValue = val;
+                  let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
+                  return {
+                    value: currentValue,
+                    label,
+                    percentage,
+                    backgroundColor: backgroundColor[i],
+                    borderColor: borderColor[i]
+                  };
+                });
+
+                return {
+                  text: `${formattedLabel[i].label} - ${formattedLabel[i].percentage}%`,
+                  fillStyle: formattedLabel[i].backgroundColor,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i,
+                };
+              });
+            }
+            return [];
+          }
+        },
+      },
+      parsing: {
+        key: 'id'
+      },
+      title: {
+        display: true,
+        position: "top",
+        align: "start",
+        text: 'Parking Lots',
+        font: {
+          size: 16,
+          weight: 300
+        },
+      },
+      animation: {
+        animateScale: true,
+        animateRotate: true
+      },
+      tooltip: {
+        titleFont: {
+          size: 16
+        },
+        bodyFont: {
+          size: 16
+        },
+        callbacks: {
+          label: function (item: any) {
+            let dataset = item.dataset;
+            const total = dataset.data.reduce(function (sum: number, current: any) { return sum + Number(current) }, 0)
+            let currentValue = item.parsed;
+            let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
+            return `${item.label} : ${currentValue} ${currentValue > 1 ? "lots" : "lot"} - ${percentage}%`
+          }
+        }
+      },
+    }
+  };
+
+  let barOptions = {
+    responsive: true,
+    plugins: {
+      tooltip: {
+        titleFont: {
+          size: 20
+        },
+        bodyFont: {
+          size: 16
+        }
+      },
+      legend: {
+        display: true,
+        position: "top",
+        align: "end",
+        labels: {
+          boxWidth: 15,
+          usePointStyle: false,
+          pointStyle: "circle",
+        },
+      },
+      title: {
+        display: true,
+        position: "top",
+        align: "start",
+        text: 'Total Lots by Type 2022',
+        font: {
+          size: 16,
+          weight: 300
+        },
+      },
+    },
+    elements: {
+      bar: {
+        percentage: 0.1,
+        categoryPercentage: 0,
+      },
+    },
+  };
+
+  let barOptionsMonths = {
+    responsive: true,
+    plugins: {
+      tooltip: {
+        titleFont: {
+          size: 20
+        },
+        bodyFont: {
+          size: 16
+        }
+      },
+      legend: {
+        display: true,
+        position: "top",
+        align: "end",
+        labels: {
+          boxWidth: 15,
+          usePointStyle: false,
+          pointStyle: "circle",
+        },
+      },
+      title: {
+        display: true,
+        position: "top",
+        align: "start",
+        text: 'Incoming Guest/Month 2022',
+        font: {
+          size: 16,
+          weight: 300
+        },
+      },
+    },
+    elements: {
+      bar: {
+        percentage: 0.1,
+        categoryPercentage: 0,
+      },
+    },
+  };
+
+  let barOptionsHour = {
+    responsive: true,
+    plugins: {
+      tooltip: {
+        titleFont: {
+          size: 20
+        },
+        bodyFont: {
+          size: 16
+        }
+      },
+      legend: {
+        display: true,
+        position: "top",
+        align: "end",
+        labels: {
+          boxWidth: 15,
+          usePointStyle: false,
+          pointStyle: "circle",
+        },
+      },
+      title: {
+        display: true,
+        position: "top",
+        align: "start",
+        text: 'Peak Hour on July 2022',
+        font: {
+          size: 16,
+          weight: 300
+        },
+      },
+    },
+    elements: {
+      bar: {
+        percentage: 0.1,
+        categoryPercentage: 0,
+      },
+    },
+  };
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
+    }
+  }, [token]);
+
   return (
     <DefaultLayout
       title="Colony"
@@ -17,12 +327,13 @@ const Dashboard = (props: any) => {
       description=""
       images="image/logo/building-logo.svg"
       userDefault="image/user/user-01.png"
+      token={token}
     >
       <div className='absolute inset-0 mt-20 z-99 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='shadow-bottom sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] overflow-y-auto">
+          <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 px-8 2xl:px-10 gap-2'>
             <div className='w-full flex items-center justify-between py-3'>
               <button
                 aria-controls='sidebar'
@@ -39,16 +350,131 @@ const Dashboard = (props: any) => {
             </div>
           </div>
 
-          <main className='relative tracking-wide text-left text-boxdark-2'>
+          <main className='w-full relative tracking-wide text-left text-boxdark-2 py-6 px-8 2xl:px-10 bg-gray'>
             <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid architecto commodi nulla, totam saepe facere doloribus harum mollitia recusandae minima iusto quas distinctio excepturi quidem eos id vel sed esse vitae numquam. Excepturi adipisci magnam quo fugiat, soluta, commodi obcaecati id vel asperiores labore accusamus assumenda. Beatae laboriosam cum voluptas eos nihil architecto iure earum sit dolorum aperiam neque, rerum mollitia est quam? Beatae sed quae eum natus, commodi maiores adipisci odit possimus ipsam obcaecati placeat debitis cum ab architecto minima dolorum tempore id quis recusandae. Ea et nihil officia quos culpa inventore aliquam incidunt placeat ex ad repellendus dolorum deserunt, libero est corporis? Rem error quibusdam harum sint recusandae aut sed autem repellat voluptatibus doloribus ipsa voluptate voluptates rerum voluptas cum minima nemo cupiditate neque ratione vitae esse optio, iusto corrupti? Voluptate optio saepe labore ratione expedita quaerat enim laboriosam est. Magni, minima. Illo aut deserunt quidem inventore voluptate vero explicabo sunt repellendus magnam velit voluptatibus a, aspernatur vitae, nesciunt autem id deleniti sequi, cupiditate sapiente! Sit, sequi minus eos, sint vel quas ab eligendi nam rerum nihil labore earum blanditiis architecto dolore error facilis nostrum, porro eius. A molestias eos consequatur. Facilis eum, nemo optio a quo sint ipsam fugit, rerum vero eius ab, illum accusantium impedit consequuntur id veniam enim? Magnam amet eum repellendus vitae deserunt sunt nihil id consequatur harum fugiat maiores corporis, repellat obcaecati, possimus sit aliquam voluptatum itaque odio dolor fuga commodi delectus blanditiis inventore. Inventore earum ad temporibus dolores illo veritatis numquam quibusdam delectus labore exercitationem, aliquid, rerum tempore voluptate nisi laborum iure quisquam non unde deserunt dolor magni, asperiores aut necessitatibus. Quia, necessitatibus natus. Unde, iure! Ex iste, molestias facere et dolorum cum cupiditate sapiente nisi quae fugit. Suscipit iure facilis minima nesciunt soluta modi. Aliquam nostrum, esse labore tempore hic voluptatum dolorum dolorem ab voluptatem officia expedita voluptates dignissimos veniam ad similique sapiente nulla rerum fuga commodi distinctio? Expedita reiciendis quidem sequi. Illum ullam atque exercitationem, autem repellendus consectetur saepe temporibus praesentium numquam officiis voluptatem mollitia eligendi optio labore consequatur animi itaque hic id a dicta dolor quisquam maiores! Fugiat atque, corrupti odit impedit accusantium dicta explicabo dolorem dolore voluptatibus. Nihil, omnis eveniet rem veniam voluptate consequatur commodi enim mollitia, labore incidunt ut facilis ipsum sed velit eum iusto odio laudantium! At corporis necessitatibus fugit, tempore sit sunt dolorem provident rerum nesciunt velit mollitia nihil tenetur deserunt totam enim commodi, vero qui soluta dolor atque nulla nemo eaque! Nemo et perspiciatis iusto inventore at aliquam quos perferendis possimus ab exercitationem? Perspiciatis veritatis nisi praesentium? Quisquam officiis porro culpa cupiditate delectus quis, dicta voluptates illum. Debitis, iste. Accusantium recusandae ab explicabo repellat non quasi pariatur delectus quae eius, suscipit velit minima, possimus ex rerum magni sint quidem corrupti! Repudiandae eos repellat saepe porro asperiores, temporibus deleniti rem distinctio voluptatem quisquam tempore non corrupti, vitae eveniet, quae optio minima at. Voluptate error distinctio, totam quidem maiores doloribus, fugiat saepe dignissimos alias possimus consequatur iste at corrupti ea asperiores assumenda corporis harum deserunt voluptas sunt nesciunt quis optio velit? Tempora, id vitae ut odit, perferendis magni error animi dolore amet illo sapiente debitis quam doloribus provident esse. Qui reprehenderit assumenda molestiae accusamus facere explicabo alias quae eveniet, voluptatem laborum officia tempore totam eligendi? Cupiditate dolorum, ipsa modi, illo odio tempora delectus veritatis earum hic placeat iusto quae, ex quas velit incidunt cum repellendus nobis excepturi. Soluta nisi molestiae nobis. Modi minima blanditiis fugit ullam alias deleniti accusamus eius, exercitationem nihil consequuntur atque eos animi voluptatum quisquam laboriosam dolorem adipisci. Tenetur pariatur earum architecto impedit enim! Molestias nisi vitae est, aliquam accusantium dicta? Repellendus mollitia corrupti fugiat dicta excepturi magnam quaerat sunt. Qui repellat alias obcaecati accusantium non. Asperiores magnam voluptates iure facere ab perspiciatis dolorem consectetur dignissimos, nostrum quas deserunt laudantium nemo temporibus atque eveniet vitae repudiandae dolore quam numquam libero velit. Alias ex ratione tempore ab magni perspiciatis cupiditate vero quod fugit dolores ut officiis, quam nobis eaque quo rem quis, adipisci molestiae? Corrupti eius placeat nulla sunt aliquam, expedita amet dolor possimus a dolorum fuga iure in deleniti beatae iusto! Suscipit ipsa veniam, natus ipsam doloremque quisquam totam eum cumque maxime et fuga optio recusandae nostrum distinctio qui non cum alias repellat quo blanditiis. Porro dignissimos repudiandae vero eligendi aliquam id maiores quia tempore. Laboriosam iusto ipsum nisi qui! Molestias odio necessitatibus ratione est sunt earum vel aliquam quisquam iure laboriosam ea modi, fugiat sed dolorum optio cumque neque tenetur dolores consequuntur. Ut, corporis facere! Unde quis corporis totam eveniet cum ex expedita explicabo ipsa, non neque illum aspernatur laborum laudantium vel et eaque dolores, quod inventore. At, repudiandae repellat similique error ipsum ratione odio assumenda quis ducimus consequatur adipisci aut! Officiis vitae neque modi nam? Fugit alias, aspernatur voluptas doloribus nihil qui. Repellendus tempora asperiores ad, harum molestiae ratione atque, laudantium vero animi velit vel voluptatibus in ab. Molestias accusantium commodi cum corporis nihil! Reiciendis alias modi numquam nesciunt id quaerat iste labore laudantium hic suscipit, quas recusandae, aperiam iure. Explicabo est quod quasi nihil veritatis molestias, non dolores, ea ullam unde quam voluptas? Vel laudantium, inventore animi autem, unde mollitia a architecto nihil ipsa optio at, accusantium quis? Inventore dolorum quia modi illum saepe laboriosam, magni, totam asperiores assumenda quas voluptate in, cum deleniti optio sapiente officiis error mollitia soluta delectus tempore odit earum! Ad qui error et doloribus similique facere, reprehenderit autem assumenda laudantium architecto fugit minus alias iure ipsam? Atque reprehenderit vel, accusamus reiciendis corrupti molestias quaerat libero eveniet aliquam facere consectetur harum nemo? Adipisci, ex quo. A nam iusto totam quaerat, illo voluptas corporis deleniti ducimus! Similique explicabo animi, eius praesentium at aut aspernatur porro itaque exercitationem quae cum ut esse sapiente! Quia harum inventore, doloremque nobis ratione vel eaque! Assumenda, iusto iure ipsam numquam esse, nulla blanditiis alias repellat at corporis perspiciatis molestiae dicta. Eligendi veniam, soluta, commodi delectus optio aliquid iure odio nemo nam cum mollitia eveniet enim ratione explicabo? Voluptates consectetur dolor fugiat doloribus nam earum iure, velit, voluptas aut, nemo debitis obcaecati sed.
+              <div className="w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 tracking-wider mb-5">
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Occupancy Level</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full max-w-max font-semibold'>87%</span>
+                      <div className="w-full h-full flex justify-center items-center">
+                        <div className="overflow-hidden h-3 text-xs flex rounded-xl bg-[#EFEAD8] shadow-card w-full my-auto">
+                          <div style={{ width: "70%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary hover:opacity-50 font-semibold text-[.5rem]">70%</div>
+                          <div style={{ width: "17%" }} className="shadow-none z-10 flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning hover:opacity-50 font-semibold text-[.5rem]">17%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center text-xs tracking-normal justify-between'>
+                      <p>322 Occupied</p>
+                      <p>400 Owned</p>
+                      <p>500 Units</p>
+                    </div>
+                  </div>
+                </Cards>
+
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Total Owner</h1>
+                    <div className='w-full flex items-center gap-2'>
+                      <span className='w-full lg:w-2/12 font-semibold'>522</span>
+                      <div className="w-full lg:w-10/12 flex items-center justify-between gap-2">
+                        <div className="w-full max-w-max flex items-center gap-2 text-primary font-semibold text-sm">
+                          <MdArrowDropUp className='w-4 h-4' />
+                          <p>5 new tenants</p>
+                        </div>
+                        <Button
+                          className="px-0 py-0"
+                          type="button"
+                          onClick={() => console.log("edit")}
+                          variant="primary-outline-none"
+                        >
+                          <MdEdit className='w-4 h-4' />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center justify-between text-xs tracking-normal'>
+                      <div className="w-full max-w-max flex items-center gap-2">
+                        <MdArrowDropUp className='w-4 h-4' />
+                        <p>5 new tenants</p>
+                      </div>
+                      <p>123 m2</p>
+                    </div>
+                  </div>
+                </Cards>
+
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                  <div className="w-full p-4 flex flex-col gap-4">
+                    <h1>Total Tenant</h1>
+                    <div className='w-full flex items-center justify-between gap-2'>
+                      <span className='w-full lg:w-2/12 font-semibold'>87%</span>
+                      <Button
+                        className="px-0 py-0"
+                        type="button"
+                        onClick={() => console.log("edit")}
+                        variant="primary-outline-none ml-auto"
+                      >
+                        <MdEdit className='w-4 h-4' />
+                      </Button>
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center justify-between text-xs tracking-normal'>
+                      <div className="w-full max-w-max flex items-center gap-2">
+                        <MdArrowDropUp className='w-4 h-4' />
+                        <p>5 new tenants</p>
+                      </div>
+                      <p>123 m2</p>
+                    </div>
+                  </div>
+                </Cards>
+              </div>
+
+              <div className="w-full grid col-span-1 lg:grid-cols-2 gap-4 tracking-wider mb-5">
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
+                  <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
+                </Cards>
+
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
+                  <Barcharts data={bardata} options={barOptions} className='w-full max-w-max' height='200px' />
+                </Cards>
+
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
+                  <Barcharts data={bardataMonths} options={barOptionsMonths} className='w-full max-w-max' height='200px' />
+                </Cards>
+
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
+                  <Barcharts data={bardataHour} options={barOptionsHour} className='w-full max-w-max' height='200px' />
+                </Cards>
+              </div>
             </div>
           </main>
         </div>
       </div>
     </DefaultLayout>
   )
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context)
+
+  // Access cookies using the cookie name
+  const token = cookies['accessToken'] || null;
+  const access = cookies['access'] || null;
+  const firebaseToken = cookies['firebaseToken'] || null;
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false
+      },
+    };
+  }
+
+  return {
+    props: { token, access, firebaseToken },
+  };
+};
 
 export default Dashboard;

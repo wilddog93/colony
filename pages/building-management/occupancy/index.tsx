@@ -313,8 +313,8 @@ const Occupancy = ({ pageProps }: Props) => {
           <main className='tracking-wide text-left text-boxdark-2 mt-5'>
             <div className="w-full flex flex-col">
               {/* content */}
-              <div className="w-full flex flex-col sm:flex-row gap-2.5 tracking-wider mb-5">
-                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+              <div className="w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 tracking-wider mb-5">
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
                     <h1>Occupancy Level</h1>
                     <div className='w-full flex items-center gap-2'>
@@ -334,7 +334,7 @@ const Occupancy = ({ pageProps }: Props) => {
                   </div>
                 </Cards>
 
-                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
                     <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
@@ -364,7 +364,7 @@ const Occupancy = ({ pageProps }: Props) => {
                   </div>
                 </Cards>
 
-                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
                     <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
@@ -394,7 +394,7 @@ const Occupancy = ({ pageProps }: Props) => {
                   </div>
                 </Cards>
 
-                <Cards className='w-full sm:w-2/4 lg:w-1/4 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
+                <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray'>
                   <div className="w-full p-4 flex flex-col gap-4">
                     <h1>Total Tenant</h1>
                     <div className='w-full flex items-center gap-2'>
