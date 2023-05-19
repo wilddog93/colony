@@ -6,6 +6,7 @@ import { selectAuth, webForgotPassword, webNewPassword } from '../../../redux/fe
 import { MdLockOutline, MdOutlineEmail, MdOutlineLockOpen } from 'react-icons/md';
 import Button from '../../Button/Button';
 import { FaCircleNotch } from 'react-icons/fa';
+import { useRouter } from 'next/router';
 
 interface ForgotPasswordProps {
     isOpen?: boolean;
@@ -13,6 +14,8 @@ interface ForgotPasswordProps {
 }
 
 const ChangePassword: FC<ForgotPasswordProps> = (props) => {
+    const router = useRouter();
+    const { pathname, query } = router;
     const { isOpen, code } = props
     const [submitting, setSubmitting] = useState(false);
     const [isHiddenPass, setIsHiddenPass] = useState(true);
@@ -40,7 +43,11 @@ const ChangePassword: FC<ForgotPasswordProps> = (props) => {
             confirmPassword
         }
         console.log(data, 'cek')
-        dispatch(webNewPassword({ data, code }))
+        dispatch(webNewPassword({
+            data,
+            code,
+            callback: () => router.push({ pathname: "/authentication", query: { page: "sign-in" } })
+        }))
     };
 
     const onReset = () => {

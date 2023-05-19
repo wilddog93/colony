@@ -310,7 +310,8 @@ export const webNewPassword = createAsyncThunk<any, any, { state: RootState }>('
         const response = await axios.patch(`auth/web/forgotPassword/${params.code}`, params.data, config);
         const { data, status } = response;
         if (status == 200) {
-            toast.dark("Your password has been reset!")
+            toast.dark("Your password has reset!")
+            params.callback()
             return data
         } else {
             throw response
