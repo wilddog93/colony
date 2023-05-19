@@ -2,10 +2,15 @@ import React, { useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdArrowRightAlt } from 'react-icons/md';
+import { GetServerSideProps } from 'next';
+import { getCookies } from 'cookies-next';
 
-type Props = {}
+type Props = {
+  pageProps: any
+}
 
-const Areas = (props: any) => {
+const Areas = ({ pageProps }: any) => {
+  const { token, access, firebaseToken } = pageProps
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <DefaultLayout
@@ -16,6 +21,7 @@ const Areas = (props: any) => {
       description=""
       images="../image/logo/building-logo.svg"
       userDefault="../image/user/user-01.png"
+      token={token}
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -48,6 +54,29 @@ const Areas = (props: any) => {
       </div>
     </DefaultLayout>
   )
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context)
+
+  // Access cookies using the cookie name
+  const token = cookies['accessToken'] || null;
+  const access = cookies['access'] || null;
+  const firebaseToken = cookies['firebaseToken'] || null;
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false
+      },
+    };
+  }
+
+  return {
+    props: { token, access, firebaseToken },
+  };
+};
 
 export default Areas;

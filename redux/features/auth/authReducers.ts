@@ -286,7 +286,7 @@ export const webForgotPassword = createAsyncThunk<any, any, { state: RootState }
         const response = await axios.post("auth/web/forgotPassword", params.data, config);
         const { data, status } = response;
         if (status == 200) {
-            toast.dark("Reset password has been successfull!")
+            toast.dark("Your password has reset! Please, check your Email")
             return data
         } else {
             throw response
