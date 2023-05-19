@@ -247,6 +247,7 @@ const Occupancy = ({ pageProps }: Props) => {
       images="../image/logo/building-logo.svg"
       userDefault="../image/user/user-01.png"
       description=""
+      token={token}
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

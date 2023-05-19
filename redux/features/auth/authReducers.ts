@@ -280,6 +280,52 @@ export const webResendEmail = createAsyncThunk<any, AuthData, { state: RootState
     }
 });
 
+// forgot-password
+export const webForgotPassword = createAsyncThunk<any, any, { state: RootState }>('auth/web/forgot-password', async (params, { getState }) => {
+    try {
+        const response = await axios.post("auth/web/forgotPassword", params.data, config);
+        const { data, status } = response;
+        if (status == 200) {
+            toast.dark("Reset password has been successfull!")
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError?.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+// set new password - forgot password
+export const webNewPassword = createAsyncThunk<any, any, { state: RootState }>('auth/web/forgot-password/code', async (params, { getState }) => {
+    try {
+        const response = await axios.post(`auth/web/forgotPassword/${params.code}`, params.data, config);
+        const { data, status } = response;
+        if (status == 200) {
+            toast.dark("Your password has been reset!")
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError?.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const authSlice = createSlice({
