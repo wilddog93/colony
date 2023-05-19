@@ -532,6 +532,54 @@ export const authSlice = createSlice({
                 state.message = error.message;
             })
 
+            // forgot-password
+            .addCase(webForgotPassword.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webForgotPassword.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: false,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(webForgotPassword.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
+            // change-new-password
+            .addCase(webNewPassword.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webNewPassword.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: false,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(webNewPassword.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
             .addMatcher(isRejectedAction, (state, action) => { })
             .addDefaultCase((state, action) => {
                 let base = {
