@@ -1,8 +1,9 @@
 import React from 'react';
-import * as Icons from 'react-icons/md';
+import * as IconMD from 'react-icons/md';
+import * as IconFA from 'react-icons/md';
 
 const Icon = ({ icon, ...props }) => {
-    const Icon = Icons[icon]
+    const Icon = IconMD[icon] || IconFA[icon]
     return <Icon {...props} />
 };
 
