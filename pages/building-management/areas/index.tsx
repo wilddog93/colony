@@ -1,34 +1,289 @@
-import React, { useState } from 'react'
+import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdArrowRightAlt } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
+import Button from '../../../components/Button/Button';
+import { SearchInput } from '../../../components/Forms/SearchInput';
+import Modal from '../../../components/Modal';
+
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import { useRouter } from 'next/router';
+import DefaultTables from '../../../components/tables/layouts/DefaultTables';
+import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
+import Tables from '../../../components/tables/layouts/Tables';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import { ColumnDef } from '@tanstack/react-table';
+import { ColumnItems } from '../../../components/tables/components/makeData';
+import { formatPhone } from '../../../utils/useHooks/useFunction';
+import { makeData } from '../../../components/tables/components/makeData';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
 
 type Props = {
   pageProps: any
 }
 
-const Areas = ({ pageProps }: any) => {
-  const { token, access, firebaseToken } = pageProps
+const sortOpt = [
+  { value: "A-Z", label: "A-Z" },
+  { value: "Z-A", label: "Z-A" },
+];
+
+const stylesSelect = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const Areas = ({ pageProps }: Props) => {
+  const router = useRouter();
+  const { pathname, query } = router;
+
+  // props
+  const { token, access, firebaseToken } = pageProps;
+  // redux
+  const dispatch = useAppDispatch();
+  const { data } = useAppSelector(selectAuth);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [search, setSearch] = useState(null);
+  const [sort, setSort] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // data-table
+  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState({});
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(2000);
+  const [total, setTotal] = useState(1000)
+
+  // modal
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
+  const [details, setDetails] = useState<ColumnItems>();
+
+  // form modal
+  const onClose = () => setIsOpenModal(false);
+  const onOpen = () => setIsOpenModal(true);
+
+  // detail modal
+  const onCloseDetail = () => {
+    setDetails(undefined)
+    setIsOpenDetail(false)
+  };
+  const onOpenDetail = (items: any) => {
+    setDetails(items)
+    setIsOpenDetail(true)
+  };
+
+  // detail modal
+  const onCloseDelete = () => {
+    setDetails(undefined)
+    setIsOpenDelete(false)
+  };
+  const onOpenDelete = (items: any) => {
+    setDetails(items)
+    setIsOpenDelete(true)
+  };
+
+  useEffect(() => {
+    setDataTable(() => makeData(50000))
+  }, []);
+
+  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => {
+          return (
+            <IndeterminateCheckbox
+              {...{
+                checked: table?.getIsAllRowsSelected(),
+                indeterminate: table?.getIsSomeRowsSelected(),
+                onChange: table?.getToggleAllRowsSelectedHandler()
+              }}
+            />
+          )
+        },
+        cell: ({ row }) => (
+          <div className="px-1">
+            <IndeterminateCheckbox
+              {...{
+                checked: row.getIsSelected(),
+                disabled: !row.getCanSelect(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler()
+              }}
+            />
+          </div>
+        ),
+        size: 10,
+        minSize: 10
+      },
+      {
+        accessorKey: 'fullName',
+        header: (info) => (
+          <div>
+            Zone Name
+          </div>
+        ),
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      },
+      {
+        accessorKey: 'email',
+        header: (info) => "Description",
+        cell: info => {
+          console.log(info.row.original, 'row item')
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'phoneNumber',
+        header: (info) => "Units",
+        cell: info => {
+          return (
+            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'owned',
+        cell: info => {
+          return (
+            <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
+              {info.getValue()}
+            </div>
+          )
+        },
+        header: props => (<div className='w-full text-center'>Total Unit</div>),
+        footer: props => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'id',
+        cell: ({ row, getValue }) => {
+          return (
+            <div className='w-full text-center flex items-center justify-center cursor-pointer'>
+              <Button
+                onClick={() => onOpenDetail(row.original)}
+                variant="secondary-outline-none"
+                className="px-1 py-1"
+                type="button"
+              >
+                <MdEdit className='text-gray-5 w-4 h-4' />
+              </Button>
+              <Button
+                onClick={() => onOpenDelete(row.original)}
+                variant="secondary-outline-none"
+                className="px-1 py-1"
+                type="button"
+              >
+                <MdDelete className='text-gray-5 w-4 h-4' />
+              </Button>
+            </div>
+          )
+        },
+        header: props => (<div className='w-full text-center'>Actions</div>),
+        footer: props => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10
+      }
+    ],
+    []
+  );
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
+    }
+  }, [token]);
+
   return (
     <DefaultLayout
       title="Colony"
       header="Building Management"
       head="Area Grouping"
       logo="../image/logo/logo-icon.svg"
-      description=""
       images="../image/logo/building-logo.svg"
       userDefault="../image/user/user-01.png"
+      description=""
       token={token}
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='shadow-bottom sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
-            <div className='w-full flex items-center justify-between py-3'>
+          <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
+            <div className='w-full flex items-center justify-between py-3 lg:hidden'>
               <button
                 aria-controls='sidebar'
                 aria-expanded={sidebarOpen}
@@ -40,18 +295,210 @@ const Areas = ({ pageProps }: any) => {
               >
                 <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
               </button>
-              <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Area Grouping</h3>
+            </div>
+
+            <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                onClick={() => router.back()}
+                variant='secondary-outline'
+                key={'1'}
+              >
+                <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                <div className='flex flex-col gap-1 items-start'>
+                  <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Area Grouping</h3>
+                </div>
+              </Button>
+            </div>
+
+            <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3'
+                onClick={onOpen}
+                variant='primary'
+                key={'3'}
+              >
+                <span className='hidden lg:inline-block'>New Area</span>
+                <MdAdd className='w-4 h-4' />
+              </Button>
             </div>
           </div>
 
           <main className='relative tracking-wide text-left text-boxdark-2'>
-            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
+            <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid architecto commodi nulla, totam saepe facere doloribus harum mollitia recusandae minima iusto quas distinctio excepturi quidem eos id vel sed esse vitae numquam. Excepturi adipisci magnam quo fugiat, soluta, commodi obcaecati id vel asperiores labore accusamus assumenda. Beatae laboriosam cum voluptas eos nihil architecto iure earum sit dolorum aperiam neque, rerum mollitia est quam? Beatae sed quae eum natus, commodi maiores adipisci odit possimus ipsam obcaecati placeat debitis cum ab architecto minima dolorum tempore id quis recusandae. Ea et nihil officia quos culpa inventore aliquam incidunt placeat ex ad repellendus dolorum deserunt, libero est corporis? Rem error quibusdam harum sint recusandae aut sed autem repellat voluptatibus doloribus ipsa voluptate voluptates rerum voluptas cum minima nemo cupiditate neque ratione vitae esse optio, iusto corrupti? Voluptate optio saepe labore ratione expedita quaerat enim laboriosam est. Magni, minima. Illo aut deserunt quidem inventore voluptate vero explicabo sunt repellendus magnam velit voluptatibus a, aspernatur vitae, nesciunt autem id deleniti sequi, cupiditate sapiente! Sit, sequi minus eos, sint vel quas ab eligendi nam rerum nihil labore earum blanditiis architecto dolore error facilis nostrum, porro eius. A molestias eos consequatur. Facilis eum, nemo optio a quo sint ipsam fugit, rerum vero eius ab, illum accusantium impedit consequuntur id veniam enim? Magnam amet eum repellendus vitae deserunt sunt nihil id consequatur harum fugiat maiores corporis, repellat obcaecati, possimus sit aliquam voluptatum itaque odio dolor fuga commodi delectus blanditiis inventore. Inventore earum ad temporibus dolores illo veritatis numquam quibusdam delectus labore exercitationem, aliquid, rerum tempore voluptate nisi laborum iure quisquam non unde deserunt dolor magni, asperiores aut necessitatibus. Quia, necessitatibus natus. Unde, iure! Ex iste, molestias facere et dolorum cum cupiditate sapiente nisi quae fugit. Suscipit iure facilis minima nesciunt soluta modi. Aliquam nostrum, esse labore tempore hic voluptatum dolorum dolorem ab voluptatem officia expedita voluptates dignissimos veniam ad similique sapiente nulla rerum fuga commodi distinctio? Expedita reiciendis quidem sequi. Illum ullam atque exercitationem, autem repellendus consectetur saepe temporibus praesentium numquam officiis voluptatem mollitia eligendi optio labore consequatur animi itaque hic id a dicta dolor quisquam maiores! Fugiat atque, corrupti odit impedit accusantium dicta explicabo dolorem dolore voluptatibus. Nihil, omnis eveniet rem veniam voluptate consequatur commodi enim mollitia, labore incidunt ut facilis ipsum sed velit eum iusto odio laudantium! At corporis necessitatibus fugit, tempore sit sunt dolorem provident rerum nesciunt velit mollitia nihil tenetur deserunt totam enim commodi, vero qui soluta dolor atque nulla nemo eaque! Nemo et perspiciatis iusto inventore at aliquam quos perferendis possimus ab exercitationem? Perspiciatis veritatis nisi praesentium? Quisquam officiis porro culpa cupiditate delectus quis, dicta voluptates illum. Debitis, iste. Accusantium recusandae ab explicabo repellat non quasi pariatur delectus quae eius, suscipit velit minima, possimus ex rerum magni sint quidem corrupti! Repudiandae eos repellat saepe porro asperiores, temporibus deleniti rem distinctio voluptatem quisquam tempore non corrupti, vitae eveniet, quae optio minima at. Voluptate error distinctio, totam quidem maiores doloribus, fugiat saepe dignissimos alias possimus consequatur iste at corrupti ea asperiores assumenda corporis harum deserunt voluptas sunt nesciunt quis optio velit? Tempora, id vitae ut odit, perferendis magni error animi dolore amet illo sapiente debitis quam doloribus provident esse. Qui reprehenderit assumenda molestiae accusamus facere explicabo alias quae eveniet, voluptatem laborum officia tempore totam eligendi? Cupiditate dolorum, ipsa modi, illo odio tempora delectus veritatis earum hic placeat iusto quae, ex quas velit incidunt cum repellendus nobis excepturi. Soluta nisi molestiae nobis. Modi minima blanditiis fugit ullam alias deleniti accusamus eius, exercitationem nihil consequuntur atque eos animi voluptatum quisquam laboriosam dolorem adipisci. Tenetur pariatur earum architecto impedit enim! Molestias nisi vitae est, aliquam accusantium dicta? Repellendus mollitia corrupti fugiat dicta excepturi magnam quaerat sunt. Qui repellat alias obcaecati accusantium non. Asperiores magnam voluptates iure facere ab perspiciatis dolorem consectetur dignissimos, nostrum quas deserunt laudantium nemo temporibus atque eveniet vitae repudiandae dolore quam numquam libero velit. Alias ex ratione tempore ab magni perspiciatis cupiditate vero quod fugit dolores ut officiis, quam nobis eaque quo rem quis, adipisci molestiae? Corrupti eius placeat nulla sunt aliquam, expedita amet dolor possimus a dolorum fuga iure in deleniti beatae iusto! Suscipit ipsa veniam, natus ipsam doloremque quisquam totam eum cumque maxime et fuga optio recusandae nostrum distinctio qui non cum alias repellat quo blanditiis. Porro dignissimos repudiandae vero eligendi aliquam id maiores quia tempore. Laboriosam iusto ipsum nisi qui! Molestias odio necessitatibus ratione est sunt earum vel aliquam quisquam iure laboriosam ea modi, fugiat sed dolorum optio cumque neque tenetur dolores consequuntur. Ut, corporis facere! Unde quis corporis totam eveniet cum ex expedita explicabo ipsa, non neque illum aspernatur laborum laudantium vel et eaque dolores, quod inventore. At, repudiandae repellat similique error ipsum ratione odio assumenda quis ducimus consequatur adipisci aut! Officiis vitae neque modi nam? Fugit alias, aspernatur voluptas doloribus nihil qui. Repellendus tempora asperiores ad, harum molestiae ratione atque, laudantium vero animi velit vel voluptatibus in ab. Molestias accusantium commodi cum corporis nihil! Reiciendis alias modi numquam nesciunt id quaerat iste labore laudantium hic suscipit, quas recusandae, aperiam iure. Explicabo est quod quasi nihil veritatis molestias, non dolores, ea ullam unde quam voluptas? Vel laudantium, inventore animi autem, unde mollitia a architecto nihil ipsa optio at, accusantium quis? Inventore dolorum quia modi illum saepe laboriosam, magni, totam asperiores assumenda quas voluptate in, cum deleniti optio sapiente officiis error mollitia soluta delectus tempore odit earum! Ad qui error et doloribus similique facere, reprehenderit autem assumenda laudantium architecto fugit minus alias iure ipsam? Atque reprehenderit vel, accusamus reiciendis corrupti molestias quaerat libero eveniet aliquam facere consectetur harum nemo? Adipisci, ex quo. A nam iusto totam quaerat, illo voluptas corporis deleniti ducimus! Similique explicabo animi, eius praesentium at aut aspernatur porro itaque exercitationem quae cum ut esse sapiente! Quia harum inventore, doloremque nobis ratione vel eaque! Assumenda, iusto iure ipsam numquam esse, nulla blanditiis alias repellat at corporis perspiciatis molestiae dicta. Eligendi veniam, soluta, commodi delectus optio aliquid iure odio nemo nam cum mollitia eveniet enim ratione explicabo? Voluptates consectetur dolor fugiat doloribus nam earum iure, velit, voluptas aut, nemo debitis obcaecati sed.
+              <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
+                <div className='w-full lg:w-3/4'>
+                  <SearchInput
+                    className='w-full text-sm rounded-xl'
+                    classNamePrefix=''
+                    filter={search}
+                    setFilter={setSearch}
+                    placeholder='Search...'
+                  />
+                </div>
+                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='Sorts...'
+                    options={sortOpt}
+                    icon='MdSort'
+                  />
+                </div>
+              </div>
+
+              {/* table */}
+              <SelectTables
+                loading={loading}
+                setLoading={setLoading}
+                pages={pages}
+                setPages={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                pageCount={pageCount}
+                columns={columns}
+                dataTable={dataTable}
+                total={total}
+                setIsSelected={setIsSelectedRow}
+              />
             </div>
           </main>
         </div>
       </div>
+
+      {/* modal example */}
+      <Modal
+        size=''
+        onClose={onClose}
+        isOpen={isOpenModal}
+      >
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onClose}
+          >
+            <h3 className='text-lg font-semibold'>Modal Header</h3>
+          </ModalHeader>
+          <div className="w-full px-4">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+          </div>
+          <ModalFooter
+            className='p-4 border-t-2 border-gray mt-3'
+            isClose={true}
+            onClick={onClose}
+          ></ModalFooter>
+        </Fragment>
+      </Modal>
+
+      {/* detail modal */}
+      <Modal
+        size='small'
+        onClose={onCloseDetail}
+        isOpen={isOpenDetail}
+      >
+        <Fragment>
+          <ModalHeader
+            className='p-6 mb-3'
+            isClose={true}
+            onClick={onCloseDetail}
+          >
+            <div className="flex-flex-col gap-2">
+              <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
+              <div className="flex items-center gap-2">
+                <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
+                <p className='text-sm text-gray-5 capitalize flex items-center'>
+                  <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
+                  {details?.gender || ""}
+                </p>
+              </div>
+            </div>
+          </ModalHeader>
+          <div className="w-full px-6 mb-5">
+            <div className='w-full flex gap-2.5'>
+              <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
+
+              <div className='w-full flex flex-col gap-2 text-gray-5'>
+                <h3 className='font-bold text-lg'>{details?.fullName}</h3>
+                <div className='flex items-center gap-2'>
+                  <MdEmail />
+                  {details?.email}
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MdPhone />
+                  {/* {formatPhone("+", details?.phoneNumber)} */}
+                  {details?.phoneNumber}
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MdCalendarToday />
+                  {details?.date}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_05</div>
+              <p>Occupant</p>
+            </div>
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_12</div>
+              <p>Occupant & Owner</p>
+            </div>
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+              <div className='text-lg text-primary'>Unit_55</div>
+              <p>Owner</p>
+            </div>
+          </div>
+        </Fragment>
+      </Modal>
+
+      {/* delete modal */}
+      <Modal
+        size='small'
+        onClose={onCloseDelete}
+        isOpen={isOpenDelete}
+      >
+        <Fragment>
+          <ModalHeader
+            className='p-4 border-b-2 border-gray mb-3'
+            isClose={true}
+            onClick={onCloseDelete}
+          >
+            <h3 className='text-lg font-semibold'>Delete Tenant</h3>
+          </ModalHeader>
+          <div className='w-full my-5 px-4'>
+            <h3>Are you sure to delete tenant data ?</h3>
+          </div>
+
+          <ModalFooter
+            className='p-4 border-t-2 border-gray'
+            isClose={true}
+            onClick={onCloseDelete}
+          >
+            <Button
+              variant="primary"
+              className="rounded-md text-sm"
+              type="button"
+              onClick={onCloseDelete}
+            >
+              Yes, Delete it!
+            </Button>
+          </ModalFooter>
+        </Fragment>
+      </Modal>
     </DefaultLayout>
   )
 };

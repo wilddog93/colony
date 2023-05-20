@@ -1,4 +1,4 @@
-import React, { Fragment, SetStateAction, useMemo, useState } from 'react'
+import React, { Fragment, SetStateAction, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdLocalHotel, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
@@ -12,7 +12,7 @@ import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import { ColumnDef } from '@tanstack/react-table';
-import { ColumnItems } from '../../../components/tables/components/makeData';
+import { ColumnItems, makeData } from '../../../components/tables/components/makeData';
 import { formatPhone } from '../../../utils/useHooks/useFunction';
 import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
 
@@ -144,6 +144,12 @@ const Occupancy = (props: any) => {
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [details, setDetails] = useState<ColumnItems>();
   const [isSelectedRow, setIsSelectedRow] = useState({});
+  // data-table
+  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(2000);
+  const [total, setTotal] = useState(1000)
 
   // form modal
   const onClose = () => setIsOpenModal(false);
@@ -169,7 +175,11 @@ const Occupancy = (props: any) => {
     setIsOpenDelete(true)
   };
 
-  const column = useMemo<ColumnDef<ColumnItems>[]>(
+  useEffect(() => {
+    setDataTable(() => makeData(50000))
+  }, []);
+
+  const columns = useMemo<ColumnDef<ColumnItems>[]>(
     () => [
       {
         id: 'select',
@@ -372,9 +382,15 @@ const Occupancy = (props: any) => {
               <SelectTables
                 loading={loading}
                 setLoading={setLoading}
-                columns={column}
+                pages={pages}
+                setPages={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                pageCount={pageCount}
+                columns={columns}
+                dataTable={dataTable}
+                total={total}
                 setIsSelected={setIsSelectedRow}
-                isSelected={isSelectedRow}
               />
             </div>
           </main>

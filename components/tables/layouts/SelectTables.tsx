@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
 import {
     useReactTable,
@@ -23,6 +23,7 @@ import { Filter, fuzzyFilter } from '../components/TableComponent';
 import { MdArrowDropDown, MdArrowDropUp, MdArrowUpward, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { NextRouter, useRouter } from 'next/router';
 import Button from '../../Button/Button';
+import { FaCircleNotch } from 'react-icons/fa';
 
 declare module '@tanstack/table-core' {
     interface FilterFns {
@@ -36,56 +37,42 @@ declare module '@tanstack/table-core' {
 function SelectTables(props: any) {
     const {
         divided,
+        dataTable,
+        columns,
         loading,
         setLoading,
-        isSelected,
         setIsSelected,
-        totalPages,
-        page,
+        pageCount,
+        pages,
         setPages,
         limit,
         setLimit,
         total,
-        columns
+        isInfiniteScroll
     } = props;
 
     const router: NextRouter = useRouter();
     const { pathname, query }: { pathname: string, query: any } = router;
     const [pageIndex, setPageIndex] = useState(0);
     const [activePage, setActivePage] = useState(1);
-    const [pageCount, setPageCount] = useState(0);
+    const [isLoadingInfinite, setIsLoadingInfinite] = useState(true);
 
     const rerender = useReducer(() => ({}), {})[1]
 
+    let refTable = useRef<HTMLDivElement>(null);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
     )
     const [globalFilter, setGlobalFilter] = useState('')
     const [rowSelection, setRowSelection] = useState({});
 
-    const columnsTable = useMemo(() =>
-        loading
-            ? columns.map((column: any) => ({
-                ...column,
-                Cell: () => {
-                    return (
-                        <div className="px-1 py-3 animate-pulse flex items-center justify-center">
-                            <div className="h-2 w-20 bg-gray-200 rounded"></div>
-                        </div>
-                    );
-                },
-            }))
-            : columns,
-        [columns, loading]
-    );
-
     const [data, setData] = React.useState<ColumnItems[]>(() => makeData(50000))
     const refreshData = () => setData(old => makeData(50000))
 
     // @ts-ignore
     const table = useReactTable({
-        data,
-        columns: columnsTable,
+        data: dataTable,
+        columns,
         filterFns: {
             fuzzy: fuzzyFilter,
         },
@@ -121,11 +108,12 @@ function SelectTables(props: any) {
     }, [table.getState().columnFilters[0]?.id])
 
     // Custom Pagination
-    const filterPages = useCallback((visiblePages: any, totalPages: any) => {
-        return visiblePages.filter((page: any) => page <= totalPages);
+    const filterPages = useCallback((visiblePages: number[], totalPages: number) => {
+        // console.log(visiblePages, "filter pages", totalPages)
+        return visiblePages.filter(page => page <= totalPages);
     }, [])
 
-    const getVisiblePages = useCallback((page: any, total: any) => {
+    const getVisiblePages = useCallback((page: number, total: number) => {
         if (total < 7) {
             return filterPages([1, 2, 3, 4, 5, 6], total);
         } else {
@@ -139,45 +127,84 @@ function SelectTables(props: any) {
         }
     }, [filterPages])
 
-    const [visiblePages, setVisiblePages] = useState(getVisiblePages(pageIndex, pageCount));
-
-    console.log(visiblePages, 'page visi')
-
-    const changePage = useCallback((p: any) => {
+    const [visiblePages, setVisiblePages] = useState(getVisiblePages(pages, pageCount));
+    const changePage = useCallback((p: number) => {
         setLoading(true);
-        if (p === pageIndex - 1) {
+
+        if (p === pages) {
             return;
         }
         const vps = getVisiblePages(p, pageCount);
         setVisiblePages(filterPages(vps, pageCount));
-        table.setPageIndex(p - 1)
-    }, [pageCount])
-
-    useEffect(() => {
-        setVisiblePages(getVisiblePages(pageIndex, pageCount))
-    }, [pageIndex, pageCount])
+        setPages(p)
+    }, [pageCount, pages])
 
     useEffect(() => {
         setTimeout(() => {
-            setLoading(false);
-        }, 1000);
-    }, [loading]);
+            setLoading(false)
+            setIsLoadingInfinite(false)
+        }, 3000);
+    }, [loading, isLoadingInfinite])
 
     useEffect(() => {
-        setPageIndex(table.getState().pagination.pageIndex);
-        setActivePage(table.getState().pagination.pageIndex + 1);
-    }, [table.getState().pagination.pageIndex]);
+        if (!limit) {
+            return;
+        }
+        table.setPageSize(limit)
+    }, [limit])
+
 
     useEffect(() => {
-        setPageCount(table.getPageCount())
-    }, [table.getPageCount()])
+        if (!pages) {
+            table.setPageIndex(pages - 1)
+            setPageIndex(pages - 1)
+            setActivePage(pages)
+        }
+        table.setPageIndex(pages - 1)
+        setPageIndex(pages - 1)
+        setActivePage(pages)
+    }, [pages])
+
+    // console.log("pages", { pages, limit, activePage, pageIndex, index: table.getState().pagination.pageIndex, pageCount, visiblePages })
+
+    // scroll function
+    const loadHandler = () => {
+        // setLimit(limit => limit + 10);
+        if (isInfiniteScroll) {
+            setLoading(true)
+            setIsLoadingInfinite(true)
+            if (limit >= total) {
+                return;
+            }
+            setTimeout(() => {
+                setLimit((limit: number) => limit + 10)
+            }, 3000);
+        }
+    }
+
+    const handleScroll = useCallback((containerRefElement?: HTMLDivElement | null) => {
+        if (containerRefElement) {
+            const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+            // console.log((scrollHeight - scrollTop - clientHeight), 'result')
+            if (scrollHeight - scrollTop - clientHeight < 10) {
+                loadHandler()
+            }
+            if (scrollTop == 0) {
+                setLimit(10)
+            }
+        }
+    }, [loadHandler]);
+
+    useEffect(() => {
+        handleScroll(refTable.current)
+    }, [handleScroll]);
 
     console.log(table.getFilteredSelectedRowModel().flatRows, 'pages select')
 
     useEffect(() => {
         setIsSelected(table.getFilteredSelectedRowModel().flatRows.map((d) => d.original));
-      }, [table.getFilteredSelectedRowModel()]);
- 
+    }, [table.getFilteredSelectedRowModel()]);
+
     return (
         <div className="grid grid-cols-1">
             <div className='col-span-1 p-4 overflow-x-auto'>
@@ -237,18 +264,32 @@ function SelectTables(props: any) {
                                     {row.getVisibleCells().map(cell => {
                                         return (
                                             <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='px-4 py-4'>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
+                                                {loading && !isInfiniteScroll ?
+                                                    <div className="px-1 py-1 animate-pulse flex items-center justify-center">
+                                                        <div className="h-2 w-20 bg-gray rounded"></div>
+                                                    </div>
+                                                    :
+                                                    flexRender(cell.column.columnDef.cell, cell.getContext())
+                                                }
                                             </td>
                                         )
                                     })}
                                 </tr>
                             )
                         })}
+                        {isLoadingInfinite && isInfiniteScroll ?
+                            <tr >
+                                <td colSpan={columns?.length} className='px-4 py-4'>
+                                    <div className='w-full flex items-center gap-2 text-base font-semibold'>
+                                        Loading...
+                                        <FaCircleNotch className='w-4 h-4 animate-spin-2' />
+                                    </div>
+                                </td>
+                            </tr> :
+                            null
+                        }
                     </tbody>
-                    <tfoot className='border-t border-gray-4 text-gray-5 font-normal'>
+                    <tfoot className={`border-t border-gray-4 text-gray-5 font-normal ${isInfiniteScroll ? "hidden" : ""}`}>
                         <tr className='w-full'>
                             <th colSpan={table.getVisibleLeafColumns().length}>
                                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
