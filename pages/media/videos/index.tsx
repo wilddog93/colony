@@ -269,20 +269,24 @@ const Videos = ({ pageProps }: Props) => {
     return (
         <DefaultLayout
             title="Colony"
-            header="Building Management"
+            header="Media"
             head="Area Grouping"
             logo="../image/logo/logo-icon.svg"
             images="../image/logo/building-logo.svg"
             userDefault="../image/user/user-01.png"
             description=""
             token={token}
+            icons={{
+                name: "MdPhotoSizeSelectActual",
+                className: "w-10 h-10 text-primary"
+            }}
         >
             <div className='absolute inset-0 mt-20 z-9 bg-gray flex flex-col text-boxdark'>
                 {/* <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
                 <div className="relative w-full overflow-y-auto">
                     <NavbarMedia />
 
-                    <main className='relative tracking-wide text-left text-boxdark-2 mt-24 lg:mt-0'>
+                    <main className='relative tracking-wide text-left text-boxdark-2 mt-17 lg:mt-24'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
                             <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>

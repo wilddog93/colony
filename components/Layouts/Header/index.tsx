@@ -5,18 +5,20 @@ import DarkModeSwitcher from '../../DarkMode/DarkModeSwitcher'
 import Link from 'next/link'
 import { MdMuseum } from 'react-icons/md'
 import { Dispatch, SetStateAction } from 'react'
+import Icon from '../../Icon'
 
 type HeaderProps = {
-    header?: string,
-    userDefault?: string,
-    sidebarOpen?: boolean, 
-    setSidebarOpen: Dispatch<SetStateAction<boolean>>,
-    logo?: string,
-    title?: any,
-    token?:any
+    header?: string;
+    userDefault?: string;
+    sidebarOpen?: boolean;
+    setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+    logo?: string;
+    title?: any;
+    token?:any;
+    icons?: any;
 }
 
-const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title, token }: HeaderProps) => {
+const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title, token, icons }: HeaderProps) => {
 
     return (
         <header className='sticky top-0 z-999 flex w-full bg-boxdark-2 drop-shadow-none'>
@@ -64,7 +66,9 @@ const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title,
                     <Link href='/'>
                         <div className='flex flex-shrink-0 items-center gap-2 text-white'>
                             {/* <img src={!logo ? "./image/logo/logo-icon.svg" : logo} alt='Logo' /> */}
-                            <MdMuseum className='w-8 h-8 text-[#44C2FD]' />
+                            {icons && icons?.name ?
+                                <Icon className={`w-5 h-5 ${icons?.className}`} icon={icons?.name} />
+                            : null}
                             <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!header ? "Building" : header}</span>
                         </div>
                     </Link>

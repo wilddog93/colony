@@ -12,10 +12,11 @@ type Props = {
     logo?: string,
     images?: string,
     userDefault?: string,
-    token?: any
+    token?: any;
+    icons?: any;
 }
 
-const DefaultLayout = ({ children, title, description, logo, header, head, images, userDefault, token }: Props) => {
+const DefaultLayout = ({ children, title, description, logo, header, head, images, userDefault, token, icons }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
@@ -34,7 +35,7 @@ const DefaultLayout = ({ children, title, description, logo, header, head, image
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} header={header} userDefault={userDefault} token={token} />
+                    <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} header={header} userDefault={userDefault} token={token} icons={icons} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}
