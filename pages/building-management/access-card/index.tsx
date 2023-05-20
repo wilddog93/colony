@@ -1,25 +1,23 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdDownload, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone, MdUpload } from 'react-icons/md';
-import Button from '../../../../components/Button/Button';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import Modal from '../../../../components/Modal';
+import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
+import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
+import Button from '../../../components/Button/Button';
+import { SearchInput } from '../../../components/Forms/SearchInput';
+import Modal from '../../../components/Modal';
 
-import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
-import { ColumnItems } from '../../../../components/tables/components/makeData';
-import { makeData } from '../../../../components/tables/components/makeData';
+import { ColumnItems } from '../../../components/tables/components/makeData';
+import { makeData } from '../../../components/tables/components/makeData';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
-import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
-import Tabs from '../../../../components/Layouts/Tabs';
-import { menuParkings } from '../../../../utils/routes';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
 
 type Props = {
   pageProps: any
@@ -269,10 +267,10 @@ const Areas = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      head="Vehicle Transactions"
-      logo="../../image/logo/logo-icon.svg"
-      images="../../image/logo/building-logo.svg"
-      userDefault="../../image/user/user-01.png"
+      head="Parking List"
+      logo="../image/logo/logo-icon.svg"
+      images="../image/logo/building-logo.svg"
+      userDefault="../image/user/user-01.png"
       description=""
       token={token}
     >
@@ -280,71 +278,47 @@ const Areas = ({ pageProps }: Props) => {
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2'>
-            {/* headers */}
-            <div className='w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
-              <div className='w-full flex items-center justify-between py-3 lg:hidden'>
-                <button
-                  aria-controls='sidebar'
-                  aria-expanded={sidebarOpen}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSidebarOpen(!sidebarOpen)
-                  }}
-                  className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
-                >
-                  <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
-                </button>
-              </div>
-
-              <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
-                  onClick={() => router.back()}
-                  variant='secondary-outline'
-                  key={'1'}
-                >
-                  <MdChevronLeft className='w-6 h-6 text-gray-4' />
-                  <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parkings</h3>
-                  </div>
-                </Button>
-              </div>
-
-              <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Format</span>
-                  <MdDownload className='w-4 h-4' />
-                </Button>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Data</span>
-                  <MdDownload className='w-4 h-4' />
-                </Button>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary'
-                >
-                  <span className='hidden lg:inline-block'>Upload</span>
-                  <MdUpload className='w-4 h-4' />
-                </Button>
-              </div>
+          <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
+            <div className='w-full flex items-center justify-between py-3 lg:hidden'>
+              <button
+                aria-controls='sidebar'
+                aria-expanded={sidebarOpen}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSidebarOpen(!sidebarOpen)
+                }}
+                className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
+              >
+                <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
+              </button>
             </div>
-            {/* tabs */}
-            <div className='w-full px-4'>
-              <Tabs menus={menuParkings} />
+
+            <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                onClick={() => router.back()}
+                variant='secondary-outline'
+                key={'1'}
+              >
+                <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                <div className='flex flex-col gap-1 items-start'>
+                  <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Area Grouping</h3>
+                </div>
+              </Button>
+            </div>
+
+            <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
+              <Button
+                type="button"
+                className='rounded-lg text-sm font-semibold py-3'
+                onClick={onOpen}
+                variant='primary'
+                key={'3'}
+              >
+                <span className='hidden lg:inline-block'>New Area</span>
+                <MdAdd className='w-4 h-4' />
+              </Button>
             </div>
           </div>
 
@@ -449,7 +423,7 @@ const Areas = ({ pageProps }: Props) => {
           </ModalHeader>
           <div className="w-full px-6 mb-5">
             <div className='w-full flex gap-2.5'>
-              <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
+              <img src={details?.images ?? "../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
 
               <div className='w-full flex flex-col gap-2 text-gray-5'>
                 <h3 className='font-bold text-lg'>{details?.fullName}</h3>

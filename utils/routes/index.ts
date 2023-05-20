@@ -82,6 +82,7 @@ export const menuMaster: MenuProps[] = [
   }
 ];
 
+// Building Management
 export const menuBM: MenuProps[] = [
   {
     pathname: "Dashboard",
@@ -201,6 +202,25 @@ export const menuParkings: MenuProps[] = [
   {
     pathname: "Vehicle Transaction",
     url: "/building-management/parkings/transactions",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+export const menuAccessCard: MenuProps[] = [
+  {
+    pathname: "Master Data",
+    url: "/building-management/access-card/master-data",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "History Transaction",
+    url: "/building-management/access-card/transactions",
     query: {
       page: 1,
       limit: 10,

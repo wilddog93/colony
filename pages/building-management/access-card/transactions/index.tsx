@@ -19,7 +19,7 @@ import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReduc
 import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 import Tabs from '../../../../components/Layouts/Tabs';
-import { menuParkings } from '../../../../utils/routes';
+import { menuAccessCard } from '../../../../utils/routes';
 
 type Props = {
   pageProps: any
@@ -269,7 +269,7 @@ const Areas = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      head="Vehicle Transactions"
+      head="History Transaction"
       logo="../../image/logo/logo-icon.svg"
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
@@ -305,9 +305,9 @@ const Areas = ({ pageProps }: Props) => {
                   variant='secondary-outline'
                   key={'1'}
                 >
-                  <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                  {/* <MdChevronLeft className='w-6 h-6 text-gray-4' /> */}
                   <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parkings</h3>
+                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Access Card</h3>
                   </div>
                 </Button>
               </div>
@@ -344,7 +344,7 @@ const Areas = ({ pageProps }: Props) => {
             </div>
             {/* tabs */}
             <div className='w-full px-4'>
-              <Tabs menus={menuParkings} />
+              <Tabs menus={menuAccessCard} />
             </div>
           </div>
 

@@ -269,7 +269,7 @@ const Areas = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      head="Parking Lots"
+      head="Parking Lot"
       logo="../../image/logo/logo-icon.svg"
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
@@ -307,7 +307,7 @@ const Areas = ({ pageProps }: Props) => {
                 >
                   <MdChevronLeft className='w-6 h-6 text-gray-4' />
                   <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parking Lot</h3>
+                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parkings</h3>
                   </div>
                 </Button>
               </div>

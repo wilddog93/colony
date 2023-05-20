@@ -21,7 +21,7 @@ const DefaultLayout = ({ children, title, description, logo, header, head, image
     return (
         <div className='dark:bg-boxdark-2 dark:text-bodydark'>
             <Head>
-                <title>{`${head ?? `${head} -`} ${header}`} | Colony</title>
+                <title>{`${head} - ${header}`} | Colony</title>
                 <link rel="icon" href={logo ? logo : `./image/logo-bar.png`} />
                 <meta name="description" content={`Colony - ${description}`} />
             </Head>

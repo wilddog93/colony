@@ -269,7 +269,7 @@ const Areas = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Building Management"
-      head="Vehicles"
+      head="Registered Vehicles"
       logo="../../image/logo/logo-icon.svg"
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
@@ -303,11 +303,10 @@ const Areas = ({ pageProps }: Props) => {
                   className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
                   onClick={() => router.back()}
                   variant='secondary-outline'
-                  key={'1'}
                 >
-                  <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                  {/* <MdChevronLeft className='w-6 h-6 text-gray-4' /> */}
                   <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Registered Vehicles</h3>
+                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parkings</h3>
                   </div>
                 </Button>
               </div>

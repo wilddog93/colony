@@ -173,7 +173,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                     type='button'
                                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === menu?.url ||
                                                                                         pathname.includes(menu?.pages as string)) &&
-                                                                                        'bg-primary dark:bg-primary'
+                                                                                        'bg-graydark dark:bg-gray'
                                                                                         } ${menu?.className}`}
                                                                                     onClick={(e) => {
                                                                                         e.preventDefault()
@@ -205,14 +205,14 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                     className={`translate transform overflow-hidden ${!open && 'hidden'
                                                                                         }`}
                                                                                 >
-                                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5 pl-6'>
+                                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5'>
                                                                                         {routes && routes?.length > 0 ?
                                                                                             routes?.map((route, id) => {
                                                                                                 return (
                                                                                                     <li key={id}>
                                                                                                         <SidebarLink
                                                                                                             href={{ pathname: route.url, query: route?.query }}
-                                                                                                            className={`text-base ${route?.className}`}
+                                                                                                            className={`text-base pl-6 ${route?.className}`}
                                                                                                         >
                                                                                                             {!route?.icon ? null :
                                                                                                                 <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} aria-labels="icon" />
@@ -259,7 +259,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                     type='button'
                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === route?.url ||
                                                                         pathname.includes(route?.pages as string)) &&
-                                                                        'bg-primary dark:bg-primary'
+                                                                        'bg-graydark dark:bg-gray'
                                                                         } ${route?.className}`}
                                                                     onClick={(e) => {
                                                                         e.preventDefault()
@@ -268,7 +268,14 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route?.classIcon}`} icon={route?.icon} aria-labels='icon' /> : null}
+                                                                    {route?.icon ?
+                                                                        <Icon
+                                                                            className={`w-8 h-8 ${route?.classIcon}`}
+                                                                            icon={route?.icon}
+                                                                            aria-labels='icon'
+                                                                        />
+                                                                        : null
+                                                                    }
                                                                     {route?.pathname}
                                                                     <svg
                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -291,14 +298,14 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                     className={`translate transform overflow-hidden ${!open && 'hidden'
                                                                         }`}
                                                                 >
-                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5 pl-6'>
+                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5'>
                                                                         {routes && routes?.length > 0 ?
                                                                             routes?.map((r, id) => {
                                                                                 return (
                                                                                     <li key={id}>
                                                                                         <SidebarLink
                                                                                             href={{ pathname: r.url, query: r?.query }}
-                                                                                            className={`text-base ${r.className}`}
+                                                                                            className={`text-base pl-6 ${r.className}`}
                                                                                         >
                                                                                             {!r?.icon ? null :
                                                                                                 <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} aria-labels="icon" />

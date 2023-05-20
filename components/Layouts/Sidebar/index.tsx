@@ -198,7 +198,7 @@ const Sidebar = (props: Props) => {
                                                                                     type='button'
                                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === menu?.url ||
                                                                                         pathname.includes(menu?.pages as string)) &&
-                                                                                        'bg-primary dark:bg-primary'
+                                                                                        'bg-graydark dark:bg-gray'
                                                                                         } ${menu?.className}`}
                                                                                     onClick={(e) => {
                                                                                         e.preventDefault()
@@ -284,7 +284,7 @@ const Sidebar = (props: Props) => {
                                                                     type='button'
                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === route?.url ||
                                                                         pathname.includes(route?.pages as string)) &&
-                                                                        'bg-primary dark:bg-primary'
+                                                                        'bg-graydark dark:bg-gray'
                                                                         } ${route?.className}`}
                                                                     onClick={(e) => {
                                                                         e.preventDefault()
