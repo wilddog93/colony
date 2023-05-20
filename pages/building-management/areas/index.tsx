@@ -296,12 +296,12 @@ const Areas = ({ pageProps }: Props) => {
             <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
               <Button
                 type="button"
-                className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5 px-0'
                 onClick={() => router.back()}
                 variant='secondary-outline'
                 key={'1'}
               >
-                <MdChevronLeft className='w-6 h-6 text-gray-4' />
+                {/* <MdChevronLeft className='w-6 h-6 text-gray-4' /> */}
                 <div className='flex flex-col gap-1 items-start'>
                   <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Area Grouping</h3>
                 </div>
@@ -325,7 +325,7 @@ const Areas = ({ pageProps }: Props) => {
           <main className='relative tracking-wide text-left text-boxdark-2'>
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
+              <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
                 <div className='w-full lg:w-3/4'>
                   <SearchInput
                     className='w-full text-sm rounded-xl'

@@ -1,249 +1,178 @@
-export const routes = [
+export type MenuProps = {
+  title?: string;
+  pages?: string;
+  subMenus?: MenuProps[];
+  pathname?: string;
+  url?: string;
+  query?: any;
+  icon?: string;
+  classIcon?: string;
+  routes?: MenuProps[];
+};
+
+export const menuMaster: MenuProps[] = [
   {
-    url: "/building-management", // the url
-    path: "/building-management", // the pathname
-    icon: "MdDashboard", // the component being exported from icons/index.js
-    name: "Dashboard", // name that appear in Sidebar
-  },
-  {
-    url: "/unit-management", // the url
-    path: "/unit-management", // the pathname
-    query: {
-      page: 1,
-      limit: 12,
-    },
-    icon: "MdHome", // the component being exported from icons/index.js
-    name: "Unit List", // name that appear in Sidebar
-  },
-  {
-    url: "/tenants", // the url
-    path: "/tenants", // the pathname
-    query: {
-      page: 1,
-      limit: 10,
-    },
-    icon: "MdPeople", // the component being exported from icons/index.js
-    name: "Tenants", // name that appear in Sidebar
-  },
-  {
-    url: "/parkings", // the url
-    path: "/parkings", // the pathname
-    query: {
-      page: 1,
-      limit: 10,
-    },
-    icon: "MdLocalParking", // the component being exported from icons/index.js
-    name: "Parkings", // name that appear in Sidebar
-  },
-  {
-    url: "/access-card", // the url
-    path: "/access-card", // the pathname
-    query: {
-      page: 1,
-      limit: 10,
-    },
-    icon: "MdCreditCard", // the component being exported from icons/index.js
-    name: "Access Card", // name that appear in Sidebar
-  },
-  {
-    url: "/localshop/bm",
-    path: "/localshop/bm",
-    icon: "MdStore",
-    name: "Local Shop",
-    query: {
-      page: 1,
-      limit: 10,
-      status: "All Status"
-    },
-  },
-  {
-    url: "/multi-media",
-    path: "/multi-media",
-    icon: "MdStore",
-    name: "Multi Media",
-  },
-  {
-    icon: "",
-    name: "Task Management",
-    routes: [
+    subMenus: [
       {
-        url: "/task-management/complaint",
-        path: "/task-management/complaint",
-        name: "Complaint",
-        icon: "MdWarning",
+        pathname: "Gallery",
+        pages: "gallery",
+        url: "/gallery",
+        icon: "MdPhotoSizeSelectActual",
+        classIcon: "w-8 h-8 text-primary"
       },
       {
-        url: "/task-management/task-list",
-        path: "/task-management/task-list",
-        query: {
-          page: 1,
-          limit: 10,
-        },
-        name: "Tasks",
-        icon: "MdOutlineWork",
+        pathname: "Building Management",
+        pages: "building-management",
+        url: "/building-management",
+        icon: "MdMuseum",
+        classIcon: "w-8 h-8 text-[#44C2FD]"
       },
-    ],
+      {
+        pathname: "Billings & Payments",
+        pages: "billings-payments",
+        url: "/billings-payments",
+        icon: "MdMonetizationOn",
+        classIcon: "w-8 h-8 text-[#44FDAF]"
+      },
+      {
+        pathname: "Task Management",
+        pages: "tasks",
+        url: "/tasks",
+        icon: "MdWork",
+        classIcon: "w-8 h-8 text-[#F7597F]"
+      },
+      {
+        pathname: "Assets & Inventories",
+        pages: "assets-inventories",
+        url: "/assets-inventories",
+        icon: "MdUnarchive",
+        classIcon: "w-8 h-8 text-[#F7E759]"
+      },
+      {
+        pathname: "Merchants",
+        pages: "merchants",
+        url: "/merchants",
+        icon: "MdStore",
+        classIcon: "w-8 h-8 text-[#F79259]"
+      },
+    ]
   },
   {
-    icon: "",
-    name: "Inventories & Assets",
-    routes: [
+    subMenus: [
       {
-        url: "/inventory-assets/inventory",
-        path: "/inventory-assets/inventory",
-        name: "Inventories",
-        icon: "MdOutlineWork",
+        pathname: "Settings",
+        pages: "settings",
+        url: "/settings",
+        icon: "MdOutlineSettings"
       },
       {
-        url: "/inventory-assets/assets",
-        path: "/inventory-assets/assets",
-        name: "Assets",
-        icon: "MdOutlineCheckCircleOutline",
-        query: {
-          page: 1,
-          limit: 10,
-        },
+        pathname: "Helps",
+        pages: "helps",
+        url: "/helps",
+        icon: "MdHelpOutline"
       },
-      {
-        url: "/inventory-assets/products",
-        path: "/inventory-assets/products",
-        query: {
-          page: 1,
-          limit: 10,
-          status: "active",
-        },
-        name: "Products",
-        icon: "MdOutlineShoppingCart",
-      },
-      {
-        url: "/inventory-assets/location",
-        path: "/inventory-assets/location",
-        name: "Locations",
-        icon: "MdOutlineMap",
-        menus: [
-          // submenu dropdown
-          {
-            url: "/inventory-assets/location/storage",
-            path: "/inventory-assets/location/storage",
-            name: "Storage",
-            icon: "",
-          },
-          {
-            url: "/inventory-assets/location/others",
-            path: "/inventory-assets/location/others",
-            name: "Others",
-            icon: "",
-          },
-        ],
-      },
-      {
-        url: "/inventory-assets/stock",
-        path: "/inventory-assets/stock",
-        name: "Stock",
-        icon: "MdTrendingUp",
-        menus: [
-          // submenu dropdown
-          {
-            url: "/inventory-assets/stock/request-order",
-            path: "/inventory-assets/stock/request-order",
-            name: "Request Order",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-          {
-            url: "/inventory-assets/stock/purchase-order",
-            path: "/inventory-assets/stock/purchase-order",
-            name: "Purchase Order",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-          {
-            url: "/inventory-assets/stock/move-usage",
-            path: "/inventory-assets/stock/move-usage",
-            name: "Move & Usage",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-          {
-            url: "/inventory-assets/stock/stock-taking",
-            path: "/inventory-assets/stock/stock-taking",
-            name: "Stock Taking",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-          {
-            url: "/inventory-assets/stock/asset-out",
-            path: "/inventory-assets/stock/asset-out",
-            name: "Asset Out",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-          {
-            url: "/inventory-assets/stock/transactions",
-            path: "/inventory-assets/stock/transactions",
-            name: "Transactions",
-            icon: "",
-            query: {
-              page: 1,
-              limit: 10,
-            },
-          },
-        ],
-      },
-      {
-        url: "/inventory-assets/vendor",
-        path: "/inventory-assets/vendor",
-        name: "Vendor",
-        query: {
-          page: 1,
-          limit: 10,
-        },
-        icon: "MdOutlinePeople",
-      },
-    ],
-  },
-  {
-    icon: "",
-    path: "/settings",
-    name: "Settings",
-    routes: [
-      {
-        url: "/settings/data-master/general-informations",
-        path: "/settings/data-master",
-        name: "Properties",
-        icon: "MdSettings",
-      },
-      {
-        url: "/settings/users/user-management",
-        path: "/settings/users",
-        name: "Users",
-        icon: "MdPeople",
-      },
-    ],
-  },
+    ]
+  }
 ];
 
-export type MenuProps = {
-  pathname: string;
-  url: string
-  query?: any,
-  icon?: string,
-}
+export const menuBM: MenuProps[] = [
+  {
+    pathname: "Dashboard",
+    pages: "dashboard",
+    url: "/building-management",
+    icon: "MdOutlineDashboard"
+  },
+  {
+    pathname: "Occupancy",
+    pages: "occupancy",
+    url: "/building-management/occupancy",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icon: "MdOutlinePeopleAlt"
+  },
+  {
+    pathname: "Tower Management",
+    pages: "towers",
+    url: "/building-management/towers",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icon: "MdOutlineBusiness"
+  },
+  {
+    pathname: "Area Grouping",
+    url: "/building-management/areas",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icon: "MdOutlineMap"
+  },
+  {
+    subMenus: [
+      {
+        pathname: "Parkings",
+        pages: "parkings",
+        url: "",
+        icon: "MdLocalParking",
+        routes: [
+          {
+            pathname: "Parking Lot",
+            url: "/building-management/parkings/parking-lots",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          },
+          {
+            pathname: "Registered Vehicles",
+            url: "/building-management/parkings/vehicles",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          },
+          {
+            pathname: "Vehicle Transaction",
+            url: "/building-management/parkings/transactions",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          },
+        ]
+      },
+      {
+        pathname: "Access Card",
+        pages: "access-card",
+        url: "",
+        icon: "MdCardMembership",
+        routes: [
+          {
+            pathname: "Master Data",
+            url: "/building-management/access-card/master-data",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          },
+          {
+            pathname: "History transaction",
+            url: "/building-management/access-card/transactions",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          },
+        ]
+      },
+    ],
+    title: "Additional Features"
+  },
+];
 
 export const menuParkings: MenuProps[] = [
   {

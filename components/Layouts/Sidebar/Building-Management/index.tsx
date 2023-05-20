@@ -5,15 +5,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { MdArrowBack, MdCardMembership, MdLocalParking, MdOutlineBusiness, MdOutlineDashboard, MdOutlineMap, MdOutlinePeople, MdOutlinePeopleAlt } from 'react-icons/md';
+import { menuBM } from '../../../../utils/routes';
+import Icon from '../../../Icon';
+import SidebarLink from '../SidebarLink';
 
 type Props = {
     sidebarOpen: boolean,
-    setSidebarOpen: any,
+    setSidebarOpen: any
 }
 
 const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
-    const location = useRouter()
-    const { pathname, query } = location
+    const router = useRouter()
+    const { pathname, query } = router;
+
+
 
     const trigger = useRef<HTMLButtonElement>(null)
     const sidebar = useRef<HTMLDivElement>(null)
@@ -94,7 +99,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
         <Fragment>
             <aside
                 ref={sidebar}
-                className={`absolute left-0 top-0 bottom-0 z-999 flex w-90 flex-col overflow-y-hidden bg-boxdark duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`absolute left-0 top-0 bottom-0 z-999 flex w-90 flex-col overflow-y-hidden bg-boxdark duration-300 ease-in-out dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     // className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
@@ -128,183 +133,191 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
 
                             <ul className='mb-6 flex flex-col gap-1.5'>
                                 {/* <!-- Menu Item Dashboard --> */}
-                                <li>
-                                    <Link
-                                        href='/building-management'
-                                    >
-                                        <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "/building-management" &&
-                                                'bg-primary dark:bg-primary'
-                                                }`}
-                                        >
-                                            <MdOutlineDashboard className='w-5 h-5' />
-                                            Dashboard
-                                        </div>
-                                    </Link>
-                                </li>
-                                {/* <!-- Menu Item Dashboard --> */}
+                                {menuBM?.length > 0 ?
+                                    menuBM.map((route, idx) => {
+                                        const { subMenus, routes } = route;
+                                        if (subMenus && subMenus?.length > 0) {
+                                            return (
+                                                <div>
+                                                    <h3 className='my-4 text-lg font-semibold text-white'>
+                                                        {route?.title}
+                                                    </h3>
 
-                                {/* <!-- Menu Item Occupancy --> */}
-                                <li>
-                                    <Link
-                                        href='/building-management/occupancy'
-                                    >
-                                        <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/occupancy" || pathname.includes('occupancy') &&
-                                                'bg-primary dark:bg-primary'
-                                                }`}
-                                        >
-                                            <MdOutlinePeopleAlt className='w-5 h-5' />
-                                            Occupancy
-                                        </div>
-                                    </Link>
-                                </li>
-                                {/* <!-- Menu Item Occupancy --> */}
-
-                                {/* <!-- Menu Item Tower Management --> */}
-                                <li>
-                                    <Link
-                                        href='/building-management/towers'
-                                    >
-                                        <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/towers" || pathname.includes('towers') &&
-                                                'bg-primary dark:bg-primary'
-                                                }`}
-                                        >
-                                            <MdOutlineBusiness className='w-5 h-5' />
-                                            Tower Management
-                                        </div>
-                                    </Link>
-                                </li>
-                                {/* <!-- Menu Item Tower Management --> */}
-
-                                {/* <!-- Menu Item Area Grouping --> */}
-                                <li>
-                                    <Link
-                                        href='/building-management/areas'
-                                    >
-                                        <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/areas" || pathname.includes('areas') &&
-                                                'bg-primary dark:bg-primary'
-                                                }`}
-                                        >
-                                            <MdOutlineMap className='w-5 h-5' />
-                                            Area Grouping
-                                        </div>
-                                    </Link>
-                                </li>
-                                {/* <!-- Menu Item Area Grouping --> */}
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className='mb-4 text-lg font-semibold text-white'>
-                                Additional Features
-                            </h3>
-
-                            <ul className='mb-6 flex flex-col gap-1.5'>
-                                {/* <!-- Menu Parking List --> */}
-                                <SidebarLinkGroup
-                                    activeCondition={
-                                        pathname === '/building-management/parkings' || pathname.includes('parkings')
-                                    }
-                                >
-                                    {(handleClick: any, open: boolean) => {
-                                        return (
-                                            <React.Fragment>
-                                                <button
-                                                    type='button'
-                                                    className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/building-management/parkings' ||
-                                                        pathname.includes('parkings')) &&
-                                                        'bg-primary dark:bg-primary'
-                                                        }`}
-                                                    onClick={(e) => {
-                                                        e.preventDefault()
-                                                        sidebarExpanded
-                                                            ? handleClick()
-                                                            : setSidebarExpanded(true)
-                                                    }}
-                                                >
-                                                    <MdLocalParking className='w-6 h-6' />
-                                                    Parkings
-                                                    <svg
-                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
-                                                            }`}
-                                                        width='20'
-                                                        height='20'
-                                                        viewBox='0 0 20 20'
-                                                        fill='none'
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                    >
-                                                        <path
-                                                            fillRule='evenodd'
-                                                            clipRule='evenodd'
-                                                            d='M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z'
-                                                            fill=''
-                                                        />
-                                                    </svg>
-                                                </button>
-                                                <div
-                                                    className={`translate transform overflow-hidden ${!open && 'hidden'
-                                                        }`}
-                                                >
-                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5 pl-6'>
-                                                        <li>
-                                                            <Link
-                                                                href='/building-management/parkings/parking-lots'
-                                                            >
-                                                                <div className={'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                                                    (pathname === "/building-management/parkings/parking-lots" && '!text-white')
-                                                                }>
-                                                                    Parking Lots
-                                                                </div>
-                                                            </Link>
-                                                        </li>
-                                                        <li>
-                                                            <Link
-                                                                href='/building-management/parkings/vehicles'
-                                                            >
-                                                                <div className={'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                                                    (pathname === "/building-management/parkings/vehicles" && '!text-white')
-                                                                }>
-                                                                    Registered Vehicles
-                                                                </div>
-                                                            </Link>
-                                                        </li>
-                                                        <li>
-                                                            <Link
-                                                                href='/building-management/parkings/transactions'
-                                                            >
-                                                                <div className={'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                                                    (pathname === "/building-management/parkings/transactions" && '!text-white')
-                                                                }>
-                                                                    Vehicle Transaction
-                                                                </div>
-                                                            </Link>
-                                                        </li>
+                                                    <ul className='mb-6 flex flex-col gap-1.5'>
+                                                        {/* <!-- Menu Parking List --> */}
+                                                        {subMenus?.map((menu, i) => {
+                                                            const { routes } = menu;
+                                                            if (!routes) {
+                                                                return (
+                                                                    <li key={idx}>
+                                                                        <SidebarLink
+                                                                            href={{ pathname: menu.url, query: menu?.query }}
+                                                                            className=""
+                                                                        >
+                                                                            {!menu?.icon ? null :
+                                                                                <Icon className="w-5 h-5" icon={menu.icon} aria-labels="icon" />
+                                                                            }
+                                                                            {menu?.pathname}
+                                                                        </SidebarLink>
+                                                                    </li>
+                                                                )
+                                                            }
+                                                            return (
+                                                                <SidebarLinkGroup activeCondition={pathname === menu?.url || pathname.includes(menu?.pages as string)}>
+                                                                    {(handleClick: any, open: boolean) => {
+                                                                        return (
+                                                                            <React.Fragment>
+                                                                                <button
+                                                                                    type='button'
+                                                                                    className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === menu?.url ||
+                                                                                        pathname.includes(menu?.pages as string)) &&
+                                                                                        'bg-primary dark:bg-primary'
+                                                                                        }`}
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault()
+                                                                                        sidebarExpanded
+                                                                                            ? handleClick()
+                                                                                            : setSidebarExpanded(true)
+                                                                                    }}
+                                                                                >
+                                                                                    {menu?.icon ? <Icon className="w-5 h-5" icon={menu?.icon} aria-labels='icon' /> : null}
+                                                                                    {menu?.pathname}
+                                                                                    <svg
+                                                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
+                                                                                            }`}
+                                                                                        width='20'
+                                                                                        height='20'
+                                                                                        viewBox='0 0 20 20'
+                                                                                        fill='none'
+                                                                                        xmlns='http://www.w3.org/2000/svg'
+                                                                                    >
+                                                                                        <path
+                                                                                            fillRule='evenodd'
+                                                                                            clipRule='evenodd'
+                                                                                            d='M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z'
+                                                                                            fill=''
+                                                                                        />
+                                                                                    </svg>
+                                                                                </button>
+                                                                                <div
+                                                                                    className={`translate transform overflow-hidden ${!open && 'hidden'
+                                                                                        }`}
+                                                                                >
+                                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5 pl-6'>
+                                                                                        {routes && routes?.length > 0 ?
+                                                                                            routes?.map((route, id) => {
+                                                                                                return (
+                                                                                                    <li key={id}>
+                                                                                                        <SidebarLink
+                                                                                                            href={{ pathname: route.url, query: route?.query }}
+                                                                                                            className=""
+                                                                                                        >
+                                                                                                            {!route?.icon ? null :
+                                                                                                                <Icon className="w-5 h-5" icon={route.icon} aria-labels="icon" />
+                                                                                                            }
+                                                                                                            {route?.pathname}
+                                                                                                        </SidebarLink>
+                                                                                                    </li>
+                                                                                                )
+                                                                                            }) : null
+                                                                                        }
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </React.Fragment>
+                                                                        )
+                                                                    }}
+                                                                </SidebarLinkGroup>
+                                                            )
+                                                        })}
                                                     </ul>
                                                 </div>
-                                            </React.Fragment>
-                                        )
-                                    }}
-                                </SidebarLinkGroup>
-                                {/* <!-- Menu Parking List --> */}
-
-                                {/* <!-- Menu Access Card --> */}
-                                <li>
-                                    <Link
-                                        href='/building-management/access-card'
-                                    >
-                                        <div
-                                            className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname === "building-management/access-card" || pathname.includes('access-card') && 'bg-primary dark:bg-primary'
-                                                }`}
-                                        >
-                                            <MdCardMembership className='w-5 h-5' />
-                                            Access Card
-                                        </div>
-                                    </Link>
-                                </li>
-                                {/* <!-- Menu Access Card --> */}
+                                            )
+                                        } else {
+                                            if (!routes) {
+                                                return (
+                                                    <li key={idx}>
+                                                        <SidebarLink
+                                                            href={{ pathname: route.url, query: route?.query }}
+                                                            className=""
+                                                        >
+                                                            {!route?.icon ? null :
+                                                                <Icon className="w-5 h-5" icon={route.icon} aria-labels="icon" />
+                                                            }
+                                                            {route?.pathname}
+                                                        </SidebarLink>
+                                                    </li>
+                                                )
+                                            }
+                                            return (
+                                                <SidebarLinkGroup activeCondition={pathname === route?.url || pathname.includes(route?.pages as string)}>
+                                                    {(handleClick: any, open: boolean) => {
+                                                        return (
+                                                            <React.Fragment>
+                                                                <button
+                                                                    type='button'
+                                                                    className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === route?.url ||
+                                                                        pathname.includes(route?.pages as string)) &&
+                                                                        'bg-primary dark:bg-primary'
+                                                                        }`}
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault()
+                                                                        sidebarExpanded
+                                                                            ? handleClick()
+                                                                            : setSidebarExpanded(true)
+                                                                    }}
+                                                                >
+                                                                    {route?.icon ? <Icon className="w-5 h-5" icon={route?.icon} aria-labels='icon' /> : null}
+                                                                    {route?.pathname}
+                                                                    <svg
+                                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
+                                                                            }`}
+                                                                        width='20'
+                                                                        height='20'
+                                                                        viewBox='0 0 20 20'
+                                                                        fill='none'
+                                                                        xmlns='http://www.w3.org/2000/svg'
+                                                                    >
+                                                                        <path
+                                                                            fillRule='evenodd'
+                                                                            clipRule='evenodd'
+                                                                            d='M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z'
+                                                                            fill=''
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                                <div
+                                                                    className={`translate transform overflow-hidden ${!open && 'hidden'
+                                                                        }`}
+                                                                >
+                                                                    <ul className='mt-4 mb-5.5 flex flex-col gap-2.5 pl-6'>
+                                                                        {routes && routes?.length > 0 ?
+                                                                            routes?.map((r, id) => {
+                                                                                return (
+                                                                                    <li key={id}>
+                                                                                        <SidebarLink
+                                                                                            href={{ pathname: r.url, query: r?.query }}
+                                                                                            className=""
+                                                                                        >
+                                                                                            {!r?.icon ? null :
+                                                                                                <Icon className="w-5 h-5" icon={r.icon} aria-labels="icon" />
+                                                                                            }
+                                                                                            {r?.pathname}
+                                                                                        </SidebarLink>
+                                                                                    </li>
+                                                                                )
+                                                                            }) : null
+                                                                        }
+                                                                    </ul>
+                                                                </div>
+                                                            </React.Fragment>
+                                                        )
+                                                    }}
+                                                </SidebarLinkGroup>
+                                            )
+                                        }
+                                    }) : null
+                                }
+                                {/* <!-- Menu Item Dashboard --> */}
                             </ul>
                         </div>
                     </nav>
