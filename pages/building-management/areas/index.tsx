@@ -8,13 +8,9 @@ import Modal from '../../../components/Modal';
 
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
-import DefaultTables from '../../../components/tables/layouts/DefaultTables';
-import RowSelectTables from '../../../components/tables/layouts/RowSelectTables';
-import Tables from '../../../components/tables/layouts/Tables';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
 import { ColumnItems } from '../../../components/tables/components/makeData';
-import { formatPhone } from '../../../utils/useHooks/useFunction';
 import { makeData } from '../../../components/tables/components/makeData';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
@@ -232,7 +228,7 @@ const Areas = ({ pageProps }: Props) => {
           return (
             <div className='w-full text-center flex items-center justify-center cursor-pointer'>
               <Button
-                onClick={() => onOpenDetail(row.original)}
+                onClick={() => onOpen()}
                 variant="secondary-outline-none"
                 className="px-1 py-1"
                 type="button"

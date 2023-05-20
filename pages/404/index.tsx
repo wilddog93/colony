@@ -8,7 +8,7 @@ function Custom404({ }: Props) {
   return (
     <div className='w-full h-screen flex flex-col justify-center items-center'>
       <div className='mb-3 font-semibold uppercase text-primary'>404 - Page Not Found</div>
-      <p className='mb-3 text-2xl'>The page you're looking for isn't available.</p>
+      <p className='mb-3 lg:text-2xl text-center'>The page you're looking for isn't available.</p>
       <button
         type="button"
         className="flex justify-center items-center"
