@@ -2,6 +2,7 @@ export type MenuProps = {
   title?: string;
   pages?: string;
   subMenus?: MenuProps[];
+  className?: string;
   pathname?: string;
   url?: string;
   query?: any;
@@ -18,42 +19,48 @@ export const menuMaster: MenuProps[] = [
         pages: "gallery",
         url: "/gallery",
         icon: "MdPhotoSizeSelectActual",
-        classIcon: "w-8 h-8 text-primary"
+        classIcon: "w-8 h-8 text-primary",
+        className: "text-lg"
       },
       {
         pathname: "Building Management",
         pages: "building-management",
         url: "/building-management",
         icon: "MdMuseum",
-        classIcon: "w-8 h-8 text-[#44C2FD]"
+        classIcon: "w-8 h-8 text-[#44C2FD]",
+        className: "text-lg"
       },
       {
         pathname: "Billings & Payments",
         pages: "billings-payments",
         url: "/billings-payments",
         icon: "MdMonetizationOn",
-        classIcon: "w-8 h-8 text-[#44FDAF]"
+        classIcon: "w-8 h-8 text-[#44FDAF]",
+        className: "text-lg"
       },
       {
         pathname: "Task Management",
         pages: "tasks",
         url: "/tasks",
         icon: "MdWork",
-        classIcon: "w-8 h-8 text-[#F7597F]"
+        classIcon: "w-8 h-8 text-[#F7597F]",
+        className: "text-lg"
       },
       {
         pathname: "Assets & Inventories",
         pages: "assets-inventories",
         url: "/assets-inventories",
         icon: "MdUnarchive",
-        classIcon: "w-8 h-8 text-[#F7E759]"
+        classIcon: "w-8 h-8 text-[#F7E759]",
+        className: "text-lg"
       },
       {
         pathname: "Merchants",
         pages: "merchants",
         url: "/merchants",
         icon: "MdStore",
-        classIcon: "w-8 h-8 text-[#F79259]"
+        classIcon: "w-8 h-8 text-[#F79259]",
+        className: "text-lg"
       },
     ]
   },

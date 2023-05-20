@@ -132,16 +132,18 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                             </div>
 
                             <ul className='mb-6 flex flex-col gap-1.5'>
-                                {/* <!-- Menu Item Dashboard --> */}
                                 {menuBM?.length > 0 ?
                                     menuBM.map((route, idx) => {
                                         const { subMenus, routes } = route;
                                         if (subMenus && subMenus?.length > 0) {
                                             return (
                                                 <div>
-                                                    <h3 className='my-4 text-lg font-semibold text-white'>
-                                                        {route?.title}
-                                                    </h3>
+                                                    {!route.title ?
+                                                        <div className='border-gray border-t w-full border-2 my-4'></div> :
+                                                        <h3 className='my-4 text-lg font-semibold text-white'>
+                                                            {route?.title}
+                                                        </h3>
+                                                    }
 
                                                     <ul className='mb-6 flex flex-col gap-1.5'>
                                                         {/* <!-- Menu Parking List --> */}
@@ -152,10 +154,10 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                     <li key={idx}>
                                                                         <SidebarLink
                                                                             href={{ pathname: menu.url, query: menu?.query }}
-                                                                            className=""
+                                                                            className={`text-base ${menu.className}`}
                                                                         >
                                                                             {!menu?.icon ? null :
-                                                                                <Icon className="w-5 h-5" icon={menu.icon} aria-labels="icon" />
+                                                                                <Icon className={`w-8 h-8 ${menu?.classIcon}`} icon={menu.icon} aria-labels="icon" />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
@@ -172,7 +174,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === menu?.url ||
                                                                                         pathname.includes(menu?.pages as string)) &&
                                                                                         'bg-primary dark:bg-primary'
-                                                                                        }`}
+                                                                                        } ${menu?.className}`}
                                                                                     onClick={(e) => {
                                                                                         e.preventDefault()
                                                                                         sidebarExpanded
@@ -180,7 +182,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                             : setSidebarExpanded(true)
                                                                                     }}
                                                                                 >
-                                                                                    {menu?.icon ? <Icon className="w-5 h-5" icon={menu?.icon} aria-labels='icon' /> : null}
+                                                                                    {menu?.icon ? <Icon className={`w-5 h-5 ${menu?.classIcon}`} icon={menu?.icon} aria-labels='icon' /> : null}
                                                                                     {menu?.pathname}
                                                                                     <svg
                                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -210,10 +212,10 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                                     <li key={id}>
                                                                                                         <SidebarLink
                                                                                                             href={{ pathname: route.url, query: route?.query }}
-                                                                                                            className=""
+                                                                                                            className={`text-base ${route?.className}`}
                                                                                                         >
                                                                                                             {!route?.icon ? null :
-                                                                                                                <Icon className="w-5 h-5" icon={route.icon} aria-labels="icon" />
+                                                                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} aria-labels="icon" />
                                                                                                             }
                                                                                                             {route?.pathname}
                                                                                                         </SidebarLink>
@@ -238,10 +240,10 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                     <li key={idx}>
                                                         <SidebarLink
                                                             href={{ pathname: route.url, query: route?.query }}
-                                                            className=""
+                                                            className={`text-base ${route?.className}`}
                                                         >
                                                             {!route?.icon ? null :
-                                                                <Icon className="w-5 h-5" icon={route.icon} aria-labels="icon" />
+                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} aria-labels="icon" />
                                                             }
                                                             {route?.pathname}
                                                         </SidebarLink>
@@ -258,7 +260,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === route?.url ||
                                                                         pathname.includes(route?.pages as string)) &&
                                                                         'bg-primary dark:bg-primary'
-                                                                        }`}
+                                                                        } ${route?.className}`}
                                                                     onClick={(e) => {
                                                                         e.preventDefault()
                                                                         sidebarExpanded
@@ -266,7 +268,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ? <Icon className="w-5 h-5" icon={route?.icon} aria-labels='icon' /> : null}
+                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route?.classIcon}`} icon={route?.icon} aria-labels='icon' /> : null}
                                                                     {route?.pathname}
                                                                     <svg
                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -296,10 +298,10 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                     <li key={id}>
                                                                                         <SidebarLink
                                                                                             href={{ pathname: r.url, query: r?.query }}
-                                                                                            className=""
+                                                                                            className={`text-base ${r.className}`}
                                                                                         >
                                                                                             {!r?.icon ? null :
-                                                                                                <Icon className="w-5 h-5" icon={r.icon} aria-labels="icon" />
+                                                                                                <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} aria-labels="icon" />
                                                                                             }
                                                                                             {r?.pathname}
                                                                                         </SidebarLink>
@@ -317,7 +319,6 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                         }
                                     }) : null
                                 }
-                                {/* <!-- Menu Item Dashboard --> */}
                             </ul>
                         </div>
                     </nav>
