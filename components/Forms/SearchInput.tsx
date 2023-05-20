@@ -55,7 +55,7 @@ export const SearchInput = ({ filter, setFilter, placeholder, className, classNa
                         placeholder={placeholder}
                         onChange={handleChange}
                         ref={inputRef}
-                        className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-10 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${className}`}
+                        className={`w-full rounded-lg border border-stroke py-4 pl-10 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${className}`}
                     />
                 </div>
                 {/* <button

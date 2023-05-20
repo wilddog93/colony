@@ -162,7 +162,7 @@ const Sidebar = (props: Props) => {
                                         const { subMenus, routes } = route;
                                         if (subMenus && subMenus?.length > 0) {
                                             return (
-                                                <div>
+                                                <div key={idx}>
                                                     {!route.title ?
                                                         <div className='border-gray border-t w-full border-2 my-4'></div> :
                                                         <h3 className='my-4 text-lg font-semibold text-white'>
@@ -176,13 +176,14 @@ const Sidebar = (props: Props) => {
                                                             const { routes } = menu;
                                                             if (!routes) {
                                                                 return (
-                                                                    <li key={idx}>
+                                                                    <li key={i}>
                                                                         <SidebarLink
                                                                             href={{ pathname: menu.url, query: menu?.query }}
                                                                             className={`text-base ${menu.className}`}
+                                                                            activeClass="bg-graydark"
                                                                         >
                                                                             {!menu?.icon ? null :
-                                                                                <Icon className={`w-8 h-8 ${menu?.classIcon}`} icon={menu.icon} aria-labels="icon" />
+                                                                                <Icon className={`w-8 h-8 ${menu?.classIcon}`} icon={menu.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
@@ -190,7 +191,7 @@ const Sidebar = (props: Props) => {
                                                                 )
                                                             }
                                                             return (
-                                                                <SidebarLinkGroup activeCondition={pathname === menu?.url || pathname.includes(menu?.pages as string)}>
+                                                                <SidebarLinkGroup key={i} activeCondition={pathname === menu?.url || pathname.includes(menu?.pages as string)}>
                                                                     {(handleClick: any, open: boolean) => {
                                                                         return (
                                                                             <React.Fragment>
@@ -198,7 +199,7 @@ const Sidebar = (props: Props) => {
                                                                                     type='button'
                                                                                     className={`w-full group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === menu?.url ||
                                                                                         pathname.includes(menu?.pages as string)) &&
-                                                                                        'bg-graydark dark:bg-gray'
+                                                                                        'bg-graydark'
                                                                                         } ${menu?.className}`}
                                                                                     onClick={(e) => {
                                                                                         e.preventDefault()
@@ -207,7 +208,7 @@ const Sidebar = (props: Props) => {
                                                                                             : setSidebarExpanded(true)
                                                                                     }}
                                                                                 >
-                                                                                    {menu?.icon ? <Icon className={`w-5 h-5 ${menu?.classIcon}`} icon={menu?.icon} aria-labels='icon' /> : null}
+                                                                                    {menu?.icon ? <Icon className={`w-5 h-5 ${menu?.classIcon}`} icon={menu?.icon} /> : null}
                                                                                     {menu?.pathname}
                                                                                     <svg
                                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -238,9 +239,10 @@ const Sidebar = (props: Props) => {
                                                                                                         <SidebarLink
                                                                                                             href={{ pathname: route.url, query: route?.query }}
                                                                                                             className={`text-base ${route?.className}`}
+                                                                                                            activeClass="bg-graydark"
                                                                                                         >
                                                                                                             {!route?.icon ? null :
-                                                                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} aria-labels="icon" />
+                                                                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} />
                                                                                                             }
                                                                                                             {route?.pathname}
                                                                                                         </SidebarLink>
@@ -266,9 +268,10 @@ const Sidebar = (props: Props) => {
                                                         <SidebarLink
                                                             href={{ pathname: route.url, query: route?.query }}
                                                             className={`text-base ${route?.className}`}
+                                                            activeClass="bg-graydark"
                                                         >
                                                             {!route?.icon ? null :
-                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} aria-labels="icon" />
+                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} />
                                                             }
                                                             {route?.pathname}
                                                         </SidebarLink>
@@ -276,7 +279,7 @@ const Sidebar = (props: Props) => {
                                                 )
                                             }
                                             return (
-                                                <SidebarLinkGroup activeCondition={pathname === route?.url || pathname.includes(route?.pages as string)}>
+                                                <SidebarLinkGroup key={idx} activeCondition={pathname === route?.url || pathname.includes(route?.pages as string)}>
                                                     {(handleClick: any, open: boolean) => {
                                                         return (
                                                             <React.Fragment>
@@ -293,7 +296,7 @@ const Sidebar = (props: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route?.classIcon}`} icon={route?.icon} aria-labels='icon' /> : null}
+                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route?.classIcon}`} icon={route?.icon} /> : null}
                                                                     {route?.pathname}
                                                                     <svg
                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -324,9 +327,10 @@ const Sidebar = (props: Props) => {
                                                                                         <SidebarLink
                                                                                             href={{ pathname: r.url, query: r?.query }}
                                                                                             className={`text-base ${r.className}`}
+                                                                                            activeClass="bg-graydark"
                                                                                         >
                                                                                             {!r?.icon ? null :
-                                                                                                <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} aria-labels="icon" />
+                                                                                                <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} />
                                                                                             }
                                                                                             {r?.pathname}
                                                                                         </SidebarLink>

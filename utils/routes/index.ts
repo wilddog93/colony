@@ -11,17 +11,10 @@ export type MenuProps = {
   routes?: MenuProps[];
 };
 
+// master routes
 export const menuMaster: MenuProps[] = [
   {
     subMenus: [
-      {
-        pathname: "Gallery",
-        pages: "gallery",
-        url: "/gallery",
-        icon: "MdPhotoSizeSelectActual",
-        classIcon: "w-8 h-8 text-primary",
-        className: "text-lg"
-      },
       {
         pathname: "Building Management",
         pages: "building-management",
@@ -52,6 +45,14 @@ export const menuMaster: MenuProps[] = [
         url: "/assets-inventories",
         icon: "MdUnarchive",
         classIcon: "w-8 h-8 text-[#F7E759]",
+        className: "text-lg"
+      },
+      {
+        pathname: "Media",
+        pages: "media",
+        url: "/media/videos",
+        icon: "MdPhotoSizeSelectActual",
+        classIcon: "w-8 h-8 text-primary",
         className: "text-lg"
       },
       {
@@ -221,6 +222,28 @@ export const menuAccessCard: MenuProps[] = [
   {
     pathname: "History Transaction",
     url: "/building-management/access-card/transactions",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+// media
+export const menuMedia: MenuProps[] = [
+  {
+    pathname: "Video Media",
+    pages: "videos",
+    url: "/media/videos",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "News & Articles",
+    pages: "articles",
+    url: "/media/articles",
     query: {
       page: 1,
       limit: 10,

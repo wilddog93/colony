@@ -5,7 +5,7 @@ type Props = {
     activeCondition: boolean
 }
 
-const SidebarLinkGroup = ({ children, activeCondition }: Props) => {
+const SidebarLinkGroup = ({ children, activeCondition, ...props }: Props) => {
     const [open, setOpen] = useState(activeCondition)
 
     const handleClick = () => {
@@ -13,7 +13,7 @@ const SidebarLinkGroup = ({ children, activeCondition }: Props) => {
     }
 
     return (
-        <li>
+        <li {...props}>
             {children(handleClick, open)}
         </li>
     )

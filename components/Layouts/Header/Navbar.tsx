@@ -14,7 +14,7 @@ export default function Navbar(props: any) {
 
   return (
     <div
-      className={`w-full flex shadow duration-300 ease-in-out ${variants}`}
+      className={`w-full flex duration-300 ease-in-out ${variants} ${className}`}
     >
       <div className="relative w-full flex flex-col md:flex-row items-center">
         {children}
