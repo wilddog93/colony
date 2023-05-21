@@ -579,7 +579,7 @@ const Videos = ({ pageProps }: Props) => {
                             </div>
                         </main>
 
-                        <SidebarMedia position='right' sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                        <SidebarMedia position='right' sidebar={sidebarOpen} setSidebar={setSidebarOpen}>
                             <div className="w-full flex flex-col gap-2 mb-5">
                                 <div className='grid grid-cols-2 gap-4 mb-4'>
                                     <Cards
@@ -725,7 +725,7 @@ const Videos = ({ pageProps }: Props) => {
                             </div>
                         </SidebarMedia>
 
-                        <div className={`text-white z-40 absolute top-18 transition-all duration-300 ease-in-out left-2`}>
+                        <div className={`text-white z-40 absolute top-18 transition-all duration-300 ease-in-out right-2`}>
                             <button
                                 aria-controls='sidebar-media'
                                 aria-expanded={sidebarOpen}

@@ -1,38 +1,39 @@
-import React, { Children } from 'react';
-import Dekstop from './Dekstop';
-import Mobile from './Mobile';
-import Navigation from './Navigation';
-import { routes } from '../../../utils/routes'
+import React, { Dispatch, SetStateAction, useMemo } from 'react';
+import Sideleft from './Sideleft';
+import Sideright from './Sideright';
 
 type Props = {
     sidebar: boolean,
-    handleSidebar: () => void,
-    images: string,
-    header: string,
+    setSidebar: Dispatch<SetStateAction<boolean>>
+    position?: string;
     children: any
 }
 
-function Sidebars({ sidebar, handleSidebar, images, header, children }: Props) {
+function Sidebars({ sidebar, setSidebar, children, position }: Props) {
+
+    const positions = useMemo(() => {
+        if (position === 'right') {
+            return true;
+        }
+        return false;
+    }, [position])
+
     return (
         <React.Fragment>
-            <Dekstop
-                sidebar={sidebar}
-                handleSidebar={handleSidebar}
-                images={images}
-                header={header}
+            <Sideleft
+                isOpen={!positions}
+                sidebarOpen={sidebar}
+                setSidebarOpen={setSidebar}
             >
-                {/* <Navigation routes={routes} /> */}
                 {children}
-            </Dekstop>
-            <Mobile
-                sidebar={sidebar}
-                handleSidebar={handleSidebar}
-                images={images}
-                header={header}
+            </Sideleft>
+            <Sideright
+                isOpen={positions}
+                sidebarOpen={sidebar}
+                setSidebarOpen={setSidebar}
             >
-                {/* <Navigation routes={routes} /> */}
                 {children}
-            </Mobile>
+            </Sideright>
         </React.Fragment>
     )
 }

@@ -290,7 +290,8 @@ const Videos = ({ pageProps }: Props) => {
                 <div className='relative overflow-y-auto flex flex-col'>
                     <NavbarMedia />
                     <div className='relative w-full flex overflow-hidden'>
-                        <SidebarMedia position='left' sidebarOpen={sidebarLeft} setSidebarOpen={setSidebarLeft}>
+
+                        <SidebarMedia position='left' sidebar={sidebarLeft} setSidebar={setSidebarLeft}>
                             <div className="w-full flex flex-col gap-2 mb-5">
                                 <button>
                                     back
@@ -640,7 +641,7 @@ const Videos = ({ pageProps }: Props) => {
                             </div>
                         </main>
 
-                        <SidebarMedia position='right' sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                        <SidebarMedia position='right' sidebar={sidebarOpen} setSidebar={setSidebarOpen}>
                             <div className="w-full flex flex-col gap-2 mb-5">
                                 <div className='grid grid-cols-2 gap-4 mb-4'>
                                     <Cards
@@ -863,9 +864,9 @@ const Videos = ({ pageProps }: Props) => {
                                 </span>
                             </button>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </div >
+                </div >
+            </div >
 
             {/* modal example */}
             <Modal
@@ -989,7 +990,7 @@ const Videos = ({ pageProps }: Props) => {
                     </ModalFooter>
                 </Fragment>
             </Modal>
-        </DefaultLayout>
+        </DefaultLayout >
     )
 };
 
