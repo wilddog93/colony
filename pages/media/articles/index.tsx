@@ -283,13 +283,12 @@ const Articles = ({ pageProps }: Props) => {
         >
             <div className='absolute inset-0 mt-20 z-9 bg-white flex flex-col text-boxdark'>
                 {/* <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
+                <NavbarMedia />
                 <div className="relative w-full overflow-y-auto">
-                    <NavbarMedia />
-
-                    <main className='relative tracking-wide text-left text-boxdark-2 mt-17 lg:mt-24'>
+                    <main className='relative tracking-wide text-left text-boxdark-2 mt-20 lg:mt-24'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
-                            <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
+                            <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
                                 <div className='w-full lg:w-3/4'>
                                     <SearchInput
                                         className='w-full text-sm rounded-xl bg-white'

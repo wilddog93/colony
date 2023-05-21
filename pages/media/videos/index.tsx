@@ -1,7 +1,7 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdPhone, MdPlaylistAdd } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import Modal from '../../../components/Modal';
@@ -22,6 +22,8 @@ import Link from 'next/link';
 import ActiveLink from '../../../components/Layouts/ActiveLink';
 import Navbar from '../../../components/Layouts/Header/Navbar';
 import NavbarMedia from '../../../components/Media/NavbarMedia';
+import Cards from '../../../components/Cards/Cards';
+import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
 
 type Props = {
     pageProps: any
@@ -92,6 +94,8 @@ const Videos = ({ pageProps }: Props) => {
     const [search, setSearch] = useState(null);
     const [sort, setSort] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // data-table
     const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
@@ -282,58 +286,553 @@ const Videos = ({ pageProps }: Props) => {
             }}
         >
             <div className='absolute inset-0 mt-20 z-9 bg-gray flex flex-col text-boxdark'>
-                {/* <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
-                <div className="relative w-full overflow-y-auto">
+                <div className='relative overflow-y-auto flex flex-col'>
                     <NavbarMedia />
+                    <div className='relative w-full flex overflow-hidden'>
+                        <div className="relative w-full bg-gray overflow-auto">
+                            <main className='relative tracking-wide text-left text-boxdark-2 mt-20 lg:mt-24'>
+                                <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
+                                    {/* content */}
+                                    <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4'>
+                                        <div className='w-full col-span-1 lg:col-span-4'>
+                                            <SearchInput
+                                                className='w-full text-sm rounded-xl bg-white'
+                                                classNamePrefix=''
+                                                filter={search}
+                                                setFilter={setSearch}
+                                                placeholder='Search...'
+                                            />
+                                        </div>
+                                        <div className='w-full'>
+                                            <DropdownSelect
+                                                customStyles={stylesSelect}
+                                                value={sort}
+                                                onChange={setSort}
+                                                error=""
+                                                className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                                classNamePrefix=""
+                                                formatOptionLabel=""
+                                                instanceId='1'
+                                                isDisabled={false}
+                                                isMulti={false}
+                                                placeholder='Sorts...'
+                                                options={sortOpt}
+                                                icon='MdSort'
+                                            />
+                                        </div>
+                                        <div className="w-full flex items-center justify-end">
+                                            <Button
+                                                type="button"
+                                                onClick={() => console.log("new videos")}
+                                                variant="primary"
+                                                className="lg:w-full h-full rounded-xl px-6 py-2"
+                                            >
+                                                New Video
+                                                <MdAdd className='w-4 h-5' />
+                                            </Button>
+                                        </div>
+                                    </div>
 
-                    <main className='relative tracking-wide text-left text-boxdark-2 mt-17 lg:mt-24'>
-                        <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
-                            {/* content */}
-                            <div className='w-full flex flex-col lg:flex-row gap-2.5 px-4'>
-                                <div className='w-full lg:w-3/4'>
-                                    <SearchInput
-                                        className='w-full text-sm rounded-xl bg-white'
-                                        classNamePrefix=''
-                                        filter={search}
-                                        setFilter={setSearch}
-                                        placeholder='Search...'
-                                    />
+                                    {/* main card */}
+                                    <div className='w-full px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5'>
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards
+                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
+                                        >
+                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("add")}
+                                                >
+                                                    <MdPlaylistAdd className='w-6 h-6' />
+                                                </button>
+                                                <button
+                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
+                                                    type='button'
+                                                    onClick={() => console.log("delete")}
+                                                >
+                                                    <MdDelete className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
+                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
+                                                <p className='text-sm lg:text-base text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <p>533 views</p>
+                                                    &#x2022;
+                                                    <p>43 likes</p>
+                                                </div>
+                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
+                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <p>John Doe</p>
+                                                </div>
+                                            </div>
+                                        </Cards>
+                                    </div>
                                 </div>
-                                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
-                                    <DropdownSelect
-                                        customStyles={stylesSelect}
-                                        value={sort}
-                                        onChange={setSort}
-                                        error=""
-                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                        classNamePrefix=""
-                                        formatOptionLabel=""
-                                        instanceId='1'
-                                        isDisabled={false}
-                                        isMulti={false}
-                                        placeholder='Sorts...'
-                                        options={sortOpt}
-                                        icon='MdSort'
-                                    />
+                            </main>
+                        </div>
+                        <SidebarMedia sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                            <div className="w-full flex flex-col gap-2 mb-5">
+                                <div className='grid grid-cols-2 gap-4 mb-4'>
+                                    <Cards
+                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
+                                    >
+                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
+                                            <h3 className='font-semibold title-xl2 lg:text-title-xl2 text-graydark'>49</h3>
+                                            <p>Total video</p>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards
+                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
+                                    >
+                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
+                                            <h3 className='font-semibold title-xl2 lg:text-title-xl2 text-graydark'>12</h3>
+                                            <p>Total playlist</p>
+                                        </div>
+                                    </Cards>
+                                </div>
+
+                                <div className='w-full flex flex-col gap-2 mb-4'>
+                                    <h3 className='text-base lg:text-title-md font-semibold text-graydark'>Playlist</h3>
+                                    <p>Lorem ipsum dolor sit amet.</p>
+                                </div>
+
+                                <div className="w-full grid grid-cols-3 gap-2 mb-4">
+                                    <div className='w-full col-span-2'>
+                                        <SearchInput
+                                            className='w-full text-sm rounded-xxl bg-white'
+                                            classNamePrefix=''
+                                            filter={search}
+                                            setFilter={setSearch}
+                                            placeholder='Search...'
+                                        />
+                                    </div>
+                                    <div className="w-full flex items-center justify-end">
+                                        <Button
+                                            type="button"
+                                            onClick={() => console.log("new playlist")}
+                                            variant="primary"
+                                            className="lg:w-full h-full rounded-xl px-6 py-2"
+                                        >
+                                            New Playlist
+                                            <MdAdd className='w-4 h-5' />
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="w-full flex flex-col gap-2">
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <div className='w-3/4 p-2 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
+                                                <div className='flex items-center gap-2 text-gray-5'>
+                                                    <p>33 videos</p>
+                                                    &#x2022;
+                                                    <p>333 consoles</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => console.log("add playlist")}
+                                                    className=''
+                                                >
+                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
                                 </div>
                             </div>
-
-                            {/* table */}
-                            <SelectTables
-                                loading={loading}
-                                setLoading={setLoading}
-                                pages={pages}
-                                setPages={setPages}
-                                limit={limit}
-                                setLimit={setLimit}
-                                pageCount={pageCount}
-                                columns={columns}
-                                dataTable={dataTable}
-                                total={total}
-                                setIsSelected={setIsSelectedRow}
-                            />
-                        </div>
-                    </main>
+                        </SidebarMedia>
+                    </div>
                 </div>
             </div>
 
