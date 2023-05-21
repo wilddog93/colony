@@ -156,7 +156,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             href={{ pathname: menu.url, query: menu?.query }}
                                                                             className={`text-base ${menu.className}`}
                                                                         >
-                                                                            {!menu.icons.icon ? null :
+                                                                            {!menu?.icons?.icon ? null :
                                                                                 <Icon className={`w-5 h-5 ${menu.icons.className}`} icon={menu.icons.icon} />
                                                                             }
                                                                             {menu?.pathname}
@@ -215,7 +215,7 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                                             className={`text-base pl-6 ${route?.className}`}
                                                                                                             activeClass="bg-graydark"
                                                                                                         >
-                                                                                                            {!route?.icons.icon ? null :
+                                                                                                            {!route?.icons?.icon ? null :
                                                                                                                 <Icon className={`w-5 h-5 ${route?.icons.className}`} icon={route.icons.icon} />
                                                                                                             }
                                                                                                             {route?.pathname}
