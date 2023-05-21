@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { MdArrowBack, MdHelpOutline, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWork } from 'react-icons/md';
 import { menuMaster } from '../../../utils/routes';
 import SidebarLink from './SidebarLink';
 import Icon from '../../Icon';
@@ -25,15 +23,6 @@ const Sidebar = (props: Props) => {
     const trigger = useRef<HTMLButtonElement>(null)
     const sidebar = useRef<HTMLDivElement>(null)
 
-    // const storedSidebarExpanded = localStorage?.getItem('sidebar-expanded')
-    // const [storeParse, setStoreParse] = useState(null);
-
-    // useEffect(() => {
-    //     if (typeof storedSidebarExpanded === 'string') {
-    //         setStoreParse(JSON.parse(storedSidebarExpanded))
-    //     }
-    // }, [storedSidebarExpanded])
-
     const getFromLocalStorage = (key: string) => {
         if (!key || typeof window === 'undefined') {
             return ""
@@ -48,9 +37,6 @@ const Sidebar = (props: Props) => {
     useEffect(() => {
         setSidebarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
     }, [initiaLocalStorage])
-
-
-    // console.log(initiaLocalStorage, 'side')
 
     // close on click outside
     useEffect(() => {
@@ -184,7 +170,7 @@ const Sidebar = (props: Props) => {
                                                                             pages={menu.pages}
                                                                         >
                                                                             {!menu?.icon ? null :
-                                                                                <Icon className={`w-8 h-8 ${menu.classIcon}`} icon={menu.icon} />
+                                                                                <Icon className={`w-5 h-5 ${menu.classIcon}`} icon={menu.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>

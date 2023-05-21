@@ -20,32 +20,36 @@ export const menuMaster: MenuProps[] = [
         pages: "building-management",
         url: "/building-management",
         icon: "MdMuseum",
-        classIcon: "w-8 h-8 text-[#44C2FD]",
+        classIcon: "w-8 h-8 text-meta-5",
         className: "text-lg"
+        // text-[#44C2FD]
       },
       {
         pathname: "Billings & Payments",
         pages: "billings-payments",
         url: "/billings-payments",
         icon: "MdMonetizationOn",
-        classIcon: "w-8 h-8 text-[#44FDAF]",
+        classIcon: "w-8 h-8 text-meta-3",
         className: "text-lg"
+        // text-[#44FDAF]
       },
       {
         pathname: "Task Management",
         pages: "tasks",
         url: "/tasks",
         icon: "MdWork",
-        classIcon: "w-8 h-8 text-[#F7597F]",
+        classIcon: "w-8 h-8 text-meta-7",
         className: "text-lg"
+        // text-[#F7597F] 
       },
       {
         pathname: "Assets & Inventories",
         pages: "assets-inventories",
         url: "/assets-inventories",
         icon: "MdUnarchive",
-        classIcon: "w-8 h-8 text-[#F7E759]",
+        classIcon: "w-8 h-8 text-meta-6",
         className: "text-lg"
+        // text-[#F7E759]
       },
       {
         pathname: "Media",
@@ -60,8 +64,9 @@ export const menuMaster: MenuProps[] = [
         pages: "merchants",
         url: "/merchants",
         icon: "MdStore",
-        classIcon: "w-8 h-8 text-[#F79259]",
+        classIcon: "w-8 h-8 text-meta-8",
         className: "text-lg"
+        // text-[#F79259]
       },
     ]
   },
