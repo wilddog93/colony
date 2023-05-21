@@ -290,7 +290,7 @@ const Videos = ({ pageProps }: Props) => {
                     <NavbarMedia />
                     <div className='relative w-full flex overflow-hidden'>
                         <div className="relative w-full bg-gray overflow-auto">
-                            <main className='relative tracking-wide text-left text-boxdark-2 mt-20 lg:mt-24'>
+                            <main className='relative tracking-wide text-left text-boxdark-2 mt-20'>
                                 <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                                     {/* content */}
                                     <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4'>

@@ -71,13 +71,15 @@ export const menuMaster: MenuProps[] = [
         pathname: "Settings",
         pages: "settings",
         url: "/settings",
-        icon: "MdOutlineSettings"
+        icon: "MdOutlineSettings",
+        classIcon: "w-8 h-8",
       },
       {
         pathname: "Helps",
         pages: "helps",
         url: "/helps",
-        icon: "MdHelpOutline"
+        icon: "MdHelpOutline",
+        classIcon: "w-8 h-8",
       },
     ]
   }

@@ -183,7 +183,7 @@ const Sidebar = (props: Props) => {
                                                                             activeClass="bg-graydark"
                                                                         >
                                                                             {!menu?.icon ? null :
-                                                                                <Icon className={`w-8 h-8 ${menu?.classIcon}`} icon={menu.icon} />
+                                                                                <Icon className={`w-8 h-8 ${menu.classIcon}`} icon={menu.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
@@ -208,7 +208,7 @@ const Sidebar = (props: Props) => {
                                                                                             : setSidebarExpanded(true)
                                                                                     }}
                                                                                 >
-                                                                                    {menu?.icon ? <Icon className={`w-5 h-5 ${menu?.classIcon}`} icon={menu?.icon} /> : null}
+                                                                                    {menu?.icon ? <Icon className={`w-5 h-5 ${menu.classIcon}`} icon={menu?.icon} /> : null}
                                                                                     {menu?.pathname}
                                                                                     <svg
                                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -242,7 +242,7 @@ const Sidebar = (props: Props) => {
                                                                                                             activeClass="bg-graydark"
                                                                                                         >
                                                                                                             {!route?.icon ? null :
-                                                                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} />
+                                                                                                                <Icon className={`w-5 h-5 ${route.classIcon}`} icon={route.icon} />
                                                                                                             }
                                                                                                             {route?.pathname}
                                                                                                         </SidebarLink>
@@ -271,7 +271,7 @@ const Sidebar = (props: Props) => {
                                                             activeClass="bg-graydark"
                                                         >
                                                             {!route?.icon ? null :
-                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} />
+                                                                <Icon className={`w-5 h-5 ${route.classIcon}`} icon={route.icon} />
                                                             }
                                                             {route?.pathname}
                                                         </SidebarLink>
@@ -296,7 +296,7 @@ const Sidebar = (props: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route?.classIcon}`} icon={route?.icon} /> : null}
+                                                                    {route?.icon ? <Icon className={`w-8 h-8 ${route.classIcon}`} icon={route?.icon} /> : null}
                                                                     {route?.pathname}
                                                                     <svg
                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -330,7 +330,7 @@ const Sidebar = (props: Props) => {
                                                                                             activeClass="bg-graydark"
                                                                                         >
                                                                                             {!r?.icon ? null :
-                                                                                                <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} />
+                                                                                                <Icon className={`w-5 h-5 ${r.classIcon}`} icon={r.icon} />
                                                                                             }
                                                                                             {r?.pathname}
                                                                                         </SidebarLink>
