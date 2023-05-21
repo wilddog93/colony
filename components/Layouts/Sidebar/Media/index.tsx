@@ -10,12 +10,14 @@ import SidebarLink from '../SidebarLink';
 type Props = {
     sidebarOpen: boolean,
     setSidebarOpen: any;
-    children?: JSX.Element 
+    children?: JSX.Element;
+    position?: string;
 }
 
-const SidebarMedia = ({ sidebarOpen, setSidebarOpen, children }: Props) => {
+const SidebarMedia = ({ sidebarOpen, setSidebarOpen, children, position }: Props) => {
     const router = useRouter()
     const { pathname, query } = router;
+    const [isOpsition, setIsOpsition] = useState(true);
 
 
 
@@ -94,13 +96,19 @@ const SidebarMedia = ({ sidebarOpen, setSidebarOpen, children }: Props) => {
         }
     }, [sidebarExpanded]);
 
+    useEffect(() => {
+      if(position === "right"){
+        setIsOpsition(false);
+      }
+      setIsOpsition(true)
+    }, [position])
+    
+
     return (
         <Fragment>
             <aside
                 ref={sidebar}
-                className={`border-gray-4 border-0 lg:border-l-2 absolute right-0 inset-y-0 z-40 flex w-full max-w-xl flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-                    // className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
+                className={`border-gray-4 shadow-card absolute inset-y-0 righ-0 z-40 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} `}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
 

@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-const ActiveLink = ({ children, href, className, activeClass }: any) => {
+const ActiveLink = ({ children, href, className, activeClass, pages }: any) => {
     const router = useRouter();
     const { pathname, query } = router;
     const [active, setActive] = useState(false);
 
     useEffect(() => {
-        if (pathname === href?.pathname) setActive(true);
+        if (pathname === href?.pathname || pathname.includes(pages as string)) setActive(true);
         else setActive(false)
-    }, [pathname, ])
+    }, [pathname, pages])
 
     return (
         <Link

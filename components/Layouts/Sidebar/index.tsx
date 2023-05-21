@@ -181,6 +181,7 @@ const Sidebar = (props: Props) => {
                                                                             href={{ pathname: menu.url, query: menu?.query }}
                                                                             className={`text-base ${menu.className}`}
                                                                             activeClass="bg-graydark"
+                                                                            pages={menu.pages}
                                                                         >
                                                                             {!menu?.icon ? null :
                                                                                 <Icon className={`w-8 h-8 ${menu.classIcon}`} icon={menu.icon} />
@@ -269,6 +270,7 @@ const Sidebar = (props: Props) => {
                                                             href={{ pathname: route.url, query: route?.query }}
                                                             className={`text-base ${route?.className}`}
                                                             activeClass="bg-graydark"
+                                                            pages={route.pages}
                                                         >
                                                             {!route?.icon ? null :
                                                                 <Icon className={`w-5 h-5 ${route.classIcon}`} icon={route.icon} />

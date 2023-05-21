@@ -270,7 +270,7 @@ const Articles = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Media"
-            head="Area Grouping"
+            head="News & Articles"
             logo="../image/logo/logo-icon.svg"
             images="../image/logo/building-logo.svg"
             userDefault="../image/user/user-01.png"

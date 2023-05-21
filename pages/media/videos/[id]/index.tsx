@@ -1,29 +1,29 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
+import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
+import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdPhone, MdPlaylistAdd } from 'react-icons/md';
-import Button from '../../../components/Button/Button';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import Modal from '../../../components/Modal';
+import Button from '../../../../components/Button/Button';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import Modal from '../../../../components/Modal';
 
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import { useRouter } from 'next/router';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
-import { ColumnItems } from '../../../components/tables/components/makeData';
-import { makeData } from '../../../components/tables/components/makeData';
+import { ColumnItems } from '../../../../components/tables/components/makeData';
+import { makeData } from '../../../../components/tables/components/makeData';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
-import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
+import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 import Link from 'next/link';
-import ActiveLink from '../../../components/Layouts/ActiveLink';
-import Navbar from '../../../components/Layouts/Header/Navbar';
-import NavbarMedia from '../../../components/Media/NavbarMedia';
-import Cards from '../../../components/Cards/Cards';
-import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
+import ActiveLink from '../../../../components/Layouts/ActiveLink';
+import Navbar from '../../../../components/Layouts/Header/Navbar';
+import NavbarMedia from '../../../../components/Media/NavbarMedia';
+import Cards from '../../../../components/Cards/Cards';
+import SidebarMedia from '../../../../components/Layouts/Sidebar/Media';
 
 type Props = {
     pageProps: any
@@ -276,9 +276,9 @@ const Videos = ({ pageProps }: Props) => {
             title="Colony"
             header="Media"
             head="Videos"
-            logo="../image/logo/logo-icon.svg"
-            images="../image/logo/building-logo.svg"
-            userDefault="../image/user/user-01.png"
+            logo="../../image/logo/logo-icon.svg"
+            images="../../image/logo/building-logo.svg"
+            userDefault="../../image/user/user-01.png"
             description=""
             token={token}
             icons={{
@@ -290,9 +290,70 @@ const Videos = ({ pageProps }: Props) => {
                 <div className='relative overflow-y-auto flex flex-col'>
                     <NavbarMedia />
                     <div className='relative w-full flex overflow-hidden'>
+                        <SidebarMedia position='left' sidebarOpen={sidebarLeft} setSidebarOpen={setSidebarLeft}>
+                            <div className="w-full flex flex-col gap-2 mb-5">
+                                <button>
+                                    back
+                                </button>
+                                <div className='grid grid-cols-1 gap-4 mb-4'>
+                                    <Cards
+                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
+                                    >
+                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
+                                            <h3 className='font-semibold text-lg lg:text-title-lg text-graydark'>49</h3>
+                                            <p>Total video</p>
+                                        </div>
+                                    </Cards>
+                                </div>
+                            </div>
+                        </SidebarMedia>
+
                         <main className="relative w-full h-screen bg-gray overflow-auto">
                             <div className='relative h-full tracking-wide text-left text-boxdark-2 mt-30 lg:mt-26'>
                                 <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
+                                    {/* content */}
+                                    {/* <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4'>
+                                        <div className='w-full col-span-1 lg:col-span-4'>
+                                            <SearchInput
+                                                className='w-full text-sm rounded-xl bg-white'
+                                                classNamePrefix=''
+                                                filter={search}
+                                                setFilter={setSearch}
+                                                placeholder='Search...'
+                                            />
+                                        </div>
+                                        <div className='w-full'>
+                                            <DropdownSelect
+                                                customStyles={stylesSelect}
+                                                value={sort}
+                                                onChange={setSort}
+                                                error=""
+                                                className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                                classNamePrefix=""
+                                                formatOptionLabel=""
+                                                instanceId='1'
+                                                isDisabled={false}
+                                                isMulti={false}
+                                                placeholder='Sorts...'
+                                                options={sortOpt}
+                                                icon='MdSort'
+                                            />
+                                        </div>
+                                        <div className="w-full flex items-center justify-end">
+                                            <Button
+                                                type="button"
+                                                onClick={() => onOpen()}
+                                                variant="primary"
+                                                className="lg:w-full h-full rounded-xl px-6 py-2"
+                                            >
+                                                New Video
+                                                <MdAdd className='w-4 h-5' />
+                                            </Button>
+                                        </div>
+                                    </div> */}
+
+
+
                                     {/* main card */}
                                     <div className='w-full px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5'>
                                         <Cards
@@ -314,7 +375,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -324,7 +385,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -349,7 +410,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -359,7 +420,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -384,7 +445,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -394,7 +455,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -419,7 +480,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -429,7 +490,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -454,7 +515,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -464,7 +525,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -489,7 +550,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -499,7 +560,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -524,7 +585,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -534,7 +595,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -559,7 +620,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <MdDelete className='w-6 h-6' />
                                                 </button>
                                             </div>
-                                            <img src="../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
+                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
                                             <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
                                                 <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
                                                 <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
@@ -569,7 +630,7 @@ const Videos = ({ pageProps }: Props) => {
                                                     <p>43 likes</p>
                                                 </div>
                                                 <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
+                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
                                                     <p>John Doe</p>
                                                 </div>
                                             </div>
@@ -631,7 +692,7 @@ const Videos = ({ pageProps }: Props) => {
 
                                 <div className="w-full flex flex-col gap-2 text-sm">
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
                                         <div className='w-3/4 p-2 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
                                                 <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
@@ -654,7 +715,7 @@ const Videos = ({ pageProps }: Props) => {
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
                                         <div className='w-3/4 p-2 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
                                                 <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
@@ -677,7 +738,7 @@ const Videos = ({ pageProps }: Props) => {
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
                                         <div className='w-3/4 p-2 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
                                                 <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
@@ -700,7 +761,7 @@ const Videos = ({ pageProps }: Props) => {
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
+                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
                                         <div className='w-3/4 p-2 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
                                                 <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
@@ -725,7 +786,7 @@ const Videos = ({ pageProps }: Props) => {
                             </div>
                         </SidebarMedia>
 
-                        <div className={`text-white z-40 absolute top-18 transition-all duration-300 ease-in-out left-2`}>
+                        <div className='text-white z-40 absolute top-18 right-2'>
                             <button
                                 aria-controls='sidebar-media'
                                 aria-expanded={sidebarOpen}
@@ -735,7 +796,6 @@ const Videos = ({ pageProps }: Props) => {
                                 }}
                                 className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
                             >
-                                {/* <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} /> */}
                                 <span className='relative block h-5.5 w-5.5 cursor-pointer'>
                                     <span className='du-block absolute right-0 h-full w-full'>
                                         <span
@@ -758,6 +818,45 @@ const Videos = ({ pageProps }: Props) => {
                                         ></span>
                                         <span
                                             className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-200'
+                                                }`}
+                                        ></span>
+                                    </span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div className='text-white z-40 absolute top-18 left-2'>
+                            <button
+                                aria-controls='sidebar-media'
+                                aria-expanded={sidebarLeft}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSidebarLeft(!sidebarLeft)
+                                }}
+                                className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden ml-auto'
+                            >
+                                <span className='relative block h-5.5 w-5.5 cursor-pointer'>
+                                    <span className='du-block absolute right-0 h-full w-full'>
+                                        <span
+                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-300'
+                                                }`}
+                                        ></span>
+                                        <span
+                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarLeft && 'delay-400 !w-full'
+                                                }`}
+                                        ></span>
+                                        <span
+                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-500'
+                                                }`}
+                                        ></span>
+                                    </span>
+                                    <span className='absolute right-0 h-full w-full rotate-45'>
+                                        <span
+                                            className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-[0]'
+                                                }`}
+                                        ></span>
+                                        <span
+                                            className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-200'
                                                 }`}
                                         ></span>
                                     </span>
@@ -818,7 +917,7 @@ const Videos = ({ pageProps }: Props) => {
                     </ModalHeader>
                     <div className="w-full px-6 mb-5">
                         <div className='w-full flex gap-2.5'>
-                            <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
+                            <img src={details?.images ?? "../../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
 
                             <div className='w-full flex flex-col gap-2 text-gray-5'>
                                 <h3 className='font-bold text-lg'>{details?.fullName}</h3>
