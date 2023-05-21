@@ -328,6 +328,10 @@ const Dashboard = ({ pageProps }: Props) => {
       images="image/logo/building-logo.svg"
       userDefault="image/user/user-01.png"
       token={token}
+      icons={{
+        name: 'MdMuseum',
+        className: "w-8 h-8 text-meta-5"
+      }}
     >
       <div className='absolute inset-0 mt-20 z-99 bg-boxdark flex text-white'>
         <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
