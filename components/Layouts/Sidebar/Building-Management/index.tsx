@@ -156,8 +156,8 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             href={{ pathname: menu.url, query: menu?.query }}
                                                                             className={`text-base ${menu.className}`}
                                                                         >
-                                                                            {!menu?.icons?.icon ? null :
-                                                                                <Icon className={`w-5 h-5 ${menu?.icons.className}`} icon={menu?.icons?.icon} />
+                                                                            {!menu.icons.icon ? null :
+                                                                                <Icon className={`w-5 h-5 ${menu.icons.className}`} icon={menu.icons.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
