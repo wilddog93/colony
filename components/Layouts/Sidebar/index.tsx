@@ -169,8 +169,8 @@ const Sidebar = (props: Props) => {
                                                                             activeClass="bg-graydark"
                                                                             pages={menu.pages}
                                                                         >
-                                                                            {!menu?.icon ? null :
-                                                                                <Icon className={menu.classIcon} icon={menu.icon} />
+                                                                            {!menu?.icons?.icon ? null :
+                                                                                <Icon className={menu.icons.className} icon={menu.icons.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
@@ -195,7 +195,7 @@ const Sidebar = (props: Props) => {
                                                                                             : setSidebarExpanded(true)
                                                                                     }}
                                                                                 >
-                                                                                    {menu?.icon ? <Icon className={menu?.classIcon} icon={menu?.icon} /> : null}
+                                                                                    {menu?.icons?.icon ? <Icon className={menu?.icons?.className} icon={menu?.icons?.icon} /> : null}
                                                                                     {menu?.pathname}
                                                                                     <svg
                                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -228,8 +228,8 @@ const Sidebar = (props: Props) => {
                                                                                                             className={`text-base ${route?.className}`}
                                                                                                             activeClass="bg-graydark"
                                                                                                         >
-                                                                                                            {!route?.icon ? null :
-                                                                                                                <Icon className={route.classIcon} icon={route.icon} />
+                                                                                                            {!route?.icons?.icon ? null :
+                                                                                                                <Icon className={route?.icons?.className} icon={route.icons?.icon} />
                                                                                                             }
                                                                                                             {route?.pathname}
                                                                                                         </SidebarLink>
@@ -258,8 +258,8 @@ const Sidebar = (props: Props) => {
                                                             activeClass="bg-graydark"
                                                             pages={route.pages}
                                                         >
-                                                            {!route?.icon ? null :
-                                                                <Icon className={`w-5 h-5 ${route.classIcon}`} icon={route.icon} />
+                                                            {!route?.icons?.icon ? null :
+                                                                <Icon className={`w-5 h-5 ${route.icons.className}`} icon={route.icons.icon} />
                                                             }
                                                             {route?.pathname}
                                                         </SidebarLink>
@@ -284,7 +284,7 @@ const Sidebar = (props: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ? <Icon className={route.classIcon} icon={route?.icon} /> : null}
+                                                                    {route?.icons?.icon ? <Icon className={route.icons.className} icon={route?.icons.icon} /> : null}
                                                                     {route?.pathname}
                                                                     <svg
                                                                         className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -317,8 +317,8 @@ const Sidebar = (props: Props) => {
                                                                                             className={`text-base ${r.className}`}
                                                                                             activeClass="bg-graydark"
                                                                                         >
-                                                                                            {!r?.icon ? null :
-                                                                                                <Icon className={r.classIcon} icon={r.icon} />
+                                                                                            {!r?.icons?.icon ? null :
+                                                                                                <Icon className={r.icons.className} icon={r.icons.icon} />
                                                                                             }
                                                                                             {r?.pathname}
                                                                                         </SidebarLink>

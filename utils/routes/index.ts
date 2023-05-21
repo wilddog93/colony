@@ -6,8 +6,7 @@ export type MenuProps = {
   pathname?: string;
   url?: string;
   query?: any;
-  icon?: string;
-  classIcon?: string;
+  icons?: any;
   routes?: MenuProps[];
 };
 
@@ -19,8 +18,10 @@ export const menuMaster: MenuProps[] = [
         pathname: "Building Management",
         pages: "building-management",
         url: "/building-management",
-        icon: "MdMuseum",
-        classIcon: "w-8 h-8 text-meta-5",
+        icons: {
+          icon: "MdMuseum",
+          className: "w-8 h-8 text-meta-5"
+        },
         className: "text-lg"
         // text-[#44C2FD]
       },
@@ -28,8 +29,10 @@ export const menuMaster: MenuProps[] = [
         pathname: "Billings & Payments",
         pages: "billings-payments",
         url: "/billings-payments",
-        icon: "MdMonetizationOn",
-        classIcon: "w-8 h-8 text-meta-3",
+        icons: {
+          icon: "MdMonetizationOn",
+          className: "w-8 h-8 text-meta-3"
+        },
         className: "text-lg"
         // text-[#44FDAF]
       },
@@ -37,8 +40,10 @@ export const menuMaster: MenuProps[] = [
         pathname: "Task Management",
         pages: "tasks",
         url: "/tasks",
-        icon: "MdWork",
-        classIcon: "w-8 h-8 text-meta-7",
+        icons: {
+          icon: "MdWork",
+          className: "w-8 h-8 text-meta-7"
+        },
         className: "text-lg"
         // text-[#F7597F] 
       },
@@ -46,8 +51,10 @@ export const menuMaster: MenuProps[] = [
         pathname: "Assets & Inventories",
         pages: "assets-inventories",
         url: "/assets-inventories",
-        icon: "MdUnarchive",
-        classIcon: "w-8 h-8 text-meta-6",
+        icons: {
+          icon: "MdUnarchive",
+          className: "w-8 h-8 text-meta-6"
+        },
         className: "text-lg"
         // text-[#F7E759]
       },
@@ -55,16 +62,20 @@ export const menuMaster: MenuProps[] = [
         pathname: "Media",
         pages: "media",
         url: "/media/videos",
-        icon: "MdPhotoSizeSelectActual",
-        classIcon: "w-8 h-8 text-primary",
+        icons: {
+          icon: "MdPhotoSizeSelectActual",
+          className: "w-8 h-8 text-primary"
+        },
         className: "text-lg"
       },
       {
         pathname: "Merchants",
         pages: "merchants",
         url: "/merchants",
-        icon: "MdStore",
-        classIcon: "w-8 h-8 text-meta-8",
+        icons: {
+          icon: "MdStore",
+          className: "w-8 h-8 text-meta-8"
+        },
         className: "text-lg"
         // text-[#F79259]
       },
@@ -76,15 +87,19 @@ export const menuMaster: MenuProps[] = [
         pathname: "Settings",
         pages: "settings",
         url: "/settings",
-        icon: "MdOutlineSettings",
-        classIcon: "w-8 h-8",
+        icons: {
+          icon: "MdOutlineSettings",
+          className: "w-8 h-8"
+        },
       },
       {
         pathname: "Helps",
         pages: "helps",
         url: "/helps",
-        icon: "MdHelpOutline",
-        classIcon: "w-8 h-8",
+        icons: {
+          icon: "MdHelpOutline",
+          className: "w-8 h-8"
+        },
       },
     ]
   }
@@ -96,7 +111,10 @@ export const menuBM: MenuProps[] = [
     pathname: "Dashboard",
     pages: "dashboard",
     url: "/building-management",
-    icon: "MdOutlineDashboard"
+    icons: {
+      icon: "MdOutlineDashboard",
+      className: "w-5 h-5"
+    }
   },
   {
     pathname: "Occupancy",
@@ -106,7 +124,10 @@ export const menuBM: MenuProps[] = [
       page: 1,
       limit: 10,
     },
-    icon: "MdOutlinePeopleAlt"
+    icons: {
+      icon: "MdOutlinePeopleAlt",
+      className: "w-5 h-5"
+    }
   },
   {
     pathname: "Tower Management",
@@ -116,7 +137,10 @@ export const menuBM: MenuProps[] = [
       page: 1,
       limit: 10,
     },
-    icon: "MdOutlineBusiness"
+    icons: {
+      icon: "MdOutlineBusiness",
+      className: "w-5 h-5"
+    }
   },
   {
     pathname: "Area Grouping",
@@ -125,7 +149,10 @@ export const menuBM: MenuProps[] = [
       page: 1,
       limit: 10,
     },
-    icon: "MdOutlineMap"
+    icons: {
+      icon: "MdOutlineMap",
+      className: "w-5 h-5"
+    }
   },
   {
     subMenus: [
@@ -133,7 +160,10 @@ export const menuBM: MenuProps[] = [
         pathname: "Parkings",
         pages: "parkings",
         url: "",
-        icon: "MdLocalParking",
+        icons: {
+          icon: "MdLocalParking",
+          className: "w-5 h-5"
+        },
         routes: [
           {
             pathname: "Parking Lot",
@@ -165,7 +195,10 @@ export const menuBM: MenuProps[] = [
         pathname: "Access Card",
         pages: "access-card",
         url: "",
-        icon: "MdCardMembership",
+        icons: {
+          icon: "MdCardMembership",
+          className: "w-5 h-5"
+        },
         routes: [
           {
             pathname: "Master Data",

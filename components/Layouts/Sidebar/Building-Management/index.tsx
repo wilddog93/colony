@@ -156,8 +156,8 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             href={{ pathname: menu.url, query: menu?.query }}
                                                                             className={`text-base ${menu.className}`}
                                                                         >
-                                                                            {!menu?.icon ? null :
-                                                                                <Icon className={`w-8 h-8 ${menu?.classIcon}`} icon={menu.icon} />
+                                                                            {!menu?.icons?.icon ? null :
+                                                                                <Icon className={`w-5 h-5 ${menu?.icons.className}`} icon={menu?.icons?.icon} />
                                                                             }
                                                                             {menu?.pathname}
                                                                         </SidebarLink>
@@ -243,8 +243,8 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                             href={{ pathname: route.url, query: route?.query }}
                                                             className={`text-base ${route?.className}`}
                                                         >
-                                                            {!route?.icon ? null :
-                                                                <Icon className={`w-5 h-5 ${route?.classIcon}`} icon={route.icon} />
+                                                            {!route?.icons?.icon ? null :
+                                                                <Icon className={`w-5 h-5 ${route?.icons.className}`} icon={route.icons.icon} />
                                                             }
                                                             {route?.pathname}
                                                         </SidebarLink>
@@ -269,10 +269,10 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                             : setSidebarExpanded(true)
                                                                     }}
                                                                 >
-                                                                    {route?.icon ?
+                                                                    {route?.icons?.icon ?
                                                                         <Icon
-                                                                            className={`w-8 h-8 ${route?.classIcon}`}
-                                                                            icon={route?.icon}
+                                                                            className={`w-8 h-8 ${route?.icons.className}`}
+                                                                            icon={route?.icons.icon}
                                                                         />
                                                                         : null
                                                                     }
@@ -308,8 +308,8 @@ const SidebarBM = ({ sidebarOpen, setSidebarOpen }: Props) => {
                                                                                             className={`text-base pl-6 ${r.className}`}
                                                                                             activeClass="bg-graydark"
                                                                                         >
-                                                                                            {!r?.icon ? null :
-                                                                                                <Icon className={`w-8 h-8 ${r.classIcon}`} icon={r.icon} />
+                                                                                            {!r?.icons?.icon ? null :
+                                                                                                <Icon className={`w-5 h-5 ${r.icons.className}`} icon={r.icons.icon} />
                                                                                             }
                                                                                             {r?.pathname}
                                                                                         </SidebarLink>
