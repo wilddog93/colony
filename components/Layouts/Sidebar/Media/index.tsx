@@ -98,7 +98,7 @@ const SidebarMedia = ({ sidebarOpen, setSidebarOpen, children }: Props) => {
         <Fragment>
             <aside
                 ref={sidebar}
-                className={`border-gray-4 border-0 lg:border-l-2 absolute right-0 inset-y-0 z-999 lg:z-40 flex w-full max-w-xl flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`border-gray-4 border-0 lg:border-l-2 absolute right-0 inset-y-0 z-40 flex w-full max-w-xl flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
                     // className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
@@ -118,7 +118,7 @@ const SidebarMedia = ({ sidebarOpen, setSidebarOpen, children }: Props) => {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-controls='sidebar'
                 aria-expanded={sidebarOpen}
-                className={`lg:static ${sidebarOpen && 'fixed z-99 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
+                className={`lg:static ${sidebarOpen && 'fixed z-30 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
 
             </button>
         </Fragment>

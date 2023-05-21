@@ -660,9 +660,9 @@ const Videos = ({ pageProps }: Props) => {
                                             type="button"
                                             onClick={() => console.log("new playlist")}
                                             variant="primary"
-                                            className="lg:w-full h-full rounded-xl px-6 py-2"
+                                            className="lg:w-full h-full rounded-xl px-6 py-2 text-sm lg:text-base"
                                         >
-                                            New Playlist
+                                            <p className='hidden lg:inline-block'>New Playlist</p>
                                             <MdAdd className='w-4 h-5' />
                                         </Button>
                                     </div>
@@ -832,6 +832,20 @@ const Videos = ({ pageProps }: Props) => {
                                 </div>
                             </div>
                         </SidebarMedia>
+
+                        <div className='text-white z-50 absolute top-18 right-2'>
+                            <button
+                                aria-controls='sidebar-media'
+                                aria-expanded={sidebarOpen}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSidebarOpen(!sidebarOpen)
+                                }}
+                                className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden ml-auto'
+                            >
+                                <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "" : "rotate-180"}`} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
