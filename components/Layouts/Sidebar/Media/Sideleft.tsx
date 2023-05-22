@@ -82,14 +82,14 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
     return (
         <Fragment>
             <aside
-                ref={sidebar}
-                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-40 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${!isOpen ? "hidden" : ""}`}
+                // ref={sidebar}
+                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-999 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${!isOpen ? "hidden" : ""}`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
 
                 <div className='w-full flex flex-col h-full overflow-y-auto duration-300 ease-linear mt-20 lg:mt-14'>
                     {/* <!-- Sidebar Menu --> */}
-                    <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-12'>
+                    <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto lg:pt-12'>
                         {children}
                     </div>
                     {/* <!-- Sidebar Menu --> */}
@@ -101,7 +101,7 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-controls='sidebar-left'
                 aria-expanded={sidebarOpen}
-                className={`lg:static ${sidebarOpen && 'fixed z-30 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
+                className={`lg:static ${sidebarOpen && 'fixed z-99 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
 
             </button>
         </Fragment>

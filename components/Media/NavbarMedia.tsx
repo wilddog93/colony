@@ -160,7 +160,7 @@ const NavbarMedia = (props: Props) => {
             <button
                 ref={trigger}
                 onClick={() => setNavbarOpen(!navbarOpen)}
-                aria-controls='sidebar'
+                aria-controls='navbar-expanded'
                 aria-expanded={navbarOpen}
                 className={`${navbarOpen && 'fixed z-40 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100 lg:hidden'}`}>
 

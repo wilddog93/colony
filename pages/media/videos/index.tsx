@@ -581,6 +581,46 @@ const Videos = ({ pageProps }: Props) => {
 
                         <SidebarMedia position='right' sidebar={sidebarOpen} setSidebar={setSidebarOpen}>
                             <div className="w-full flex flex-col gap-2 mb-5">
+                                <div className={`text-white ml-auto`}>
+                                    <button
+                                        aria-controls='sidebar-media'
+                                        aria-expanded={sidebarOpen}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setSidebarOpen(!sidebarOpen)
+                                        }}
+                                        className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
+                                    >
+                                        {/* <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} /> */}
+                                        <span className='relative block h-5.5 w-5.5 cursor-pointer'>
+                                            <span className='du-block absolute right-0 h-full w-full'>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-300'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarOpen && 'delay-400 !w-full'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-500'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                            <span className='absolute right-0 h-full w-full rotate-45'>
+                                                <span
+                                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-[0]'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-200'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                        </span>
+                                    </button>
+                                </div>
+
                                 <div className='grid grid-cols-2 gap-4 mb-4'>
                                     <Cards
                                         className='w-full bg-white text-gray-5 rounded-xl shadow-card'

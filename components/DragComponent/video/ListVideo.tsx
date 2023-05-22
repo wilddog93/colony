@@ -10,7 +10,7 @@ type Props = {
 
 const ListVideo = ({ index, item, loading }: Props) => {
   return (
-    <div className="w-full grid col-span-1 lg:grid-cols-12 mb-4">
+    <div className="w-full grid grid-cols-12 mb-4">
       <div className="w-full h-full flex">
         <button
           type='button'

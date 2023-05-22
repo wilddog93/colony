@@ -79,6 +79,53 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
+const stylesSelectCat = {
+    indicatorsContainer: (provided: any) => ({
+        ...provided,
+        flexDirection: ""
+    }),
+    indicatorSeparator: (provided: any) => ({
+        ...provided,
+        display: 'none'
+    }),
+    dropdownIndicator: (provided: any) => {
+        return ({
+            ...provided,
+            color: '#7B8C9E',
+        })
+    },
+    clearIndicator: (provided: any) => {
+        return ({
+            ...provided,
+            color: '#7B8C9E',
+        })
+    },
+    singleValue: (provided: any) => {
+        return ({
+            ...provided,
+            color: '#5F59F7',
+        })
+    },
+    control: (provided: any, state: any) => {
+        console.log(provided, "control")
+        return ({
+            ...provided,
+            background: "",
+            padding: '.6rem',
+            borderRadius: ".75rem",
+            borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+            color: "#5F59F7",
+            "&:hover": {
+                color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+                borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+            },
+            minHeight: 40,
+            flexDirection: "row-reverse"
+        })
+    },
+    menuList: (provided: any) => (provided)
+};
+
 const Articles = ({ pageProps }: Props) => {
     const router = useRouter();
     const { pathname, query } = router;
@@ -137,34 +184,34 @@ const Articles = ({ pageProps }: Props) => {
 
     const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
         () => [
-            {
-                id: 'select',
-                header: ({ table }) => {
-                    return (
-                        <IndeterminateCheckbox
-                            {...{
-                                checked: table?.getIsAllRowsSelected(),
-                                indeterminate: table?.getIsSomeRowsSelected(),
-                                onChange: table?.getToggleAllRowsSelectedHandler()
-                            }}
-                        />
-                    )
-                },
-                cell: ({ row }) => (
-                    <div className="px-1">
-                        <IndeterminateCheckbox
-                            {...{
-                                checked: row.getIsSelected(),
-                                disabled: !row.getCanSelect(),
-                                indeterminate: row.getIsSomeSelected(),
-                                onChange: row.getToggleSelectedHandler()
-                            }}
-                        />
-                    </div>
-                ),
-                size: 10,
-                minSize: 10
-            },
+            // {
+            //     id: 'select',
+            //     header: ({ table }) => {
+            //         return (
+            //             <IndeterminateCheckbox
+            //                 {...{
+            //                     checked: table?.getIsAllRowsSelected(),
+            //                     indeterminate: table?.getIsSomeRowsSelected(),
+            //                     onChange: table?.getToggleAllRowsSelectedHandler()
+            //                 }}
+            //             />
+            //         )
+            //     },
+            //     cell: ({ row }) => (
+            //         <div className="px-1">
+            //             <IndeterminateCheckbox
+            //                 {...{
+            //                     checked: row.getIsSelected(),
+            //                     disabled: !row.getCanSelect(),
+            //                     indeterminate: row.getIsSomeSelected(),
+            //                     onChange: row.getToggleSelectedHandler()
+            //                 }}
+            //             />
+            //         </div>
+            //     ),
+            //     size: 10,
+            //     minSize: 10
+            // },
             {
                 accessorKey: 'fullName',
                 header: (info) => (
@@ -238,14 +285,14 @@ const Articles = ({ pageProps }: Props) => {
                             >
                                 <MdEdit className='text-gray-5 w-4 h-4' />
                             </Button>
-                            <Button
+                            {/* <Button
                                 onClick={() => onOpenDelete(row.original)}
                                 variant="secondary-outline-none"
                                 className="px-1 py-1"
                                 type="button"
                             >
                                 <MdDelete className='text-gray-5 w-4 h-4' />
-                            </Button>
+                            </Button> */}
                         </div>
                     )
                 },
@@ -284,12 +331,12 @@ const Articles = ({ pageProps }: Props) => {
             <div className='absolute inset-0 mt-20 z-9 bg-white flex flex-col text-boxdark'>
                 {/* <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
                 <NavbarMedia />
-                <div className="relative w-full overflow-y-auto">
-                    <main className='relative tracking-wide text-left text-boxdark-2 mt-20 lg:mt-24'>
+                <main className="relative w-full overflow-y-auto">
+                    <div className='relative tracking-wide text-left text-boxdark-2 mt-20 lg:mt-24 px-4'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
-                            <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
-                                <div className='w-full lg:w-3/4'>
+                            <div className='w-full grid grid-cols-1 lg:grid-cols-8 gap-2.5 p-4'>
+                                <div className='w-full col-span-4'>
                                     <SearchInput
                                         className='w-full text-sm rounded-xl bg-white'
                                         classNamePrefix=''
@@ -298,7 +345,7 @@ const Articles = ({ pageProps }: Props) => {
                                         placeholder='Search...'
                                     />
                                 </div>
-                                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
+                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
                                     <DropdownSelect
                                         customStyles={stylesSelect}
                                         value={sort}
@@ -315,6 +362,31 @@ const Articles = ({ pageProps }: Props) => {
                                         icon='MdSort'
                                     />
                                 </div>
+                                <div className='w-full col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                                    <DropdownSelect
+                                        customStyles={stylesSelectCat}
+                                        value={sort}
+                                        onChange={setSort}
+                                        error=""
+                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                        classNamePrefix=""
+                                        formatOptionLabel=""
+                                        instanceId='1'
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder='All Categories...'
+                                        options={sortOpt}
+                                        icon=''
+                                    />
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    className="rounded-xl"
+                                >
+                                    New Post
+                                    <MdAdd className='w-5 h-5' />
+                                </Button>
                             </div>
 
                             {/* table */}
@@ -332,8 +404,8 @@ const Articles = ({ pageProps }: Props) => {
                                 setIsSelected={setIsSelectedRow}
                             />
                         </div>
-                    </main>
-                </div>
+                    </div>
+                </main>
             </div>
 
             {/* modal example */}

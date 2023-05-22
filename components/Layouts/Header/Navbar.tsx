@@ -6,9 +6,9 @@ export default function Navbar(props: any) {
 
   const variants = useMemo(() => {
     // if (fixed) return "fixed top-0 inset-x-0 z-50 md:pl-[20rem]";
-    if (fixed) return "fixed top-0 inset-x-0 z-50";
-    if (absolute) return "absolute top-0 inset-x-0 z-50";
-    if (sticky) return "sticky top-0 inset-x-0 z-50";
+    if (fixed) return "fixed top-0 inset-x-0 z-9999";
+    if (absolute) return "absolute top-0 inset-x-0 z-9999";
+    if (sticky) return "sticky top-0 inset-x-0 z-9999";
     return ""
   }, [fixed, absolute, sticky])
 

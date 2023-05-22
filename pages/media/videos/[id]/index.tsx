@@ -291,9 +291,46 @@ const Videos = ({ pageProps }: Props) => {
                 <div className='relative overflow-y-auto flex flex-col'>
                     <NavbarMedia />
                     <div className='relative w-full flex overflow-hidden'>
-
                         <SidebarMedia position='left' sidebar={sidebarLeft} setSidebar={setSidebarLeft}>
                             <div className="w-full flex flex-col gap-2 mb-5">
+                                <div className='text-white ml-auto'>
+                                    <button
+                                        aria-controls='sidebar-media'
+                                        aria-expanded={sidebarLeft}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setSidebarLeft(!sidebarLeft)
+                                        }}
+                                        className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden ml-auto'
+                                    >
+                                        <span className='relative block h-5.5 w-5.5 cursor-pointer'>
+                                            <span className='du-block absolute right-0 h-full w-full'>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-300'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarLeft && 'delay-400 !w-full'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-500'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                            <span className='absolute right-0 h-full w-full rotate-45'>
+                                                <span
+                                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-[0]'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-200'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                        </span>
+                                    </button>
+                                </div>
                                 <button
                                     type="button"
                                     onClick={() => router.back()}
@@ -329,9 +366,43 @@ const Videos = ({ pageProps }: Props) => {
                                 </div>
                             </div>
                         </SidebarMedia>
-
                         <main className="relative w-full h-screen bg-gray overflow-auto">
                             <div className='relative h-full tracking-wide text-left text-boxdark-2 mt-30 lg:mt-26'>
+                                <div className="w-full flex flex-col gap-4 px-4 lg:hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() => router.back()}
+                                        className='w-full max-w-max flex items-center gap-2 outline-none text-primary font-semibold'
+                                    >
+                                        <MdArrowBack className='w-5 h-5' />
+                                        <span>Back</span>
+                                    </button>
+                                    <div className='w-full h-full grid grid-cols-1 gap-4 mb-4'>
+                                        <Cards
+                                            className='w-full bg-white text-gray-5 rounded-xl shadow-card overflow-hidden'
+                                        >
+                                            <div className='w-full flex flex-col gap-3 p-4'>
+                                                <img src="../../image/product.jpg" alt="" className='w-full h-[200px] object-cover object-center rounded-xl' />
+                                                <h3 className='font-semibold text-lg lg:text-title-md text-graydark'>Lorem ipsum</h3>
+                                                <div className="w-full flex items-center gap-2">
+                                                    <p className='text-xs lg:text-sm'>20 videos</p>
+                                                    &#x2022;
+                                                    <p className='text-xs lg:text-sm'>320 likes</p>
+                                                </div>
+                                                <p className='text-sm lg:text-base'>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis, esse.</p>
+                                                <Button
+                                                    className="w-full max-w-max rounded-xl text-sm font-semibold"
+                                                    type="button"
+                                                    onClick={() => console.log("add video")}
+                                                    variant="primary"
+                                                >
+                                                    Add a video
+                                                    <MdAdd className='w-4 h-4' />
+                                                </Button>
+                                            </div>
+                                        </Cards>
+                                    </div>
+                                </div>
                                 <div className="w-full flex flex-col text-sm gap-2 lg:gap-6 px-4">
                                     <DragVideo />
                                 </div>
@@ -340,7 +411,45 @@ const Videos = ({ pageProps }: Props) => {
 
                         <SidebarMedia position='right' sidebar={sidebarOpen} setSidebar={setSidebarOpen}>
                             <div className="w-full flex flex-col gap-2 mb-5">
-                                <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2 mb-4">
+                                <div className='text-white ml-auto'>
+                                    <button
+                                        aria-controls='sidebar-media'
+                                        aria-expanded={sidebarOpen}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setSidebarOpen(!sidebarOpen)
+                                        }}
+                                        className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
+                                    >
+                                        <span className='relative block h-5.5 w-5.5 cursor-pointer'>
+                                            <span className='du-block absolute right-0 h-full w-full'>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-300'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarOpen && 'delay-400 !w-full'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarOpen && '!w-full delay-500'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                            <span className='absolute right-0 h-full w-full rotate-45'>
+                                                <span
+                                                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-[0]'
+                                                        }`}
+                                                ></span>
+                                                <span
+                                                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarOpen && '!h-0 !delay-200'
+                                                        }`}
+                                                ></span>
+                                            </span>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div className="w-full grid grid-cols-4 gap-2 mb-4">
                                     <div className='w-full col-span-3 flex flex-col gap-2'>
                                         <h3 className='text-base lg:text-lg font-semibold text-graydark'>Applied devices</h3>
                                         <p className='text-sm text-meta-4'>Lorem ipsum dolor sit amet.</p>
@@ -493,7 +602,7 @@ const Videos = ({ pageProps }: Props) => {
                             </div>
                         </SidebarMedia>
 
-                        <div className='text-white z-40 absolute top-18 right-2'>
+                        <div className='text-white z-9 absolute top-18 left-2'>
                             <button
                                 aria-controls='sidebar-media'
                                 aria-expanded={sidebarOpen}
@@ -531,47 +640,8 @@ const Videos = ({ pageProps }: Props) => {
                                 </span>
                             </button>
                         </div>
-
-                        <div className='text-white z-40 absolute top-18 left-2'>
-                            <button
-                                aria-controls='sidebar-media'
-                                aria-expanded={sidebarLeft}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSidebarLeft(!sidebarLeft)
-                                }}
-                                className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden ml-auto'
-                            >
-                                <span className='relative block h-5.5 w-5.5 cursor-pointer'>
-                                    <span className='du-block absolute right-0 h-full w-full'>
-                                        <span
-                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-300'
-                                                }`}
-                                        ></span>
-                                        <span
-                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${!sidebarLeft && 'delay-400 !w-full'
-                                                }`}
-                                        ></span>
-                                        <span
-                                            className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${!sidebarLeft && '!w-full delay-500'
-                                                }`}
-                                        ></span>
-                                    </span>
-                                    <span className='absolute right-0 h-full w-full rotate-45'>
-                                        <span
-                                            className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-[0]'
-                                                }`}
-                                        ></span>
-                                        <span
-                                            className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${!sidebarLeft && '!h-0 !delay-200'
-                                                }`}
-                                        ></span>
-                                    </span>
-                                </span>
-                            </button>
-                        </div>
-                    </div >
-                </div >
+                    </div>
+                </div>
             </div >
 
             {/* modal example */}

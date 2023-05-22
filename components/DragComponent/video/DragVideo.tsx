@@ -42,7 +42,7 @@ const DragVideo: React.FC = () => {
                         {items.map((item, index) => {
                             if (index === 0) {
                                 return (
-                                    <Fragment>
+                                    <Fragment key={items[0].id}>
                                         <h3 className='font-semibold text-lg mb-4'>Display first</h3>
                                         <Draggable key={items[0].id} draggableId={items[0].id} index={0}>
                                             {(provided) => (
@@ -63,7 +63,7 @@ const DragVideo: React.FC = () => {
                                 )
                             }
                             return (
-                                <Fragment>
+                                <Fragment key={item.id}>
                                     <Draggable key={item.id} draggableId={item.id} index={index}>
                                         {(provided) => (
                                             <div
