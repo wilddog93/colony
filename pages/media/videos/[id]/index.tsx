@@ -1,7 +1,7 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdPhone, MdPlaylistAdd } from 'react-icons/md';
+import { MdAdd, MdArrowBack, MdArrowLeft, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdDragHandle, MdDragIndicator, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdOutlineArrowLeft, MdPhone, MdPlaylistAdd } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import Modal from '../../../../components/Modal';
@@ -24,6 +24,7 @@ import Navbar from '../../../../components/Layouts/Header/Navbar';
 import NavbarMedia from '../../../../components/Media/NavbarMedia';
 import Cards from '../../../../components/Cards/Cards';
 import SidebarMedia from '../../../../components/Layouts/Sidebar/Media';
+import DragVideo from '../../../../components/DragComponent/video/DragVideo';
 
 type Props = {
     pageProps: any
@@ -293,16 +294,36 @@ const Videos = ({ pageProps }: Props) => {
 
                         <SidebarMedia position='left' sidebar={sidebarLeft} setSidebar={setSidebarLeft}>
                             <div className="w-full flex flex-col gap-2 mb-5">
-                                <button>
-                                    back
+                                <button
+                                    type="button"
+                                    onClick={() => router.back()}
+                                    className='w-full max-w-max flex items-center gap-2 outline-none text-primary font-semibold'
+                                >
+                                    <MdArrowBack className='w-5 h-5' />
+                                    <span>Back</span>
                                 </button>
                                 <div className='grid grid-cols-1 gap-4 mb-4'>
                                     <Cards
-                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
+                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card overflow-hidden'
                                     >
-                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
-                                            <h3 className='font-semibold text-lg lg:text-title-lg text-graydark'>49</h3>
-                                            <p>Total video</p>
+                                        <div className='w-full flex flex-col gap-3 p-4'>
+                                            <img src="../../image/product.jpg" alt="" className='w-full h-[200px] object-cover object-center rounded-xl' />
+                                            <h3 className='font-semibold text-lg lg:text-title-md text-graydark'>Lorem ipsum</h3>
+                                            <div className="w-full flex items-center gap-2">
+                                                <p className='text-xs lg:text-sm'>20 videos</p>
+                                                &#x2022;
+                                                <p className='text-xs lg:text-sm'>320 likes</p>
+                                            </div>
+                                            <p className='text-sm lg:text-base'>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis, esse.</p>
+                                            <Button
+                                                className="w-full max-w-max rounded-xl text-sm font-semibold"
+                                                type="button"
+                                                onClick={() => console.log("add video")}
+                                                variant="primary"
+                                            >
+                                                Add a video
+                                                <MdAdd className='w-4 h-4' />
+                                            </Button>
                                         </div>
                                     </Cards>
                                 </div>
@@ -311,474 +332,159 @@ const Videos = ({ pageProps }: Props) => {
 
                         <main className="relative w-full h-screen bg-gray overflow-auto">
                             <div className='relative h-full tracking-wide text-left text-boxdark-2 mt-30 lg:mt-26'>
-                                <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
-                                    {/* content */}
-                                    {/* <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4'>
-                                        <div className='w-full col-span-1 lg:col-span-4'>
-                                            <SearchInput
-                                                className='w-full text-sm rounded-xl bg-white'
-                                                classNamePrefix=''
-                                                filter={search}
-                                                setFilter={setSearch}
-                                                placeholder='Search...'
-                                            />
-                                        </div>
-                                        <div className='w-full'>
-                                            <DropdownSelect
-                                                customStyles={stylesSelect}
-                                                value={sort}
-                                                onChange={setSort}
-                                                error=""
-                                                className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                                classNamePrefix=""
-                                                formatOptionLabel=""
-                                                instanceId='1'
-                                                isDisabled={false}
-                                                isMulti={false}
-                                                placeholder='Sorts...'
-                                                options={sortOpt}
-                                                icon='MdSort'
-                                            />
-                                        </div>
-                                        <div className="w-full flex items-center justify-end">
-                                            <Button
-                                                type="button"
-                                                onClick={() => onOpen()}
-                                                variant="primary"
-                                                className="lg:w-full h-full rounded-xl px-6 py-2"
-                                            >
-                                                New Video
-                                                <MdAdd className='w-4 h-5' />
-                                            </Button>
-                                        </div>
-                                    </div> */}
-
-
-
-                                    {/* main card */}
-                                    <div className='w-full px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5'>
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards
-                                            className='relative w-full h-full max-h-[400px] flex flex-col rounded-xl bg-white shadow-card overflow-hidden tracking-wide leading-relaxe'
-                                        >
-                                            <div className='w-full flex items-center justify-end gap-2 absolute z-10 top-0 inset-x-0 p-2'>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => console.log("add")}
-                                                >
-                                                    <MdPlaylistAdd className='w-6 h-6' />
-                                                </button>
-                                                <button
-                                                    className='text-gray-5 bg-gray p-2 rounded-lg shadow-card'
-                                                    type='button'
-                                                    onClick={() => onOpenDelete("data")}
-                                                >
-                                                    <MdDelete className='w-6 h-6' />
-                                                </button>
-                                            </div>
-                                            <img src="../../../image/product.jpg" alt="images" className='w-full h-1/2 object-cover object-center' />
-                                            <div className="w-full h-full flex flex-col gap-2 p-4 overflow-hidden">
-                                                <h3 className='text-sm lg:text-base font-semibold'>Lorem Ipsum</h3>
-                                                <p className='text-sm text-gray-5'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio eligendi cum molestiae...</p>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <p>533 views</p>
-                                                    &#x2022;
-                                                    <p>43 likes</p>
-                                                </div>
-                                                <div className='w-full flex items-center gap-2 text-gray-5 text-sm'>
-                                                    <img src="../../../image/user/user-03.png" alt="avatar" className='w-6 h-6 rounded-full object-cover object-center' />
-                                                    <p>John Doe</p>
-                                                </div>
-                                            </div>
-                                        </Cards>
-                                    </div>
+                                <div className="w-full flex flex-col text-sm gap-2 lg:gap-6 px-4">
+                                    <DragVideo />
                                 </div>
                             </div>
                         </main>
 
                         <SidebarMedia position='right' sidebar={sidebarOpen} setSidebar={setSidebarOpen}>
                             <div className="w-full flex flex-col gap-2 mb-5">
-                                <div className='grid grid-cols-2 gap-4 mb-4'>
-                                    <Cards
-                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
-                                    >
-                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
-                                            <h3 className='font-semibold text-lg lg:text-title-lg text-graydark'>49</h3>
-                                            <p>Total video</p>
-                                        </div>
-                                    </Cards>
-
-                                    <Cards
-                                        className='w-full bg-white text-gray-5 rounded-xl shadow-card'
-                                    >
-                                        <div className='w-full flex flex-col justify-center items-center gap-2 p-4'>
-                                            <h3 className='font-semibold text-lg lg:text-title-lg text-graydark'>12</h3>
-                                            <p>Total playlist</p>
-                                        </div>
-                                    </Cards>
+                                <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2 mb-4">
+                                    <div className='w-full col-span-3 flex flex-col gap-2'>
+                                        <h3 className='text-base lg:text-lg font-semibold text-graydark'>Applied devices</h3>
+                                        <p className='text-sm text-meta-4'>Lorem ipsum dolor sit amet.</p>
+                                    </div>
+                                    <div className='w-full h-full flex'>
+                                        <Button
+                                            type="button"
+                                            className="rounded-xl py-2 px-2 m-auto"
+                                            onClick={() => console.log("applied")}
+                                            variant="primary"
+                                        >
+                                            <MdAdd className='w-6 h-6' />
+                                        </Button>
+                                    </div>
                                 </div>
 
-                                <div className='w-full flex flex-col gap-2 mb-4'>
-                                    <h3 className='text-base lg:text-title-sm font-semibold text-graydark'>Playlist</h3>
-                                    <p className='text-sm text-meta-4'>Lorem ipsum dolor sit amet.</p>
-                                </div>
-
-                                <div className="w-full grid grid-cols-2 gap-2 mb-4">
+                                <div className="w-full grid grid-cols-1 gap-2 mb-4">
                                     <div className='w-full'>
                                         <SearchInput
-                                            className='w-full text-sm rounded-xxl bg-white'
+                                            className='w-full text-sm rounded-xl bg-white'
                                             classNamePrefix=''
                                             filter={search}
                                             setFilter={setSearch}
                                             placeholder='Search...'
                                         />
                                     </div>
-                                    <div className="w-full flex items-center justify-end">
-                                        <Button
-                                            type="button"
-                                            onClick={() => onOpen()}
-                                            variant="primary"
-                                            className="lg:w-full h-full rounded-xl px-6 py-2 text-sm lg:text-base"
-                                        >
-                                            <p className='hidden lg:inline-block text-sm'>New Playlist</p>
-                                            <MdAdd className='w-4 h-5' />
-                                        </Button>
-                                    </div>
                                 </div>
 
-                                <div className="w-full flex flex-col gap-2 text-sm">
+                                <div className="w-full flex flex-col gap-4 text-sm">
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
-                                        <div className='w-3/4 p-2 flex items-center'>
+                                        <div className='w-full p-4 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
-                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
-                                                <div className='flex items-center gap-2 text-gray-5'>
-                                                    <p>33 videos</p>
+                                                <h3 className='text-gray-5 font-semibold'>#5553 - John Doe</h3>
+                                                <div className='text-sm w-full flex items-center gap-4 text-gray-5'>
+                                                    <p>Unit 333</p>
                                                     &#x2022;
-                                                    <p>333 consoles</p>
+                                                    <p>Tower A</p>
+                                                    &#x2022;
+                                                    <p>5F</p>
                                                 </div>
                                             </div>
                                             <div className='w-full max-w-max ml-auto'>
                                                 <button
                                                     type='button'
                                                     onClick={() => router.push({ pathname: `/media/videos/${1}` })}
-                                                    className=''
+                                                    className='text-gray-5'
                                                 >
-                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                    <MdDelete className='w-5 h-5' />
                                                 </button>
                                             </div>
                                         </div>
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
-                                        <div className='w-3/4 p-2 flex items-center'>
+                                        <div className='w-full p-4 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
-                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
-                                                <div className='flex items-center gap-2 text-gray-5'>
-                                                    <p>33 videos</p>
+                                                <h3 className='text-gray-5 font-semibold'>#5553 - John Doe</h3>
+                                                <div className='text-sm w-full flex items-center gap-4 text-gray-5'>
+                                                    <p>Unit 333</p>
                                                     &#x2022;
-                                                    <p>333 consoles</p>
+                                                    <p>Tower A</p>
+                                                    &#x2022;
+                                                    <p>5F</p>
                                                 </div>
                                             </div>
                                             <div className='w-full max-w-max ml-auto'>
                                                 <button
                                                     type='button'
                                                     onClick={() => router.push({ pathname: `/media/videos/${1}` })}
-                                                    className=''
+                                                    className='text-gray-5'
                                                 >
-                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                    <MdDelete className='w-5 h-5' />
                                                 </button>
                                             </div>
                                         </div>
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
-                                        <div className='w-3/4 p-2 flex items-center'>
+                                        <div className='w-full p-4 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
-                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
-                                                <div className='flex items-center gap-2 text-gray-5'>
-                                                    <p>33 videos</p>
+                                                <h3 className='text-gray-5 font-semibold'>#5553 - John Doe</h3>
+                                                <div className='text-sm w-full flex items-center gap-4 text-gray-5'>
+                                                    <p>Unit 333</p>
                                                     &#x2022;
-                                                    <p>333 consoles</p>
+                                                    <p>Tower A</p>
+                                                    &#x2022;
+                                                    <p>5F</p>
                                                 </div>
                                             </div>
                                             <div className='w-full max-w-max ml-auto'>
                                                 <button
                                                     type='button'
                                                     onClick={() => router.push({ pathname: `/media/videos/${1}` })}
-                                                    className=''
+                                                    className='text-gray-5'
                                                 >
-                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                    <MdDelete className='w-5 h-5' />
                                                 </button>
                                             </div>
                                         </div>
                                     </Cards>
 
                                     <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
-                                        <img src="../../../image/product.jpg" alt="playlist" className='w-1/4 object-cover object-center h-20' />
-                                        <div className='w-3/4 p-2 flex items-center'>
+                                        <div className='w-full p-4 flex items-center'>
                                             <div className='w-3/4 flex flex-col gap-2'>
-                                                <h3 className='text-gray-5 font-semibold'>Playlist Name</h3>
-                                                <div className='flex items-center gap-2 text-gray-5'>
-                                                    <p>33 videos</p>
+                                                <h3 className='text-gray-5 font-semibold'>#5553 - John Doe</h3>
+                                                <div className='text-sm w-full flex items-center gap-4 text-gray-5'>
+                                                    <p>Unit 333</p>
                                                     &#x2022;
-                                                    <p>333 consoles</p>
+                                                    <p>Tower A</p>
+                                                    &#x2022;
+                                                    <p>5F</p>
                                                 </div>
                                             </div>
                                             <div className='w-full max-w-max ml-auto'>
                                                 <button
                                                     type='button'
                                                     onClick={() => router.push({ pathname: `/media/videos/${1}` })}
-                                                    className=''
+                                                    className='text-gray-5'
                                                 >
-                                                    <MdKeyboardArrowRight className='w-6 h-6' />
+                                                    <MdDelete className='w-5 h-5' />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Cards>
+
+                                    <Cards className='w-full flex bg-white shadow-card rounded-xl overflow-hidden'>
+                                        <div className='w-full p-4 flex items-center'>
+                                            <div className='w-3/4 flex flex-col gap-2'>
+                                                <h3 className='text-gray-5 font-semibold'>#5553 - John Doe</h3>
+                                                <div className='text-sm w-full flex items-center gap-4 text-gray-5'>
+                                                    <p>Unit 333</p>
+                                                    &#x2022;
+                                                    <p>Tower A</p>
+                                                    &#x2022;
+                                                    <p>5F</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full max-w-max ml-auto'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => router.push({ pathname: `/media/videos/${1}` })}
+                                                    className='text-gray-5'
+                                                >
+                                                    <MdDelete className='w-5 h-5' />
                                                 </button>
                                             </div>
                                         </div>

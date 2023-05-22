@@ -321,7 +321,7 @@ const Dashboard = ({ pageProps }: Props) => {
   return (
     <DefaultLayout
       title="Colony"
-      header="Building Management"
+      header="Billings & Payments"
       head="Dashboard"
       logo="image/logo/logo-icon.svg"
       description=""
