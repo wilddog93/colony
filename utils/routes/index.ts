@@ -10,7 +10,7 @@ export type MenuProps = {
   url?: string;
   query?: any;
   icons?: {
-    icon?: IconType,
+    icon: IconType,
     className?: string
   };
   routes?: MenuProps[];
