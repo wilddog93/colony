@@ -1,7 +1,7 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowBack, MdArrowLeft, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdDragHandle, MdDragIndicator, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdOutlineArrowLeft, MdPhone, MdPlaylistAdd } from 'react-icons/md';
+import { MdAdd, MdArrowBack, MdArrowLeft, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdDragHandle, MdDragIndicator, MdEdit, MdEmail, MdFemale, MdKeyboardArrowRight, MdLocalHotel, MdMale, MdOutlineArrowLeft, MdPhone, MdPhotoSizeSelectActual, MdPlaylistAdd } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import Modal from '../../../../components/Modal';
@@ -283,7 +283,7 @@ const Videos = ({ pageProps }: Props) => {
             description=""
             token={token}
             icons={{
-                name: "MdPhotoSizeSelectActual",
+                name: MdPhotoSizeSelectActual,
                 className: "w-10 h-10 text-primary"
             }}
         >

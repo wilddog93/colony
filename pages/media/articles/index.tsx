@@ -1,7 +1,7 @@
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDashboard, MdDelete, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone, MdPhotoSizeSelectActual } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import Modal from '../../../components/Modal';
@@ -324,7 +324,7 @@ const Articles = ({ pageProps }: Props) => {
             description=""
             token={token}
             icons={{
-                name: "MdPhotoSizeSelectActual",
+                name: MdPhotoSizeSelectActual,
                 className: "w-10 h-10 text-primary"
             }}
         >

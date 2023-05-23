@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import DefaultLayout from '../../components/Layouts/DefaultLayouts'
 import SidebarBM from '../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel } from 'react-icons/md';
+import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdWork } from 'react-icons/md';
 import Button from '../../components/Button/Button';
 import Cards from '../../components/Cards/Cards';
 import Barcharts from '../../components/Chart/Barcharts';
@@ -330,7 +330,7 @@ const Dashboard = ({ pageProps }: Props) => {
       userDefault="image/user/user-01.png"
       token={token}
       icons={{
-        name: 'MdWork',
+        name: MdWork,
         className: "w-8 h-8 text-meta-7"
       }}
     >

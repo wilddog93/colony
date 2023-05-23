@@ -66,8 +66,8 @@ const Header = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, title,
                     <Link href='/'>
                         <div className='flex flex-shrink-0 items-center gap-2 text-white'>
                             {/* <img src={!logo ? "./image/logo/logo-icon.svg" : logo} alt='Logo' /> */}
-                            {icons && icons?.name ?
-                                <Icon className={`w-5 h-5 ${icons?.className}`} icon={icons?.name} />
+                            {icons && icons?.icon ?
+                                <Icon className={`w-5 h-5 ${icons?.className}`} icon={icons?.icon} />
                             : null}
                             <span className='hidden flex-shrink-0 lg:flex text-2xl font-semibold'>{!header ? "Building" : header}</span>
                         </div>
