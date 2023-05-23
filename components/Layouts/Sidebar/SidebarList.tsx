@@ -67,7 +67,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                                         : setSidebarExpanded(true)
                                                                 }}
                                                             >
-                                                                {menu?.icons ? <Icon className={`w-5 h-5 ${menu?.icons.className}`} icon={menu?.icons.icon} /> : null}
+                                                                {menu?.icons?.icon ? <Icon className={`w-5 h-5 ${menu?.icons.className}`} icon={menu?.icons.icon} /> : null}
                                                                 {menu?.pathname}
                                                                 <svg
                                                                     className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'

@@ -6,8 +6,6 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { MdArrowBack, MdCardMembership, MdLocalParking, MdOutlineBusiness, MdOutlineDashboard, MdOutlineMap, MdOutlinePeople, MdOutlinePeopleAlt } from 'react-icons/md';
 import { menuBM } from '../../../../utils/routes';
-import Icon from '../../../Icon';
-import SidebarLink from '../SidebarLink';
 import SidebarList from '../SidebarList';
 
 type Props = {

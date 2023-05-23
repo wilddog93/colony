@@ -1,3 +1,6 @@
+import { IconType } from "react-icons";
+import { MdCardMembership, MdHelpOutline, MdLocalParking, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineDashboard, MdOutlineMap, MdOutlinePeopleAlt, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWork } from "react-icons/md";
+
 export type MenuProps = {
   title?: string;
   pages?: string;
@@ -7,7 +10,7 @@ export type MenuProps = {
   url?: string;
   query?: any;
   icons?: {
-    icon?: string,
+    icon?: IconType,
     className?: string
   };
   routes?: MenuProps[];
@@ -22,7 +25,7 @@ export const menuMaster: MenuProps[] = [
         pages: "building-management",
         url: "/building-management",
         icons: {
-          icon: "MdMuseum",
+          icon: MdMuseum,
           className: "w-8 h-8 text-meta-5"
         },
         className: "text-lg"
@@ -33,7 +36,7 @@ export const menuMaster: MenuProps[] = [
         pages: "billings-payments",
         url: "/billings-payments",
         icons: {
-          icon: "MdMonetizationOn",
+          icon: MdMonetizationOn,
           className: "w-8 h-8 text-meta-3"
         },
         className: "text-lg"
@@ -44,7 +47,7 @@ export const menuMaster: MenuProps[] = [
         pages: "tasks",
         url: "/tasks",
         icons: {
-          icon: "MdWork",
+          icon: MdWork,
           className: "w-8 h-8 text-meta-7"
         },
         className: "text-lg"
@@ -55,7 +58,7 @@ export const menuMaster: MenuProps[] = [
         pages: "assets-inventories",
         url: "/assets-inventories",
         icons: {
-          icon: "MdUnarchive",
+          icon: MdUnarchive,
           className: "w-8 h-8 text-meta-6"
         },
         className: "text-lg"
@@ -66,7 +69,7 @@ export const menuMaster: MenuProps[] = [
         pages: "media",
         url: "/media/videos",
         icons: {
-          icon: "MdPhotoSizeSelectActual",
+          icon: MdPhotoSizeSelectActual,
           className: "w-8 h-8 text-primary"
         },
         className: "text-lg"
@@ -76,7 +79,7 @@ export const menuMaster: MenuProps[] = [
         pages: "merchants",
         url: "/merchants",
         icons: {
-          icon: "MdStore",
+          icon: MdStore,
           className: "w-8 h-8 text-meta-8"
         },
         className: "text-lg"
@@ -91,7 +94,7 @@ export const menuMaster: MenuProps[] = [
         pages: "settings",
         url: "/settings",
         icons: {
-          icon: "MdOutlineSettings",
+          icon: MdOutlineSettings,
           className: "w-8 h-8"
         },
       },
@@ -100,7 +103,7 @@ export const menuMaster: MenuProps[] = [
         pages: "helps",
         url: "/helps",
         icons: {
-          icon: "MdHelpOutline",
+          icon: MdHelpOutline,
           className: "w-8 h-8"
         },
       },
@@ -115,7 +118,7 @@ export const menuBM: MenuProps[] = [
     pages: "dashboard",
     url: "/building-management",
     icons: {
-      icon: "MdOutlineDashboard",
+      icon: MdOutlineDashboard,
       className: "w-5 h-5"
     }
   },
@@ -128,7 +131,7 @@ export const menuBM: MenuProps[] = [
       limit: 10,
     },
     icons: {
-      icon: "MdOutlinePeopleAlt",
+      icon: MdOutlinePeopleAlt,
       className: "w-5 h-5"
     }
   },
@@ -141,7 +144,7 @@ export const menuBM: MenuProps[] = [
       limit: 10,
     },
     icons: {
-      icon: "MdOutlineBusiness",
+      icon: MdOutlineBusiness,
       className: "w-5 h-5"
     }
   },
@@ -153,7 +156,7 @@ export const menuBM: MenuProps[] = [
       limit: 10,
     },
     icons: {
-      icon: "MdOutlineMap",
+      icon: MdOutlineMap,
       className: "w-5 h-5"
     }
   },
@@ -164,7 +167,7 @@ export const menuBM: MenuProps[] = [
         pages: "parkings",
         url: "",
         icons: {
-          icon: "MdLocalParking",
+          icon: MdLocalParking,
           className: "w-5 h-5"
         },
         routes: [
@@ -199,7 +202,7 @@ export const menuBM: MenuProps[] = [
         pages: "access-card",
         url: "",
         icons: {
-          icon: "MdCardMembership",
+          icon: MdCardMembership,
           className: "w-5 h-5"
         },
         routes: [
@@ -291,5 +294,124 @@ export const menuMedia: MenuProps[] = [
       page: 1,
       limit: 10,
     },
+  },
+];
+
+// task
+// Building Management
+export const menuTask: MenuProps[] = [
+  {
+    pathname: "Dashboard",
+    pages: "dashboard",
+    url: "/task",
+    icons: {
+      icon: MdOutlineDashboard,
+      className: "w-5 h-5"
+    }
+  },
+  {
+    pathname: "Projects",
+    pages: "projects",
+    url: "",
+    icons: {
+      icon: MdOutlinePeopleAlt,
+      className: "w-5 h-5"
+    },
+    routes: [
+      {
+        pathname: "Table View",
+        url: "/tasks/projects/tables",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Schedule Board",
+        url: "/tasks/projects/calendar-board",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ]
+  },
+  {
+    pathname: "Issues",
+    pages: "issues",
+    url: "/tasks/issues",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icons: {
+      icon: MdOutlineBusiness,
+      className: "w-5 h-5"
+    }
+  },
+  {
+    subMenus: [
+      {
+        pathname: "Project Type",
+        url: "/tasks/settings/project-type",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineSettings,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Team Members",
+        url: "/tasks/settings/team-members",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineSettings,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Task Category",
+        url: "/tasks/settings/task-category",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineSettings,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Issue Category",
+        url: "/tasks/settings/issue-category",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineSettings,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Issue Type",
+        url: "/tasks/settings/issue-type",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineSettings,
+          className: "w-5 h-5"
+        }
+      },
+    ],
+    title: "Settings"
   },
 ];

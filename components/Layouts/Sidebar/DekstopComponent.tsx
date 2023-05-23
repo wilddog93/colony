@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
+import React, { useState, useEffect, useRef, Fragment, Dispatch, SetStateAction } from 'react';
 import { useRouter } from 'next/router';
+import SidebarList from './SidebarList';
+import { MenuProps } from '../../../utils/routes';
 
 type Props = {
-    isOpen: boolean;
-    sidebarOpen: boolean
-    setSidebarOpen: any;
-    children?: JSX.Element;
+    sidebar: boolean
+    setSidebar: Dispatch<SetStateAction<boolean>>;
+    menus: MenuProps[];
 }
 
-const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
+const DekstopComponent = ({ sidebar, setSidebar, menus }: Props) => {
     const router = useRouter()
-    const { pathname, query } = router;
     const trigger = useRef<HTMLButtonElement>(null)
-    const sidebar = useRef<HTMLDivElement>(null)
+    const sidebarRef = useRef<HTMLDivElement>(null)
 
     const getFromLocalStorage = (key: string) => {
         if (!key || typeof window === 'undefined') {
@@ -21,13 +21,13 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
         return localStorage.getItem(key)
     };
 
-    const initiaLocalStorage: any = { sidebar: getFromLocalStorage("sidebar-left") ? JSON.parse(getFromLocalStorage("sidebar-left") || '{}') : [] };
+    const initiaLocalStorage: any = { sidebar: getFromLocalStorage("sidebar-component") ? JSON.parse(getFromLocalStorage("sidebar-component") || '{}') : [] };
 
     const [sidebarExpanded, setSidebarExpanded] = useState(initiaLocalStorage === null ? false : initiaLocalStorage === 'true');
 
     useEffect(() => {
         setSidebarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
-      }, [initiaLocalStorage])
+    }, [initiaLocalStorage])
 
     // close on click outside
     useEffect(() => {
@@ -35,14 +35,14 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
             target: any
         }
         const clickHandler = ({ target }: Props) => {
-            if (!sidebar.current || !trigger.current) return
+            if (!sidebarRef.current || !trigger.current) return
             if (
-                !sidebarOpen ||
-                sidebar.current.contains(target) ||
+                !sidebarRef ||
+                sidebarRef.current.contains(target) ||
                 trigger.current.contains(target)
             )
                 return
-            setSidebarOpen(false)
+            setSidebar(false)
         }
         document.addEventListener('click', clickHandler)
         return () => document.removeEventListener('click', clickHandler)
@@ -54,8 +54,8 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
             keyCode: any
         }
         const keyHandler = ({ keyCode }: Props) => {
-            if (!sidebarOpen || keyCode !== 27) return
-            setSidebarOpen(false)
+            if (!sidebar || keyCode !== 27) return
+            setSidebar(false)
         }
         document.addEventListener('keydown', keyHandler)
         return () => document.removeEventListener('keydown', keyHandler)
@@ -71,26 +71,26 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
 
         console.log(parentNode.querySelector('body'), 'body');
 
-        localStorage.setItem('sidebar-left', sidebarExpanded?.toString())
+        localStorage.setItem('sidebar-component', sidebarExpanded?.toString())
         if (sidebarExpanded) {
-            body?.classList.add('sidebar-left')
+            body?.classList.add('sidebar-component')
         } else {
-            body?.classList.remove('sidebar-left')
+            body?.classList.remove('sidebar-component')
         }
     }, [sidebarExpanded]);
 
     return (
         <Fragment>
             <aside
-                ref={sidebar}
-                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${!isOpen ? "hidden" : ""}`}
+                ref={sidebarRef}
+                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebar ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
 
                 <div className='w-full flex flex-col h-full overflow-y-auto duration-300 ease-linear'>
                     {/* <!-- Sidebar Menu --> */}
                     <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-12'>
-                        {children}
+                        {/* <SidebarList menus={menus} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} /> */}
                     </div>
                     {/* <!-- Sidebar Menu --> */}
                 </div>
@@ -98,14 +98,14 @@ const Sideleft = ({ sidebarOpen, setSidebarOpen, children, isOpen }: Props) => {
             {/* overlay */}
             <button
                 ref={trigger}
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                aria-controls='sidebar-left'
-                aria-expanded={sidebarOpen}
-                className={`lg:static ${sidebarOpen && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
+                onClick={() => setSidebar(!sidebar)}
+                aria-controls='sidebar-component'
+                aria-expanded={sidebar}
+                className={`lg:static ${sidebar && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
 
             </button>
         </Fragment>
     )
 }
 
-export default Sideleft;
+export default DekstopComponent;
