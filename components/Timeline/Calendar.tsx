@@ -221,6 +221,7 @@ const CusCalendar = ({
                 sidebarWidth={300}
                 groupRenderer={groupRenderer}
                 onItemDoubleClick={onItemDoubleClick}
+                className="shadow-card"
             >
                 <TimelineHeaders
                     className="rounded-t-xl shadow-card tracking-wide"
