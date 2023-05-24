@@ -9,6 +9,8 @@ import axios from "axios";
 import NextNProgress from "nextjs-progressbar";
 import { isSupported, onMessage } from "@firebase/messaging";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+// timeline css
+import "react-calendar-timeline/lib/Timeline.css";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);

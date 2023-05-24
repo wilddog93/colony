@@ -19,6 +19,8 @@ import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import moment from 'moment';
+import { Calendar } from '../../../components/Timeline';
 
 type Props = {
   pageProps: any
@@ -142,6 +144,10 @@ const CalendarBoard = ({ pageProps }: Props) => {
   const [pageCount, setPageCount] = useState(2000);
   const [total, setTotal] = useState(1000)
 
+  // timeline
+  const [timelineHeader, setTimelineHeader] = useState<any | any[]>([]);
+  const [timelineItem, setTimelineItem] = useState<any | any[]>([]);
+
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
@@ -173,7 +179,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
   };
 
   useEffect(() => {
-    setDataTable(() => makeData(50000))
+    setDataTable(() => makeData(20))
   }, []);
 
   const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
@@ -271,6 +277,91 @@ const CalendarBoard = ({ pageProps }: Props) => {
     ],
     []
   );
+
+  // timeline function
+  useEffect(() => {
+    let header: any[] = [];
+    if (dataTable?.length > 0) {
+      dataTable?.map((val) =>
+        header?.push({
+          id: val?.id,
+          title: val?.workName,
+          color: val?.color,
+        })
+      );
+      setTimelineHeader(header);
+    } else {
+      setTimelineHeader([]);
+    }
+  }, [dataTable]);
+
+  useEffect(() => {
+    let item: any[] = [];
+    if (dataTable?.length > 0) {
+      dataTable?.map((val) =>
+        item?.push({
+          ...val,
+          id: val?.id,
+          title: val?.workName,
+          color: val?.color,
+          start_time: moment(val?.startDate).toDate(),
+          end_time: moment(val?.endDate).toDate(),
+          group: val?.id,
+          itemProps: {
+            "data-custom-attribute": "Random content",
+            "aria-hidden": true,
+            onDoubleClick: () => {
+              console.log("You clicked double!");
+            },
+            className: "weekend",
+            style: {
+              background: "fuchsia",
+            },
+          },
+        })
+      );
+      setTimelineItem(item);
+    } else {
+      setTimelineItem([]);
+    }
+  }, [dataTable]);
+
+  const onChangeVehicle = (newGroupId: any, dragTime: any, taskId: any) => {
+    console.log("vehicles:", { newGroupId, dragTime, taskId });
+  };
+
+  const onCanvasClick = (groupId: any, time: any, e: any) => {
+    if (groupId > 0) {
+      setIsOpenDetail(true);
+      console.log("canvas click :", groupId, time);
+    }
+  };
+
+  const onItemContextMenu = (itemId: any, e: any, time: any) => {
+
+    console.log("onItem", itemId);
+
+    setIsOpenDetail(true);
+    // setIsEditable(true);
+  };
+
+  const onItemDoubleClick = (itemId: any, e: any, time: any) => {
+
+    console.log("on double click", itemId);
+
+    setIsOpenDetail(true);
+  };
+
+  const onItemSelect = (id: any) => {
+    console.log("on item select :", id);
+    // setIsEditable(true);
+  };
+
+  const onSubmitProject = (task: any) => {
+    console.log("on submit", task);
+  };
+
+  console.log({ timelineHeader, timelineItem }, "timeline")
 
   useEffect(() => {
     if (token) {
@@ -416,7 +507,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
               </div>
 
               {/* table */}
-              <SelectTables
+              {/* <SelectTables
                 loading={loading}
                 setLoading={setLoading}
                 pages={pages}
@@ -428,6 +519,17 @@ const CalendarBoard = ({ pageProps }: Props) => {
                 dataTable={dataTable}
                 total={total}
                 setIsSelected={setIsSelectedRow}
+              /> */}
+
+              {/* Calendar timeline */}
+              <Calendar
+                groups={timelineHeader}
+                items={timelineItem}
+                onItemMove={onChangeVehicle}
+                onCanvasClick={onCanvasClick}
+                onItemContextMenu={onItemContextMenu}
+                onItemSelect={onItemSelect}
+                onItemDoubleClick={onItemDoubleClick}
               />
             </div>
           </main>

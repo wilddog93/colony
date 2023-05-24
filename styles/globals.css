@@ -86,6 +86,19 @@ td,
   padding: 0.25rem;
 } */
 
+.rct-sidebar-row-odd {
+  background-color: transparent !important;
+}
+
+.rct-hl-odd,
+.rct-hl-even {
+  background-color: rgb(245, 249, 253) !important;
+}
+
+.rct-calendar-header {
+  border-top-right-radius: 5px;
+}
+
 .Toastify__toast.Toastify__toast-theme--dark {
   background-color: #5F59F7 !important;
   color: white;
