@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef, Fragment, Dispatch, SetStateAction 
 import { useRouter } from 'next/router';
 import SidebarList from './SidebarList';
 import { MenuProps } from '../../../utils/routes';
+import { MdArrowBack, MdOutlineBusiness } from 'react-icons/md';
 
 type Props = {
     sidebar: boolean
     setSidebar: Dispatch<SetStateAction<boolean>>;
     menus: MenuProps[];
+    className?: string
 }
 
-const DekstopComponent = ({ sidebar, setSidebar, menus }: Props) => {
+const DekstopComponent = ({ sidebar, setSidebar, menus, className }: Props) => {
     const router = useRouter()
     const trigger = useRef<HTMLButtonElement>(null)
     const sidebarRef = useRef<HTMLDivElement>(null)
@@ -25,10 +27,6 @@ const DekstopComponent = ({ sidebar, setSidebar, menus }: Props) => {
 
     const [sidebarExpanded, setSidebarExpanded] = useState(initiaLocalStorage === null ? false : initiaLocalStorage === 'true');
 
-    useEffect(() => {
-        setSidebarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
-    }, [initiaLocalStorage])
-
     // close on click outside
     useEffect(() => {
         type Props = {
@@ -37,7 +35,7 @@ const DekstopComponent = ({ sidebar, setSidebar, menus }: Props) => {
         const clickHandler = ({ target }: Props) => {
             if (!sidebarRef.current || !trigger.current) return
             if (
-                !sidebarRef ||
+                !sidebar ||
                 sidebarRef.current.contains(target) ||
                 trigger.current.contains(target)
             )
@@ -83,14 +81,34 @@ const DekstopComponent = ({ sidebar, setSidebar, menus }: Props) => {
         <Fragment>
             <aside
                 ref={sidebarRef}
-                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-sm flex-col overflow-y-hidden bg-gray duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebar ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-xs flex-col overflow-y-hidden bg-boxdark duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebar ? 'translate-x-0' : '-translate-x-full'} ${className}`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
 
                 <div className='w-full flex flex-col h-full overflow-y-auto duration-300 ease-linear'>
                     {/* <!-- Sidebar Menu --> */}
                     <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-12'>
-                        {/* <SidebarList menus={menus} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} /> */}
+                        <div className='w-full flex justify-between items-center mb-4 px-4 py-2.5 bg-white rounded-lg'>
+                            <div className='flex items-center gap-2'>
+                                <MdOutlineBusiness className='w-5 h-5 text-black' />
+                                <h3 className='text-lg font-semibold text-black'>
+                                    Building Name
+                                </h3>
+                            </div>
+
+                            <button
+                                type='button'
+                                ref={trigger}
+                                onClick={() => setSidebar(!sidebar)}
+                                aria-controls='sidebar-component'
+                                aria-expanded={sidebar}
+                                className='block text-black lg:hidden'
+                            >
+                                <MdArrowBack className='w-5 h-5' />
+                            </button>
+
+                        </div>
+                        <SidebarList menus={menus} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} />
                     </div>
                     {/* <!-- Sidebar Menu --> */}
                 </div>

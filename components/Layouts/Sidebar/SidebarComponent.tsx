@@ -6,9 +6,10 @@ type Props = {
     sidebar: boolean;
     setSidebar: Dispatch<SetStateAction<boolean>>;
     menus: MenuProps[];
+    className?: string;
 }
 
-function SidebarComponent({ sidebar, setSidebar, menus }: Props) {
+function SidebarComponent({ sidebar, setSidebar, menus, className }: Props) {
 
     return (
         <React.Fragment>
@@ -16,6 +17,7 @@ function SidebarComponent({ sidebar, setSidebar, menus }: Props) {
                 menus={menus}
                 sidebar={sidebar}
                 setSidebar={setSidebar}
+                className={className}
             />
         </React.Fragment>
     )

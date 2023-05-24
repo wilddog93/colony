@@ -42,7 +42,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                         pages={menu?.pages}
                                                     >
                                                         {!menu?.icons?.icon ? null :
-                                                            <Icon className={`w-5 h-5 ${menu.icons.className}`} icon={menu.icons.icon} />
+                                                            <Icon className={menu?.icons?.className} icon={menu.icons.icon} />
                                                         }
                                                         {menu?.pathname}
                                                     </SidebarLink>
@@ -67,7 +67,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                                         : setSidebarExpanded(true)
                                                                 }}
                                                             >
-                                                                {menu?.icons?.icon ? <Icon className={`w-5 h-5 ${menu?.icons.className}`} icon={menu?.icons.icon} /> : null}
+                                                                {menu?.icons?.icon ? <Icon className={route?.icons?.className} icon={menu?.icons.icon} /> : null}
                                                                 {menu?.pathname}
                                                                 <svg
                                                                     className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
@@ -102,7 +102,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                                                         pages={route?.pages}
                                                                                     >
                                                                                         {!route?.icons?.icon ? null :
-                                                                                            <Icon className={`w-5 h-5 ${route?.icons.className}`} icon={route.icons.icon} />
+                                                                                            <Icon className={route?.icons?.className} icon={route.icons.icon} />
                                                                                         }
                                                                                         {route?.pathname}
                                                                                     </SidebarLink>
@@ -131,7 +131,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                         pages={route?.pages}
                                     >
                                         {!route?.icons?.icon ? null :
-                                            <Icon className={`w-5 h-5 ${route?.icons.className}`} icon={route.icons.icon} />
+                                            <Icon className={route?.icons?.className} icon={route.icons.icon} />
                                         }
                                         {route?.pathname}
                                     </SidebarLink>
@@ -158,7 +158,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                             >
                                                 {route?.icons?.icon ?
                                                     <Icon
-                                                        className={`w-8 h-8 ${route?.icons.className}`}
+                                                        className={route?.icons?.className}
                                                         icon={route?.icons.icon}
                                                     />
                                                     : null
@@ -186,8 +186,8 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                     }`}
                                             >
                                                 <ul className='mt-4 mb-5.5 flex flex-col gap-2.5'>
-                                                    {routes && routes?.length > 0 ?
-                                                        routes?.map((r, id) => {
+                                                    {route?.routes && route?.routes?.length > 0 ?
+                                                        route?.routes?.map((r, id) => {
                                                             return (
                                                                 <li key={id}>
                                                                     <SidebarLink
@@ -197,7 +197,7 @@ const SidebarList = ({ menus, sidebarExpanded, setSidebarExpanded }: Props) => {
                                                                         pages={r?.pages}
                                                                     >
                                                                         {!r?.icons?.icon ? null :
-                                                                            <Icon className={`w-5 h-5 ${r.icons.className}`} icon={r.icons.icon} />
+                                                                            <Icon className={r?.icons?.className} icon={r.icons.icon} />
                                                                         }
                                                                         {r?.pathname}
                                                                     </SidebarLink>

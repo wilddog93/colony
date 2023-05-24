@@ -26,7 +26,7 @@ export const menuMaster: MenuProps[] = [
         url: "/building-management",
         icons: {
           icon: MdMuseum,
-          className: "w-8 h-8 text-meta-5"
+          className: "w-8 h-8 text-meta-5",
         },
         className: "text-lg"
         // text-[#44C2FD]
@@ -303,7 +303,7 @@ export const menuTask: MenuProps[] = [
   {
     pathname: "Dashboard",
     pages: "dashboard",
-    url: "/task",
+    url: "/tasks",
     icons: {
       icon: MdOutlineDashboard,
       className: "w-5 h-5"
@@ -312,7 +312,6 @@ export const menuTask: MenuProps[] = [
   {
     pathname: "Projects",
     pages: "projects",
-    url: "",
     icons: {
       icon: MdOutlinePeopleAlt,
       className: "w-5 h-5"
