@@ -57,7 +57,6 @@ const stylesSelectSort = {
     })
   },
   control: (provided: any, state: any) => {
-    console.log(provided, "control")
     return ({
       ...provided,
       background: "",
@@ -103,7 +102,6 @@ const stylesSelect = {
     })
   },
   control: (provided: any, state: any) => {
-    console.log(provided, "control")
     return ({
       ...provided,
       background: "",
