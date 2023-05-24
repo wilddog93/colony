@@ -298,7 +298,6 @@ export const menuMedia: MenuProps[] = [
 ];
 
 // task
-// Building Management
 export const menuTask: MenuProps[] = [
   {
     pathname: "Dashboard",
@@ -413,4 +412,23 @@ export const menuTask: MenuProps[] = [
     ],
     title: "Settings"
   },
+];
+
+export const menuProjects: MenuProps[] = [
+  {
+    pathname: "Table View",
+    url: "/tasks/projects/tables",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Schedule Board",
+    url: "/tasks/projects/calendar-board",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  }
 ];

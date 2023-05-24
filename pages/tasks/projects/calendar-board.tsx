@@ -1,25 +1,24 @@
-import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdDownload, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone, MdUpload } from 'react-icons/md';
-import Button from '../../../../components/Button/Button';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import Modal from '../../../../components/Modal';
-
-import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { useRouter } from 'next/router';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnItems } from '../../../../components/tables/components/makeData';
-import { makeData } from '../../../../components/tables/components/makeData';
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
-import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
-import Tabs from '../../../../components/Layouts/Tabs';
-import { menuParkings } from '../../../../utils/routes';
+import { useRouter } from 'next/router';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import { ColumnItems } from '../../../components/tables/components/makeData';
+import { makeData } from '../../../components/tables/components/makeData';
+import { ColumnDef } from '@tanstack/react-table';
+import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
+import Button from '../../../components/Button/Button';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuParkings, menuProjects, menuTask } from '../../../utils/routes';
+import Tabs from '../../../components/Layouts/Tabs';
+import { SearchInput } from '../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import Modal from '../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 
 type Props = {
   pageProps: any
@@ -30,7 +29,7 @@ const sortOpt = [
   { value: "Z-A", label: "Z-A" },
 ];
 
-const stylesSelect = {
+const stylesSelectSort = {
   indicatorsContainer: (provided: any) => ({
     ...provided,
     flexDirection: "row-reverse"
@@ -77,7 +76,52 @@ const stylesSelect = {
   menuList: (provided: any) => (provided)
 };
 
-const Areas = ({ pageProps }: Props) => {
+const stylesSelect = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const CalendarBoard = ({ pageProps }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -137,34 +181,6 @@ const Areas = ({ pageProps }: Props) => {
   const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
     () => [
       {
-        id: 'select',
-        header: ({ table }) => {
-          return (
-            <IndeterminateCheckbox
-              {...{
-                checked: table?.getIsAllRowsSelected(),
-                indeterminate: table?.getIsSomeRowsSelected(),
-                onChange: table?.getToggleAllRowsSelectedHandler()
-              }}
-            />
-          )
-        },
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler()
-              }}
-            />
-          </div>
-        ),
-        size: 10,
-        minSize: 10
-      },
-      {
         accessorKey: 'fullName',
         header: (info) => (
           <div>
@@ -188,7 +204,6 @@ const Areas = ({ pageProps }: Props) => {
         accessorKey: 'email',
         header: (info) => "Description",
         cell: info => {
-          console.log(info.row.original, 'row item')
           return (
             <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
               {info.getValue()}
@@ -268,16 +283,20 @@ const Areas = ({ pageProps }: Props) => {
   return (
     <DefaultLayout
       title="Colony"
-      header="Building Management"
-      head="Parking Lot"
+      header="Task Management"
+      head="Tables"
       logo="../../image/logo/logo-icon.svg"
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
       description=""
       token={token}
+      icons={{
+        icon: MdWork,
+        className: "w-8 h-8 text-meta-7"
+      }}
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
-        <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <SidebarComponent menus={menuTask} sidebar={sidebarOpen} setSidebar={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className='sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2'>
@@ -305,9 +324,8 @@ const Areas = ({ pageProps }: Props) => {
                   variant='secondary-outline'
                   key={'1'}
                 >
-                  <MdChevronLeft className='w-6 h-6 text-gray-4' />
                   <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Parkings</h3>
+                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Projects</h3>
                   </div>
                 </Button>
               </div>
@@ -317,42 +335,25 @@ const Areas = ({ pageProps }: Props) => {
                   type="button"
                   className='rounded-lg text-sm font-semibold py-3'
                   onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Format</span>
-                  <MdDownload className='w-4 h-4' />
-                </Button>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Data</span>
-                  <MdDownload className='w-4 h-4' />
-                </Button>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
                   variant='primary'
                 >
-                  <span className='hidden lg:inline-block'>Upload</span>
-                  <MdUpload className='w-4 h-4' />
+                  <span className='hidden lg:inline-block'>New Project</span>
+                  <MdAdd className='w-4 h-4' />
                 </Button>
               </div>
             </div>
             {/* tabs */}
             <div className='w-full px-4'>
-              <Tabs menus={menuParkings} />
+              <Tabs menus={menuProjects} />
             </div>
           </div>
 
           <main className='relative tracking-wide text-left text-boxdark-2'>
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
-                <div className='w-full lg:w-3/4'>
+              {/* content */}
+              <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
+                <div className='w-full lg:col-span-2'>
                   <SearchInput
                     className='w-full text-sm rounded-xl'
                     classNamePrefix=''
@@ -361,9 +362,9 @@ const Areas = ({ pageProps }: Props) => {
                     placeholder='Search...'
                   />
                 </div>
-                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
+                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
                   <DropdownSelect
-                    customStyles={stylesSelect}
+                    customStyles={stylesSelectSort}
                     value={sort}
                     onChange={setSort}
                     error=""
@@ -376,6 +377,42 @@ const Areas = ({ pageProps }: Props) => {
                     placeholder='Sorts...'
                     options={sortOpt}
                     icon='MdSort'
+                  />
+                </div>
+
+                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='All Status...'
+                    options={sortOpt}
+                    icon=''
+                  />
+                </div>
+
+                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId='1'
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder='All Type...'
+                    options={sortOpt}
+                    icon=''
                   />
                 </div>
               </div>
@@ -548,4 +585,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Areas;
+export default CalendarBoard;
