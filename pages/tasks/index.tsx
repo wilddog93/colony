@@ -332,7 +332,7 @@ const Dashboard = ({ pageProps }: Props) => {
       userDefault="image/user/user-01.png"
       token={token}
       icons={{
-        name: MdWork,
+        icon: MdWork,
         className: "w-8 h-8 text-meta-7"
       }}
     >
