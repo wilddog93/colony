@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, Fragment, SetStateAction, useEffect, useMemo, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
@@ -21,6 +21,7 @@ import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import moment from 'moment';
 import { Calendar } from '../../../components/Timeline';
+import { WorkProps, createDataTask } from '../../../components/tables/components/taskData';
 
 type Props = {
   pageProps: any
@@ -122,6 +123,7 @@ const stylesSelect = {
 };
 
 const CalendarBoard = ({ pageProps }: Props) => {
+  moment.locale("id");
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -137,7 +139,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(true);
 
   // data-table
-  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [dataTable, setDataTable] = useState<WorkProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -152,7 +154,13 @@ const CalendarBoard = ({ pageProps }: Props) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<ColumnItems>();
+  const [details, setDetails] = useState<WorkProps>();
+
+  // date format
+  const dateFormat = (value: string | any) => {
+    if (!value) return "-";
+    return moment(new Date(value)).format("MMM DD, YYYY, HH:mm")
+  }
 
   // form modal
   const onClose = () => setIsOpenModal(false);
@@ -179,10 +187,10 @@ const CalendarBoard = ({ pageProps }: Props) => {
   };
 
   useEffect(() => {
-    setDataTable(() => makeData(20))
+    setDataTable(() => createDataTask(20))
   }, []);
 
-  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+  const columns = useMemo<ColumnDef<WorkProps, any>[]>(
     () => [
       {
         accessorKey: 'fullName',
@@ -278,6 +286,20 @@ const CalendarBoard = ({ pageProps }: Props) => {
     []
   );
 
+  console.log(details, "details")
+
+  // color
+  const genColorProjectType = (value: any) => {
+    // #333A48
+    let color = "";
+    if (!value) return "";
+    if (value == "Project") color = "#5E59CE";
+    if (value == "Complaint Handling") color = "#FF8859";
+    if (value == "Regular Task") color = "#38B7E3";
+    if (value == "Maintenance") color = "#EC286F";
+    return color;
+  };
+
   // timeline function
   useEffect(() => {
     let header: any[] = [];
@@ -286,7 +308,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
         header?.push({
           id: val?.id,
           title: val?.workName,
-          color: val?.color,
+          color: genColorProjectType(val?.workType),
         })
       );
       setTimelineHeader(header);
@@ -303,9 +325,9 @@ const CalendarBoard = ({ pageProps }: Props) => {
           ...val,
           id: val?.id,
           title: val?.workName,
-          color: val?.color,
-          start_time: moment(val?.startDate).toDate(),
-          end_time: moment(val?.endDate).toDate(),
+          color: genColorProjectType(val?.workType),
+          start_time: moment(val?.scheduleStart).toDate(),
+          end_time: moment(val?.scheduleEnd).toDate(),
           group: val?.id,
           itemProps: {
             "data-custom-attribute": "Random content",
@@ -346,10 +368,10 @@ const CalendarBoard = ({ pageProps }: Props) => {
   };
 
   const onItemDoubleClick = (itemId: any, e: any, time: any) => {
-
-    console.log("on double click", itemId);
-
+    // console.log("on double click", itemId);
+    const items = dataTable.filter(item => item?.id == itemId);
     setIsOpenDetail(true);
+    setDetails(items[0])
   };
 
   const onItemSelect = (id: any) => {
@@ -559,51 +581,32 @@ const CalendarBoard = ({ pageProps }: Props) => {
             onClick={onCloseDetail}
           >
             <div className="flex-flex-col gap-2">
-              <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
+              <h3
+                className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
+                style={{
+                  backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
+                  color: !details?.workType ? "#333A48" : "#FFFFFF",
+                }}
+              >
+                {details?.workType || ""}
+              </h3>
               <div className="flex items-center gap-2">
-                <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
-                <p className='text-sm text-gray-5 capitalize flex items-center'>
-                  <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
-                  {details?.gender || ""}
-                </p>
+                <p className='text-sm text-gray-5'>{details?.workName || ""}</p>
               </div>
             </div>
           </ModalHeader>
-          <div className="w-full px-6 mb-5">
-            <div className='w-full flex gap-2.5'>
-              <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
-
-              <div className='w-full flex flex-col gap-2 text-gray-5'>
-                <h3 className='font-bold text-lg'>{details?.fullName}</h3>
-                <div className='flex items-center gap-2'>
-                  <MdEmail />
-                  {details?.email}
-                </div>
-                <div className='flex items-center gap-2'>
-                  <MdPhone />
-                  {/* {formatPhone("+", details?.phoneNumber)} */}
-                  {details?.phoneNumber}
-                </div>
-                <div className='flex items-center gap-2'>
-                  <MdCalendarToday />
-                  {details?.date}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
+          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
             <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_05</div>
-              <p>Occupant</p>
+              <div className='text-sm text-graydark'>Start Date</div>
+              <p>{dateFormat(details?.scheduleStart)}</p>
             </div>
             <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_12</div>
-              <p>Occupant & Owner</p>
+              <div className='text-sm text-graydark'>End Date</div>
+              <p>{dateFormat(details?.scheduleEnd)}</p>
             </div>
-            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_55</div>
-              <p>Owner</p>
+            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2'>
+              <div className='text-sm text-graydark'>Total Task</div>
+              <p>{details?.totalTask}</p>
             </div>
           </div>
         </Fragment>

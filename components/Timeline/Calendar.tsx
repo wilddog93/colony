@@ -143,7 +143,7 @@ const CusCalendar = ({
                         }}></div>
                     <div className="w-full h-full flex items-start gap-4 justify-between">
                         <div className="w-full h-full max-w-max flex flex-col justify-center leading-normal">
-                            <div className="font-semibold capitalize">{item.visits}</div>
+                            <div className="font-semibold capitalize">{item.workType}</div>
                             <div>{item.workName}</div>
                         </div>
                         <div className="w-full h-full max-w-max flex flex-col justify-center items-end leading-normal">

@@ -199,13 +199,13 @@ const TableView = ({ pageProps }: Props) => {
     const genColorProjectType = (value: any) => {
         // #333A48
         let color = "";
-        if(!value) return "";
+        if (!value) return "";
         if (value == "Project") color = "#5E59CE";
         if (value == "Complaint Handling") color = "#FF8859";
         if (value == "Regular Task") color = "#38B7E3";
         if (value == "Maintenance") color = "#EC286F";
         return color;
-      };
+    };
 
     const columns = useMemo<ColumnDef<WorkProps, any>[]>(
         () => [
@@ -214,13 +214,13 @@ const TableView = ({ pageProps }: Props) => {
                 header: (info) => (
                     <div className='uppercase'>Project Type</div>
                 ),
-                cell: ({row, getValue}) => {
+                cell: ({ row, getValue }) => {
                     const val = getValue();
                     return (
-                        <div 
-                            className={`cursor-pointer p-2 rounded-md w-full max-w-max`} 
+                        <div
+                            className={`cursor-pointer p-2 rounded-md w-full max-w-max`}
                             onClick={() => onOpenDetail(row.original)}
-                            style={{ 
+                            style={{
                                 backgroundColor: !val ? "FFFFFF" : genColorProjectType(val),
                                 color: !val ? "#333A48" : "#FFFFFF",
                             }}
@@ -561,7 +561,7 @@ const TableView = ({ pageProps }: Props) => {
                         onClick={onCloseDetail}
                     >
                         <div className="flex-flex-col gap-2">
-                            <h3 
+                            <h3
                                 className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
                                 style={{
                                     backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
