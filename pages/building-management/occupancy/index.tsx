@@ -1,7 +1,6 @@
 import React, { Fragment, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowDropUp, MdArrowRight, MdArrowRightAlt, MdCleaningServices, MdClose, MdDelete, MdEdit, MdKeyboardArrowRight, MdLocalHotel, MdOutlineDelete, MdOutlineEdit, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
+import { MdArrowDropUp, MdArrowRightAlt, MdEdit, MdKeyboardArrowRight, MdOutlineDelete, MdOutlineEdit, MdOutlinePeople, MdOutlineVpnKey } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Modal from '../../../components/Modal';
 
@@ -9,7 +8,6 @@ import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalCompone
 import { useRouter } from 'next/router';
 import { ColumnItems, makeData } from '../../../components/tables/components/makeData';
 import Cards from '../../../components/Cards/Cards';
-import { useScrollPosition } from '../../../utils/useHooks/useHooks';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
