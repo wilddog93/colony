@@ -44,10 +44,11 @@ declare module '@tanstack/table-core' {
 
 function ScrollCardTables(props: any) {
     const {
+        dataTable,
         divided,
+        setIsSelected,
         loading,
         setLoading,
-        setIsSelected,
         pageCount,
         pages,
         setPages,
@@ -55,7 +56,8 @@ function ScrollCardTables(props: any) {
         setLimit,
         total,
         columns,
-        isInfiniteScroll
+        isInfiniteScroll,
+        isHideHeader
     } = props;
 
     const router: NextRouter = useRouter();
@@ -78,7 +80,7 @@ function ScrollCardTables(props: any) {
     const refreshData = () => setData(old => makeData(50000))
 
     const table = useReactTable({
-        data,
+        data: dataTable?.length > 0 ? dataTable : data,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -207,7 +209,7 @@ function ScrollCardTables(props: any) {
     return (
         <div className="grid grid-cols-1">
             <div ref={refTable} onScroll={(e) => handleScroll(e.target as HTMLDivElement)} className='relative col-span-1 p-4 overflow-auto h-[600px]'>
-                <table className='sticky bg-white -top-5 z-10 w-full overflow-y-auto border-separate border-0 border-spacing-y-4'>
+                <table className={`sticky bg-white -top-5 z-10 w-full overflow-y-auto border-separate border-0 border-spacing-y-4 ${isHideHeader ? "hidden" : ""}`}>
                     <thead className='transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'>
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>

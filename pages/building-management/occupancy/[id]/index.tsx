@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { selectAuth } from '../../../../redux/features/auth/authReducers';
 import { getAuthMe } from '../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
-import ScrollCardTables from '../../../../components/tables/layouts/SrollCardTables';
+import ScrollCardTables from '../../../../components/tables/layouts/ScrollCardTables';
 import Breadcrumb from '../../../../components/Breadcrumb/Breadcrumb';
 import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuBM } from '../../../../utils/routes';

@@ -263,4 +263,8 @@ export function createDataTask(...lens: number[]) {
     }
 
     return makeTaskLevel()
+};
+
+export function createTask() {
+    return newWork();
 }
