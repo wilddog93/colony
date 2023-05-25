@@ -1,5 +1,5 @@
 import { IconType } from "react-icons";
-import { MdCardMembership, MdHelpOutline, MdLocalParking, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineDashboard, MdOutlineMap, MdOutlinePeopleAlt, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWork } from "react-icons/md";
+import { MdAssignment, MdCardMembership, MdHelpOutline, MdLocalParking, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineDashboard, MdOutlineInfo, MdOutlineMap, MdOutlineNextWeek, MdOutlinePeopleAlt, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWarningAmber, MdWork } from "react-icons/md";
 
 export type MenuProps = {
   title?: string;
@@ -357,7 +357,7 @@ export const menuTask: MenuProps[] = [
           limit: 10,
         },
         icons: {
-          icon: MdOutlineSettings,
+          icon: MdOutlineNextWeek,
           className: "w-5 h-5"
         }
       },
@@ -369,7 +369,7 @@ export const menuTask: MenuProps[] = [
           limit: 10,
         },
         icons: {
-          icon: MdOutlineSettings,
+          icon: MdOutlinePeopleAlt,
           className: "w-5 h-5"
         }
       },
@@ -381,7 +381,7 @@ export const menuTask: MenuProps[] = [
           limit: 10,
         },
         icons: {
-          icon: MdOutlineSettings,
+          icon: MdAssignment,
           className: "w-5 h-5"
         }
       },
@@ -393,7 +393,7 @@ export const menuTask: MenuProps[] = [
           limit: 10,
         },
         icons: {
-          icon: MdOutlineSettings,
+          icon: MdWarningAmber,
           className: "w-5 h-5"
         }
       },
@@ -405,7 +405,7 @@ export const menuTask: MenuProps[] = [
           limit: 10,
         },
         icons: {
-          icon: MdOutlineSettings,
+          icon: MdOutlineInfo,
           className: "w-5 h-5"
         }
       },
