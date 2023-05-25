@@ -19,7 +19,8 @@ import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReduc
 import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 import Tabs from '../../../../components/Layouts/Tabs';
-import { menuParkings } from '../../../../utils/routes';
+import { menuBM, menuParkings } from '../../../../utils/routes';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
 
 type Props = {
   pageProps: any
@@ -277,7 +278,12 @@ const Areas = ({ pageProps }: Props) => {
       token={token}
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
-        <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <SidebarComponent
+          className=''
+          menus={menuBM}
+          sidebar={sidebarOpen}
+          setSidebar={setSidebarOpen}
+        />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className='sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2'>

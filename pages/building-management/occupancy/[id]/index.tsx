@@ -18,6 +18,8 @@ import { getAuthMe } from '../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
 import ScrollCardTables from '../../../../components/tables/layouts/SrollCardTables';
 import Breadcrumb from '../../../../components/Breadcrumb/Breadcrumb';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuBM } from '../../../../utils/routes';
 
 type Props = {
     pageProps: any
@@ -251,7 +253,12 @@ const UnitDetails = ({ pageProps }: Props) => {
             token={token}
         >
             <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
-                <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <SidebarComponent
+                    className=''
+                    menus={menuBM}
+                    sidebar={sidebarOpen}
+                    setSidebar={setSidebarOpen}
+                />
 
                 <div className="relative w-full lg:h-full bg-white lg:rounded-tl-[3rem] overflow-y-auto">
 

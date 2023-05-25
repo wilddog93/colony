@@ -10,12 +10,14 @@ import ExampleForm from '../../../components/Forms/ExampleForm';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
+import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuBM } from '../../../utils/routes';
 
 type Props = {
   pageProps: any
 }
 
-const Towers = ({ pageProps } : Props) => {
+const Towers = ({ pageProps }: Props) => {
   const router = useRouter();
   const { token, access, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,7 +40,12 @@ const Towers = ({ pageProps } : Props) => {
       token={token}
     >
       <div className='absolute inset-0 mt-20 bg-boxdark flex text-white'>
-        <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <SidebarComponent
+          className=''
+          menus={menuBM}
+          sidebar={sidebarOpen}
+          setSidebar={setSidebarOpen}
+        />
 
         <div className=" w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className='sticky bg-white top-0 z-9 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>
@@ -166,16 +173,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token) {
-      return {
-          redirect: {
-              destination: "/authentication?page=sign-in", // Redirect to the home page
-              permanent: false
-          },
-      };
+    return {
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false
+      },
+    };
   }
 
   return {
-      props: { token, access, firebaseToken },
+    props: { token, access, firebaseToken },
   };
 };
 

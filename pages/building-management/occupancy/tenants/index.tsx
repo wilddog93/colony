@@ -16,6 +16,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { ColumnItems } from '../../../../components/tables/components/makeData';
 import { formatPhone } from '../../../../utils/useHooks/useFunction';
 import { makeData } from '../../../../components/tables/components/makeData';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuBM } from '../../../../utils/routes';
 
 type Props = {}
 
@@ -245,7 +247,12 @@ const Tenants = (props: any) => {
       description=""
     >
       <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
-        <SidebarBM sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <SidebarComponent
+          className=''
+          menus={menuBM}
+          sidebar={sidebarOpen}
+          setSidebar={setSidebarOpen}
+        />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className='sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 mb-3 gap-2'>

@@ -87,7 +87,7 @@ const DekstopComponent = ({ sidebar, setSidebar, menus, className }: Props) => {
 
                 <div className='w-full flex flex-col h-full overflow-y-auto duration-300 ease-linear'>
                     {/* <!-- Sidebar Menu --> */}
-                    <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-12'>
+                    <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-8'>
                         <div className='w-full flex justify-between items-center mb-4 px-4 py-2.5 bg-white rounded-lg'>
                             <div className='flex items-center gap-2'>
                                 <MdOutlineBusiness className='w-5 h-5 text-black' />

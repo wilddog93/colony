@@ -506,21 +506,6 @@ const CalendarBoard = ({ pageProps }: Props) => {
                 </div>
               </div>
 
-              {/* table */}
-              {/* <SelectTables
-                loading={loading}
-                setLoading={setLoading}
-                pages={pages}
-                setPages={setPages}
-                limit={limit}
-                setLimit={setLimit}
-                pageCount={pageCount}
-                columns={columns}
-                dataTable={dataTable}
-                total={total}
-                setIsSelected={setIsSelectedRow}
-              /> */}
-
               {/* Calendar timeline */}
               <Calendar
                 groups={timelineHeader}
