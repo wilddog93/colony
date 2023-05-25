@@ -232,7 +232,7 @@ const newWork = (): WorkProps => {
                 workCategoryName: "Maintenance"
             },
         ])[0]!,
-        workCode: faker.datatype.uuid(),
+        workCode: faker.datatype.number(10000),
         workDescription: faker.lorem.text(),
         workName: faker.name.jobTitle(),
         workStatus: faker.helpers.shuffle<WorkProps['workStatus']>([

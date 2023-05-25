@@ -150,8 +150,8 @@ const TableView = ({ pageProps }: Props) => {
     const [details, setDetails] = useState<WorkProps>();
 
     // date format
-    const dateFormat = (value:string | any) => {
-        if(!value) return "-";
+    const dateFormat = (value: string | any) => {
+        if (!value) return "-";
         return moment(new Date(value)).format("MMM DD, YYYY, HH:mm")
     }
 
@@ -183,22 +183,49 @@ const TableView = ({ pageProps }: Props) => {
         setDataTable(() => createDataTask(100))
     }, []);
 
-    const goToTask = (id:any) => {
-        if(!id) return;
+    const goToTask = (id: any) => {
+        if (!id) return;
         return router.push({ pathname: `/tasks/projects/${id}` })
     };
+
+    const genWorkStatus = (value: string) => {
+        if (!value) return "-";
+        if (value === "Open") return <div className='w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200'>{value}</div>;
+        if (value === "On Progress") return <div className='w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200'>{value}</div>;
+        if (value === "Closed") return <div className='w-full max-w-max p-1 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200'>{value}</div>;
+        if (value === "Overdue") return <div className='w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200'>{value}</div>;
+    };
+
+    const genColorProjectType = (value: any) => {
+        // #333A48
+        let color = "";
+        if(!value) return "";
+        if (value == "Project") color = "#5E59CE";
+        if (value == "Complaint Handling") color = "#FF8859";
+        if (value == "Regular Task") color = "#38B7E3";
+        if (value == "Maintenance") color = "#EC286F";
+        return color;
+      };
 
     const columns = useMemo<ColumnDef<WorkProps, any>[]>(
         () => [
             {
                 accessorKey: 'workType',
                 header: (info) => (
-                    <div className='uppercase'>Type</div>
+                    <div className='uppercase'>Project Type</div>
                 ),
-                cell: info => {
+                cell: ({row, getValue}) => {
+                    const val = getValue();
                     return (
-                        <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-                            {info.getValue()}
+                        <div 
+                            className={`cursor-pointer p-2 rounded-md w-full max-w-max`} 
+                            onClick={() => onOpenDetail(row.original)}
+                            style={{ 
+                                backgroundColor: !val ? "FFFFFF" : genColorProjectType(val),
+                                color: !val ? "#333A48" : "#FFFFFF",
+                            }}
+                        >
+                            {val}
                         </div>
                     )
                 },
@@ -211,12 +238,12 @@ const TableView = ({ pageProps }: Props) => {
             {
                 accessorKey: 'workCode',
                 header: (info) => (
-                    <div className='uppercase'>ID</div>
+                    <div className='uppercase'>Project ID</div>
                 ),
-                cell: info => {
+                cell: ({ row, getValue }) => {
                     return (
-                        <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-                            {info.getValue()}
+                        <div className='cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {getValue()}
                         </div>
                     )
                 },
@@ -226,7 +253,7 @@ const TableView = ({ pageProps }: Props) => {
             {
                 accessorKey: 'workName',
                 header: (info) => (
-                    <div className='uppercase'>Title</div>
+                    <div className='uppercase'>Project Name</div>
                 ),
                 cell: info => {
                     return (
@@ -240,10 +267,11 @@ const TableView = ({ pageProps }: Props) => {
             },
             {
                 accessorKey: 'totalTask',
-                cell: info => {
+                cell: ({ row, getValue }) => {
+                    const completed = row.original.totalTaskCompleted
                     return (
-                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
-                            {info.getValue()}
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
+                            {completed + "/" + getValue()}
                         </div>
                     )
                 },
@@ -288,6 +316,22 @@ const TableView = ({ pageProps }: Props) => {
                     )
                 },
                 header: props => (<div className='w-full text-left uppercase'>Due Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'workStatus',
+                header: (info) => (
+                    <div className='uppercase'>Status</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    console.log("status :", getValue())
+                    return (
+                        <div className='cursor-pointer text-left font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {genWorkStatus(getValue())}
+                        </div>
+                    )
+                },
                 footer: props => props.column.id,
                 enableColumnFilter: false,
             },
@@ -517,23 +561,31 @@ const TableView = ({ pageProps }: Props) => {
                         onClick={onCloseDetail}
                     >
                         <div className="flex-flex-col gap-2">
-                            <h3 className='text-lg font-semibold'>{details?.workType || ""}</h3>
+                            <h3 
+                                className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
+                                style={{
+                                    backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
+                                    color: !details?.workType ? "#333A48" : "#FFFFFF",
+                                }}
+                            >
+                                {details?.workType || ""}
+                            </h3>
                             <div className="flex items-center gap-2">
                                 <p className='text-sm text-gray-5'>{details?.workName || ""}</p>
                             </div>
                         </div>
                     </ModalHeader>
-                    <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
+                    <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
                         <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-sm text-primary'>Start Date</div>
+                            <div className='text-sm text-graydark'>Start Date</div>
                             <p>{dateFormat(details?.scheduleStart)}</p>
                         </div>
                         <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-sm text-primary'>End Date</div>
+                            <div className='text-sm text-graydark'>End Date</div>
                             <p>{dateFormat(details?.scheduleEnd)}</p>
                         </div>
-                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-sm text-primary'>Total Task</div>
+                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2'>
+                            <div className='text-sm text-graydark'>Total Task</div>
                             <p>{details?.totalTask}</p>
                         </div>
                     </div>
