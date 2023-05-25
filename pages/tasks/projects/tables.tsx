@@ -171,7 +171,7 @@ const TableView = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => makeData(50000))
+        setDataTable(() => makeData(100))
     }, []);
 
     const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
