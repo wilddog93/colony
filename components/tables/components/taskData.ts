@@ -75,6 +75,7 @@ export type WorkProps = {
     executionStart: string | null | undefined;
     status?: string;
     divisions?: DivisionProps[];
+    priority?: string
 }
 
 const range = (len: number) => {
@@ -249,6 +250,11 @@ const newWork = (): WorkProps => {
         ])[0]!,
         createdAt: faker.date.recent().toISOString(),
         updatedAt: faker.date.recent().toISOString(),
+        priority: faker.helpers.shuffle<WorkProps['priority']>([
+            'Low',
+            'Medium',
+            'High'
+        ])[0]!,
     }
 }
 
