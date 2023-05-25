@@ -162,7 +162,7 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>('au
         const response = await axios.get("auth/web/me", config);
         const { data, status } = response;
         if (status == 200) {
-            return data
+            return data.user
         } else {
             throw response
         }

@@ -9,7 +9,7 @@ import { ColumnItems } from '../../../components/tables/components/makeData';
 import { makeData } from '../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuParkings, menuProjects, menuTask } from '../../../utils/routes';
 import Tabs from '../../../components/Layouts/Tabs';
@@ -18,6 +18,8 @@ import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import { WorkProps, createDataTask } from '../../../components/tables/components/taskData';
+import moment from 'moment';
 
 type Props = {
     pageProps: any
@@ -118,6 +120,7 @@ const stylesSelect = {
 };
 
 const TableView = ({ pageProps }: Props) => {
+    moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
 
@@ -133,7 +136,7 @@ const TableView = ({ pageProps }: Props) => {
     const [loading, setLoading] = useState(true);
 
     // data-table
-    const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+    const [dataTable, setDataTable] = useState<WorkProps[]>([]);
     const [isSelectedRow, setIsSelectedRow] = useState({});
     const [pages, setPages] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -144,7 +147,13 @@ const TableView = ({ pageProps }: Props) => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [details, setDetails] = useState<ColumnItems>();
+    const [details, setDetails] = useState<WorkProps>();
+
+    // date format
+    const dateFormat = (value:string | any) => {
+        if(!value) return "-";
+        return moment(new Date(value)).format("MMM DD, YYYY, HH:mm")
+    }
 
     // form modal
     const onClose = () => setIsOpenModal(false);
@@ -171,17 +180,20 @@ const TableView = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => makeData(100))
+        setDataTable(() => createDataTask(100))
     }, []);
 
-    const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+    const goToTask = (id:any) => {
+        if(!id) return;
+        return router.push({ pathname: `/tasks/projects/${id}` })
+    };
+
+    const columns = useMemo<ColumnDef<WorkProps, any>[]>(
         () => [
             {
-                accessorKey: 'fullName',
+                accessorKey: 'workType',
                 header: (info) => (
-                    <div>
-                        Zone Name
-                    </div>
+                    <div className='uppercase'>Type</div>
                 ),
                 cell: info => {
                     return (
@@ -197,8 +209,10 @@ const TableView = ({ pageProps }: Props) => {
                 minSize: 10
             },
             {
-                accessorKey: 'email',
-                header: (info) => "Description",
+                accessorKey: 'workCode',
+                header: (info) => (
+                    <div className='uppercase'>ID</div>
+                ),
                 cell: info => {
                     return (
                         <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
@@ -210,8 +224,10 @@ const TableView = ({ pageProps }: Props) => {
                 enableColumnFilter: false,
             },
             {
-                accessorKey: 'phoneNumber',
-                header: (info) => "Units",
+                accessorKey: 'workName',
+                header: (info) => (
+                    <div className='uppercase'>Title</div>
+                ),
                 cell: info => {
                     return (
                         <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
@@ -223,7 +239,7 @@ const TableView = ({ pageProps }: Props) => {
                 enableColumnFilter: false,
             },
             {
-                accessorKey: 'owned',
+                accessorKey: 'totalTask',
                 cell: info => {
                     return (
                         <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
@@ -231,7 +247,47 @@ const TableView = ({ pageProps }: Props) => {
                         </div>
                     )
                 },
-                header: props => (<div className='w-full text-center'>Total Unit</div>),
+                header: props => (<div className='w-full text-center uppercase'>Total Task</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'workCategory.urgency',
+                cell: info => {
+                    let urgency = info.getValue();
+                    return (
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
+                            {urgency ? <MdCheckCircleOutline className='w-5 h-5 text-primary mx-auto' /> : "-"}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Urgency</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'scheduleStart',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Start Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'scheduleEnd',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Due Date</div>),
                 footer: props => props.column.id,
                 enableColumnFilter: false,
             },
@@ -241,25 +297,17 @@ const TableView = ({ pageProps }: Props) => {
                     return (
                         <div className='w-full text-center flex items-center justify-center cursor-pointer'>
                             <Button
-                                onClick={() => onOpen()}
+                                onClick={() => goToTask(getValue())}
                                 variant="secondary-outline-none"
                                 className="px-1 py-1"
                                 type="button"
                             >
-                                <MdEdit className='text-gray-5 w-4 h-4' />
-                            </Button>
-                            <Button
-                                onClick={() => onOpenDelete(row.original)}
-                                variant="secondary-outline-none"
-                                className="px-1 py-1"
-                                type="button"
-                            >
-                                <MdDelete className='text-gray-5 w-4 h-4' />
+                                <MdChevronRight className='text-gray-5 w-4 h-4' />
                             </Button>
                         </div>
                     )
                 },
-                header: props => (<div className='w-full text-center'>Actions</div>),
+                header: props => (<div className='w-full text-center uppercase'>Actions</div>),
                 footer: props => props.column.id,
                 // enableSorting: false,
                 enableColumnFilter: false,
@@ -469,51 +517,24 @@ const TableView = ({ pageProps }: Props) => {
                         onClick={onCloseDetail}
                     >
                         <div className="flex-flex-col gap-2">
-                            <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
+                            <h3 className='text-lg font-semibold'>{details?.workType || ""}</h3>
                             <div className="flex items-center gap-2">
-                                <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
-                                <p className='text-sm text-gray-5 capitalize flex items-center'>
-                                    <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
-                                    {details?.gender || ""}
-                                </p>
+                                <p className='text-sm text-gray-5'>{details?.workName || ""}</p>
                             </div>
                         </div>
                     </ModalHeader>
-                    <div className="w-full px-6 mb-5">
-                        <div className='w-full flex gap-2.5'>
-                            <img src={details?.images ?? "../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
-
-                            <div className='w-full flex flex-col gap-2 text-gray-5'>
-                                <h3 className='font-bold text-lg'>{details?.fullName}</h3>
-                                <div className='flex items-center gap-2'>
-                                    <MdEmail />
-                                    {details?.email}
-                                </div>
-                                <div className='flex items-center gap-2'>
-                                    <MdPhone />
-                                    {/* {formatPhone("+", details?.phoneNumber)} */}
-                                    {details?.phoneNumber}
-                                </div>
-                                <div className='flex items-center gap-2'>
-                                    <MdCalendarToday />
-                                    {details?.date}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
                         <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-lg text-primary'>Unit_05</div>
-                            <p>Occupant</p>
+                            <div className='text-sm text-primary'>Start Date</div>
+                            <p>{dateFormat(details?.scheduleStart)}</p>
                         </div>
                         <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-lg text-primary'>Unit_12</div>
-                            <p>Occupant & Owner</p>
+                            <div className='text-sm text-primary'>End Date</div>
+                            <p>{dateFormat(details?.scheduleEnd)}</p>
                         </div>
                         <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-lg text-primary'>Unit_55</div>
-                            <p>Owner</p>
+                            <div className='text-sm text-primary'>Total Task</div>
+                            <p>{details?.totalTask}</p>
                         </div>
                     </div>
                 </Fragment>

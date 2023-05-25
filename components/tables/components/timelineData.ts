@@ -1,5 +1,4 @@
 import { DateModule, PhoneModule, faker } from '@faker-js/faker'
-import { useEffect, useState } from 'react'
 
 export type ColumnItems = {
     id: any
@@ -18,10 +17,11 @@ export type ColumnItems = {
     progress: number
     status: 'active' | 'inactive'
     subRows?: ColumnItems[],
-    avatar: string | undefined;
+    avatar: string | undefined,
     workName: string;
     startDate: string;
     endDate: string;
+    color: number | string;
 }
 
 const range = (len: number) => {
@@ -33,8 +33,8 @@ const range = (len: number) => {
 }
 
 const generateRandomDates = () => {
-    const startDate = faker.date.between('2022-01-01', '2022-12-31');
-    const endDate = faker.date.between(startDate, '2022-12-31');
+    const startDate = faker.date.between('2023-01-01', '2023-12-31');
+    const endDate = faker.date.between(startDate, '2023-12-31');
 
     return {
         start: startDate.toISOString(),
@@ -45,8 +45,8 @@ const generateRandomDates = () => {
 const newPerson = (): ColumnItems => {
     const random = generateRandomDates();
     const start = random.start;
-    const end = random.end
-    
+    const end = random.end;
+
     return {
         id: faker.datatype.uuid(),
         fullName: `${faker.name.firstName()} ${faker.name.lastName()}`,
@@ -74,7 +74,9 @@ const newPerson = (): ColumnItems => {
         ])[0]!,
         workName: faker.name.jobTitle(),
         startDate: start,
-        endDate: end
+        endDate: end,
+        color: faker.internet.color()
+
     }
 }
 
