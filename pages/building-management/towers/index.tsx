@@ -39,7 +39,7 @@ const Towers = ({ pageProps }: Props) => {
       userDefault="../image/user/user-01.png"
       token={token}
     >
-      <div className='absolute inset-0 mt-20 bg-boxdark flex text-white'>
+      <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
         <SidebarComponent
           className=''
           menus={menuBM}
