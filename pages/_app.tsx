@@ -11,6 +11,7 @@ import { isSupported, onMessage } from "@firebase/messaging";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // timeline css
 import "react-calendar-timeline/lib/Timeline.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const { store, props } = wrapper.useWrappedStore(pageProps);
