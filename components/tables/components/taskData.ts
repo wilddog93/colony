@@ -195,7 +195,7 @@ const newTask = (): TaskProps => {
             'active',
             'inactive'
         ])[0]!,
-        taskIndex: null,
+        taskIndex: 0,
         taskName: faker.name.jobTitle(),
         taskDescription: faker.lorem.text(),
         taskRequestStatus: faker.helpers.shuffle<TaskProps['taskRequestStatus']>([
