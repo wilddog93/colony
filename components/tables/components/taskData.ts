@@ -29,16 +29,8 @@ export type TaskProps = {
     updatedAt?: string | null
 }
 
-export type DivisionProps = {
-    divisionCode?: string;
-    divisionDescription?: string;
-    divisionName?: string;
-    id?: string | number;
-    status?: string;
-};
-
 export type UserProps = {
-    id: string | number
+    id?: string | number | any
     userCode?: string | null
     firstName?: string
     lastName?: string
@@ -54,6 +46,15 @@ export type UserProps = {
     updatedAt?: string | null;
     createdAt?: string | null
 }
+
+export type DivisionProps = {
+    divisionCode?: string | number;
+    divisionDescription?: string;
+    divisionName?: string;
+    id?: string | number;
+    status?: string;
+    member: UserProps[]
+};
 
 export type WorkProps = {
     id: number | string | any;
@@ -107,7 +108,7 @@ const newMember = (): UserProps => {
         firstName: faker.name.firstName(),
         nickName: faker.name.middleName(),
         lastName: faker.name.lastName(),
-        profileImage: faker.image.dataUri(),
+        profileImage: faker.image.avatar(),
         email: `${faker.name.firstName()}@gmail.com`,
         gender: faker.helpers.shuffle<UserProps['gender']>([
             'male',
@@ -119,22 +120,55 @@ const newMember = (): UserProps => {
         updatedAt: faker.date.recent().toISOString(),
         mobileNotification: faker.datatype.number(100),
         totalWallet: faker.datatype.number(100),
-        userAddress: faker.address.buildingNumber(),
+        userAddress: faker.address.streetAddress(),
         userCode: faker.datatype.string()
     }
 };
 
+export function createMemberArr(...lens: number[]) {
+    const makeTaskLevel = (depth = 0): UserProps[] => {
+        const len = lens[depth]!
+        return range(len).map((d): UserProps => {
+            return {
+                ...newMember(),
+            }
+        })
+    }
+
+    return makeTaskLevel()
+};
+
 const newDivision = (): DivisionProps => {
+    const member = createMemberArr(4)
     return {
         id: faker.datatype.uuid(),
-        divisionCode: faker.datatype.string(),
+        divisionCode: faker.datatype.number(10000),
         divisionDescription: faker.lorem.paragraph(),
-        divisionName: faker.commerce.department(),
+        divisionName: faker.helpers.shuffle<DivisionProps['divisionName']>([
+            'Engineer',
+            'Technician',
+            'Operational',
+            'Cleaning Service'
+        ])[0]!,
         status: faker.helpers.shuffle<DivisionProps['status']>([
             'active',
             'inactive'
-        ])[0]!
+        ])[0]!,
+        member: member
     }
+};
+
+export function createDivisionArr(...lens: number[]) {
+    const makeTaskLevel = (depth = 0): DivisionProps[] => {
+        const len = lens[depth]!
+        return range(len).map((d): DivisionProps => {
+            return {
+                ...newDivision(),
+            }
+        })
+    }
+
+    return makeTaskLevel()
 };
 
 const newTask = (): TaskProps => {
@@ -188,10 +222,23 @@ const newTask = (): TaskProps => {
     }
 };
 
+export function createTaskArr(...lens: number[]) {
+    const makeTaskLevel = (depth = 0): TaskProps[] => {
+        const len = lens[depth]!
+        return range(len).map((d): TaskProps => {
+            return {
+                ...newTask(),
+            }
+        })
+    }
+
+    return makeTaskLevel()
+};
+
 const newWork = (): WorkProps => {
     const task = newTask();
-    const division = newDivision();
-    const member = newMember();
+    const division = createDivisionArr(2);
+    const member = createMemberArr(3);
     return {
         id: faker.datatype.uuid(),
         executionStart: task.times?.executionStart,
@@ -202,8 +249,8 @@ const newWork = (): WorkProps => {
             'active',
             'inactive'
         ])[0]!,
-        divisions: [division],
-        member: [member],
+        divisions: division,
+        member: member,
         task: [task],
         totalTask: 1,
         totalTaskCompleted: 0,

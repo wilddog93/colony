@@ -9,7 +9,7 @@ import { ColumnItems } from '../../../../components/tables/components/makeData';
 import { makeData } from '../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdMoreHoriz, MdPhone, MdUpload, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuParkings, menuProjects, menuTask } from '../../../../utils/routes';
 import Tabs from '../../../../components/Layouts/Tabs';
@@ -18,8 +18,11 @@ import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import Modal from '../../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
+import { DivisionProps, UserProps, WorkProps, createDataTask, createDivisionArr, createMemberArr } from '../../../../components/tables/components/taskData';
 import moment from 'moment';
+import CardTables from '../../../../components/tables/layouts/CardTables';
+import Teams from '../../../../components/Task/Teams';
+import DropdownDefault from '../../../../components/Dropdown/DropdownDefault';
 
 type Props = {
     pageProps: any
@@ -136,7 +139,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [loading, setLoading] = useState(true);
 
     // data-table
-    const [dataTable, setDataTable] = useState<WorkProps[]>([]);
+    const [dataTable, setDataTable] = useState<DivisionProps[]>([]);
     const [isSelectedRow, setIsSelectedRow] = useState({});
     const [pages, setPages] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -147,7 +150,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [details, setDetails] = useState<WorkProps>();
+    const [details, setDetails] = useState<DivisionProps>();
 
     // date format
     const dateFormat = (value: string | any) => {
@@ -180,12 +183,12 @@ const ProjectType = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => createDataTask(100))
+        setDataTable(() => createDivisionArr(5))
     }, []);
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/tasks/settings/project-type/${id}` })
+        return router.push({ pathname: `/tasks/settings/team-members/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -207,32 +210,27 @@ const ProjectType = ({ pageProps }: Props) => {
         return color;
     };
 
-    const columns = useMemo<ColumnDef<WorkProps, any>[]>(() => [
+    const columns = useMemo<ColumnDef<DivisionProps, any>[]>(() => [
         {
-            accessorKey: 'workCode',
-            header: (info) => (
-                <div className='uppercase'>Code</div>
-            ),
-            cell: ({ row, getValue }) => {
-                return (
-                    <div className='cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
-                        {getValue()}
-                    </div>
-                )
-            },
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-            size: 30
-        },
-        {
-            accessorKey: 'workName',
+            accessorKey: 'divisionName',
             header: (info) => (
                 <div className='uppercase'>Title</div>
             ),
-            cell: info => {
+            cell: ({ getValue, row }) => {
+                let id = row?.original?.id
                 return (
-                    <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-                        {info.getValue()}
+                    <div className='w-full flex items-center justify-between cursor-pointer p-4'>
+                        <div className='text-lg font-semibold'>{getValue()}</div>
+                        <DropdownDefault
+                            className=''
+                            position='right'
+                            data={""}
+                            title={
+                                <div className='text-primary'>
+                                    <MdMoreHoriz className='w-4 h-4' />
+                                </div>
+                            }
+                        />
                     </div>
                 )
             },
@@ -240,11 +238,11 @@ const ProjectType = ({ pageProps }: Props) => {
             enableColumnFilter: false,
         },
         {
-            accessorKey: 'workDescription',
+            accessorKey: 'divisionDescription',
             cell: ({ row, getValue }) => {
                 return (
-                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(row.original)}>
-                        {getValue().length > 20 ? `${getValue().substring(20, 0)}...` : getValue()}
+                    <div className='w-full text-sm text-gray-5 text-left p-4'>
+                        {getValue().length > 70 ? `${getValue().substring(70, 0)}...` : getValue()}
                     </div>
                 )
             },
@@ -254,26 +252,26 @@ const ProjectType = ({ pageProps }: Props) => {
             size: 150
         },
         {
-            accessorKey: 'priority',
+            accessorKey: 'member',
             cell: ({ row, getValue }) => {
-                const val = getValue();
+                let member = getValue()
                 return (
-                    <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
-                        {val}
+                    <div className='w-full text-sm p-4 text-left border-b-2 border-gray'>
+                        {member.length > 1 ? `${member.length} Members` : member?.length == 0 ? `Division hasn't any member yet` : `${member.length} Member`}
                     </div>
                 )
             },
-            header: props => (<div className='w-full text-center uppercase'>Priority</div>),
+            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
             footer: props => props.column.id,
             enableColumnFilter: false,
-            size: 150
         },
         {
-            accessorKey: 'createdAt',
-            cell: info => {
+            accessorKey: 'id',
+            cell: ({ row, getValue }) => {
+                let member = row?.original?.member;
                 return (
-                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
-                        {dateFormat(info.getValue())}
+                    <div className='w-full text-sm text-left p-4'>
+                        <Teams items={member} />
                     </div>
                 )
             },
@@ -288,6 +286,8 @@ const ProjectType = ({ pageProps }: Props) => {
             dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
         }
     }, [token]);
+
+    console.log(dataTable, 'data table')
 
     return (
         <DefaultLayout
@@ -386,7 +386,7 @@ const ProjectType = ({ pageProps }: Props) => {
                             </div>
 
                             {/* table */}
-                            <SelectTables
+                            <CardTables
                                 loading={loading}
                                 setLoading={setLoading}
                                 pages={pages}
@@ -398,6 +398,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                 dataTable={dataTable}
                                 total={total}
                                 setIsSelected={setIsSelectedRow}
+                                isInfiniteScroll
                             />
                         </div>
                     </main>
@@ -436,40 +437,7 @@ const ProjectType = ({ pageProps }: Props) => {
                 isOpen={isOpenDetail}
             >
                 <Fragment>
-                    <ModalHeader
-                        className='p-6 mb-3'
-                        isClose={true}
-                        onClick={onCloseDetail}
-                    >
-                        <div className="flex-flex-col gap-2">
-                            <h3
-                                className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
-                                style={{
-                                    backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
-                                    color: !details?.workType ? "#333A48" : "#FFFFFF",
-                                }}
-                            >
-                                {details?.workType || ""}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                                <p className='text-sm text-gray-5'>{details?.workName || ""}</p>
-                            </div>
-                        </div>
-                    </ModalHeader>
-                    <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
-                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-sm text-graydark'>Start Date</div>
-                            <p>{dateFormat(details?.scheduleStart)}</p>
-                        </div>
-                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-                            <div className='text-sm text-graydark'>End Date</div>
-                            <p>{dateFormat(details?.scheduleEnd)}</p>
-                        </div>
-                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2'>
-                            <div className='text-sm text-graydark'>Total Task</div>
-                            <p>{details?.totalTask}</p>
-                        </div>
-                    </div>
+                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Mollitia quam, ab iusto aliquam cumque esse repellendus voluptas inventore iure in! Tempora repellendus consectetur nisi recusandae asperiores quo aspernatur esse nobis nulla ex dolorum, fugit illo incidunt tempore consequuntur qui numquam maiores accusantium possimus. Exercitationem adipisci tenetur dolores expedita culpa accusamus officia sit laborum possimus qui! Magni obcaecati exercitationem laboriosam nemo voluptates aspernatur adipisci, fuga dicta maxime ipsam animi repellat aliquam sit vero delectus perspiciatis labore pariatur, consectetur, temporibus nesciunt reprehenderit placeat. Voluptatem placeat laborum temporibus! Consectetur reiciendis exercitationem dolorum. Voluptates fugit repellat repellendus ullam fugiat repudiandae odio debitis tempore magnam.
                 </Fragment>
             </Modal>
 

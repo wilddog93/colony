@@ -34,7 +34,7 @@ declare module '@tanstack/table-core' {
     }
 }
 
-function SelectTables(props: any) {
+function CardTables(props: any) {
     const {
         divided,
         dataTable,
@@ -208,54 +208,14 @@ function SelectTables(props: any) {
     return (
         <div className="grid grid-cols-1">
             <div className='col-span-1 p-4 overflow-x-auto'>
-                <table className='w-full table-auto overflow-hidden rounded-xl shadow-md'>
-                    {/* <thead className='text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'> */}
-                    <thead className='divide-y divide-gray-4 text-xs text-graydark bg-gray tracking-wide'>
-                        {table.getHeaderGroups().map(headerGroup => (
-                            <tr key={headerGroup.id}>
-                                {headerGroup.headers.map(header => {
-                                    // console.log(header.column.getIsSorted() as string, 'header')
-                                    return (
-                                        <th className='px-4 py-6' key={header.id} colSpan={header.colSpan} style={{
-                                            width: header.getSize()
-                                        }}>
-                                            {header.isPlaceholder ? null : (
-                                                <Fragment>
-                                                    <div
-                                                        {...{
-                                                            className: `${header.column.getCanSort() ? 'cursor-pointer select-none ' : ''}flex -tems-center gap-2`,
-                                                            onClick: header.column.getToggleSortingHandler(),
-                                                        }}
-                                                    >
-                                                        {flexRender(
-                                                            header.column.columnDef.header,
-                                                            header.getContext()
-                                                        )}
-                                                        {{
-                                                            asc: <MdArrowDropDown className='w-5 h-4' />,
-                                                            desc: <MdArrowDropUp className='w-5 h-4' />,
-                                                        }[header.column.getIsSorted() as string] ?? null}
-                                                    </div>
-                                                    {header.column.getCanFilter() ? (
-                                                        <div>
-                                                            <Filter column={header.column} table={table} />
-                                                        </div>
-                                                    ) : null}
-                                                </Fragment>
-                                            )}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody className={`divide-y divide-gray-4 bg-white text-graydark text-xs`}>
+                <div className='w-full overflow-hidden rounded-xl'>
+                    <div className={`w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-graydark text-xs mb-5`}>
                         {table.getRowModel().rows.map(row => {
                             return (
-                                <tr key={row.id}>
+                                <div key={row.id} className='w-full h-full min-h-[150px] max-h-[300px] overflow-hidden flex flex-col justify-between bg-white rounded-xl shadow-card border border-gray'>
                                     {row.getVisibleCells().map(cell => {
                                         return (
-                                            <td key={cell.id} style={{ width: cell.column.columnDef.size }} className='px-4 py-4'>
+                                            <div key={cell.id} className='w-full flex flex-col gap-2'>
                                                 {loading && !isInfiniteScroll ?
                                                     <div className="px-1 py-1 animate-pulse flex items-center justify-center">
                                                         <div className="h-2 w-20 bg-gray rounded"></div>
@@ -263,27 +223,27 @@ function SelectTables(props: any) {
                                                     :
                                                     flexRender(cell.column.columnDef.cell, cell.getContext())
                                                 }
-                                            </td>
+                                            </div>
                                         )
                                     })}
-                                </tr>
+                                </div>
                             )
                         })}
                         {isLoadingInfinite && isInfiniteScroll ?
-                            <tr >
-                                <td colSpan={columns?.length} className='px-4 py-4'>
+                            <div className='w-full flex items-center'>
+                                <td className='px-4 py-4'>
                                     <div className='w-full flex items-center gap-2 text-base font-semibold'>
                                         Loading...
                                         <FaCircleNotch className='w-4 h-4 animate-spin-2' />
                                     </div>
                                 </td>
-                            </tr> :
+                            </div> :
                             null
                         }
-                    </tbody>
-                    <tfoot className={`border-t border-gray-4 text-gray-5 font-normal ${isInfiniteScroll ? "hidden" : ""}`}>
-                        <tr className='w-full'>
-                            <th colSpan={table.getVisibleLeafColumns().length}>
+                    </div>
+                    <div className={`border-t border-gray-4 text-gray-5 font-normal ${isInfiniteScroll ? "hidden" : ""}`}>
+                        <div className='w-full'>
+                            <div>
                                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
                                     <div className="flex flex-row items-center text-xs">
                                         {table.getPageCount() >= 1 ? (
@@ -363,13 +323,13 @@ function SelectTables(props: any) {
                                     </div>
                                 </div>
 
-                            </th>
-                        </tr>
-                    </tfoot>
-                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
 };
 
-export default SelectTables;
+export default CardTables;

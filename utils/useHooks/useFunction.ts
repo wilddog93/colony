@@ -1,6 +1,6 @@
 export const formatPhone = (code: any, val: any) => {
     // val.replace(/\D+/g, '')
-    if(val == undefined || !val) {
+    if (val == undefined || !val) {
         return;
     }
     let replace = val.replace(/\D+/g, "");
@@ -13,4 +13,9 @@ export const formatPhone = (code: any, val: any) => {
         "-" +
         replace.substr(9, 4);
     return code + result;
+};
+
+export const colorfull = (num: any) => {
+    if (num) return Math.floor(Math.random() * 16777215).toString(16);
+    else "#fff";
 };
