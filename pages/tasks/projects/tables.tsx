@@ -9,7 +9,7 @@ import { ColumnItems } from '../../../components/tables/components/makeData';
 import { makeData } from '../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdOutlinePerson, MdPhone, MdUpload, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuParkings, menuProjects, menuTask } from '../../../utils/routes';
 import Tabs from '../../../components/Layouts/Tabs';
@@ -20,6 +20,8 @@ import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import { WorkProps, createDataTask } from '../../../components/tables/components/taskData';
 import moment from 'moment';
+import { ArrayInput, useInputArray } from '../../../utils/useHooks/useHooks';
+import MultiArrayForm from '../../../components/Forms/MultiArrayForm';
 
 type Props = {
     pageProps: any
@@ -148,6 +150,7 @@ const TableView = ({ pageProps }: Props) => {
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [details, setDetails] = useState<WorkProps>();
+
 
     // date format
     const dateFormat = (value: string | any) => {
@@ -537,9 +540,11 @@ const TableView = ({ pageProps }: Props) => {
                     >
                         <h3 className='text-lg font-semibold'>Modal Header</h3>
                     </ModalHeader>
+
                     <div className="w-full px-4">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quas a, facere unde ab omnis libero atque placeat fugiat neque soluta illum magni pariatur architecto vero tenetur, quo corporis corrupti exercitationem, natus asperiores non saepe deserunt quidem? Laboriosam molestias inventore pariatur maiores nostrum officiis quam. Commodi excepturi eius accusantium modi obcaecati facilis suscipit nam, sunt magni ab fuga magnam non voluptates hic exercitationem eaque esse ea quis sequi rem nulla itaque mollitia! Iure, velit officia aliquam, nisi dolor ipsam perspiciatis magni ex excepturi animi ducimus. Voluptatum, at laudantium tempora modi repudiandae beatae dignissimos tempore molestias officia vero, similique facilis ab eius.
                     </div>
+
                     <ModalFooter
                         className='p-4 border-t-2 border-gray mt-3'
                         isClose={true}

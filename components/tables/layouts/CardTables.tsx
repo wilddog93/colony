@@ -48,7 +48,8 @@ function CardTables(props: any) {
         limit,
         setLimit,
         total,
-        isInfiniteScroll
+        isInfiniteScroll,
+        classTable
     } = props;
 
     const router: NextRouter = useRouter();
@@ -209,7 +210,7 @@ function CardTables(props: any) {
         <div className="grid grid-cols-1">
             <div className='col-span-1 p-4 overflow-x-auto'>
                 <div className='w-full overflow-hidden rounded-xl'>
-                    <div className={`w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-graydark text-xs mb-5`}>
+                    <div className={`w-full grid col-span-1 gap-4 text-graydark text-xs mb-5 ${classTable}`}>
                         {table.getRowModel().rows.map(row => {
                             return (
                                 <div key={row.id} className='w-full h-full min-h-[150px] max-h-[300px] overflow-hidden flex flex-col justify-between bg-white rounded-xl shadow-card border border-gray'>

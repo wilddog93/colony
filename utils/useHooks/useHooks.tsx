@@ -343,5 +343,60 @@ const useScrollPosition = () => {
     return { scrollPosition, lastScrollPosition: lastScrollPositionRef.current };
 }
 
+// multi Array
+export type ArrayInput = { [key: string]: string[] };
 
-export { useInput, useTextArea, useCheckbox, useSelect, useRadioInput, usePhoneInput, useDatePicker, useScrollPosition };
+const useInputArray = (
+    initialValue: ArrayInput,
+    validateFn: (input: ArrayInput) => boolean
+) => {
+    const [value, setValue] = useState<ArrayInput>(initialValue);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange = (key: string, newValue: string[]) => {
+        setValue((prevValue) => ({
+            ...prevValue,
+            [key]: newValue,
+        }));
+        setError(null);
+    };
+
+    const validate = () => {
+        const isValid = validateFn(value);
+        setError(isValid ? null : 'Invalid input');
+        return isValid;
+    };
+
+    const reset = () => {
+        setValue(initialValue);
+        setError(null);
+    };
+
+    const handleArrayChange = (key: string, index: number, newValue: string) => {
+        const newArray = [...value[key]];
+        newArray[index] = newValue;
+        handleChange(key, newArray);
+    };
+
+    return {
+        value,
+        error,
+        handleChange,
+        handleArrayChange,
+        validate,
+        reset,
+    };
+};
+
+
+export {
+    useInput,
+    useInputArray,
+    useTextArea,
+    useCheckbox,
+    useSelect,
+    useRadioInput,
+    usePhoneInput,
+    useDatePicker,
+    useScrollPosition
+};

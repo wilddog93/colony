@@ -399,6 +399,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                 total={total}
                                 setIsSelected={setIsSelectedRow}
                                 isInfiniteScroll
+                                classTable="sm:grid-cols-2"
                             />
                         </div>
                     </main>
