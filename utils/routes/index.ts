@@ -1,5 +1,5 @@
 import { IconType } from "react-icons";
-import { MdAssignment, MdCardMembership, MdHelpOutline, MdLocalParking, MdMonetizationOn, MdMuseum, MdOutlineBusiness, MdOutlineDashboard, MdOutlineInfo, MdOutlineMap, MdOutlineNextWeek, MdOutlinePeopleAlt, MdOutlineSettings, MdPhotoSizeSelectActual, MdStore, MdUnarchive, MdWarningAmber, MdWork } from "react-icons/md";
+import { MdArchive, MdAssignment, MdCardMembership, MdCreditCard, MdFileCopy, MdHelpOutline, MdLocalParking, MdMonetizationOn, MdMoneyOff, MdMuseum, MdOutlineBusiness, MdOutlineDashboard, MdOutlineFileCopy, MdOutlineInfo, MdOutlineMap, MdOutlineNextWeek, MdOutlinePeopleAlt, MdOutlineSettings, MdPermDeviceInformation, MdPhotoSizeSelectActual, MdReceipt, MdStore, MdUnarchive, MdWarningAmber, MdWork } from "react-icons/md";
 
 export type MenuProps = {
   title?: string;
@@ -33,8 +33,8 @@ export const menuMaster: MenuProps[] = [
       },
       {
         pathname: "Billings & Payments",
-        pages: "billings-payments",
-        url: "/billings-payments",
+        pages: "billings",
+        url: "/billings",
         icons: {
           icon: MdMonetizationOn,
           className: "w-8 h-8 text-meta-3"
@@ -431,4 +431,123 @@ export const menuProjects: MenuProps[] = [
       limit: 10,
     },
   }
+];
+
+// billing payment
+export const menuPayments: MenuProps[] = [
+  {
+    pathname: "Dashboard",
+    pages: "dashboard",
+    url: "/billings",
+    icons: {
+      icon: MdOutlineDashboard,
+      className: "w-5 h-5"
+    }
+  },
+  {
+    pathname: "Payments",
+    pages: "payments",
+    url: "/billings/payments",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icons: {
+      icon: MdCreditCard,
+      className: "w-5 h-5"
+    }
+  },
+  {
+    pathname: "Invoices",
+    pages: "invoices",
+    url: "/billings/invoices",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icons: {
+      icon: MdReceipt,
+      className: "w-5 h-5"
+    }
+  },
+  {
+    pathname: "Draft",
+    pages: "draft",
+    url: "/billings/draft",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+    icons: {
+      icon: MdArchive,
+      className: "w-5 h-5"
+    }
+  },
+  // {
+  //   pathname: "Payments",
+  //   pages: "payments",
+  //   icons: {
+  //     icon: MdOutlinePeopleAlt,
+  //     className: "w-5 h-5"
+  //   },
+  //   routes: [
+  //     {
+  //       pathname: "Table View",
+  //       url: "/tasks/projects/tables",
+  //       query: {
+  //         page: 1,
+  //         limit: 10,
+  //       },
+  //     },
+  //     {
+  //       pathname: "Schedule Board",
+  //       url: "/tasks/projects/calendar-board",
+  //       query: {
+  //         page: 1,
+  //         limit: 10,
+  //       },
+  //     },
+  //   ]
+  // },
+  {
+    subMenus: [
+      {
+        pathname: "Templates",
+        url: "/billings/settings/templates",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdOutlineFileCopy,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Taxes",
+        url: "/billings/settings/taxes",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdMoneyOff,
+          className: "w-5 h-5"
+        }
+      },
+      {
+        pathname: "Discounts",
+        url: "/billings/settings/discounts",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+        icons: {
+          icon: MdPermDeviceInformation,
+          className: "w-5 h-5"
+        }
+      }
+    ],
+    title: "Settings"
+  },
 ];

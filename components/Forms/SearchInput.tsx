@@ -48,7 +48,7 @@ export const SearchInput = ({ filter, setFilter, placeholder, className, classNa
                         />
 
                     ) :
-                        <MdSearch onClick={handleSubmit} className={`w-6 h-6 absolute z-20 left-3 top-4 hover:cursor-pointer text-gray-5 ${classNamePrefix}`} />
+                        <MdSearch onClick={handleSubmit} className={`w-6 h-6 absolute left-3 top-4 hover:cursor-pointer text-gray-5 ${classNamePrefix}`} />
                     }
                     <input
                         type='text'

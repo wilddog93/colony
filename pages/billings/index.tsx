@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
 import SidebarComponent from '../../components/Layouts/Sidebar/SidebarComponent';
-import { menuBM } from '../../utils/routes';
+import { menuBM, menuPayments } from '../../utils/routes';
 
 type Props = {
   pageProps: any
@@ -338,7 +338,7 @@ const Dashboard = ({ pageProps }: Props) => {
       <div className='absolute inset-0 mt-20 z-99 bg-boxdark flex text-white'>
         <SidebarComponent
           className=''
-          menus={menuBM}
+          menus={menuPayments}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
         />
