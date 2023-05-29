@@ -124,13 +124,6 @@ const SidebarBody = ({ sidebarOpen, setSidebarOpen, children }: Props) => {
                     onClose={() => setSidebarOpen(false)}
                 >
                     <div className='w-full'>
-                        <ModalHeader 
-                            className='border-b'
-                            isClose
-                            onClick={() => setSidebarOpen(false)}
-                        >
-                            <div className='p-4'>Header</div>
-                        </ModalHeader>
                         <div className=''>{children}</div>
                     </div>
                 </Modal>

@@ -920,6 +920,13 @@
     "@types/react" "*"
     moment "^2.0.0"
 
+"@types/react-currency-format@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-currency-format/-/react-currency-format-1.0.0.tgz#7a0cfcdabe3ab9ddcdcc83cb27d0a7a6eaf9592e"
+  integrity sha512-IUAd/fLv3uW+Z3gyRJ9gumx7jpBk9RLXHHmg1VFjQ806AsVIKljprPMZi3SPpbwjPBiHQEGrrV1H5XbiYcp2ug==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-datepicker@^4.11.2":
   version "4.11.2"
   resolved "https://registry.yarnpkg.com/@types/react-datepicker/-/react-datepicker-4.11.2.tgz#44abfc6379faa58d28eb5730a058d6a389d40eac"
@@ -1973,6 +1980,13 @@ react-chartjs-2@^5.2.0:
   resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-5.2.0.tgz#43c1e3549071c00a1a083ecbd26c1ad34d385f5d"
   integrity sha512-98iN5aguJyVSxp5U3CblRLH67J8gkfyGNbiK3c+l1QI/G4irHMPQw44aEPmjVag+YKTyQ260NcF82GTQ3bdscA==
 
+react-currency-format@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-currency-format/-/react-currency-format-1.1.0.tgz#efef7f18045fc09a987de270b144f5eec8801dab"
+  integrity sha512-WWrEOIp/3GbDSk1wlhFXaBc7IHGT3IwL306DHbGP3GVr4YFa0iS5hHPbKjHa0haruGL4Ly+WG4/5jBHpUtgqZg==
+  dependencies:
+    prop-types "^15.6.0"
+
 react-datepicker@^4.11.0:
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-4.11.0.tgz#40e73b4729a284ed206fdb322b8e84eb566e11a3"
@@ -1997,6 +2011,11 @@ react-fast-compare@^3.0.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.1.tgz#53933d9e14f364281d6cba24bfed7a4afb808b5f"
   integrity sha512-xTYf9zFim2pEif/Fw16dBiXpe0hoy5PxcD8+OwBnTtNLfIm3g6WxhKNurY+6OmdH1u6Ta/W/Vl6vjbYP1MFnDg==
+
+react-hook-form@^7.44.2:
+  version "7.44.2"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.44.2.tgz#220186d3e380b3d6b15083b094a6ca77d3797a8b"
+  integrity sha512-IyihmIbCwzDI/iqlecTRa7+4BCnzNx40upSlGvIU7qwENhTf6APatm4bmL9ANtWKPYlD67SIlxfls7GwCUe+Lg==
 
 react-icons@^4.7.1:
   version "4.7.1"

@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCheck, MdInfo, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuPayments, menuTask } from '../../../utils/routes';
 import { SearchInput } from '../../../components/Forms/SearchInput';
@@ -24,6 +24,7 @@ import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
 import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
+import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
 
 type Props = {
     pageProps: any
@@ -342,72 +343,78 @@ const ProjectType = ({ pageProps }: Props) => {
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
                                         <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Invoices</h3>
+                                        <div className='flex items-center gap-3 font-semibold text-gray-5 tracking-wide'>
+                                            <div>322 Overdue</div>
+                                            <div>322 Ongoing</div>
+                                            <div>32 Posted</div>
+                                        </div>
                                     </div>
                                 </Button>
                             </div>
 
                             <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
-                                <CustomDateRangePicker
-                                    start={startDate}
-                                    setStart={setStartDate}
-                                    end={endDate}
-                                    setEnd={setEndDate}
-                                    classLabel='hidden lg:flex'
-                                />
-                            </div>
-                        </div>
-
-                        {/* filters */}
-                        <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
-                            <div className='w-full lg:col-span-3'>
-                                <SearchInput
-                                    className='w-full text-sm rounded-xl'
-                                    classNamePrefix=''
-                                    filter={search}
-                                    setFilter={setSearch}
-                                    placeholder='Search...'
-                                />
-                            </div>
-                            <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                                <DropdownSelect
-                                    customStyles={stylesSelectSort}
-                                    value={sort}
-                                    onChange={setSort}
-                                    error=""
-                                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                    classNamePrefix=""
-                                    formatOptionLabel=""
-                                    instanceId='1'
-                                    isDisabled={false}
-                                    isMulti={false}
-                                    placeholder='Sorts...'
-                                    options={sortOpt}
-                                    icon='MdSort'
-                                />
-                            </div>
-                            <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                                <DropdownSelect
-                                    customStyles={stylesSelect}
-                                    value={sort}
-                                    onChange={setSort}
-                                    error=""
-                                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                    classNamePrefix=""
-                                    formatOptionLabel=""
-                                    instanceId='1'
-                                    isDisabled={false}
-                                    isMulti={false}
-                                    placeholder='All status...'
-                                    options={sortOpt}
-                                    icon=''
-                                />
+                                <Button
+                                    type="button"
+                                    className='rounded-lg text-sm font-semibold py-3'
+                                    onClick={onOpen}
+                                    variant='primary'
+                                >
+                                    <span className='hidden lg:inline-block'>New Invoices</span>
+                                    <MdAdd className='w-4 h-4' />
+                                </Button>
                             </div>
                         </div>
                     </div>
 
-                    <main className='relative h-full lg:max-h-[650px] tracking-wide text-left text-boxdark-2 lg:overflow-auto'>
+                    <main className='relative h-full lg:max-h-[700px] tracking-wide text-left text-boxdark-2 lg:overflow-auto'>
                         <div className='w-full h-full flex'>
                             <div className="w-full h-full flex flex-col overflow-auto gap-2.5 lg:gap-6 lg:overflow-y-auto">
+                                {/* filters */}
+                                <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
+                                    <div className='w-full lg:col-span-3'>
+                                        <SearchInput
+                                            className='w-full text-sm rounded-xl'
+                                            classNamePrefix=''
+                                            filter={search}
+                                            setFilter={setSearch}
+                                            placeholder='Search...'
+                                        />
+                                    </div>
+                                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                        <DropdownSelect
+                                            customStyles={stylesSelectSort}
+                                            value={sort}
+                                            onChange={setSort}
+                                            error=""
+                                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                            classNamePrefix=""
+                                            formatOptionLabel=""
+                                            instanceId='1'
+                                            isDisabled={false}
+                                            isMulti={false}
+                                            placeholder='Sorts...'
+                                            options={sortOpt}
+                                            icon='MdSort'
+                                        />
+                                    </div>
+                                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                        <DropdownSelect
+                                            customStyles={stylesSelect}
+                                            value={sort}
+                                            onChange={setSort}
+                                            error=""
+                                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                            classNamePrefix=""
+                                            formatOptionLabel=""
+                                            instanceId='1'
+                                            isDisabled={false}
+                                            isMulti={false}
+                                            placeholder='All status...'
+                                            options={sortOpt}
+                                            icon=''
+                                        />
+                                    </div>
+                                </div>
                                 {/* table */}
                                 <SelectTables
                                     loading={loading}
@@ -430,8 +437,103 @@ const ProjectType = ({ pageProps }: Props) => {
                                 sidebarOpen={sidebar}
                                 setSidebarOpen={setSidebar}
                             >
-                                <div className="w-full p-4 sticky top-0">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa praesentium blanditiis tempore at odio laborum facilis ab, neque incidunt porro.
+                                <div className="w-full h-full">
+                                    <ModalHeader
+                                        className='sticky top-0 bg-white border-b-2 border-gray p-4'
+                                        isClose
+                                        onClick={() => setSidebar(false)}
+                                    >
+                                        <div className='flex flex-col tracking-wide'>
+                                            <h3 className='font-semibold text-primary'>B123</h3>
+                                            <p>Lorem ipsum dolor sit amet.</p>
+                                        </div>
+                                    </ModalHeader>
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Status:</h3>
+                                                <span className='px-4 py-2 rounded-lg bg-red-300 text-red-500 font-semibold'>Overdue</span>
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    type="button"
+                                                    className='rounded-lg text-sm font-semibold py-3'
+                                                    onClick={onOpen}
+                                                    variant='primary'
+                                                >
+                                                    <span className='inline-block'>Manual Payment</span>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div>Tagihan</div>
+                                        <div>
+                                            <span>3213 - Tagihan Bulanan</span>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div>Periode</div>
+                                        <p>00/00/0000 - 00/00/0000</p>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div>Owner</div>
+                                        <div className='flex items-center gap-2'>
+                                            <h3 className='text-base font-semibold'>John Doe</h3>
+                                            <p>johndoe@gmail.com</p>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Release Date:</h3>
+                                                <p className=''>00/00/0000</p>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Due Date:</h3>
+                                                <p className=''>00/00/0000</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Electricity</h3>
+                                                <h3>Facility</h3>
+                                                <h3>Water Supply</h3>
+                                                <h3>Environment</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Sub Total</h3>
+                                                <h3>Tax</h3>
+                                                <h3>Discount</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </SidebarBody>
                         </div>
@@ -441,26 +543,19 @@ const ProjectType = ({ pageProps }: Props) => {
 
             {/* modal example */}
             <Modal
-                size=''
+                size='small'
                 onClose={onClose}
                 isOpen={isOpenModal}
             >
                 <Fragment>
                     <ModalHeader
-                        className='p-4 border-b-2 border-gray mb-3'
+                        className='p-4 mb-3'
                         isClose={true}
                         onClick={onClose}
                     >
-                        <h3 className='text-lg font-semibold'>Modal Header</h3>
+                        <h3 className='text-lg font-semibold'>Manual Payment</h3>
                     </ModalHeader>
-                    <div className="w-full px-4">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
-                    </div>
-                    <ModalFooter
-                        className='p-4 border-t-2 border-gray mt-3'
-                        isClose={true}
-                        onClick={onClose}
-                    ></ModalFooter>
+                    <ManualForm isOpen={isOpenModal} onClose={onClose} />
                 </Fragment>
             </Modal>
 
