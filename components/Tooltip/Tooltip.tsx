@@ -19,13 +19,13 @@ const Tooltip: React.FC<TooltipProps> = ({
 }) => {
     // const { children, className, classTooltip, position, color, tooltip } = props;
     return (
-        <button type='button' className={'tooltip ' + className}>
+        <div className={'tooltip cursor-pointer' + className}>
             {children}
             <span 
                 data-position={position} 
                 data-color={color} 
                 className={'tooltiptext ' + classTooltip}>{tooltip}</span>
-        </button>
+        </div>
     );
 };
 

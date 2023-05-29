@@ -23,7 +23,7 @@ export default function Teams({ items, onClick }: TeamProps) {
                                         classTooltip='p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max'
                                         tooltip={`${items?.[val]?.firstName} ${items?.[val]?.lastName}`}
                                         color='light'
-                                        position={"bottom-left"}
+                                        position={"top-left"}
                                         key={idx}
                                     >
                                         <button

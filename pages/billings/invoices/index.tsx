@@ -20,6 +20,10 @@ import CardTables from '../../../components/tables/layouts/CardTables';
 import Teams from '../../../components/Task/Teams';
 import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
 import { CustomDateRangePicker } from '../../../components/DatePicker/CustomDateRangePicker';
+import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
+import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
 
 type Props = {
     pageProps: any
@@ -119,7 +123,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const Payments = ({ pageProps }: Props) => {
+const ProjectType = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -134,6 +138,8 @@ const Payments = ({ pageProps }: Props) => {
     const [search, setSearch] = useState(null);
     const [sort, setSort] = useState(false);
     const [loading, setLoading] = useState(true);
+    // side-body
+    const [sidebar, setSidebar] = useState(false);
 
     // data-table
     const [dataTable, setDataTable] = useState<DivisionProps[]>([]);
@@ -141,7 +147,7 @@ const Payments = ({ pageProps }: Props) => {
     const [pages, setPages] = useState(1);
     const [limit, setLimit] = useState(10);
     const [pageCount, setPageCount] = useState(2000);
-    const [total, setTotal] = useState(1000)
+    const [total, setTotal] = useState(1000);
 
     // modal
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -187,7 +193,7 @@ const Payments = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => createDivisionArr(5))
+        setDataTable(() => createDivisionArr(100))
     }, []);
 
     const goToTask = (id: any) => {
@@ -225,16 +231,13 @@ const Payments = ({ pageProps }: Props) => {
                 return (
                     <div className='w-full flex items-center justify-between cursor-pointer p-4'>
                         <div className='text-lg font-semibold'>{getValue()}</div>
-                        <DropdownDefault
-                            className=''
-                            position='right'
-                            data={""}
-                            title={
-                                <div className='text-primary'>
-                                    <MdMoreHoriz className='w-4 h-4' />
-                                </div>
-                            }
-                        />
+                        <button
+                            onClick={() => setSidebar(e => !e)}
+                            type='button'
+                            className='text-primary focus:outline-none'
+                        >
+                            <MdMoreHoriz className='w-4 h-4' />
+                        </button>
                     </div>
                 )
             },
@@ -291,7 +294,7 @@ const Payments = ({ pageProps }: Props) => {
         }
     }, [token]);
 
-    console.log(dataTable, 'data table')
+    // console.log(dataTable, 'data table')
 
     return (
         <DefaultLayout
@@ -308,10 +311,10 @@ const Payments = ({ pageProps }: Props) => {
                 className: "w-8 h-8 text-meta-3"
             }}
         >
-            <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
+            <div className='absolute inset-0 mt-20 z-20 bg-boxdark flex text-white'>
                 <SidebarComponent menus={menuPayments} sidebar={sidebarOpen} setSidebar={setSidebarOpen} />
 
-                <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
+                <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 lg:overflow-y-hidden">
                     <div className='sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2'>
                         {/* headers */}
                         <div className='w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
@@ -338,7 +341,7 @@ const Payments = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Payments</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Invoices</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -349,7 +352,7 @@ const Payments = ({ pageProps }: Props) => {
                                     setStart={setStartDate}
                                     end={endDate}
                                     setEnd={setEndDate}
-                                    classLabel='hidden'
+                                    classLabel='hidden lg:flex'
                                 />
                             </div>
                         </div>
@@ -402,24 +405,35 @@ const Payments = ({ pageProps }: Props) => {
                         </div>
                     </div>
 
-                    <main className='relative tracking-wide text-left text-boxdark-2 overflow-y-auto'>
-                        <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
-                            {/* table */}
-                            <CardTables
-                                loading={loading}
-                                setLoading={setLoading}
-                                pages={pages}
-                                setPages={setPages}
-                                limit={limit}
-                                setLimit={setLimit}
-                                pageCount={pageCount}
-                                columns={columns}
-                                dataTable={dataTable}
-                                total={total}
-                                setIsSelected={setIsSelectedRow}
-                                isInfiniteScroll
-                                classTable="bg-gray p-4"
-                            />
+                    <main className='relative h-full lg:max-h-[650px] tracking-wide text-left text-boxdark-2 lg:overflow-auto'>
+                        <div className='w-full h-full flex'>
+                            <div className="w-full h-full flex flex-col overflow-auto gap-2.5 lg:gap-6 lg:overflow-y-auto">
+                                {/* table */}
+                                <SelectTables
+                                    loading={loading}
+                                    setLoading={setLoading}
+                                    pages={pages}
+                                    setPages={setPages}
+                                    limit={limit}
+                                    setLimit={setLimit}
+                                    pageCount={pageCount}
+                                    columns={columns}
+                                    dataTable={dataTable}
+                                    total={total}
+                                    setIsSelected={setIsSelectedRow}
+                                    // isInfiniteScroll
+                                    classTable="bg-gray p-4"
+                                />
+                            </div>
+
+                            <SidebarBody
+                                sidebarOpen={sidebar}
+                                setSidebarOpen={setSidebar}
+                            >
+                                <div className="w-full p-4 sticky top-0">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa praesentium blanditiis tempore at odio laborum facilis ab, neque incidunt porro.
+                                </div>
+                            </SidebarBody>
                         </div>
                     </main>
                 </div>
@@ -522,4 +536,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default Payments;
+export default ProjectType;

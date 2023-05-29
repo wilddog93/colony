@@ -232,12 +232,12 @@ function CardTables(props: any) {
                         })}
                         {isLoadingInfinite && isInfiniteScroll ?
                             <div className='w-full flex items-center'>
-                                <td className='px-4 py-4'>
+                                <div className='px-4 py-4'>
                                     <div className='w-full flex items-center gap-2 text-base font-semibold'>
                                         Loading...
                                         <FaCircleNotch className='w-4 h-4 animate-spin-2' />
                                     </div>
-                                </td>
+                                </div>
                             </div> :
                             null
                         }
