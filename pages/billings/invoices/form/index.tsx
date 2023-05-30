@@ -134,11 +134,6 @@ const ProjectType = ({ pageProps }: Props) => {
     const { data } = useAppSelector(selectAuth);
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [search, setSearch] = useState(null);
-    const [sort, setSort] = useState(false);
-    const [loading, setLoading] = useState(true);
-    // side-body
-    const [sidebar, setSidebar] = useState(false);
 
     // modal
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -148,13 +143,7 @@ const ProjectType = ({ pageProps }: Props) => {
 
     // form
     const [isCode, setIsCode] = useState<boolean>(false);
-    const [code, setCode] = useState<string>("");
     const [isTitle, setIsTitle] = useState<boolean>(false);
-    const [title, setTitle] = useState<string>("");
-    const [periodStart, setPeriodStart] = useState<Date | null>(null)
-    const [periodEnd, setPeriodEnd] = useState<Date | null>(null)
-    const [durationStart, setDurationStart] = useState<Date | null>(null)
-    const [durationEnd, setDurationEnd] = useState<Date | null>(null)
 
     const [watchValue, setWatchValue] = useState<FormValues | any>()
     const [watchChange, setWatchChange] = useState<any | null>(null)
@@ -441,7 +430,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                                 className={`w-full max-w-45 text-lg text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                                                 {...register("billingCode")}
                                                 disabled={!isCode}
-                                            // onBlur={() => setIsTitle(false)}
+                                                onBlur={() => setIsCode(false)}
                                             />
                                             <span className='absolute right-5 top-4 cursor-pointer'>
                                                 <MdEdit onClick={() => setIsCode(e => !e)} className='w-6 h-6 fill-current text-primary opacity-80' />
@@ -466,7 +455,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                                 className={`w-full max-w-45 text-lg text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                                                 {...register("billingName")}
                                                 disabled={!isTitle}
-                                            // onBlur={() => setIsTitle(false)}
+                                                onBlur={() => setIsTitle(false)}
                                             />
 
                                             <span className='absolute right-4 top-4 cursor-pointer'>
