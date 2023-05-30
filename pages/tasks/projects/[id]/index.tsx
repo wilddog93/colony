@@ -251,76 +251,79 @@ const TaskDetail = ({ pageProps }: Props) => {
         <SidebarComponent menus={menuTask} sidebar={sidebarOpen} setSidebar={setSidebarOpen} />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='lg:sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2'>
-            {/* button sidebar */}
-            <div className='w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
-              <div className='w-full flex items-center justify-between py-3 lg:hidden'>
-                <button
-                  aria-controls='sidebar'
-                  aria-expanded={sidebarOpen}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSidebarOpen(!sidebarOpen)
-                  }}
-                  className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
-                >
-                  <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
-                </button>
-              </div>
-            </div>
-            {/* header task */}
-            <div className="w-full grid col-span-1 lg:grid-cols-6 gap-2 border-b-2 border-gray py-2 items-center justify-center">
-              <div className='w-full flex gap-2 items-center mx-auto lg:mx-0'>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
-                  onClick={() => router.back()}
-                  variant='secondary-outline'
-                  key={'1'}
-                >
-                  <MdChevronLeft className='w-5 h-5' />
-                  <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Task - 0111</h3>
-                  </div>
-                </Button>
-              </div>
-
-              <div className='w-full flex gap-2 items-center mx-auto lg:mx-0'>
-                <div className='w-full text-center bg-primary px-4 py-2 rounded-xl'>
-                  Project
+          {/* header */}
+          <div className='sticky bg-white top-0 z-99 py-6'>
+            <div className='w-full flex flex-col gap-2 bg-gray rounded-xl shadow-card'>
+              {/* button sidebar */}
+              <div className='w-full px-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
+                <div className='w-full flex items-center justify-between py-3 lg:hidden'>
+                  <button
+                    aria-controls='sidebar'
+                    aria-expanded={sidebarOpen}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSidebarOpen(!sidebarOpen)
+                    }}
+                    className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
+                  >
+                    <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
+                  </button>
                 </div>
               </div>
+              {/* header task */}
+              <div className="w-full grid col-span-1 lg:grid-cols-6 gap-2 border-0 lg:border-b-2 border-gray lg:shadow-1 py-2 items-center justify-center">
+                <div className='w-full flex gap-2 items-center mx-auto lg:mx-0'>
+                  <Button
+                    type="button"
+                    className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                    onClick={() => router.back()}
+                    variant='secondary-outline'
+                    key={'1'}
+                  >
+                    <MdChevronLeft className='w-5 h-5' />
+                    <div className='flex flex-col gap-1 items-start'>
+                      <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Task - 0111</h3>
+                    </div>
+                  </Button>
+                </div>
 
-              <div className='w-full flex gap-2 items-center mx-auto lg:mx-0'>
-                <p className='text-graydark'>Lorem ipsum dolor sit amet.</p>
+                <div className='w-full flex gap-2 items-center mx-auto lg:mx-0'>
+                  <div className='w-full text-center bg-primary px-4 py-2 rounded-xl'>
+                    Project
+                  </div>
+                </div>
+
+                <div className='w-full lg:col-span-2 flex gap-2 items-center mx-auto lg:mx-0'>
+                  <p className='text-graydark'>Lorem ipsum dolor sit amet.</p>
+                </div>
+
+                <div className='w-full lg:col-span-2 flex items-center justify-center lg:justify-end gap-2 lg:ml-auto px-4'>
+                  <Button
+                    type="button"
+                    className='rounded-lg text-sm font-semibold py-3'
+                    onClick={onOpen}
+                    variant='primary-outline'
+                  >
+                    <span className='hidden lg:inline-block'>Edit Task</span>
+                    <MdEdit className='w-4 h-4' />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    className='rounded-lg text-sm font-semibold py-3'
+                    onClick={onOpen}
+                    variant='primary'
+                  >
+                    <span className='hidden lg:inline-block'>New Task</span>
+                    <MdAdd className='w-4 h-4' />
+                  </Button>
+                </div>
               </div>
-
-              <div className='w-full lg:col-span-3 flex items-center justify-center lg:justify-end gap-2 lg:ml-auto'>
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Edit Task</span>
-                  <MdEdit className='w-4 h-4' />
-                </Button>
-
-                <Button
-                  type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary'
-                >
-                  <span className='hidden lg:inline-block'>New Task</span>
-                  <MdAdd className='w-4 h-4' />
-                </Button>
+              {/* tabs */}
+              <div className='w-full max-w-max hidden lg:flex items-start text-graydark gap-2 p-4'>
+                <h3 className='font-semibold'>Description:</h3>
+                <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum, perspiciatis!</p>
               </div>
-            </div>
-            {/* tabs */}
-            <div className='w-full max-w-max hidden lg:flex items-start text-graydark gap-2 p-4'>
-              <h3 className='font-semibold'>Description:</h3>
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum, perspiciatis!</p>
             </div>
           </div>
 
