@@ -25,6 +25,7 @@ import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
 import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
+import Cards from '../../../components/Cards/Cards';
 
 type Props = {
     pageProps: any
@@ -356,7 +357,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={onOpen}
+                                    onClick={() => router.push("/billings/invoices/form")}
                                     variant='primary'
                                 >
                                     <span className='hidden lg:inline-block'>New Invoices</span>
@@ -468,19 +469,19 @@ const ProjectType = ({ pageProps }: Props) => {
                                     </div>
 
                                     <div className='w-full border-b-2 border-gray p-4'>
-                                        <div>Tagihan</div>
+                                        <div className='text-gray-5'>Tagihan</div>
                                         <div>
                                             <span>3213 - Tagihan Bulanan</span>
                                         </div>
                                     </div>
 
                                     <div className='w-full border-b-2 border-gray p-4'>
-                                        <div>Periode</div>
+                                        <div className='text-gray-5'>Periode</div>
                                         <p>00/00/0000 - 00/00/0000</p>
                                     </div>
 
                                     <div className='w-full border-b-2 border-gray p-4'>
-                                        <div>Owner</div>
+                                        <div className='text-gray-5'>Owner</div>
                                         <div className='flex items-center gap-2'>
                                             <h3 className='text-base font-semibold'>John Doe</h3>
                                             <p>johndoe@gmail.com</p>
@@ -490,12 +491,12 @@ const ProjectType = ({ pageProps }: Props) => {
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='w-full flex items-center justify-between gap-2'>
                                             <div className='flex flex-col gap-2'>
-                                                <h3>Release Date:</h3>
+                                                <h3 className='text-gray-5'>Release Date:</h3>
                                                 <p className=''>00/00/0000</p>
                                             </div>
 
                                             <div className='flex flex-col gap-2'>
-                                                <h3>Due Date:</h3>
+                                                <h3 className='text-gray-5'>Due Date:</h3>
                                                 <p className=''>00/00/0000</p>
                                             </div>
                                         </div>
@@ -503,7 +504,7 @@ const ProjectType = ({ pageProps }: Props) => {
 
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
                                                 <h3>Electricity</h3>
                                                 <h3>Facility</h3>
                                                 <h3>Water Supply</h3>
@@ -521,7 +522,7 @@ const ProjectType = ({ pageProps }: Props) => {
 
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
                                                 <h3>Sub Total</h3>
                                                 <h3>Tax</h3>
                                                 <h3>Discount</h3>
@@ -533,6 +534,43 @@ const ProjectType = ({ pageProps }: Props) => {
                                                 <p>IDR 00.000.000</p>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className='w-full flex items-center justify-between gap-2 p-4'>
+                                        <div className='flex flex-col gap-2 text-gray-5'>
+                                            <h3>Total</h3>
+                                        </div>
+
+                                        <div className='flex flex-col gap-2'>
+                                            <p className='font-semibold text-lg'>IDR 00.000.000</p>
+                                        </div>
+                                    </div>
+
+                                    {/* payment */}
+                                    <div className='w-full flex flex-col gap-2 p-4'>
+                                        <h3 className='mb-2'>Payment</h3>
+                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
+                                                <h3 className='text-primary'>#333A48</h3>
+                                                <h3>Payment with Gopay</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>00/00/0000</p>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
+                                                <h3 className='text-primary'>#333A48</h3>
+                                                <h3>Payment with Gopay</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>00/00/0000</p>
+                                            </div>
+                                        </Cards>
                                     </div>
                                 </div>
                             </SidebarBody>
