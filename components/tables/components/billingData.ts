@@ -156,8 +156,8 @@ export const newBilling = (): BillingProps => {
         durationEnd: durationEnd,
         billingDescription: faker.lorem.lines(),
         templateName: faker.lorem.words(),
-        totalBill: faker.datatype.number(100),
-        totalPaidBill: faker.datatype.number(10),
+        totalBill: faker.datatype.number(1000000),
+        totalPaidBill: faker.datatype.number(1000000),
         createdAt: faker.date.recent().toISOString(),
         updatedAt: faker.date.recent().toISOString()        
     }

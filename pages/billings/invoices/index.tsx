@@ -7,23 +7,17 @@ import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCheck, MdInfo, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuPayments, menuTask } from '../../../utils/routes';
+import { menuPayments } from '../../../utils/routes';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
-import { DivisionProps, createDivisionArr } from '../../../components/tables/components/taskData';
 import moment from 'moment';
-import CardTables from '../../../components/tables/layouts/CardTables';
-import Teams from '../../../components/Task/Teams';
-import DropdownDefault from '../../../components/Dropdown/DropdownDefault';
-import { CustomDateRangePicker } from '../../../components/DatePicker/CustomDateRangePicker';
-import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
 import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { BillingProps, BillingTypeProps, createBillingArr } from '../../../components/tables/components/billingData';
+import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
 import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
 import Cards from '../../../components/Cards/Cards';
 import { formatMoney } from '../../../utils/useHooks/useFunction';
@@ -225,15 +219,17 @@ const ProjectType = ({ pageProps }: Props) => {
 
     const columns = useMemo<ColumnDef<BillingProps, any>[]>(() => [
         {
-            accessorKey: 'billingCode',
+            accessorKey: 'billingName',
             header: (info) => (
-                <div className='uppercase'>Payment ID</div>
+                <div className='uppercase text-left'>Invoice ID</div>
             ),
             cell: ({ getValue, row }) => {
                 let id = row?.original?.id
+                let code = row?.original?.billingCode;
                 return (
-                    <div className='w-full flex items-center justify-between cursor-pointer p-4'>
-                        <div className='text-lg font-semibold'>{getValue()}</div>
+                    <div onClick={() => onOpenDetail(row?.original)} className='w-full flex flex-col cursor-pointer p-4 hover:cursor-pointer text-left'>
+                        <div className='text-lg font-semibold text-primary'>{code}</div>
+                        <div className='text-sm capitalize'>{getValue()}</div>
                     </div>
                 )
             },
@@ -241,15 +237,16 @@ const ProjectType = ({ pageProps }: Props) => {
             enableColumnFilter: false,
         },
         {
-            accessorKey: 'billingName',
+            accessorKey: 'billingCode',
             header: (info) => (
-                <div className='uppercase'>Payments</div>
+                <div className='uppercase'>Unit</div>
             ),
             cell: ({ getValue, row }) => {
                 let id = row?.original?.id
                 return (
-                    <div className='w-full flex items-center justify-between cursor-pointer p-4'>
-                        <div className='text-lg font-semibold'>{getValue()}</div>
+                    <div onClick={() => onOpenDetail(row?.original)} className='w-full flex flex-col cursor-pointer p-4 hover:cursor-pointer'>
+                        <div className='text-lg font-semibold text-primary'>{getValue()}</div>
+                        <div className='text-sm'>Tower - 1 F</div>
                     </div>
                 )
             },
@@ -260,48 +257,32 @@ const ProjectType = ({ pageProps }: Props) => {
             accessorKey: 'billingDescription',
             cell: ({ row, getValue }) => {
                 return (
-                    <div className='w-full text-sm text-gray-5 text-left p-4'>
-                        {getValue().length > 70 ? `${getValue().substring(70, 0)}...` : getValue()}
+                    <div onClick={() => onOpenDetail(row?.original)} className='w-full text-sm text-gray-5 text-left p-4 hover:cursor-pointer'>
+                        {/* {getValue().length > 70 ? `${getValue().substring(70, 0)}...` : getValue()} */}
+                        <div className='font-semibold'>John Doe</div>
+                        <div className=''>johndoe@email.com</div>
                     </div>
                 )
             },
-            header: props => (<div className='w-full text-left uppercase'>Description</div>),
+            header: props => (<div className='w-full text-left uppercase'>Owner</div>),
             footer: props => props.column.id,
             enableColumnFilter: false,
             size: 150
         },
         {
-            accessorKey: 'templateName',
+            accessorKey: 'totalBill',
             cell: ({ row, getValue }) => {
+                const value = row?.original?.periodEnd
                 return (
-                    <div className='w-full text-sm p-4 text-left'>
-                        {getValue()}
+                    <div onClick={() => onOpenDetail(row?.original)} className='w-full text-sm p-4 text-right hover:cursor-pointer'>
+                        {`IDR ${formatMoney({ amount: getValue() })}`}
                     </div>
                 )
             },
-            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
+            header: props => (<div className='w-full text-right uppercase'>Payment Amount</div>),
             footer: props => props.column.id,
             enableColumnFilter: false,
         },
-        {
-            accessorKey: 'id',
-            cell: ({ row, getValue }) => {
-                return (
-                    <div className='w-full text-sm text-center p-4'>
-                        <button
-                            onClick={() => onOpenDetail(row?.original)}
-                            type='button'
-                            className='text-primary focus:outline-none'
-                        >
-                            <MdMoreHoriz className='w-4 h-4' />
-                        </button>
-                    </div>
-                )
-            },
-            header: props => (<div className='w-full text-center uppercase'>Actions</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        }
     ], []);
 
     useEffect(() => {
