@@ -11,6 +11,9 @@ export type BillingTypeProps = {
     // sub
     parameter?: string;
     subTypeName?: string;
+    amount?: number | string | any;
+    discount?: number | string | any;
+    tax?: number | string | any;
 }
 
 export type BillingProps = {
@@ -29,6 +32,7 @@ export type BillingProps = {
     totalPaidBill?: number | string | null;
     updatedAt?: string;
     createdAt?: string;
+    billingDescription?: string | any;
 };
 
 const range = (len: number) => {
@@ -74,7 +78,7 @@ const newSubType = (): BillingTypeProps => {
             'inactive'
         ])[0]!,
         createdAt: faker.date.recent().toISOString(),
-        updatedAt: faker.date.recent().toISOString()        
+        updatedAt: faker.date.recent().toISOString()
     }
 };
 
@@ -107,7 +111,10 @@ const newBillingType = (): BillingTypeProps => {
         ])[0]!,
         billingTypeSubs: subType,
         createdAt: faker.date.recent().toISOString(),
-        updatedAt: faker.date.recent().toISOString()        
+        updatedAt: faker.date.recent().toISOString(),
+        amount: faker.datatype.number({ min: 10000, max: 1000000 }),   
+        discount: faker.datatype.number({ min: 100, max: 10000}),   
+        tax: faker.datatype.number({ min: 100, max: 10000}),
     }
 };
 
@@ -147,7 +154,8 @@ export const newBilling = (): BillingProps => {
         periodEnd: end,
         durationStart: durationStart,
         durationEnd: durationEnd,
-        templateName: faker.lorem.lines(),
+        billingDescription: faker.lorem.lines(),
+        templateName: faker.lorem.words(),
         totalBill: faker.datatype.number(100),
         totalPaidBill: faker.datatype.number(10),
         createdAt: faker.date.recent().toISOString(),

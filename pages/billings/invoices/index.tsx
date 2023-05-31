@@ -23,9 +23,10 @@ import { CustomDateRangePicker } from '../../../components/DatePicker/CustomDate
 import SidebarMedia from '../../../components/Layouts/Sidebar/Media';
 import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
+import { BillingProps, BillingTypeProps, createBillingArr } from '../../../components/tables/components/billingData';
 import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
 import Cards from '../../../components/Cards/Cards';
+import { formatMoney } from '../../../utils/useHooks/useFunction';
 
 type Props = {
     pageProps: any
@@ -144,7 +145,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [sidebar, setSidebar] = useState(false);
 
     // data-table
-    const [dataTable, setDataTable] = useState<DivisionProps[]>([]);
+    const [dataTable, setDataTable] = useState<BillingProps[]>([]);
     const [isSelectedRow, setIsSelectedRow] = useState({});
     const [pages, setPages] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -155,7 +156,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [details, setDetails] = useState<DivisionProps>();
+    const [details, setDetails] = useState<BillingProps>();
 
     // date
     const now = new Date();
@@ -167,7 +168,7 @@ const ProjectType = ({ pageProps }: Props) => {
     // date format
     const dateFormat = (value: string | any) => {
         if (!value) return "-";
-        return moment(new Date(value)).format("MMM DD, YYYY, HH:mm")
+        return moment(new Date(value)).format("MMM DD, YYYY")
     }
 
     // form modal
@@ -177,11 +178,11 @@ const ProjectType = ({ pageProps }: Props) => {
     // detail modal
     const onCloseDetail = () => {
         setDetails(undefined)
-        setIsOpenDetail(false)
+        setSidebar(false)
     };
     const onOpenDetail = (items: any) => {
         setDetails(items)
-        setIsOpenDetail(true)
+        setSidebar(true)
     };
 
     // detail modal
@@ -195,7 +196,7 @@ const ProjectType = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => createDivisionArr(100))
+        setDataTable(() => createBillingArr(100))
     }, []);
 
     const goToTask = (id: any) => {
@@ -222,24 +223,17 @@ const ProjectType = ({ pageProps }: Props) => {
         return color;
     };
 
-    const columns = useMemo<ColumnDef<DivisionProps, any>[]>(() => [
+    const columns = useMemo<ColumnDef<BillingProps, any>[]>(() => [
         {
-            accessorKey: 'divisionName',
+            accessorKey: 'billingCode',
             header: (info) => (
-                <div className='uppercase'>Title</div>
+                <div className='uppercase'>Payment ID</div>
             ),
             cell: ({ getValue, row }) => {
                 let id = row?.original?.id
                 return (
                     <div className='w-full flex items-center justify-between cursor-pointer p-4'>
                         <div className='text-lg font-semibold'>{getValue()}</div>
-                        <button
-                            onClick={() => setSidebar(e => !e)}
-                            type='button'
-                            className='text-primary focus:outline-none'
-                        >
-                            <MdMoreHoriz className='w-4 h-4' />
-                        </button>
                     </div>
                 )
             },
@@ -247,7 +241,23 @@ const ProjectType = ({ pageProps }: Props) => {
             enableColumnFilter: false,
         },
         {
-            accessorKey: 'divisionDescription',
+            accessorKey: 'billingName',
+            header: (info) => (
+                <div className='uppercase'>Payments</div>
+            ),
+            cell: ({ getValue, row }) => {
+                let id = row?.original?.id
+                return (
+                    <div className='w-full flex items-center justify-between cursor-pointer p-4'>
+                        <div className='text-lg font-semibold'>{getValue()}</div>
+                    </div>
+                )
+            },
+            footer: props => props.column.id,
+            enableColumnFilter: false,
+        },
+        {
+            accessorKey: 'billingDescription',
             cell: ({ row, getValue }) => {
                 return (
                     <div className='w-full text-sm text-gray-5 text-left p-4'>
@@ -261,12 +271,11 @@ const ProjectType = ({ pageProps }: Props) => {
             size: 150
         },
         {
-            accessorKey: 'member',
+            accessorKey: 'templateName',
             cell: ({ row, getValue }) => {
-                let member = getValue()
                 return (
-                    <div className='w-full text-sm p-4 text-left border-b-2 border-gray'>
-                        {member.length > 1 ? `${member.length} Members` : member?.length == 0 ? `Division hasn't any member yet` : `${member.length} Member`}
+                    <div className='w-full text-sm p-4 text-left'>
+                        {getValue()}
                     </div>
                 )
             },
@@ -277,14 +286,19 @@ const ProjectType = ({ pageProps }: Props) => {
         {
             accessorKey: 'id',
             cell: ({ row, getValue }) => {
-                let member = row?.original?.member;
                 return (
-                    <div className='w-full text-sm text-left p-4'>
-                        <Teams items={member} />
+                    <div className='w-full text-sm text-center p-4'>
+                        <button
+                            onClick={() => onOpenDetail(row?.original)}
+                            type='button'
+                            className='text-primary focus:outline-none'
+                        >
+                            <MdMoreHoriz className='w-4 h-4' />
+                        </button>
                     </div>
                 )
             },
-            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
+            header: props => (<div className='w-full text-center uppercase'>Actions</div>),
             footer: props => props.column.id,
             enableColumnFilter: false,
         }
@@ -297,6 +311,64 @@ const ProjectType = ({ pageProps }: Props) => {
     }, [token]);
 
     // console.log(dataTable, 'data table')
+    console.log(details, 'data details');
+
+    useEffect(() => {
+        if (!sidebar) {
+            setDetails(undefined)
+        }
+    }, [sidebar]);
+
+    const Total = ({ detail }: any) => {
+        // const {  } = detailVal;
+        const subTotal = detail?.reduce(
+            (acc: any, current: any) => acc + (Number(current?.amount) || 0),
+            0
+        );
+        const totalTax = detail?.reduce(
+            (acc: any, current: any) => acc + (Number(current?.tax) || 0),
+            0
+        );
+        const totalDiscount = detail?.reduce(
+            (acc: any, current: any) => acc + (Number(current?.discount) || 0),
+            0
+        );
+        const total = detail?.reduce(
+            (acc: any, current: any) => acc + (Number(current?.amount) || 0) + (Number(current?.tax) || 0) - (Number(current?.discount) || 0),
+            0
+        );
+
+        console.log(detail, "data value")
+
+        return (
+            <Fragment>
+
+                <div className='w-full border-b-2 border-gray p-4'>
+                    <div className='w-full flex items-center justify-between gap-2'>
+                        <div className='flex flex-col gap-2 text-gray-5'>
+                            <h3>Sub Total</h3>
+                            <h3>Tax</h3>
+                            <h3>Discount</h3>
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                            <p>{`IDR ${formatMoney({ amount: (Number(subTotal) || 0) })}`}</p>
+                            <p>{`IDR ${formatMoney({ amount: (Number(totalTax) || 0) })}`}</p>
+                            <p>{`IDR ${formatMoney({ amount: (Number(totalDiscount) || 0) })}`}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className='w-full flex items-center justify-between gap-2 p-4'>
+                    <div className='flex flex-col gap-2 text-gray-5'>
+                        <h3>Total</h3>
+                    </div>
+
+                    <div className='flex flex-col gap-2'>
+                        <p className='font-semibold text-lg'>{`IDR ${formatMoney({ amount: (Number(total) || 0) })}`}</p>
+                    </div>
+                </div>
+            </Fragment>
+        )
+    }
 
     return (
         <DefaultLayout
@@ -445,15 +517,15 @@ const ProjectType = ({ pageProps }: Props) => {
                                         onClick={() => setSidebar(false)}
                                     >
                                         <div className='flex flex-col tracking-wide'>
-                                            <h3 className='font-semibold text-primary'>B123</h3>
-                                            <p>Lorem ipsum dolor sit amet.</p>
+                                            <h3 className='font-semibold text-primary'>{details?.billingCode}</h3>
+                                            <p>{details?.billingName}</p>
                                         </div>
                                     </ModalHeader>
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='w-full flex items-center justify-between gap-2'>
                                             <div className='flex flex-col gap-2'>
                                                 <h3>Status:</h3>
-                                                <span className='px-4 py-2 rounded-lg bg-red-300 text-red-500 font-semibold'>Overdue</span>
+                                                <span className='px-4 py-2 rounded-lg bg-red-300 text-red-500 font-semibold'>{details?.billingStatus}</span>
                                             </div>
                                             <div>
                                                 <Button
@@ -471,13 +543,13 @@ const ProjectType = ({ pageProps }: Props) => {
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='text-gray-5'>Tagihan</div>
                                         <div>
-                                            <span>3213 - Tagihan Bulanan</span>
+                                            <span>{`${details?.billingCode} - ${details?.billingName}`}</span>
                                         </div>
                                     </div>
 
                                     <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='text-gray-5'>Periode</div>
-                                        <p>00/00/0000 - 00/00/0000</p>
+                                        <p>{`${dateFormat(details?.periodStart)} - ${dateFormat(details?.periodEnd)}`}</p>
                                     </div>
 
                                     <div className='w-full border-b-2 border-gray p-4'>
@@ -492,17 +564,17 @@ const ProjectType = ({ pageProps }: Props) => {
                                         <div className='w-full flex items-center justify-between gap-2'>
                                             <div className='flex flex-col gap-2'>
                                                 <h3 className='text-gray-5'>Release Date:</h3>
-                                                <p className=''>00/00/0000</p>
+                                                <p className=''>{dateFormat(details?.durationStart)}</p>
                                             </div>
 
                                             <div className='flex flex-col gap-2'>
                                                 <h3 className='text-gray-5'>Due Date:</h3>
-                                                <p className=''>00/00/0000</p>
+                                                <p className=''>{dateFormat(details?.durationEnd)}</p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className='w-full border-b-2 border-gray p-4'>
+                                    {/* <div className='w-full border-b-2 border-gray p-4'>
                                         <div className='w-full flex items-center justify-between gap-2'>
                                             <div className='flex flex-col gap-2 text-gray-5'>
                                                 <h3>Electricity</h3>
@@ -518,32 +590,9 @@ const ProjectType = ({ pageProps }: Props) => {
                                                 <p>IDR 00.000.000</p>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
 
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2 text-gray-5'>
-                                                <h3>Sub Total</h3>
-                                                <h3>Tax</h3>
-                                                <h3>Discount</h3>
-                                            </div>
-
-                                            <div className='flex flex-col gap-2'>
-                                                <p>IDR 00.000.000</p>
-                                                <p>IDR 00.000.000</p>
-                                                <p>IDR 00.000.000</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className='w-full flex items-center justify-between gap-2 p-4'>
-                                        <div className='flex flex-col gap-2 text-gray-5'>
-                                            <h3>Total</h3>
-                                        </div>
-
-                                        <div className='flex flex-col gap-2'>
-                                            <p className='font-semibold text-lg'>IDR 00.000.000</p>
-                                        </div>
-                                    </div>
+                                    <Total detail={details?.billingTypes} />
 
                                     {/* payment */}
                                     <div className='w-full flex flex-col gap-2 p-4'>
@@ -594,17 +643,6 @@ const ProjectType = ({ pageProps }: Props) => {
                         <h3 className='text-lg font-semibold'>Manual Payment</h3>
                     </ModalHeader>
                     <ManualForm isOpen={isOpenModal} onClose={onClose} />
-                </Fragment>
-            </Modal>
-
-            {/* detail modal */}
-            <Modal
-                size='small'
-                onClose={onCloseDetail}
-                isOpen={isOpenDetail}
-            >
-                <Fragment>
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Mollitia quam, ab iusto aliquam cumque esse repellendus voluptas inventore iure in! Tempora repellendus consectetur nisi recusandae asperiores quo aspernatur esse nobis nulla ex dolorum, fugit illo incidunt tempore consequuntur qui numquam maiores accusantium possimus. Exercitationem adipisci tenetur dolores expedita culpa accusamus officia sit laborum possimus qui! Magni obcaecati exercitationem laboriosam nemo voluptates aspernatur adipisci, fuga dicta maxime ipsam animi repellat aliquam sit vero delectus perspiciatis labore pariatur, consectetur, temporibus nesciunt reprehenderit placeat. Voluptatem placeat laborum temporibus! Consectetur reiciendis exercitationem dolorum. Voluptates fugit repellat repellendus ullam fugiat repudiandae odio debitis tempore magnam.
                 </Fragment>
             </Modal>
 
