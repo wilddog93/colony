@@ -1,27 +1,27 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdUpload, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuPayments } from '../../../utils/routes';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import Modal from '../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import Button from '../../../../components/Button/Button';
+import { MdAdd, MdArrowRightAlt, MdCheck, MdChevronLeft, MdMonetizationOn, MdMoreHoriz, MdSave, MdUpload, MdWork } from 'react-icons/md';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuPayments } from '../../../../utils/routes';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import Modal from '../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import moment from 'moment';
-import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
-import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
-import Cards from '../../../components/Cards/Cards';
-import { formatMoney } from '../../../utils/useHooks/useFunction';
-import ScrollCardTables from '../../../components/tables/layouts/ScrollCardTables';
+import SidebarBody from '../../../../components/Layouts/Sidebar/SidebarBody';
+import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import { BillingProps, createBillingArr } from '../../../../components/tables/components/billingData';
+import ManualForm from '../../../../components/Forms/Billings/Invoices/ManualForm';
+import Cards from '../../../../components/Cards/Cards';
+import { formatMoney } from '../../../../utils/useHooks/useFunction';
+import ScrollCardTables from '../../../../components/tables/layouts/ScrollCardTables';
 
 type Props = {
     pageProps: any
@@ -150,7 +150,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
     // modal
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
-    const [isOpenDelete, setIsOpenDelete] = useState(false);
+    const [isOpenDiscard, setIsOpenDiscard] = useState(false);
+    const [isOpenCreate, setIsOpenCreate] = useState(false);
     const [details, setDetails] = useState<BillingProps>();
 
     // date
@@ -176,22 +177,28 @@ const ReceiptPage = ({ pageProps }: Props) => {
         setSidebar(false)
     };
     const onOpenDetail = (items: any) => {
-        // setDetails(items)
-        // setSidebar(true)
-        if(!items?.id){
-            router.replace({ pathname })
-        }
-        router.push({ pathname: `/billings/receipt/${items.id}` })
+        setDetails(items)
+        setSidebar(true)
     };
 
-    // detail modal
-    const onCloseDelete = () => {
+    // create
+    const onCloseCreate = () => {
         setDetails(undefined)
-        setIsOpenDelete(false)
+        setIsOpenCreate(false)
     };
-    const onOpenDelete = (items: any) => {
-        setDetails(items)
-        setIsOpenDelete(true)
+    const onOpenCreate = () => {
+        // setDetails(items)
+        setIsOpenCreate(true)
+    };
+
+    // discard modal
+    const onCloseDiscard = () => {
+        setDetails(undefined)
+        setIsOpenDiscard(false)
+    };
+    const onOpenDiscard = () => {
+        // setDetails(items)
+        setIsOpenDiscard(true)
     };
 
     useEffect(() => {
@@ -391,8 +398,9 @@ const ReceiptPage = ({ pageProps }: Props) => {
                                     variant='secondary-outline'
                                     key={'1'}
                                 >
+                                    <MdChevronLeft className='w-5 h-5' />
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Receipt</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Receipt Details</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -401,21 +409,69 @@ const ReceiptPage = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={() => router.push("/billings/invoices/form")}
+                                    onClick={() => onOpenDiscard()}
+                                    variant='danger'
+                                >
+                                    <span className='hidden lg:inline-block'>Discard Receipt</span>
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    className='rounded-lg text-sm font-semibold py-3'
+                                    onClick={() => console.log("add")}
+                                    variant='primary-outline'
+                                >
+                                    <span className='hidden lg:inline-block'>Save Receipt</span>
+                                    <MdSave className='w-4 h-4' />
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    className='rounded-lg text-sm font-semibold py-3'
+                                    onClick={() => onOpenCreate()}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>Import Receipt</span>
-                                    <MdUpload className='w-4 h-4' />
+                                    <span className='hidden lg:inline-block'>Create Receipt</span>
                                 </Button>
                             </div>
                         </div>
                     </div>
 
-                    <main className='relative h-full lg:max-h-[700px] tracking-wide text-left text-boxdark-2'>
+                    <main className='relative h-full lg:max-h-[750px] tracking-wide text-left text-boxdark-2'>
                         <div className='w-full h-full flex'>
-                            <div className="w-full h-full flex flex-col gap-2.5 lg:gap-6">
+                            <div className="w-full h-full flex flex-col gap-2.5 lg:gap-6 lg:overflow-y-auto">
+                                <Cards className='w-full grid col-span-1 p-4 tracking-wide'>
+                                    <div className='grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 gap-4 p-4 bg-gray rounded-xl shadow-card'>
+                                        <div className='w-full lg:col-span-2'>
+                                            <div className='text-primary font-semibold'>#12345</div>
+                                            <div>Monthly bills</div>
+                                        </div>
+                                        <div className='w-full lg:col-span-2'>
+                                            <div className='text-gray-5 text-sm'>Periode</div>
+                                            <div className='text-base'>
+                                                00/00/0000 - 00/00/0000
+                                            </div>
+                                        </div>
+                                        <div className='w-full'>
+                                            <div className='text-gray-5 text-sm'>Release Date</div>
+                                            <div className='text-base'>00/00/0000</div>
+                                        </div>
+                                        <div className='w-full'>
+                                            <div className='text-gray-5 text-sm'>Due Date</div>
+                                            <div className='text-base'>00/00/0000</div>
+                                        </div>
+                                        <div className='w-full'>
+                                            <div className='text-gray-5 text-sm'>Total Item</div>
+                                            <div className='text-base'>5</div>
+                                        </div>
+                                        <div className='w-full'>
+                                            <div className='text-gray-5 text-sm'>Selected Unit</div>
+                                            <div className='text-base'>2355</div>
+                                        </div>
+                                    </div>
+                                </Cards>
                                 {/* filters */}
-                                <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
+                                <div className='w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4'>
                                     <div className='w-full lg:col-span-3'>
                                         <SearchInput
                                             className='w-full text-sm rounded-xl'
@@ -454,7 +510,24 @@ const ReceiptPage = ({ pageProps }: Props) => {
                                             instanceId='1'
                                             isDisabled={false}
                                             isMulti={false}
-                                            placeholder='All status...'
+                                            placeholder='Towers...'
+                                            options={sortOpt}
+                                            icon=''
+                                        />
+                                    </div>
+                                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                        <DropdownSelect
+                                            customStyles={stylesSelect}
+                                            value={sort}
+                                            onChange={setSort}
+                                            error=""
+                                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                            classNamePrefix=""
+                                            formatOptionLabel=""
+                                            instanceId='1'
+                                            isDisabled={false}
+                                            isMulti={false}
+                                            placeholder='Floors...'
                                             options={sortOpt}
                                             icon=''
                                         />
@@ -478,6 +551,124 @@ const ReceiptPage = ({ pageProps }: Props) => {
                                     isHideHeader
                                 />
                             </div>
+
+                            <SidebarBody
+                                sidebarOpen={sidebar}
+                                setSidebarOpen={setSidebar}
+                            >
+                                <div className="w-full h-full">
+                                    <ModalHeader
+                                        className='sticky top-0 bg-white border-b-2 border-gray p-4'
+                                        isClose
+                                        onClick={() => setSidebar(false)}
+                                    >
+                                        <div className='flex flex-col tracking-wide'>
+                                            <h3 className='font-semibold text-primary'>{details?.billingCode}</h3>
+                                            <p>{details?.billingName}</p>
+                                        </div>
+                                    </ModalHeader>
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3>Status:</h3>
+                                                <span className='px-4 py-2 rounded-lg bg-red-300 text-red-500 font-semibold'>{details?.billingStatus}</span>
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    type="button"
+                                                    className='rounded-lg text-sm font-semibold py-3'
+                                                    onClick={onOpen}
+                                                    variant='primary'
+                                                >
+                                                    <span className='inline-block'>Manual Payment</span>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='text-gray-5'>Tagihan</div>
+                                        <div>
+                                            <span>{`${details?.billingCode} - ${details?.billingName}`}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='text-gray-5'>Periode</div>
+                                        <p>{`${dateFormat(details?.periodStart)} - ${dateFormat(details?.periodEnd)}`}</p>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='text-gray-5'>Owner</div>
+                                        <div className='flex items-center gap-2'>
+                                            <h3 className='text-base font-semibold'>John Doe</h3>
+                                            <p>johndoe@gmail.com</p>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2'>
+                                                <h3 className='text-gray-5'>Release Date:</h3>
+                                                <p className=''>{dateFormat(details?.durationStart)}</p>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <h3 className='text-gray-5'>Due Date:</h3>
+                                                <p className=''>{dateFormat(details?.durationEnd)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* <div className='w-full border-b-2 border-gray p-4'>
+                                        <div className='w-full flex items-center justify-between gap-2'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
+                                                <h3>Electricity</h3>
+                                                <h3>Facility</h3>
+                                                <h3>Water Supply</h3>
+                                                <h3>Environment</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                                <p>IDR 00.000.000</p>
+                                            </div>
+                                        </div>
+                                    </div> */}
+
+                                    <Total detail={details?.billingTypes} />
+
+                                    {/* payment */}
+                                    <div className='w-full flex flex-col gap-2 p-4'>
+                                        <h3 className='mb-2'>Payment</h3>
+                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
+                                                <h3 className='text-primary'>#333A48</h3>
+                                                <h3>Payment with Gopay</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>00/00/0000</p>
+                                            </div>
+                                        </Cards>
+
+                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
+                                            <div className='flex flex-col gap-2 text-gray-5'>
+                                                <h3 className='text-primary'>#333A48</h3>
+                                                <h3>Payment with Gopay</h3>
+                                            </div>
+
+                                            <div className='flex flex-col gap-2'>
+                                                <p>IDR 00.000.000</p>
+                                                <p>00/00/0000</p>
+                                            </div>
+                                        </Cards>
+                                    </div>
+                                </div>
+                            </SidebarBody>
                         </div>
                     </main>
                 </div>
@@ -501,36 +692,79 @@ const ReceiptPage = ({ pageProps }: Props) => {
                 </Fragment>
             </Modal>
 
-            {/* delete modal */}
+            {/* Create modal */}
             <Modal
                 size='small'
-                onClose={onCloseDelete}
-                isOpen={isOpenDelete}
+                onClose={onCloseCreate}
+                isOpen={isOpenCreate}
             >
                 <Fragment>
                     <ModalHeader
-                        className='p-4 border-b-2 border-gray mb-3'
+                        className='p-4 mb-3'
                         isClose={true}
-                        onClick={onCloseDelete}
+                        onClick={onCloseCreate}
                     >
-                        <h3 className='text-lg font-semibold'>Delete Tenant</h3>
+                        <h3 className='text-lg font-semibold'>Create Receipt</h3>
                     </ModalHeader>
-                    <div className='w-full my-5 px-4'>
-                        <h3>Are you sure to delete tenant data ?</h3>
+                    <div className='w-full my-5 px-4 text-center'>
+                        <h3>Are you sure to Create receipt ID 12345 ?</h3>
+                    </div>
+
+                    <div
+                        className='w-full flex items-center justify-center p-4 border-t-2 border-gray gap-2'
+                    >
+                        <Button
+                            variant="primary-outline"
+                            className="rounded-md text-sm"
+                            type="button"
+                            onClick={onCloseCreate}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            variant="primary"
+                            className="rounded-md text-sm"
+                            type="button"
+                            onClick={onCloseCreate}
+                        >
+                            Yes
+                            <MdCheck className='w-5 h-5' />
+                        </Button>
+                    </div>
+                </Fragment>
+            </Modal>
+
+            {/* Discard modal */}
+            <Modal
+                size='small'
+                onClose={onCloseDiscard}
+                isOpen={isOpenDiscard}
+            >
+                <Fragment>
+                    <ModalHeader
+                        className='p-4 mb-3'
+                        isClose={true}
+                        onClick={onCloseDiscard}
+                    >
+                        <h3 className='text-lg font-semibold'>Discard Receipt</h3>
+                    </ModalHeader>
+                    <div className='w-full my-5 px-4 text-center'>
+                        <h3>Are you sure to discard receipt ?</h3>
                     </div>
 
                     <ModalFooter
-                        className='p-4 border-t-2 border-gray'
+                        className='p-4 border-t-2 border-gray justify-center'
                         isClose={true}
-                        onClick={onCloseDelete}
+                        onClick={onCloseDiscard}
                     >
                         <Button
                             variant="primary"
                             className="rounded-md text-sm"
                             type="button"
-                            onClick={onCloseDelete}
+                            onClick={onCloseDiscard}
                         >
-                            Yes, Delete it!
+                            Yes, Discard it!
                         </Button>
                     </ModalFooter>
                 </Fragment>
