@@ -1,26 +1,26 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../components/Button/Button';
+import Button from '../../../../components/Button/Button';
 import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuPayments } from '../../../utils/routes';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import Modal from '../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuPayments } from '../../../../utils/routes';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import Modal from '../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import moment from 'moment';
-import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import { BillingProps, createBillingArr } from '../../../components/tables/components/billingData';
-import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
-import Cards from '../../../components/Cards/Cards';
-import { formatMoney } from '../../../utils/useHooks/useFunction';
+import SidebarBody from '../../../../components/Layouts/Sidebar/SidebarBody';
+import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import { BillingProps, createBillingArr } from '../../../../components/tables/components/billingData';
+import ManualForm from '../../../../components/Forms/Billings/Invoices/ManualForm';
+import Cards from '../../../../components/Cards/Cards';
+import { formatMoney } from '../../../../utils/useHooks/useFunction';
 
 type Props = {
     pageProps: any
@@ -120,7 +120,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const Invoices = ({ pageProps }: Props) => {
+const Templates = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -355,7 +355,7 @@ const Invoices = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Billings & Payments"
-            head="Draft"
+            head="Templates"
             logo="../../../image/logo/logo-icon.svg"
             images="../../../image/logo/building-logo.svg"
             userDefault="../../../image/user/user-01.png"
@@ -396,7 +396,7 @@ const Invoices = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Invoices</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Templates</h3>
                                         <div className='flex items-center gap-3 font-semibold text-gray-5 tracking-wide'>
                                             <div>322 Overdue</div>
                                             <div>322 Ongoing</div>
@@ -410,10 +410,10 @@ const Invoices = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={() => router.push("/billings/invoices/form")}
+                                    onClick={() => router.push("/billings/settings/templates/form")}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Invoices</span>
+                                    <span className='hidden lg:inline-block'>New Templates</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
@@ -688,4 +688,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default Invoices;
+export default Templates;

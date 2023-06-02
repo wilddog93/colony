@@ -1,35 +1,35 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCheck, MdChevronLeft, MdDelete, MdEdit, MdInfo, MdMonetizationOn, MdMoreHoriz, MdOutlineCalendarToday, MdSave, MdUploadFile, MdWarning, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuPayments, menuTask } from '../../../../utils/routes';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import Modal from '../../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { DivisionProps, createDivisionArr } from '../../../../components/tables/components/taskData';
+import Button from '../../../../../components/Button/Button';
+import { MdAdd, MdArrowRightAlt, MdCheck, MdChevronLeft, MdDelete, MdDownload, MdEdit, MdInfo, MdMonetizationOn, MdMoreHoriz, MdOutlineCalendarToday, MdSave, MdUploadFile, MdWarning, MdWork } from 'react-icons/md';
+import SidebarComponent from '../../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuPayments, menuTask } from '../../../../../utils/routes';
+import { SearchInput } from '../../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../../components/Dropdown/DropdownSelect';
+import Modal from '../../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
+import { DivisionProps, createDivisionArr } from '../../../../../components/tables/components/taskData';
 import moment from 'moment';
-import CardTables from '../../../../components/tables/layouts/CardTables';
-import Teams from '../../../../components/Task/Teams';
-import DropdownDefault from '../../../../components/Dropdown/DropdownDefault';
-import { CustomDateRangePicker } from '../../../../components/DatePicker/CustomDateRangePicker';
-import SidebarMedia from '../../../../components/Layouts/Sidebar/Media';
-import SidebarBody from '../../../../components/Layouts/Sidebar/SidebarBody';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
-import { BillingProps, createBillingArr } from '../../../../components/tables/components/billingData';
-import ManualForm from '../../../../components/Forms/Billings/Invoices/ManualForm';
-import Cards from '../../../../components/Cards/Cards';
+import CardTables from '../../../../../components/tables/layouts/CardTables';
+import Teams from '../../../../../components/Task/Teams';
+import DropdownDefault from '../../../../../components/Dropdown/DropdownDefault';
+import { CustomDateRangePicker } from '../../../../../components/DatePicker/CustomDateRangePicker';
+import SidebarMedia from '../../../../../components/Layouts/Sidebar/Media';
+import SidebarBody from '../../../../../components/Layouts/Sidebar/SidebarBody';
+import SelectTables from '../../../../../components/tables/layouts/SelectTables';
+import { BillingProps, createBillingArr } from '../../../../../components/tables/components/billingData';
+import ManualForm from '../../../../../components/Forms/Billings/Invoices/ManualForm';
+import Cards from '../../../../../components/Cards/Cards';
 import DatePicker from 'react-datepicker';
 import { Control, Controller, FieldErrors, RegisterOptions, SubmitHandler, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import CurrencyFormat from 'react-currency-format';
-import { formatMoney } from '../../../../utils/useHooks/useFunction';
+import { formatMoney } from '../../../../../utils/useHooks/useFunction';
 
 type Props = {
     pageProps: any
@@ -122,7 +122,7 @@ type FormStateProps = {
     isValid: boolean
 }
 
-const InvoicesForm = ({ pageProps }: Props) => {
+const TemplatesForm = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -339,7 +339,7 @@ const InvoicesForm = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Billings & Payments"
-            head="Payments"
+            head="Templates"
             logo="../../../image/logo/logo-icon.svg"
             images="../../../image/logo/building-logo.svg"
             userDefault="../../../image/user/user-01.png"
@@ -382,10 +382,7 @@ const InvoicesForm = ({ pageProps }: Props) => {
                                 >
                                     <MdChevronLeft className='w-5 h-5' />
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>New Invoice</h3>
-                                        <div className='flex items-center gap-3 font-semibold text-gray-5 tracking-wide'>
-                                            <div>Create and post your invoice</div>
-                                        </div>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>New Templates</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -398,7 +395,16 @@ const InvoicesForm = ({ pageProps }: Props) => {
                                     variant='danger'
                                 >
                                     <MdDelete className='w-4 h-4' />
-                                    <span className='hidden lg:inline-block'>Discard</span>
+                                    <span className='hidden lg:inline-block'>Discard Template</span>
+                                </Button>
+                                <Button
+                                    type="button"
+                                    className='rounded-lg text-sm font-semibold py-3'
+                                    onClick={handleSubmit(onSubmit)}
+                                    variant='primary-outline'
+                                >
+                                    <span className='hidden lg:inline-block'>Export Excel</span>
+                                    <MdDownload className='w-4 h-4' />
                                 </Button>
                                 <Button
                                     type="button"
@@ -406,8 +412,8 @@ const InvoicesForm = ({ pageProps }: Props) => {
                                     onClick={handleSubmit(onSubmit)}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Invoices</span>
-                                    <MdAdd className='w-4 h-4' />
+                                    <span className='hidden lg:inline-block'>Save</span>
+                                    <MdSave className='w-4 h-4' />
                                 </Button>
                             </div>
                         </div>
@@ -470,25 +476,6 @@ const InvoicesForm = ({ pageProps }: Props) => {
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className='w-full lg:max-w-max flex items-center gap-2 ml-auto'>
-                                        <Button
-                                            type='button'
-                                            variant='primary-outline'
-                                            className='rounded-xl'
-                                        >
-                                            <span>Load Template</span>
-                                            <MdUploadFile className='w-5 h-5' />
-                                        </Button>
-
-                                        <Button
-                                            type='button'
-                                            variant='primary-outline'
-                                            className='rounded-xl'
-                                        >
-                                            <span>Save Template</span>
-                                            <MdSave className='w-5 h-5' />
-                                        </Button>
                                     </div>
                                 </Cards>
 
@@ -1090,4 +1077,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default InvoicesForm;
+export default TemplatesForm;
