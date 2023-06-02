@@ -397,11 +397,6 @@ const Templates = ({ pageProps }: Props) => {
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
                                         <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Templates</h3>
-                                        <div className='flex items-center gap-3 font-semibold text-gray-5 tracking-wide'>
-                                            <div>322 Overdue</div>
-                                            <div>322 Ongoing</div>
-                                            <div>32 Posted</div>
-                                        </div>
                                     </div>
                                 </Button>
                             </div>
