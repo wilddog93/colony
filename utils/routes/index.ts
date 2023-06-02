@@ -471,9 +471,9 @@ export const menuPayments: MenuProps[] = [
     }
   },
   {
-    pathname: "Draft",
-    pages: "draft",
-    url: "/billings/draft",
+    pathname: "Receipt",
+    pages: "receipt",
+    url: "/billings/receipt",
     query: {
       page: 1,
       limit: 10,

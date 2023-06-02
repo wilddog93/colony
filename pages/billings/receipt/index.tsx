@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdMonetizationOn, MdMoreHoriz, MdUpload, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuPayments } from '../../../utils/routes';
 import { SearchInput } from '../../../components/Forms/SearchInput';
@@ -21,6 +21,7 @@ import { BillingProps, createBillingArr } from '../../../components/tables/compo
 import ManualForm from '../../../components/Forms/Billings/Invoices/ManualForm';
 import Cards from '../../../components/Cards/Cards';
 import { formatMoney } from '../../../utils/useHooks/useFunction';
+import ScrollCardTables from '../../../components/tables/layouts/ScrollCardTables';
 
 type Props = {
     pageProps: any
@@ -120,7 +121,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const ProjectType = ({ pageProps }: Props) => {
+const ReceiptPage = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -175,8 +176,12 @@ const ProjectType = ({ pageProps }: Props) => {
         setSidebar(false)
     };
     const onOpenDetail = (items: any) => {
-        setDetails(items)
-        setSidebar(true)
+        // setDetails(items)
+        // setSidebar(true)
+        if(!items?.id){
+            router.replace({ pathname })
+        }
+        router.push({ pathname: `/billings/receipt/${items.id}` })
     };
 
     // detail modal
@@ -291,15 +296,6 @@ const ProjectType = ({ pageProps }: Props) => {
         }
     }, [token]);
 
-    // console.log(dataTable, 'data table')
-    console.log(details, 'data details');
-
-    useEffect(() => {
-        if (!sidebar) {
-            setDetails(undefined)
-        }
-    }, [sidebar]);
-
     const Total = ({ detail }: any) => {
         // const {  } = detailVal;
         const subTotal = detail?.reduce(
@@ -355,7 +351,7 @@ const ProjectType = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Billings & Payments"
-            head="Draft"
+            head="Receipt"
             logo="../../../image/logo/logo-icon.svg"
             images="../../../image/logo/building-logo.svg"
             userDefault="../../../image/user/user-01.png"
@@ -369,7 +365,7 @@ const ProjectType = ({ pageProps }: Props) => {
             <div className='absolute inset-0 mt-20 z-20 bg-boxdark flex text-white'>
                 <SidebarComponent menus={menuPayments} sidebar={sidebarOpen} setSidebar={setSidebarOpen} />
 
-                <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 lg:overflow-y-hidden">
+                <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-hidden">
                     <div className='sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2'>
                         {/* headers */}
                         <div className='w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
@@ -396,12 +392,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Invoices</h3>
-                                        <div className='flex items-center gap-3 font-semibold text-gray-5 tracking-wide'>
-                                            <div>322 Overdue</div>
-                                            <div>322 Ongoing</div>
-                                            <div>32 Posted</div>
-                                        </div>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Receipt</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -413,16 +404,16 @@ const ProjectType = ({ pageProps }: Props) => {
                                     onClick={() => router.push("/billings/invoices/form")}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Invoices</span>
-                                    <MdAdd className='w-4 h-4' />
+                                    <span className='hidden lg:inline-block'>Import Receipt</span>
+                                    <MdUpload className='w-4 h-4' />
                                 </Button>
                             </div>
                         </div>
                     </div>
 
-                    <main className='relative h-full lg:max-h-[700px] tracking-wide text-left text-boxdark-2 lg:overflow-auto'>
+                    <main className='relative h-full lg:max-h-[700px] tracking-wide text-left text-boxdark-2'>
                         <div className='w-full h-full flex'>
-                            <div className="w-full h-full flex flex-col overflow-auto gap-2.5 lg:gap-6 lg:overflow-y-auto">
+                            <div className="w-full h-full flex flex-col gap-2.5 lg:gap-6">
                                 {/* filters */}
                                 <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
                                     <div className='w-full lg:col-span-3'>
@@ -470,7 +461,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                     </div>
                                 </div>
                                 {/* table */}
-                                <SelectTables
+                                <ScrollCardTables
                                     loading={loading}
                                     setLoading={setLoading}
                                     pages={pages}
@@ -483,127 +474,10 @@ const ProjectType = ({ pageProps }: Props) => {
                                     total={total}
                                     setIsSelected={setIsSelectedRow}
                                     // isInfiniteScroll
-                                    classTable="bg-gray p-4"
+                                    // classTable="bg-gray p-4"
+                                    isHideHeader
                                 />
                             </div>
-
-                            <SidebarBody
-                                sidebarOpen={sidebar}
-                                setSidebarOpen={setSidebar}
-                            >
-                                <div className="w-full h-full">
-                                    <ModalHeader
-                                        className='sticky top-0 bg-white border-b-2 border-gray p-4'
-                                        isClose
-                                        onClick={() => setSidebar(false)}
-                                    >
-                                        <div className='flex flex-col tracking-wide'>
-                                            <h3 className='font-semibold text-primary'>{details?.billingCode}</h3>
-                                            <p>{details?.billingName}</p>
-                                        </div>
-                                    </ModalHeader>
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2'>
-                                                <h3>Status:</h3>
-                                                <span className='px-4 py-2 rounded-lg bg-red-300 text-red-500 font-semibold'>{details?.billingStatus}</span>
-                                            </div>
-                                            <div>
-                                                <Button
-                                                    type="button"
-                                                    className='rounded-lg text-sm font-semibold py-3'
-                                                    onClick={onOpen}
-                                                    variant='primary'
-                                                >
-                                                    <span className='inline-block'>Manual Payment</span>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='text-gray-5'>Tagihan</div>
-                                        <div>
-                                            <span>{`${details?.billingCode} - ${details?.billingName}`}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='text-gray-5'>Periode</div>
-                                        <p>{`${dateFormat(details?.periodStart)} - ${dateFormat(details?.periodEnd)}`}</p>
-                                    </div>
-
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='text-gray-5'>Owner</div>
-                                        <div className='flex items-center gap-2'>
-                                            <h3 className='text-base font-semibold'>John Doe</h3>
-                                            <p>johndoe@gmail.com</p>
-                                        </div>
-                                    </div>
-
-                                    <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2'>
-                                                <h3 className='text-gray-5'>Release Date:</h3>
-                                                <p className=''>{dateFormat(details?.durationStart)}</p>
-                                            </div>
-
-                                            <div className='flex flex-col gap-2'>
-                                                <h3 className='text-gray-5'>Due Date:</h3>
-                                                <p className=''>{dateFormat(details?.durationEnd)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* <div className='w-full border-b-2 border-gray p-4'>
-                                        <div className='w-full flex items-center justify-between gap-2'>
-                                            <div className='flex flex-col gap-2 text-gray-5'>
-                                                <h3>Electricity</h3>
-                                                <h3>Facility</h3>
-                                                <h3>Water Supply</h3>
-                                                <h3>Environment</h3>
-                                            </div>
-
-                                            <div className='flex flex-col gap-2'>
-                                                <p>IDR 00.000.000</p>
-                                                <p>IDR 00.000.000</p>
-                                                <p>IDR 00.000.000</p>
-                                                <p>IDR 00.000.000</p>
-                                            </div>
-                                        </div>
-                                    </div> */}
-
-                                    <Total detail={details?.billingTypes} />
-
-                                    {/* payment */}
-                                    <div className='w-full flex flex-col gap-2 p-4'>
-                                        <h3 className='mb-2'>Payment</h3>
-                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
-                                            <div className='flex flex-col gap-2 text-gray-5'>
-                                                <h3 className='text-primary'>#333A48</h3>
-                                                <h3>Payment with Gopay</h3>
-                                            </div>
-
-                                            <div className='flex flex-col gap-2'>
-                                                <p>IDR 00.000.000</p>
-                                                <p>00/00/0000</p>
-                                            </div>
-                                        </Cards>
-
-                                        <Cards className='w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm'>
-                                            <div className='flex flex-col gap-2 text-gray-5'>
-                                                <h3 className='text-primary'>#333A48</h3>
-                                                <h3>Payment with Gopay</h3>
-                                            </div>
-
-                                            <div className='flex flex-col gap-2'>
-                                                <p>IDR 00.000.000</p>
-                                                <p>00/00/0000</p>
-                                            </div>
-                                        </Cards>
-                                    </div>
-                                </div>
-                            </SidebarBody>
                         </div>
                     </main>
                 </div>
@@ -688,4 +562,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default ProjectType;
+export default ReceiptPage;

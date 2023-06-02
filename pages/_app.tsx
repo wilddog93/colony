@@ -12,8 +12,11 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // timeline css
 import "react-calendar-timeline/lib/Timeline.css";
 import "react-datepicker/dist/react-datepicker.css";
+import { useRouter } from "next/router";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
+  const router = useRouter();
+  const { pathname } = router;
   const { store, props } = wrapper.useWrappedStore(pageProps);
   axios.defaults.baseURL = process.env.API_ENDPOINT;
   const [loading, setLoading] = useState(true);
@@ -47,7 +50,10 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
     setTimeout(() => setLoading(false), 1000)
   }, []);
 
-  // console.log({ isTokenFound, firebaseToken, isNotification, notification }, 'app state')
+  useEffect(() => {
+    !isTokenFound ? router.replace({ pathname }) : null
+  }, [isTokenFound])
+
 
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">
@@ -61,17 +67,17 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   )
   return (
     <GoogleOAuthProvider clientId="51774239059-2i802tboo27kv3k78qv5tmkdg6aaa1v9.apps.googleusercontent.com">
-        <Provider store={store}>
-          <NextNProgress
-            color="#5F59F7"
-            startPosition={0.3}
-            stopDelayMs={200}
-            height={4}
-            showOnShallow={true}
-          />
-          <Component {...props} />
-          <ToastContainer position='top-right' limit={500} />
-        </Provider>
+      <Provider store={store}>
+        <NextNProgress
+          color="#5F59F7"
+          startPosition={0.3}
+          stopDelayMs={200}
+          height={4}
+          showOnShallow={true}
+        />
+        <Component {...props} />
+        <ToastContainer position='top-right' limit={500} />
+      </Provider>
     </GoogleOAuthProvider>
   );
 };
