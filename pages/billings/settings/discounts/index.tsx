@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdDelete, MdEdit, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCheck, MdDelete, MdEdit, MdMonetizationOn, MdMoreHoriz, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuPayments } from '../../../../utils/routes';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
@@ -21,6 +21,7 @@ import { BillingProps, createBillingArr } from '../../../../components/tables/co
 import ManualForm from '../../../../components/Forms/Billings/Invoices/ManualForm';
 import Cards from '../../../../components/Cards/Cards';
 import { formatMoney } from '../../../../utils/useHooks/useFunction';
+import DiscountForm from '../../../../components/Forms/Billings/settings/discount/DiscountForm';
 
 type Props = {
     pageProps: any
@@ -120,7 +121,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const Templates = ({ pageProps }: Props) => {
+const Discounts = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -334,6 +335,7 @@ const Templates = ({ pageProps }: Props) => {
                             type="button"
                             variant="secondary-outline-none"
                             className="py-1.5 px-1.5 rounded border border-gray-5"
+                            onClick={() => onOpenDelete(row?.original?.id)}
                         >
                             <MdDelete className='w-4 h-4 text-gray-5' />
                         </Button>
@@ -457,7 +459,7 @@ const Templates = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Templates</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Discounts</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -466,10 +468,10 @@ const Templates = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={() => router.push("/billings/settings/templates/form")}
+                                    onClick={onOpen}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Templates</span>
+                                    <span className='hidden lg:inline-block'>New Discounts</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
@@ -481,7 +483,7 @@ const Templates = ({ pageProps }: Props) => {
                             <div className="w-full h-full flex flex-col overflow-auto gap-2.5 lg:gap-6 lg:overflow-y-auto">
                                 {/* filters */}
                                 <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
-                                    <div className='w-full lg:col-span-3'>
+                                    <div className='w-full lg:col-span-4'>
                                         <SearchInput
                                             className='w-full text-sm rounded-xl'
                                             classNamePrefix=''
@@ -505,23 +507,6 @@ const Templates = ({ pageProps }: Props) => {
                                             placeholder='Sorts...'
                                             options={sortOpt}
                                             icon='MdSort'
-                                        />
-                                    </div>
-                                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                                        <DropdownSelect
-                                            customStyles={stylesSelect}
-                                            value={sort}
-                                            onChange={setSort}
-                                            error=""
-                                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                            classNamePrefix=""
-                                            formatOptionLabel=""
-                                            instanceId='1'
-                                            isDisabled={false}
-                                            isMulti={false}
-                                            placeholder='All status...'
-                                            options={sortOpt}
-                                            icon=''
                                         />
                                     </div>
                                 </div>
@@ -677,9 +662,9 @@ const Templates = ({ pageProps }: Props) => {
                         isClose={true}
                         onClick={onClose}
                     >
-                        <h3 className='text-lg font-semibold'>Manual Payment</h3>
+                        <h3 className='text-lg font-semibold'>Add / Edit Form</h3>
                     </ModalHeader>
-                    <ManualForm isOpen={isOpenModal} onClose={onClose} />
+                    <DiscountForm onClose={onClose} isOpen={isOpenModal} />
                 </Fragment>
             </Modal>
 
@@ -691,29 +676,40 @@ const Templates = ({ pageProps }: Props) => {
             >
                 <Fragment>
                     <ModalHeader
-                        className='p-4 border-b-2 border-gray mb-3'
+                        className='p-4 mb-3'
                         isClose={true}
                         onClick={onCloseDelete}
                     >
-                        <h3 className='text-lg font-semibold'>Delete Tenant</h3>
+                        <h3 className='text-lg font-semibold'>Delete Tax</h3>
                     </ModalHeader>
-                    <div className='w-full my-5 px-4'>
-                        <h3>Are you sure to delete tenant data ?</h3>
+                    <div className='w-full my-5 px-4 text-center'>
+                        <h3>Are you sure to delete tax data ?</h3>
                     </div>
 
                     <ModalFooter
-                        className='p-4 border-t-2 border-gray'
-                        isClose={true}
-                        onClick={onCloseDelete}
+                        className='p-4 border-t-2 border-gray justify-center'
+                    // isClose={true}
+                    // onClick={onCloseDelete}
                     >
-                        <Button
-                            variant="primary"
-                            className="rounded-md text-sm"
-                            type="button"
-                            onClick={onCloseDelete}
-                        >
-                            Yes, Delete it!
-                        </Button>
+                        <Fragment>
+                            <Button
+                                variant="primary-outline"
+                                className="rounded-md text-sm"
+                                type="button"
+                                onClick={onCloseDelete}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="primary"
+                                className="rounded-md text-sm flex items-center"
+                                type="button"
+                                onClick={onCloseDelete}
+                            >
+                                <span>Yes</span>
+                                <MdCheck className='h-4 w-4' />
+                            </Button>
+                        </Fragment>
                     </ModalFooter>
                 </Fragment>
             </Modal>
@@ -744,4 +740,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default Templates;
+export default Discounts;

@@ -514,6 +514,7 @@ export const menuPayments: MenuProps[] = [
       {
         pathname: "Templates",
         url: "/billings/settings/templates",
+        pages: "templates",
         query: {
           page: 1,
           limit: 10,
@@ -526,6 +527,7 @@ export const menuPayments: MenuProps[] = [
       {
         pathname: "Taxes",
         url: "/billings/settings/taxes",
+        pages: "taxes",
         query: {
           page: 1,
           limit: 10,
@@ -538,6 +540,7 @@ export const menuPayments: MenuProps[] = [
       {
         pathname: "Discounts",
         url: "/billings/settings/discounts",
+        pages: "discounts",
         query: {
           page: 1,
           limit: 10,
