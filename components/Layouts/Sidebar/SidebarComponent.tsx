@@ -7,9 +7,12 @@ type Props = {
     setSidebar: Dispatch<SetStateAction<boolean>>;
     menus: MenuProps[];
     className?: string;
+    token?: any;
+    defaultImage?: string;
+    isSelectProperty?: boolean
 }
 
-function SidebarComponent({ sidebar, setSidebar, menus, className }: Props) {
+function SidebarComponent({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty }: Props) {
 
     return (
         <React.Fragment>
@@ -18,6 +21,9 @@ function SidebarComponent({ sidebar, setSidebar, menus, className }: Props) {
                 sidebar={sidebar}
                 setSidebar={setSidebar}
                 className={className}
+                token={token}
+                defaultImage={defaultImage}
+                isSelectProperty={isSelectProperty}
             />
         </React.Fragment>
     )

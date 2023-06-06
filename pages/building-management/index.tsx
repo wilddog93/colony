@@ -341,6 +341,9 @@ const Dashboard = ({ pageProps }: Props) => {
           menus={menuBM}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
+          token={token}
+          defaultImage='./image/no-image.jpeg'
+          isSelectProperty
         />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] overflow-y-auto">
