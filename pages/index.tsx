@@ -17,13 +17,20 @@ import Modal from '../components/Modal';
 import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import LoadingPage from '../components/LoadingPage';
 
+interface PageProps {
+  page: string;
+  access: any;
+  token: any;
+  firebaseToken: any;
+}
+
 type Props = {
-  pageProps: any
+  pageProps: PageProps
 }
 
 const Home = ({ pageProps }: Props) => {
   // props
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, firebaseToken, page } = pageProps;
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -56,6 +63,8 @@ const Home = ({ pageProps }: Props) => {
       callback: () => router.push("/")
     }))
   }
+
+  console.log(pageProps, 'data')
 
   return (
     <AuthLayout
@@ -214,9 +223,9 @@ const Home = ({ pageProps }: Props) => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
   // Parse cookies from the request headers
-  const cookies = getCookies(context)
+  const cookies = getCookies({ req, res })
 
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
@@ -226,7 +235,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (token && access == "resendEmail") {
     return {
       redirect: {
-        destination: "/authentication/resend-email?page=resend", // Redirect to the home page
+        destination: "/authentication/resend-email?page=resend",
         permanent: false,
       },
     };
@@ -235,8 +244,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in", // Redirect to the home page
-        permanent: false
+        destination: "/authentication?page=sign-in",
+        permanent: true
       },
     };
   }

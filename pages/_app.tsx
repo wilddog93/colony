@@ -52,7 +52,9 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
 
   useEffect(() => {
     !isTokenFound ? router.replace({ pathname }) : null
-  }, [isTokenFound])
+  }, [isTokenFound]);
+
+  console.log({ firebaseToken, isTokenFound }, 'token')
 
 
   if (loading) return (

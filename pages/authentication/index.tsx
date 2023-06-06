@@ -7,7 +7,7 @@ import { MdArrowBack } from 'react-icons/md';
 import Tooltip from '../../components/Tooltip/Tooltip';
 import { useAppDispatch, useAppSelector } from '../../redux/Hook';
 import { getCookies } from 'cookies-next';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { getAuthMe, resetAuth, selectAuth } from '../../redux/features/auth/authReducers';
 import Modal from '../../components/Modal';
 import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
@@ -15,16 +15,26 @@ import Button from '../../components/Button/Button';
 import Link from 'next/link';
 import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent';
 import LoadingPage from '../../components/LoadingPage';
+import axios from 'axios';
 
-type Props = {
-    pageProps: any
+interface PageProps {
+    page?: string;
+    token: any;
+    firebaseToken: any;
+    id: number;
+    title: string;
+    content: string;
 }
 
-const Authentication = ({ pageProps }: Props) => {
-    const router = useRouter();
-    const { query, pathname } = router;
+type Props = {
+    pageProps: PageProps
+}
 
-    const { token, firebaseToken } = pageProps
+const Authentication: NextPage<Props> = ({ pageProps }) => {
+    const router = useRouter();
+    const { pathname, query, asPath } = router;
+    const { page, token, firebaseToken } = pageProps;
+    console.log(page, 'data pages')
 
     // auth me
     const dispatch = useAppDispatch();
@@ -55,22 +65,19 @@ const Authentication = ({ pageProps }: Props) => {
 
     useEffect(() => {
         let qr: any = {
-            page: query?.page
+            page: query?.page || "sign-in"
         };
 
         if (tabs) qr = { ...qr, page: tabs }
-        router.push({
-            pathname,
-            query: qr,
-        });
+        router.push({ pathname, query: qr }, undefined, { shallow: true });
     }, [tabs]);
 
+    console.log(router, 'data query')
 
     useEffect(() => {
         setIsSignUp(tabs === "sign-up" ? true : false)
         setIsSignIn(tabs === "sign-in" ? true : false)
     }, [tabs])
-
 
     useEffect(() => {
         let notif = (message === "Email Not Registered!");
@@ -188,25 +195,22 @@ const Authentication = ({ pageProps }: Props) => {
     )
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    // Parse cookies from the request headers
-    const cookies = getCookies(context)
-
-    // Access cookies using the cookie name
+export const getServerSideProps: GetServerSideProps = async ({ req, res, query }) => {
+    const cookies = getCookies({ req, res })
     const token = cookies['accessToken'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
     if (token) {
         return {
             redirect: {
-                destination: "/", // Redirect to the home page
+                destination: "/",
                 permanent: false
             },
         }
     }
 
     return {
-        props: { token, firebaseToken },
+        props: { token, firebaseToken, page: query },
     };
 };
 
