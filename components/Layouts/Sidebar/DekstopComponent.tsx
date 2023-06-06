@@ -5,7 +5,8 @@ import { MenuProps } from '../../../utils/routes';
 import { MdArrowBack, MdOutlineBusiness } from 'react-icons/md';
 import PropertySelect from '../../BM/PropertySelect'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/property/propertyReducers';
+import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
+import { selectAuth, webPropertyAccess } from '../../../redux/features/auth/authReducers';
 
 
 type Props = {
@@ -19,12 +20,14 @@ type Props = {
 }
 
 const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty }: Props) => {
-    const router = useRouter()
+    const router = useRouter();
+    const { pathname, query } = router;
     const trigger = useRef<HTMLButtonElement>(null)
     const sidebarRef = useRef<HTMLDivElement>(null)
 
     // property-access
     const dispatch = useAppDispatch();
+    const { data } = useAppSelector(selectAuth);
     const { properties } = useAppSelector(selectPropertyAccess);
     const [propertiesOptions, setPropertiesOptions] = useState<any[]>();
     const [propertiesSelect, setPropertiesSelect] = useState<any | any[]>();
@@ -110,6 +113,17 @@ const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaul
         setPropertiesOptions(arr);
     }, [properties?.data])
 
+    useEffect(() => {
+        if(isSelectProperty && propertiesSelect) {
+            dispatch(webPropertyAccess({ 
+                id: propertiesSelect?.value,
+                token: token,
+                callback: () => router.replace({ pathname, query }) 
+            }))
+        }
+    }, [propertiesSelect])
+    
+    console.log(propertiesSelect, 'select')
 
     return (
         <Fragment>

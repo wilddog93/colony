@@ -56,6 +56,14 @@ interface AuthData {
     callback: () => void
 }
 
+interface AccessData {
+    id?: number | string;
+    params?: any;
+    data?: any;
+    token?: any;
+    callback: () => void
+}
+
 interface MyData {
     token?: any,
     callback: () => void
@@ -199,6 +207,7 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>('
         if (status == 200) {
             toast.dark("Sign out successfully!")
             deleteCookie("access")
+            deleteCookie("accessId")
             deleteCookie("accessToken")
             deleteCookie("refreshToken")
             params.callback()
@@ -323,6 +332,54 @@ export const webNewPassword = createAsyncThunk<any, any, { state: RootState }>('
         if (error.response && error.response.status === 404) {
             throw new Error('User not found');
         } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+// property-access
+// Auth me
+export const webPropertyAccess = createAsyncThunk<any, AccessData, { state: RootState }>('auth/web/access/property/{id}', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    let newData = {};
+    try {
+        const response = await axios.get(`auth/web/access/property/${params.id}`, config);
+        const { data, status } = response;
+        if (status == 200) {
+            setCookie('accessToken', data?.accessToken, { secure: true, maxAge: 60 * 60 * 24 })
+            setCookie('refreshToken', data?.refreshToken, { secure: true, maxAge: 60 * 60 * 24 })
+            setCookie('access', "property", { secure: true })
+            setCookie('accessId', params.id, { secure: true })
+            newData = {
+                ...data,
+                access: "property",
+                accessId: params.id
+            }
+            params.callback()
+            return newData
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('Property not found');
+        } else {
+            // if (status == 401) {
+            //     deleteCookie("access")
+            //     deleteCookie("accessId")
+            //     deleteCookie("accessToken")
+            //     deleteCookie("refreshToken")
+            //     params.callback()
+            // }
             throw new Error(newError.message);
         }
     }
@@ -573,6 +630,36 @@ export const authSlice = createSlice({
                 }
             })
             .addCase(webNewPassword.rejected, (state, { error }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: true,
+                    message: error.message
+                }
+            })
+
+            // property-access
+            .addCase(webPropertyAccess.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(webPropertyAccess.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    isLogin: true,
+                    pending: false,
+                    error: false,
+                    data: {
+                        ...state.data,
+                        access: payload.access,
+                        accessToken: payload.accessToken,
+                        refreshToken: payload.refreshToken
+                    }
+                }
+            })
+            .addCase(webPropertyAccess.rejected, (state, { error }) => {
                 return {
                     ...state,
                     pending: false,

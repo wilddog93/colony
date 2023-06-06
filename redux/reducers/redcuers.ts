@@ -2,7 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit';
 import counterSlice from '../features/counter/counterSlice';
 import kanyeReducer from '../features/kanye/kanyeReducer';
 import authReducers from '../features/auth/authReducers';
-import propertyReducers from '../features/property/propertyReducers';
+import propertyReducers from '../features/propertyAccess/propertyAccessReducers';
 
 export const combinedReducer = combineReducers({
     //All reducer
