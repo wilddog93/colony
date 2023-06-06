@@ -7,10 +7,10 @@ import { MdArrowBack } from 'react-icons/md';
 import Tooltip from '../../components/Tooltip/Tooltip';
 import { useAppDispatch, useAppSelector } from '../../redux/Hook';
 import { getCookies } from 'cookies-next';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { getAuthMe, resetAuth, selectAuth } from '../../redux/features/auth/authReducers';
 import Modal from '../../components/Modal';
-import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
+import { FaCircleNotch } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
 import Link from 'next/link';
 import { ModalFooter, ModalHeader } from '../../components/Modal/ModalComponent';
@@ -34,7 +34,6 @@ const Authentication: NextPage<Props> = ({ pageProps }) => {
     const router = useRouter();
     const { pathname, query, asPath } = router;
     const { page, token, firebaseToken } = pageProps;
-    console.log(page, 'data pages')
 
     // auth me
     const dispatch = useAppDispatch();
@@ -65,7 +64,7 @@ const Authentication: NextPage<Props> = ({ pageProps }) => {
 
     useEffect(() => {
         let qr: any = {
-            page: query?.page || "sign-in"
+            page: query?.page
         };
 
         if (tabs) qr = { ...qr, page: tabs }

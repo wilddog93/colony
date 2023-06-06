@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 
 const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   const router = useRouter();
-  const { pathname } = router;
+  const { pathname, query } = router;
   const { store, props } = wrapper.useWrappedStore(pageProps);
   axios.defaults.baseURL = process.env.API_ENDPOINT;
   const [loading, setLoading] = useState(true);
@@ -51,11 +51,8 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
   }, []);
 
   useEffect(() => {
-    !isTokenFound ? router.replace({ pathname }) : null
+    !isTokenFound ? router.replace({ pathname, query }) : null
   }, [isTokenFound]);
-
-  console.log({ firebaseToken, isTokenFound }, 'token')
-
 
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">
