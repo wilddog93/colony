@@ -326,10 +326,10 @@ const Dashboard = ({ pageProps }: Props) => {
       title="Colony"
       header="Task Management"
       head="Dashboard"
-      logo="image/logo/logo-icon.svg"
+      logo="../image/logo/logo-icon.svg"
       description=""
-      images="image/logo/building-logo.svg"
-      userDefault="image/user/user-01.png"
+      images="../image/logo/building-logo.svg"
+      userDefault="../image/user/user-01.png"
       token={token}
       icons={{
         icon: MdWork,

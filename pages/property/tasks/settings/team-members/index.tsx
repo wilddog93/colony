@@ -294,9 +294,9 @@ const ProjectType = ({ pageProps }: Props) => {
             title="Colony"
             header="Task Management"
             head="Team Members"
-            logo="../../../image/logo/logo-icon.svg"
-            images="../../../image/logo/building-logo.svg"
-            userDefault="../../../image/user/user-01.png"
+            logo="../../../../image/logo/logo-icon.svg"
+            images="../../../../image/logo/building-logo.svg"
+            userDefault="../../../../image/user/user-01.png"
             description=""
             token={token}
             icons={{

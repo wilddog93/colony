@@ -279,9 +279,9 @@ const IssueType = ({ pageProps }: Props) => {
             title="Colony"
             header="Task Management"
             head="Issue Type"
-            logo="../../../image/logo/logo-icon.svg"
-            images="../../../image/logo/building-logo.svg"
-            userDefault="../../../image/user/user-01.png"
+            logo="../../../../image/logo/logo-icon.svg"
+            images="../../../../image/logo/building-logo.svg"
+            userDefault="../../../../image/user/user-01.png"
             description=""
             token={token}
             icons={{
