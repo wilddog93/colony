@@ -144,12 +144,12 @@ const NavbarMedia = (props: Props) => {
                     <div className='relative'>
                         <ul className={`absolute bg-boxdark text-white w-full flex flex-col lg:flex-row gap-2 transform duration-300 ease-in-out py-4 lg:px-4 ${navbarOpen ? "" : "-translate-y-full invisible"}`}>
                             <li className='w-full lg:max-w-max gap-2'>
-                                <ActiveLink pages={"videos"} href={{ pathname: "/media/videos" }} activeClass="bg-graydark" className='w-full lg:justify-center text-base lg:text-lg text-gray hover:text-white'>
+                                <ActiveLink pages={"videos"} href={{ pathname: "/property/media/videos" }} activeClass="bg-graydark" className='w-full lg:justify-center text-base lg:text-lg text-gray hover:text-white'>
                                     Video Media
                                 </ActiveLink>
                             </li>
                             <li className='w-full lg:max-w-max gap-2'>
-                                <ActiveLink pages={"articles"} href={{ pathname: "/media/articles" }} activeClass="bg-graydark" className='w-full lg:justify-center text-base lg:text-lg text-gray hover:text-white'>
+                                <ActiveLink pages={"articles"} href={{ pathname: "/property/media/articles" }} activeClass="bg-graydark" className='w-full lg:justify-center text-base lg:text-lg text-gray hover:text-white'>
                                     News & Articles
                                 </ActiveLink>
                             </li>

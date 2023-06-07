@@ -4,7 +4,7 @@ import {
 } from '../redux/Hook';
 import { Fragment, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { deleteCookie, getCookies } from 'cookies-next';
+import { deleteCookie, getCookies, setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import DefaultLayout from '../components/Layouts/DefaultLayouts';
 import { getAuthMe, selectAuth, webLogout } from '../redux/features/auth/authReducers';
@@ -45,12 +45,14 @@ const Home = ({ pageProps }: Props) => {
     if (!token) {
       return;
     }
-    dispatch(getAuthMe({ token, callback: () => {
-      deleteCookie("accessToken")
-      deleteCookie("refreshToken")
-      deleteCookie("access")
-      router.push("/authentication?page=sign-in")
-    } }))
+    dispatch(getAuthMe({
+      token, callback: () => {
+        deleteCookie("accessToken")
+        deleteCookie("refreshToken")
+        deleteCookie("access")
+        router.push("/authentication?page=sign-in")
+      }
+    }))
   }, [token])
 
   const isOpenSignOut = () => setIsSignOut(true)
@@ -63,6 +65,11 @@ const Home = ({ pageProps }: Props) => {
       callback: () => router.push("/")
     }))
   }
+
+  const gotToAccess = (access: any) => {
+    setCookie('access', access, { maxAge: 60 * 60 * 24 })
+    router.push({ pathname: `/access/${access}` })
+  };
 
   console.log(pageProps, 'data')
 
@@ -100,7 +107,7 @@ const Home = ({ pageProps }: Props) => {
               </div>
               <div className='w-full lg:w-5/5'>
                 <div className='w-full flex flex-col lg:flex-row items-center justify-center sm:justify-start gap-2 my-3 sm:my-0'>
-                  <div className='font-semibold text-graydark text-base lg:text-title-md'>{ user?.lastName || '-' }</div>
+                  <div className='font-semibold text-graydark text-base lg:text-title-md'>{user?.lastName || '-'}</div>
                   <h3 className='text-sm lg:text-base'>{`${user?.firstName || ''} ${user?.lastName || ''}`}</h3>
                 </div>
                 <div className='w-full flex flex-1 gap-2 justify-center sm:justify-start'>
@@ -113,32 +120,48 @@ const Home = ({ pageProps }: Props) => {
             </Cards>
           </div>
 
-          <div className='w-full flex flex-col justify-center gap-6'>
+          <div className='w-full h-full max-h-[500px] flex flex-col justify-center gap-6'>
             <h3 className='text-lg tracking-wide'>Select Your Access :</h3>
-            <div className="grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+            <div className="w-full h-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4 overflow-y-auto">
+              <button
+                type='button'
+                onClick={() => gotToAccess("property")}
+                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+              >
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Property</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </button>
+
+              <button
+                type='button'
+                onClick={() => gotToAccess("owner")}
+                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+              >
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Owner</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Link>
+              </button>
 
-              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <button
+                type='button'
+                onClick={() => gotToAccess("employee")}
+                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+              >
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Employee</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Link>
+              </button>
 
-              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
+              <button
+                type='button'
+                onClick={() => gotToAccess("tenant")}
+                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+              >
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>Tenant</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Link>
-
-              <Link href={'/building-management'} className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2'>
-                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                <h3 className='font-semibold'>Third Party</h3>
-                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -236,6 +259,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     return {
       redirect: {
         destination: "/authentication/resend-email?page=resend",
+        permanent: false,
+      },
+    };
+  }
+
+  if (token && access == "property-master") {
+    return {
+      redirect: {
+        destination: "/access/property",
         permanent: false,
       },
     };
