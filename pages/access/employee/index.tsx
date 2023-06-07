@@ -87,7 +87,7 @@ const Home = ({ pageProps }: Props) => {
         dispatch(webPropertyAccess({
             id,
             token,
-            callback: () => router.push({ pathname: "/property/building-management" })
+            callback: () => router.push({ pathname: "/employee/building-management" })
         }))
     }
 
@@ -193,7 +193,7 @@ const Home = ({ pageProps }: Props) => {
                             <button
                                 type='button'
                                 onClick={() => gotToAccess("employee")}
-                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${router.pathname.includes("property") ? "bg-gray" : "bg-white"}`}
+                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${router.pathname.includes("employee") ? "bg-gray" : "bg-white"}`}
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                                 <h3 className='font-semibold'>Employee</h3>

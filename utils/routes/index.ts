@@ -23,7 +23,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Building Management",
         pages: "building-management",
-        url: "/property/building-management",
+        url: "/employee/building-management",
         icons: {
           icon: MdMuseum,
           className: "w-8 h-8 text-meta-5",
@@ -34,7 +34,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Billings & Payments",
         pages: "billings",
-        url: "/property/billings",
+        url: "/employee/billings",
         icons: {
           icon: MdMonetizationOn,
           className: "w-8 h-8 text-meta-3"
@@ -45,7 +45,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Task Management",
         pages: "tasks",
-        url: "/property/tasks",
+        url: "/employee/tasks",
         icons: {
           icon: MdWork,
           className: "w-8 h-8 text-meta-7"
@@ -56,7 +56,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Assets & Inventories",
         pages: "assets-inventories",
-        url: "/property/assets-inventories",
+        url: "/employee/assets-inventories",
         icons: {
           icon: MdUnarchive,
           className: "w-8 h-8 text-meta-6"
@@ -67,7 +67,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Media",
         pages: "media",
-        url: "/property/media/videos",
+        url: "/employee/media/videos",
         icons: {
           icon: MdPhotoSizeSelectActual,
           className: "w-8 h-8 text-primary"
@@ -77,7 +77,7 @@ export const menuMaster: MenuProps[] = [
       {
         pathname: "Merchants",
         pages: "merchants",
-        url: "/property/merchants",
+        url: "/employee/merchants",
         icons: {
           icon: MdStore,
           className: "w-8 h-8 text-meta-8"
@@ -116,7 +116,7 @@ export const menuBM: MenuProps[] = [
   {
     pathname: "Dashboard",
     pages: "dashboard",
-    url: "/property/building-management",
+    url: "/employee/building-management",
     icons: {
       icon: MdOutlineDashboard,
       className: "w-5 h-5"
@@ -125,7 +125,7 @@ export const menuBM: MenuProps[] = [
   {
     pathname: "Occupancy",
     pages: "occupancy",
-    url: "/property/building-management/occupancy",
+    url: "/employee/building-management/occupancy",
     query: {
       page: 1,
       limit: 10,
@@ -138,7 +138,7 @@ export const menuBM: MenuProps[] = [
   {
     pathname: "Tower Management",
     pages: "towers",
-    url: "/property/building-management/towers",
+    url: "/employee/building-management/towers",
     query: {
       page: 1,
       limit: 10,
@@ -150,7 +150,7 @@ export const menuBM: MenuProps[] = [
   },
   {
     pathname: "Area Grouping",
-    url: "/property/building-management/areas",
+    url: "/employee/building-management/areas",
     query: {
       page: 1,
       limit: 10,
@@ -173,7 +173,7 @@ export const menuBM: MenuProps[] = [
         routes: [
           {
             pathname: "Parking Lot",
-            url: "/property/building-management/parkings/parking-lots",
+            url: "/employee/building-management/parkings/parking-lots",
             query: {
               page: 1,
               limit: 10,
@@ -181,7 +181,7 @@ export const menuBM: MenuProps[] = [
           },
           {
             pathname: "Registered Vehicles",
-            url: "/property/building-management/parkings/vehicles",
+            url: "/employee/building-management/parkings/vehicles",
             query: {
               page: 1,
               limit: 10,
@@ -189,7 +189,7 @@ export const menuBM: MenuProps[] = [
           },
           {
             pathname: "Vehicle Transaction",
-            url: "/property/building-management/parkings/transactions",
+            url: "/employee/building-management/parkings/transactions",
             query: {
               page: 1,
               limit: 10,
@@ -208,7 +208,7 @@ export const menuBM: MenuProps[] = [
         routes: [
           {
             pathname: "Master Data",
-            url: "/property/building-management/access-card/master-data",
+            url: "/employee/building-management/access-card/master-data",
             query: {
               page: 1,
               limit: 10,
@@ -216,7 +216,7 @@ export const menuBM: MenuProps[] = [
           },
           {
             pathname: "History transaction",
-            url: "/property/building-management/access-card/transactions",
+            url: "/employee/building-management/access-card/transactions",
             query: {
               page: 1,
               limit: 10,
@@ -232,7 +232,7 @@ export const menuBM: MenuProps[] = [
 export const menuParkings: MenuProps[] = [
   {
     pathname: "Parking Lot",
-    url: "/property/building-management/parkings/parking-lots",
+    url: "/employee/building-management/parkings/parking-lots",
     query: {
       page: 1,
       limit: 10,
@@ -240,7 +240,7 @@ export const menuParkings: MenuProps[] = [
   },
   {
     pathname: "Registered Vehicle",
-    url: "/property/building-management/parkings/vehicles",
+    url: "/employee/building-management/parkings/vehicles",
     query: {
       page: 1,
       limit: 10,
@@ -248,7 +248,7 @@ export const menuParkings: MenuProps[] = [
   },
   {
     pathname: "Vehicle Transaction",
-    url: "/property/building-management/parkings/transactions",
+    url: "/employee/building-management/parkings/transactions",
     query: {
       page: 1,
       limit: 10,
@@ -259,7 +259,7 @@ export const menuParkings: MenuProps[] = [
 export const menuAccessCard: MenuProps[] = [
   {
     pathname: "Master Data",
-    url: "/property/building-management/access-card/master-data",
+    url: "/employee/building-management/access-card/master-data",
     query: {
       page: 1,
       limit: 10,
@@ -267,7 +267,7 @@ export const menuAccessCard: MenuProps[] = [
   },
   {
     pathname: "History Transaction",
-    url: "/property/building-management/access-card/transactions",
+    url: "/employee/building-management/access-card/transactions",
     query: {
       page: 1,
       limit: 10,
@@ -280,7 +280,7 @@ export const menuMedia: MenuProps[] = [
   {
     pathname: "Video Media",
     pages: "videos",
-    url: "/property/media/videos",
+    url: "/employee/media/videos",
     query: {
       page: 1,
       limit: 10,
@@ -289,7 +289,7 @@ export const menuMedia: MenuProps[] = [
   {
     pathname: "News & Articles",
     pages: "articles",
-    url: "/property/media/articles",
+    url: "/employee/media/articles",
     query: {
       page: 1,
       limit: 10,
@@ -302,7 +302,7 @@ export const menuTask: MenuProps[] = [
   {
     pathname: "Dashboard",
     pages: "dashboard",
-    url: "/property/tasks",
+    url: "/employee/tasks",
     icons: {
       icon: MdOutlineDashboard,
       className: "w-5 h-5"
@@ -318,7 +318,7 @@ export const menuTask: MenuProps[] = [
     routes: [
       {
         pathname: "Table View",
-        url: "/property/tasks/projects/tables",
+        url: "/employee/tasks/projects/tables",
         query: {
           page: 1,
           limit: 10,
@@ -326,7 +326,7 @@ export const menuTask: MenuProps[] = [
       },
       {
         pathname: "Schedule Board",
-        url: "/property/tasks/projects/calendar-board",
+        url: "/employee/tasks/projects/calendar-board",
         query: {
           page: 1,
           limit: 10,
@@ -337,7 +337,7 @@ export const menuTask: MenuProps[] = [
   {
     pathname: "Issues",
     pages: "issues",
-    url: "/property/tasks/issues",
+    url: "/employee/tasks/issues",
     query: {
       page: 1,
       limit: 10,
@@ -351,7 +351,7 @@ export const menuTask: MenuProps[] = [
     subMenus: [
       {
         pathname: "Project Type",
-        url: "/property/tasks/settings/project-type",
+        url: "/employee/tasks/settings/project-type",
         query: {
           page: 1,
           limit: 10,
@@ -363,7 +363,7 @@ export const menuTask: MenuProps[] = [
       },
       {
         pathname: "Team Members",
-        url: "/property/tasks/settings/team-members",
+        url: "/employee/tasks/settings/team-members",
         query: {
           page: 1,
           limit: 10,
@@ -375,7 +375,7 @@ export const menuTask: MenuProps[] = [
       },
       {
         pathname: "Task Category",
-        url: "/property/tasks/settings/task-category",
+        url: "/employee/tasks/settings/task-category",
         query: {
           page: 1,
           limit: 10,
@@ -387,7 +387,7 @@ export const menuTask: MenuProps[] = [
       },
       {
         pathname: "Issue Category",
-        url: "/property/tasks/settings/issue-category",
+        url: "/employee/tasks/settings/issue-category",
         query: {
           page: 1,
           limit: 10,
@@ -399,7 +399,7 @@ export const menuTask: MenuProps[] = [
       },
       {
         pathname: "Issue Type",
-        url: "/property/tasks/settings/issue-type",
+        url: "/employee/tasks/settings/issue-type",
         query: {
           page: 1,
           limit: 10,
@@ -417,7 +417,7 @@ export const menuTask: MenuProps[] = [
 export const menuProjects: MenuProps[] = [
   {
     pathname: "Table View",
-    url: "/property/tasks/projects/tables",
+    url: "/employee/tasks/projects/tables",
     query: {
       page: 1,
       limit: 10,
@@ -425,7 +425,7 @@ export const menuProjects: MenuProps[] = [
   },
   {
     pathname: "Schedule Board",
-    url: "/property/tasks/projects/calendar-board",
+    url: "/employee/tasks/projects/calendar-board",
     query: {
       page: 1,
       limit: 10,
@@ -438,7 +438,7 @@ export const menuPayments: MenuProps[] = [
   {
     pathname: "Dashboard",
     pages: "dashboard",
-    url: "/property/billings",
+    url: "/employee/billings",
     icons: {
       icon: MdOutlineDashboard,
       className: "w-5 h-5"
@@ -447,7 +447,7 @@ export const menuPayments: MenuProps[] = [
   {
     pathname: "Payments",
     pages: "payments",
-    url: "/property/billings/payments",
+    url: "/employee/billings/payments",
     query: {
       page: 1,
       limit: 10,
@@ -460,7 +460,7 @@ export const menuPayments: MenuProps[] = [
   {
     pathname: "Invoices",
     pages: "invoices",
-    url: "/property/billings/invoices",
+    url: "/employee/billings/invoices",
     query: {
       page: 1,
       limit: 10,
@@ -473,7 +473,7 @@ export const menuPayments: MenuProps[] = [
   {
     pathname: "Receipt",
     pages: "receipt",
-    url: "/property/billings/receipt",
+    url: "/employee/billings/receipt",
     query: {
       page: 1,
       limit: 10,
@@ -493,7 +493,7 @@ export const menuPayments: MenuProps[] = [
   //   routes: [
   //     {
   //       pathname: "Table View",
-  //       url: "/property/tasks/projects/tables",
+  //       url: "/employee/tasks/projects/tables",
   //       query: {
   //         page: 1,
   //         limit: 10,
@@ -501,7 +501,7 @@ export const menuPayments: MenuProps[] = [
   //     },
   //     {
   //       pathname: "Schedule Board",
-  //       url: "/property/tasks/projects/calendar-board",
+  //       url: "/employee/tasks/projects/calendar-board",
   //       query: {
   //         page: 1,
   //         limit: 10,
@@ -513,7 +513,7 @@ export const menuPayments: MenuProps[] = [
     subMenus: [
       {
         pathname: "Templates",
-        url: "/property/billings/settings/templates",
+        url: "/employee/billings/settings/templates",
         pages: "templates",
         query: {
           page: 1,
@@ -526,7 +526,7 @@ export const menuPayments: MenuProps[] = [
       },
       {
         pathname: "Taxes",
-        url: "/property/billings/settings/taxes",
+        url: "/employee/billings/settings/taxes",
         pages: "taxes",
         query: {
           page: 1,
@@ -539,7 +539,7 @@ export const menuPayments: MenuProps[] = [
       },
       {
         pathname: "Discounts",
-        url: "/property/billings/settings/discounts",
+        url: "/employee/billings/settings/discounts",
         pages: "discounts",
         query: {
           page: 1,
