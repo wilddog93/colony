@@ -1,24 +1,24 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
-import { ColumnItems } from '../../../../components/tables/components/makeData';
-import { makeData } from '../../../../components/tables/components/makeData';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../../redux/features/auth/authReducers';
+import { ColumnItems } from '../../../../../components/tables/components/makeData';
+import { makeData } from '../../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../../components/Button/Button';
+import Button from '../../../../../components/Button/Button';
 import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuParkings, menuProjects, menuTask } from '../../../../utils/routes';
-import Tabs from '../../../../components/Layouts/Tabs';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
-import Modal from '../../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
+import SidebarComponent from '../../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuParkings, menuProjects, menuTask } from '../../../../../utils/routes';
+import Tabs from '../../../../../components/Layouts/Tabs';
+import { SearchInput } from '../../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../../../components/tables/layouts/SelectTables';
+import Modal from '../../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
+import { WorkProps, createDataTask } from '../../../../../components/tables/components/taskData';
 import moment from 'moment';
 
 type Props = {
@@ -119,7 +119,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const ProjectType = ({ pageProps }: Props) => {
+const IssueCategory = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -185,7 +185,7 @@ const ProjectType = ({ pageProps }: Props) => {
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/tasks/settings/project-type/${id}` })
+        return router.push({ pathname: `/tasks/settings/task-category/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -213,10 +213,10 @@ const ProjectType = ({ pageProps }: Props) => {
             header: (info) => (
                 <div className='uppercase'>Code</div>
             ),
-            cell: ({ row, getValue }) => {
+            cell: info => {
                 return (
-                    <div className='cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
-                        {getValue()}
+                    <div className='cursor-pointer font-semibold text-primary' onClick={() => onOpenDetail(info.row.original)}>
+                        {info.getValue()}
                     </div>
                 )
             },
@@ -251,22 +251,7 @@ const ProjectType = ({ pageProps }: Props) => {
             header: props => (<div className='w-full text-left uppercase'>Description</div>),
             footer: props => props.column.id,
             enableColumnFilter: false,
-            size: 150
-        },
-        {
-            accessorKey: 'priority',
-            cell: ({ row, getValue }) => {
-                const val = getValue();
-                return (
-                    <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
-                        {val}
-                    </div>
-                )
-            },
-            header: props => (<div className='w-full text-center uppercase'>Priority</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-            size: 150
+            size: 250
         },
         {
             accessorKey: 'createdAt',
@@ -293,7 +278,7 @@ const ProjectType = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Task Management"
-            head="Project Type"
+            head="Task Category"
             logo="../../../image/logo/logo-icon.svg"
             images="../../../image/logo/building-logo.svg"
             userDefault="../../../image/user/user-01.png"
@@ -334,7 +319,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Project type</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Issue Category</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -346,7 +331,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                     onClick={onOpen}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Type</span>
+                                    <span className='hidden lg:inline-block'>New Category</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
@@ -534,4 +519,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default ProjectType;
+export default IssueCategory;

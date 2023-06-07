@@ -1,27 +1,27 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../../redux/features/auth/authReducers';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../../components/Button/Button';
+import Button from '../../../../../components/Button/Button';
 import { MdAdd, MdArrowRightAlt, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdEdit, MdOutlineCalendarToday, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuProjects, menuTask } from '../../../../utils/routes';
-import Tabs from '../../../../components/Layouts/Tabs';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
-import Modal from '../../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
+import SidebarComponent from '../../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuProjects, menuTask } from '../../../../../utils/routes';
+import Tabs from '../../../../../components/Layouts/Tabs';
+import { SearchInput } from '../../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../../../components/tables/layouts/SelectTables';
+import Modal from '../../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
+import { WorkProps, createDataTask } from '../../../../../components/tables/components/taskData';
 import moment from 'moment';
 import DatePicker from "react-datepicker"
-import { createTask } from '../../../../components/tables/components/taskData';
-import Teams from '../../../../components/Task/Teams';
-import Kanban from '../../../../components/DragComponent/tasks/Kanban';
+import { createTask } from '../../../../../components/tables/components/taskData';
+import Teams from '../../../../../components/Task/Teams';
+import Kanban from '../../../../../components/DragComponent/tasks/Kanban';
 
 type Props = {
   pageProps: any

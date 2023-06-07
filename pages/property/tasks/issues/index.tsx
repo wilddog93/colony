@@ -5,24 +5,20 @@ import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
-import { ColumnItems } from '../../../../components/tables/components/makeData';
-import { makeData } from '../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdMoreHoriz, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCheckCircleOutline, MdChevronRight, MdOutlineSettings, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuParkings, menuProjects, menuTask } from '../../../../utils/routes';
+import { menuProjects, menuTask } from '../../../../utils/routes';
 import Tabs from '../../../../components/Layouts/Tabs';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import Modal from '../../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import { DivisionProps, UserProps, WorkProps, createDataTask, createDivisionArr, createMemberArr } from '../../../../components/tables/components/taskData';
+import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
 import moment from 'moment';
-import CardTables from '../../../../components/tables/layouts/CardTables';
-import Teams from '../../../../components/Task/Teams';
-import DropdownDefault from '../../../../components/Dropdown/DropdownDefault';
+import ScrollCardTables from '../../../../components/tables/layouts/ScrollCardTables';
 
 type Props = {
     pageProps: any
@@ -122,7 +118,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const ProjectType = ({ pageProps }: Props) => {
+const Issues = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -139,7 +135,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [loading, setLoading] = useState(true);
 
     // data-table
-    const [dataTable, setDataTable] = useState<DivisionProps[]>([]);
+    const [dataTable, setDataTable] = useState<WorkProps[]>([]);
     const [isSelectedRow, setIsSelectedRow] = useState({});
     const [pages, setPages] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -150,7 +146,7 @@ const ProjectType = ({ pageProps }: Props) => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [details, setDetails] = useState<DivisionProps>();
+    const [details, setDetails] = useState<WorkProps>();
 
     // date format
     const dateFormat = (value: string | any) => {
@@ -183,12 +179,12 @@ const ProjectType = ({ pageProps }: Props) => {
     };
 
     useEffect(() => {
-        setDataTable(() => createDivisionArr(5))
+        setDataTable(() => createDataTask(100))
     }, []);
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/tasks/settings/team-members/${id}` })
+        return router.push({ pathname: `/tasks/projects/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -202,84 +198,142 @@ const ProjectType = ({ pageProps }: Props) => {
     const genColorProjectType = (value: any) => {
         // #333A48
         let color = "";
-        if (!value) return "";
+        if(!value) return "";
         if (value == "Project") color = "#5E59CE";
         if (value == "Complaint Handling") color = "#FF8859";
         if (value == "Regular Task") color = "#38B7E3";
         if (value == "Maintenance") color = "#EC286F";
         return color;
-    };
+      };
 
-    const columns = useMemo<ColumnDef<DivisionProps, any>[]>(() => [
-        {
-            accessorKey: 'divisionName',
-            header: (info) => (
-                <div className='uppercase'>Title</div>
-            ),
-            cell: ({ getValue, row }) => {
-                let id = row?.original?.id
-                return (
-                    <div className='w-full flex items-center justify-between cursor-pointer p-4'>
-                        <div className='text-lg font-semibold'>{getValue()}</div>
-                        <DropdownDefault
-                            className=''
-                            position='right'
-                            data={""}
-                            title={
-                                <div className='text-primary'>
-                                    <MdMoreHoriz className='w-4 h-4' />
-                                </div>
-                            }
-                        />
-                    </div>
-                )
+    const columns = useMemo<ColumnDef<WorkProps, any>[]>(
+        () => [
+            {
+                accessorKey: 'workCode',
+                header: (info) => (
+                    <div className='uppercase'>Project ID</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    return (
+                        <div className='px-6 py-6 cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {getValue()}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
             },
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        },
-        {
-            accessorKey: 'divisionDescription',
-            cell: ({ row, getValue }) => {
-                return (
-                    <div className='w-full text-sm text-gray-5 text-left p-4'>
-                        {getValue().length > 70 ? `${getValue().substring(70, 0)}...` : getValue()}
-                    </div>
-                )
+            {
+                accessorKey: 'workName',
+                header: (info) => (
+                    <div className='uppercase'>Project Name</div>
+                ),
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+                            {info.getValue()}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
             },
-            header: props => (<div className='w-full text-left uppercase'>Description</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-            size: 150
-        },
-        {
-            accessorKey: 'member',
-            cell: ({ row, getValue }) => {
-                let member = getValue()
-                return (
-                    <div className='w-full text-sm p-4 text-left border-b-2 border-gray'>
-                        {member.length > 1 ? `${member.length} Members` : member?.length == 0 ? `Division hasn't any member yet` : `${member.length} Member`}
-                    </div>
-                )
+            {
+                accessorKey: 'totalTask',
+                cell: ({ row, getValue }) => {
+                    const completed = row.original.totalTaskCompleted
+                    return (
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
+                            {completed + "/" + getValue()}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Total Task</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
             },
-            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        },
-        {
-            accessorKey: 'id',
-            cell: ({ row, getValue }) => {
-                let member = row?.original?.member;
-                return (
-                    <div className='w-full text-sm text-left p-4'>
-                        <Teams items={member} />
-                    </div>
-                )
+            {
+                accessorKey: 'workCategory.urgency',
+                cell: info => {
+                    let urgency = info.getValue();
+                    return (
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
+                            {urgency ? <MdCheckCircleOutline className='w-5 h-5 text-primary mx-auto' /> : "-"}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Urgency</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
             },
-            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        }
-    ], []);
+            {
+                accessorKey: 'scheduleStart',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Start Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'scheduleEnd',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Due Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'workStatus',
+                header: (info) => (
+                    <div className='uppercase'>Status</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    console.log("status :", getValue())
+                    return (
+                        <div className='cursor-pointer text-left font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {genWorkStatus(getValue())}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'id',
+                cell: ({ row, getValue }) => {
+                    return (
+                        <div className='w-full text-center flex items-center justify-center cursor-pointer'>
+                            <Button
+                                onClick={() => goToTask(getValue())}
+                                variant="secondary-outline-none"
+                                className="px-1 py-1"
+                                type="button"
+                            >
+                                <MdChevronRight className='text-gray-5 w-4 h-4' />
+                            </Button>
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Actions</div>),
+                footer: props => props.column.id,
+                // enableSorting: false,
+                enableColumnFilter: false,
+                size: 10,
+                minSize: 10
+            }
+        ],
+        []
+    );
 
     useEffect(() => {
         if (token) {
@@ -287,16 +341,14 @@ const ProjectType = ({ pageProps }: Props) => {
         }
     }, [token]);
 
-    console.log(dataTable, 'data table')
-
     return (
         <DefaultLayout
             title="Colony"
             header="Task Management"
-            head="Team Members"
-            logo="../../../image/logo/logo-icon.svg"
-            images="../../../image/logo/building-logo.svg"
-            userDefault="../../../image/user/user-01.png"
+            head="Issues"
+            logo="../../image/logo/logo-icon.svg"
+            images="../../image/logo/building-logo.svg"
+            userDefault="../../image/user/user-01.png"
             description=""
             token={token}
             icons={{
@@ -334,7 +386,7 @@ const ProjectType = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Team Members</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Issues</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -344,9 +396,18 @@ const ProjectType = ({ pageProps }: Props) => {
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
                                     onClick={onOpen}
+                                    variant='primary-outline'
+                                >
+                                    <span className='hidden lg:inline-block'>Properties Settings</span>
+                                    <MdOutlineSettings className='w-4 h-4' />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    className='rounded-lg text-sm font-semibold py-3'
+                                    onClick={onOpen}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Team</span>
+                                    <span className='hidden lg:inline-block'>New Issue</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
@@ -356,8 +417,8 @@ const ProjectType = ({ pageProps }: Props) => {
                     <main className='relative tracking-wide text-left text-boxdark-2'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
-                            <div className='w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4'>
-                                <div className='w-full lg:col-span-3'>
+                            <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
+                                <div className='w-full lg:col-span-2'>
                                     <SearchInput
                                         className='w-full text-sm rounded-xl'
                                         classNamePrefix=''
@@ -383,10 +444,46 @@ const ProjectType = ({ pageProps }: Props) => {
                                         icon='MdSort'
                                     />
                                 </div>
+
+                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                    <DropdownSelect
+                                        customStyles={stylesSelect}
+                                        value={sort}
+                                        onChange={setSort}
+                                        error=""
+                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                        classNamePrefix=""
+                                        formatOptionLabel=""
+                                        instanceId='1'
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder='All Status...'
+                                        options={sortOpt}
+                                        icon=''
+                                    />
+                                </div>
+
+                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                    <DropdownSelect
+                                        customStyles={stylesSelect}
+                                        value={sort}
+                                        onChange={setSort}
+                                        error=""
+                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                        classNamePrefix=""
+                                        formatOptionLabel=""
+                                        instanceId='1'
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder='All Type...'
+                                        options={sortOpt}
+                                        icon=''
+                                    />
+                                </div>
                             </div>
 
                             {/* table */}
-                            <CardTables
+                            <ScrollCardTables
                                 loading={loading}
                                 setLoading={setLoading}
                                 pages={pages}
@@ -397,9 +494,8 @@ const ProjectType = ({ pageProps }: Props) => {
                                 columns={columns}
                                 dataTable={dataTable}
                                 total={total}
-                                setIsSelected={setIsSelectedRow}
-                                isInfiniteScroll
-                                classTable="sm:grid-cols-2"
+                                isInfiniteScroll={false}
+                                isHideHeader={true}
                             />
                         </div>
                     </main>
@@ -438,7 +534,40 @@ const ProjectType = ({ pageProps }: Props) => {
                 isOpen={isOpenDetail}
             >
                 <Fragment>
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Mollitia quam, ab iusto aliquam cumque esse repellendus voluptas inventore iure in! Tempora repellendus consectetur nisi recusandae asperiores quo aspernatur esse nobis nulla ex dolorum, fugit illo incidunt tempore consequuntur qui numquam maiores accusantium possimus. Exercitationem adipisci tenetur dolores expedita culpa accusamus officia sit laborum possimus qui! Magni obcaecati exercitationem laboriosam nemo voluptates aspernatur adipisci, fuga dicta maxime ipsam animi repellat aliquam sit vero delectus perspiciatis labore pariatur, consectetur, temporibus nesciunt reprehenderit placeat. Voluptatem placeat laborum temporibus! Consectetur reiciendis exercitationem dolorum. Voluptates fugit repellat repellendus ullam fugiat repudiandae odio debitis tempore magnam.
+                    <ModalHeader
+                        className='p-6 mb-3'
+                        isClose={true}
+                        onClick={onCloseDetail}
+                    >
+                        <div className="flex-flex-col gap-2">
+                            <h3 
+                                className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
+                                style={{
+                                    backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
+                                    color: !details?.workType ? "#333A48" : "#FFFFFF",
+                                }}
+                            >
+                                {details?.workType || ""}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <p className='text-sm text-gray-5'>{details?.workName || ""}</p>
+                            </div>
+                        </div>
+                    </ModalHeader>
+                    <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
+                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+                            <div className='text-sm text-graydark'>Start Date</div>
+                            <p>{dateFormat(details?.scheduleStart)}</p>
+                        </div>
+                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
+                            <div className='text-sm text-graydark'>End Date</div>
+                            <p>{dateFormat(details?.scheduleEnd)}</p>
+                        </div>
+                        <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2'>
+                            <div className='text-sm text-graydark'>Total Task</div>
+                            <p>{details?.totalTask}</p>
+                        </div>
+                    </div>
                 </Fragment>
             </Modal>
 
@@ -503,4 +632,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default ProjectType;
+export default Issues;

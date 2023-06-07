@@ -1,27 +1,27 @@
 import React, { Dispatch, Fragment, SetStateAction, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
-import { ColumnItems } from '../../../components/tables/components/makeData';
-import { makeData } from '../../../components/tables/components/makeData';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
+import { ColumnItems } from '../../../../components/tables/components/makeData';
+import { makeData } from '../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
-import { IndeterminateCheckbox } from '../../../components/tables/components/TableComponent';
-import Button from '../../../components/Button/Button';
+import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
+import Button from '../../../../components/Button/Button';
 import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuParkings, menuProjects, menuTask } from '../../../utils/routes';
-import Tabs from '../../../components/Layouts/Tabs';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import Modal from '../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuParkings, menuProjects, menuTask } from '../../../../utils/routes';
+import Tabs from '../../../../components/Layouts/Tabs';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import Modal from '../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import moment from 'moment';
-import { Calendar } from '../../../components/Timeline';
-import { WorkProps, createDataTask } from '../../../components/tables/components/taskData';
+import { Calendar } from '../../../../components/Timeline';
+import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
 
 type Props = {
   pageProps: any

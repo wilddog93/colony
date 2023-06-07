@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import DefaultLayout from '../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../components/Layouts/Sidebar/Building-Management';
+import DefaultLayout from '../../../components/Layouts/DefaultLayouts'
+import SidebarBM from '../../../components/Layouts/Sidebar/Building-Management';
 import { MdAdd, MdArrowDropUp, MdArrowRightAlt, MdCleaningServices, MdEdit, MdLocalHotel, MdWork } from 'react-icons/md';
-import Button from '../../components/Button/Button';
-import Cards from '../../components/Cards/Cards';
-import Barcharts from '../../components/Chart/Barcharts';
-import Doughnutcharts from '../../components/Chart/Doughnutcharts';
+import Button from '../../../components/Button/Button';
+import Cards from '../../../components/Cards/Cards';
+import Barcharts from '../../../components/Chart/Barcharts';
+import Doughnutcharts from '../../../components/Chart/Doughnutcharts';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
-import { useAppDispatch, useAppSelector } from '../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
-import SidebarComponent from '../../components/Layouts/Sidebar/SidebarComponent';
-import { menuTask } from '../../utils/routes';
+import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuTask } from '../../../utils/routes';
 // import SidebarComponent from '../../components/Layouts/Sidebar/SidebarComponent';
 
 type Props = {

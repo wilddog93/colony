@@ -1,24 +1,25 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
+import DefaultLayout from '../../../../../components/Layouts/DefaultLayouts';
 import { GetServerSideProps } from 'next';
 import { getCookies } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/Hook';
+import { getAuthMe, selectAuth } from '../../../../../redux/features/auth/authReducers';
+import { ColumnItems } from '../../../../../components/tables/components/makeData';
+import { makeData } from '../../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
-import Button from '../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCheckCircleOutline, MdChevronRight, MdOutlineSettings, MdWork } from 'react-icons/md';
-import SidebarComponent from '../../../components/Layouts/Sidebar/SidebarComponent';
-import { menuProjects, menuTask } from '../../../utils/routes';
-import Tabs from '../../../components/Layouts/Tabs';
-import { SearchInput } from '../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
-import Modal from '../../../components/Modal';
-import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
-import { WorkProps, createDataTask } from '../../../components/tables/components/taskData';
+import Button from '../../../../../components/Button/Button';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import SidebarComponent from '../../../../../components/Layouts/Sidebar/SidebarComponent';
+import { menuParkings, menuProjects, menuTask } from '../../../../../utils/routes';
+import Tabs from '../../../../../components/Layouts/Tabs';
+import { SearchInput } from '../../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../../../components/tables/layouts/SelectTables';
+import Modal from '../../../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
+import { WorkProps, createDataTask } from '../../../../../components/tables/components/taskData';
 import moment from 'moment';
-import ScrollCardTables from '../../../components/tables/layouts/ScrollCardTables';
 
 type Props = {
     pageProps: any
@@ -118,7 +119,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const Issues = ({ pageProps }: Props) => {
+const IssueType = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -184,7 +185,7 @@ const Issues = ({ pageProps }: Props) => {
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/tasks/projects/${id}` })
+        return router.push({ pathname: `/tasks/settings/issue-type/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -198,142 +199,74 @@ const Issues = ({ pageProps }: Props) => {
     const genColorProjectType = (value: any) => {
         // #333A48
         let color = "";
-        if(!value) return "";
+        if (!value) return "";
         if (value == "Project") color = "#5E59CE";
         if (value == "Complaint Handling") color = "#FF8859";
         if (value == "Regular Task") color = "#38B7E3";
         if (value == "Maintenance") color = "#EC286F";
         return color;
-      };
+    };
 
-    const columns = useMemo<ColumnDef<WorkProps, any>[]>(
-        () => [
-            {
-                accessorKey: 'workCode',
-                header: (info) => (
-                    <div className='uppercase'>Project ID</div>
-                ),
-                cell: ({ row, getValue }) => {
-                    return (
-                        <div className='px-6 py-6 cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
-                            {getValue()}
-                        </div>
-                    )
-                },
-                footer: props => props.column.id,
-                enableColumnFilter: false,
+    const columns = useMemo<ColumnDef<WorkProps, any>[]>(() => [
+        {
+            accessorKey: 'workCode',
+            header: (info) => (
+                <div className='uppercase'>Code</div>
+            ),
+            cell: ({ row, getValue }) => {
+                return (
+                    <div className='cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
+                        {getValue()}
+                    </div>
+                )
             },
-            {
-                accessorKey: 'workName',
-                header: (info) => (
-                    <div className='uppercase'>Project Name</div>
-                ),
-                cell: info => {
-                    return (
-                        <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-                            {info.getValue()}
-                        </div>
-                    )
-                },
-                footer: props => props.column.id,
-                enableColumnFilter: false,
+            footer: props => props.column.id,
+            enableColumnFilter: false,
+            size: 30
+        },
+        {
+            accessorKey: 'workName',
+            header: (info) => (
+                <div className='uppercase'>Title</div>
+            ),
+            cell: info => {
+                return (
+                    <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+                        {info.getValue()}
+                    </div>
+                )
             },
-            {
-                accessorKey: 'totalTask',
-                cell: ({ row, getValue }) => {
-                    const completed = row.original.totalTaskCompleted
-                    return (
-                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
-                            {completed + "/" + getValue()}
-                        </div>
-                    )
-                },
-                header: props => (<div className='w-full text-center uppercase'>Total Task</div>),
-                footer: props => props.column.id,
-                enableColumnFilter: false,
+            footer: props => props.column.id,
+            enableColumnFilter: false,
+        },
+        {
+            accessorKey: 'workDescription',
+            cell: ({ row, getValue }) => {
+                return (
+                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(row.original)}>
+                        {getValue().length > 20 ? `${getValue().substring(20, 0)}...` : getValue()}
+                    </div>
+                )
             },
-            {
-                accessorKey: 'workCategory.urgency',
-                cell: info => {
-                    let urgency = info.getValue();
-                    return (
-                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
-                            {urgency ? <MdCheckCircleOutline className='w-5 h-5 text-primary mx-auto' /> : "-"}
-                        </div>
-                    )
-                },
-                header: props => (<div className='w-full text-center uppercase'>Urgency</div>),
-                footer: props => props.column.id,
-                enableColumnFilter: false,
+            header: props => (<div className='w-full text-left uppercase'>Description</div>),
+            footer: props => props.column.id,
+            enableColumnFilter: false,
+            size: 350
+        },
+        {
+            accessorKey: 'createdAt',
+            cell: info => {
+                return (
+                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                        {dateFormat(info.getValue())}
+                    </div>
+                )
             },
-            {
-                accessorKey: 'scheduleStart',
-                cell: info => {
-                    return (
-                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
-                            {dateFormat(info.getValue())}
-                        </div>
-                    )
-                },
-                header: props => (<div className='w-full text-left uppercase'>Start Date</div>),
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'scheduleEnd',
-                cell: info => {
-                    return (
-                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
-                            {dateFormat(info.getValue())}
-                        </div>
-                    )
-                },
-                header: props => (<div className='w-full text-left uppercase'>Due Date</div>),
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'workStatus',
-                header: (info) => (
-                    <div className='uppercase'>Status</div>
-                ),
-                cell: ({ row, getValue }) => {
-                    console.log("status :", getValue())
-                    return (
-                        <div className='cursor-pointer text-left font-semibold' onClick={() => onOpenDetail(row.original)}>
-                            {genWorkStatus(getValue())}
-                        </div>
-                    )
-                },
-                footer: props => props.column.id,
-                enableColumnFilter: false,
-            },
-            {
-                accessorKey: 'id',
-                cell: ({ row, getValue }) => {
-                    return (
-                        <div className='w-full text-center flex items-center justify-center cursor-pointer'>
-                            <Button
-                                onClick={() => goToTask(getValue())}
-                                variant="secondary-outline-none"
-                                className="px-1 py-1"
-                                type="button"
-                            >
-                                <MdChevronRight className='text-gray-5 w-4 h-4' />
-                            </Button>
-                        </div>
-                    )
-                },
-                header: props => (<div className='w-full text-center uppercase'>Actions</div>),
-                footer: props => props.column.id,
-                // enableSorting: false,
-                enableColumnFilter: false,
-                size: 10,
-                minSize: 10
-            }
-        ],
-        []
-    );
+            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
+            footer: props => props.column.id,
+            enableColumnFilter: false,
+        }
+    ], []);
 
     useEffect(() => {
         if (token) {
@@ -345,10 +278,10 @@ const Issues = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Task Management"
-            head="Issues"
-            logo="../../image/logo/logo-icon.svg"
-            images="../../image/logo/building-logo.svg"
-            userDefault="../../image/user/user-01.png"
+            head="Issue Type"
+            logo="../../../image/logo/logo-icon.svg"
+            images="../../../image/logo/building-logo.svg"
+            userDefault="../../../image/user/user-01.png"
             description=""
             token={token}
             icons={{
@@ -386,7 +319,7 @@ const Issues = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Issues</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Issue type</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -396,18 +329,9 @@ const Issues = ({ pageProps }: Props) => {
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
                                     onClick={onOpen}
-                                    variant='primary-outline'
-                                >
-                                    <span className='hidden lg:inline-block'>Properties Settings</span>
-                                    <MdOutlineSettings className='w-4 h-4' />
-                                </Button>
-                                <Button
-                                    type="button"
-                                    className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={onOpen}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Issue</span>
+                                    <span className='hidden lg:inline-block'>New Type</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
@@ -417,8 +341,8 @@ const Issues = ({ pageProps }: Props) => {
                     <main className='relative tracking-wide text-left text-boxdark-2'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
-                            <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
-                                <div className='w-full lg:col-span-2'>
+                            <div className='w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4'>
+                                <div className='w-full lg:col-span-3'>
                                     <SearchInput
                                         className='w-full text-sm rounded-xl'
                                         classNamePrefix=''
@@ -444,46 +368,10 @@ const Issues = ({ pageProps }: Props) => {
                                         icon='MdSort'
                                     />
                                 </div>
-
-                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                                    <DropdownSelect
-                                        customStyles={stylesSelect}
-                                        value={sort}
-                                        onChange={setSort}
-                                        error=""
-                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                        classNamePrefix=""
-                                        formatOptionLabel=""
-                                        instanceId='1'
-                                        isDisabled={false}
-                                        isMulti={false}
-                                        placeholder='All Status...'
-                                        options={sortOpt}
-                                        icon=''
-                                    />
-                                </div>
-
-                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                                    <DropdownSelect
-                                        customStyles={stylesSelect}
-                                        value={sort}
-                                        onChange={setSort}
-                                        error=""
-                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                                        classNamePrefix=""
-                                        formatOptionLabel=""
-                                        instanceId='1'
-                                        isDisabled={false}
-                                        isMulti={false}
-                                        placeholder='All Type...'
-                                        options={sortOpt}
-                                        icon=''
-                                    />
-                                </div>
                             </div>
 
                             {/* table */}
-                            <ScrollCardTables
+                            <SelectTables
                                 loading={loading}
                                 setLoading={setLoading}
                                 pages={pages}
@@ -494,8 +382,7 @@ const Issues = ({ pageProps }: Props) => {
                                 columns={columns}
                                 dataTable={dataTable}
                                 total={total}
-                                isInfiniteScroll={false}
-                                isHideHeader={true}
+                                setIsSelected={setIsSelectedRow}
                             />
                         </div>
                     </main>
@@ -540,7 +427,7 @@ const Issues = ({ pageProps }: Props) => {
                         onClick={onCloseDetail}
                     >
                         <div className="flex-flex-col gap-2">
-                            <h3 
+                            <h3
                                 className='text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max'
                                 style={{
                                     backgroundColor: !details?.workType ? "#FFFFFF" : genColorProjectType(details.workType),
@@ -632,4 +519,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default Issues;
+export default IssueType;

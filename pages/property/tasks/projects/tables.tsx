@@ -9,7 +9,7 @@ import { ColumnItems } from '../../../../components/tables/components/makeData';
 import { makeData } from '../../../../components/tables/components/makeData';
 import { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../../components/Button/Button';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdPhone, MdUpload, MdWork } from 'react-icons/md';
+import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdCheck, MdCheckCircleOutline, MdChevronLeft, MdChevronRight, MdDelete, MdEdit, MdEmail, MdFemale, MdMale, MdOutlinePerson, MdPhone, MdUpload, MdWork } from 'react-icons/md';
 import SidebarComponent from '../../../../components/Layouts/Sidebar/SidebarComponent';
 import { menuParkings, menuProjects, menuTask } from '../../../../utils/routes';
 import Tabs from '../../../../components/Layouts/Tabs';
@@ -20,6 +20,8 @@ import Modal from '../../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import { WorkProps, createDataTask } from '../../../../components/tables/components/taskData';
 import moment from 'moment';
+import { ArrayInput, useInputArray } from '../../../../utils/useHooks/useHooks';
+import MultiArrayForm from '../../../../components/Forms/MultiArrayForm';
 
 type Props = {
     pageProps: any
@@ -119,7 +121,7 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const TaskCategory = ({ pageProps }: Props) => {
+const TableView = ({ pageProps }: Props) => {
     moment.locale("id")
     const router = useRouter();
     const { pathname, query } = router;
@@ -148,6 +150,7 @@ const TaskCategory = ({ pageProps }: Props) => {
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [details, setDetails] = useState<WorkProps>();
+
 
     // date format
     const dateFormat = (value: string | any) => {
@@ -185,7 +188,7 @@ const TaskCategory = ({ pageProps }: Props) => {
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/tasks/settings/task-category/${id}` })
+        return router.push({ pathname: `/tasks/projects/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -207,73 +210,160 @@ const TaskCategory = ({ pageProps }: Props) => {
         return color;
     };
 
-    const columns = useMemo<ColumnDef<WorkProps, any>[]>(() => [
-        {
-            accessorKey: 'workName',
-            header: (info) => (
-                <div className='uppercase'>Title</div>
-            ),
-            cell: info => {
-                return (
-                    <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-                        {info.getValue()}
-                    </div>
-                )
-            },
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        },
-        {
-            accessorKey: 'workDescription',
-            cell: ({ row, getValue }) => {
-                return (
-                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(row.original)}>
-                        {getValue().length > 20 ? `${getValue().substring(20, 0)}...` : getValue()}
-                    </div>
-                )
-            },
-            header: props => (<div className='w-full text-left uppercase'>Description</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-            size: 150
-        },
-        {
-            accessorKey: 'workType',
-            cell: ({ row, getValue }) => {
-                const val = getValue();
-                return (
-                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(row.original)}>
-                        <div className="flex items-center gap-2">
-                            <span
-                                className='w-6 h-6 rounded-lg' 
-                                style={{ 
-                                    backgroundColor: !val ? "#FFFFFF" : genColorProjectType(val),
-                                }}
-                            ></span>
-                            <p>{genColorProjectType(val)}</p>
+    const columns = useMemo<ColumnDef<WorkProps, any>[]>(
+        () => [
+            {
+                accessorKey: 'workType',
+                header: (info) => (
+                    <div className='uppercase'>Project Type</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    const val = getValue();
+                    return (
+                        <div
+                            className={`cursor-pointer p-2 rounded-md w-full max-w-max`}
+                            onClick={() => onOpenDetail(row.original)}
+                            style={{
+                                backgroundColor: !val ? "FFFFFF" : genColorProjectType(val),
+                                color: !val ? "#333A48" : "#FFFFFF",
+                            }}
+                        >
+                            {val}
                         </div>
-                    </div>
-                )
+                    )
+                },
+                footer: props => props.column.id,
+                // enableSorting: false,
+                enableColumnFilter: false,
+                size: 10,
+                minSize: 10
             },
-            header: props => (<div className='w-full text-left uppercase'>Priority</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-            size: 150
-        },
-        {
-            accessorKey: 'createdAt',
-            cell: info => {
-                return (
-                    <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
-                        {dateFormat(info.getValue())}
-                    </div>
-                )
+            {
+                accessorKey: 'workCode',
+                header: (info) => (
+                    <div className='uppercase'>Project ID</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    return (
+                        <div className='cursor-pointer text-left text-primary uppercase font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {getValue()}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
             },
-            header: props => (<div className='w-full text-left uppercase'>Date Added</div>),
-            footer: props => props.column.id,
-            enableColumnFilter: false,
-        }
-    ], []);
+            {
+                accessorKey: 'workName',
+                header: (info) => (
+                    <div className='uppercase'>Project Name</div>
+                ),
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
+                            {info.getValue()}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'totalTask',
+                cell: ({ row, getValue }) => {
+                    const completed = row.original.totalTaskCompleted
+                    return (
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(row.original)}>
+                            {completed + "/" + getValue()}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Total Task</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'workCategory.urgency',
+                cell: info => {
+                    let urgency = info.getValue();
+                    return (
+                        <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
+                            {urgency ? <MdCheckCircleOutline className='w-5 h-5 text-primary mx-auto' /> : "-"}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Urgency</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'scheduleStart',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Start Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'scheduleEnd',
+                cell: info => {
+                    return (
+                        <div className='cursor-pointer text-left' onClick={() => onOpenDetail(info.row.original)}>
+                            {dateFormat(info.getValue())}
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-left uppercase'>Due Date</div>),
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'workStatus',
+                header: (info) => (
+                    <div className='uppercase'>Status</div>
+                ),
+                cell: ({ row, getValue }) => {
+                    console.log("status :", getValue())
+                    return (
+                        <div className='cursor-pointer text-left font-semibold' onClick={() => onOpenDetail(row.original)}>
+                            {genWorkStatus(getValue())}
+                        </div>
+                    )
+                },
+                footer: props => props.column.id,
+                enableColumnFilter: false,
+            },
+            {
+                accessorKey: 'id',
+                cell: ({ row, getValue }) => {
+                    return (
+                        <div className='w-full text-center flex items-center justify-center cursor-pointer'>
+                            <Button
+                                onClick={() => goToTask(getValue())}
+                                variant="secondary-outline-none"
+                                className="px-1 py-1"
+                                type="button"
+                            >
+                                <MdChevronRight className='text-gray-5 w-4 h-4' />
+                            </Button>
+                        </div>
+                    )
+                },
+                header: props => (<div className='w-full text-center uppercase'>Actions</div>),
+                footer: props => props.column.id,
+                // enableSorting: false,
+                enableColumnFilter: false,
+                size: 10,
+                minSize: 10
+            }
+        ],
+        []
+    );
 
     useEffect(() => {
         if (token) {
@@ -285,10 +375,10 @@ const TaskCategory = ({ pageProps }: Props) => {
         <DefaultLayout
             title="Colony"
             header="Task Management"
-            head="Task Category"
-            logo="../../../image/logo/logo-icon.svg"
-            images="../../../image/logo/building-logo.svg"
-            userDefault="../../../image/user/user-01.png"
+            head="Tables"
+            logo="../../image/logo/logo-icon.svg"
+            images="../../image/logo/building-logo.svg"
+            userDefault="../../image/user/user-01.png"
             description=""
             token={token}
             icons={{
@@ -326,7 +416,7 @@ const TaskCategory = ({ pageProps }: Props) => {
                                     key={'1'}
                                 >
                                     <div className='flex flex-col gap-1 items-start'>
-                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Task Category</h3>
+                                        <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Projects</h3>
                                     </div>
                                 </Button>
                             </div>
@@ -338,18 +428,22 @@ const TaskCategory = ({ pageProps }: Props) => {
                                     onClick={onOpen}
                                     variant='primary'
                                 >
-                                    <span className='hidden lg:inline-block'>New Category</span>
+                                    <span className='hidden lg:inline-block'>New Project</span>
                                     <MdAdd className='w-4 h-4' />
                                 </Button>
                             </div>
+                        </div>
+                        {/* tabs */}
+                        <div className='w-full px-4'>
+                            <Tabs menus={menuProjects} />
                         </div>
                     </div>
 
                     <main className='relative tracking-wide text-left text-boxdark-2'>
                         <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
                             {/* content */}
-                            <div className='w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4'>
-                                <div className='w-full lg:col-span-3'>
+                            <div className='w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4'>
+                                <div className='w-full lg:col-span-2'>
                                     <SearchInput
                                         className='w-full text-sm rounded-xl'
                                         classNamePrefix=''
@@ -373,6 +467,42 @@ const TaskCategory = ({ pageProps }: Props) => {
                                         placeholder='Sorts...'
                                         options={sortOpt}
                                         icon='MdSort'
+                                    />
+                                </div>
+
+                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                    <DropdownSelect
+                                        customStyles={stylesSelect}
+                                        value={sort}
+                                        onChange={setSort}
+                                        error=""
+                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                        classNamePrefix=""
+                                        formatOptionLabel=""
+                                        instanceId='1'
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder='All Status...'
+                                        options={sortOpt}
+                                        icon=''
+                                    />
+                                </div>
+
+                                <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                                    <DropdownSelect
+                                        customStyles={stylesSelect}
+                                        value={sort}
+                                        onChange={setSort}
+                                        error=""
+                                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                                        classNamePrefix=""
+                                        formatOptionLabel=""
+                                        instanceId='1'
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder='All Type...'
+                                        options={sortOpt}
+                                        icon=''
                                     />
                                 </div>
                             </div>
@@ -410,9 +540,11 @@ const TaskCategory = ({ pageProps }: Props) => {
                     >
                         <h3 className='text-lg font-semibold'>Modal Header</h3>
                     </ModalHeader>
+
                     <div className="w-full px-4">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
+                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quas a, facere unde ab omnis libero atque placeat fugiat neque soluta illum magni pariatur architecto vero tenetur, quo corporis corrupti exercitationem, natus asperiores non saepe deserunt quidem? Laboriosam molestias inventore pariatur maiores nostrum officiis quam. Commodi excepturi eius accusantium modi obcaecati facilis suscipit nam, sunt magni ab fuga magnam non voluptates hic exercitationem eaque esse ea quis sequi rem nulla itaque mollitia! Iure, velit officia aliquam, nisi dolor ipsam perspiciatis magni ex excepturi animi ducimus. Voluptatum, at laudantium tempora modi repudiandae beatae dignissimos tempore molestias officia vero, similique facilis ab eius.
                     </div>
+
                     <ModalFooter
                         className='p-4 border-t-2 border-gray mt-3'
                         isClose={true}
@@ -526,4 +658,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 };
 
-export default TaskCategory;
+export default TableView;
