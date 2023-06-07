@@ -7,7 +7,7 @@ import { GetServerSideProps } from 'next';
 import { deleteCookie, getCookies, setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
-import { getAuthMe, selectAuth, webDomainAccess, webLogout } from '../../../redux/features/auth/authReducers';
+import { getAuthMe, selectAuth, webLogout } from '../../../redux/features/auth/authReducers';
 import AuthLayout from '../../../components/Layouts/AuthLayouts';
 import Link from 'next/link';
 import { MdAdd, MdArrowBack, MdChevronLeft, MdChevronRight, MdLogin, MdLogout, MdMail, MdMailOutline, MdOutlineBusiness, MdOutlineHome } from 'react-icons/md';
@@ -18,7 +18,6 @@ import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import LoadingPage from '../../../components/LoadingPage';
 import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
 import { webPropertyAccess } from '../../../redux/features/auth/authReducers';
-import { getAccessDomain, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
 
 interface PageProps {
     page: string;
@@ -38,7 +37,7 @@ const Home = ({ pageProps }: Props) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
-    const domain = useAppSelector(selectDomainAccess);
+    const property = useAppSelector(selectPropertyAccess);
     const { user } = data;
 
     // sidebar
@@ -60,7 +59,7 @@ const Home = ({ pageProps }: Props) => {
     }, [token])
 
     useEffect(() => {
-        if (token) dispatch(getAccessDomain({ token }))
+        if (token) dispatch(getAccessProperty({ token }))
     }, [token])
 
     const isOpenSignOut = () => setIsSignOut(true)
@@ -74,47 +73,37 @@ const Home = ({ pageProps }: Props) => {
         }))
     }
 
-    const domains = useMemo(() => {
-        const { data } = domain.domains;
+    const properties = useMemo(() => {
+        const { data } = property.properties;
         return data || [];
-    }, [domain?.domains])
+    }, [property.properties])
 
     const gotToAccess = (access: any) => {
         setCookie('access', access, { maxAge: 60 * 60 * 24 })
         router.push({ pathname: `/access/${access}` })
     };
 
-    const goToDomainAccess = (id: number) => {
-        dispatch(webDomainAccess({
+    const goToPropertyAccess = (id: number) => {
+        dispatch(webPropertyAccess({
             id,
             token,
             callback: () => router.push({ pathname: "/owner/dashboard" })
         }))
     }
 
-    const Domains = (props: any) => {
-        const { id, domainStructureName, domain } = props?.items;
+    const Property = (props: any) => {
+        const { id, propertyStructureName, property } = props?.items;
         return (
             <button
                 type='button'
                 className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-auto'
-                onClick={() => goToDomainAccess(id)}
+                onClick={() => goToPropertyAccess(id)}
             >
-                <img src={domain?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
-                <div className='w-full divide-y-2 divide-gray flex flex-col justify-between lg:w-[70%] p-2'>
+                <img src={property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
+                <div className='w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2'>
                     <div className='w-full text-left p-2'>
-                        <h3 className='font-semibold text-lg'>{domain?.domainName || "-"}</h3>
-                        <p className='text-sm'>{domain?.domainDescription || 'lorem'}</p>
-                    </div>
-                    <div className='w-full flex items-center text-left p-2 gap-2'>
-                        <div className='font-semibold text-gray-5 flex items-center gap-2'>
-                            <MdOutlineBusiness className='w-4 h-4' />
-                            <span>{domain?.totalProperty && domain?.totalProperty > 1 ? `${domain?.totalProperty} Properties` : `${domain?.totalProperty || 0} Property`}</span>
-                        </div>
-                        <div className='font-semibold text-gray-5 flex items-center gap-2'>
-                            <MdOutlineHome className='w-4 h-4' />
-                            <span>{domain?.totalUnit && domain?.totalUnit > 1 ? `${domain?.totalUnit} Units` : `${domain?.totalUnit || 0} Unit`}</span>
-                        </div>
+                        <h3 className='font-semibold text-lg'>{property?.propertyName || "-"}</h3>
+                        <p className='text-sm'>{property?.propertyDescription || 'lorem'}</p>
                     </div>
                 </div>
                 <div className='w-full h-full hidden lg:flex justify-start lg:w-[10%]'>
@@ -124,11 +113,11 @@ const Home = ({ pageProps }: Props) => {
         )
     }
 
-    console.log(domain?.domains, 'data')
+    console.log(property.properties, 'data')
 
     return (
         <AuthLayout
-            title="Select Owner"
+            title="Select Tenant"
             logo="../../.../../image/logo/logo-icon.svg"
             description=""
         >
@@ -167,7 +156,7 @@ const Home = ({ pageProps }: Props) => {
                         </div>
 
                         <Cards
-                            className='mt-34 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
+                            className='mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
                         >
                             <div className='w-full lg:w-1/5'>
                                 <img src="../../../image/user/user-01.png" alt="avatar" className='rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto' />
@@ -194,7 +183,7 @@ const Home = ({ pageProps }: Props) => {
                             <button
                                 type='button'
                                 onClick={() => gotToAccess("owner")}
-                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${router.pathname.includes("owner") ? "bg-gray" : "bg-white"}`}
+                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                                 <h3 className='font-semibold'>Owner</h3>
@@ -204,7 +193,7 @@ const Home = ({ pageProps }: Props) => {
                             <button
                                 type='button'
                                 onClick={() => gotToAccess("property")}
-                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                                 <h3 className='font-semibold'>Property</h3>
@@ -214,7 +203,7 @@ const Home = ({ pageProps }: Props) => {
                             <button
                                 type='button'
                                 onClick={() => gotToAccess("tenant")}
-                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${router.pathname.includes("tenant") ? "bg-gray" : "bg-white"}`}
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                                 <h3 className='font-semibold'>Tenant</h3>
@@ -256,20 +245,20 @@ const Home = ({ pageProps }: Props) => {
                                     onClick={() => console.log("add property")}
                                     className="lg:ml-auto rounded-lg"
                                 >
-                                    <span>New Company</span>
+                                    <span>New Property</span>
                                     <MdAdd className='w-6 h-6' />
                                 </Button>
                             </div>
                         </div>
                         <div className='w-full flex flex-col gap-4 p-8'>
-                            {domains?.length > 0 ? domains?.map((item: any, index: any) => {
+                            {properties?.length > 0 ? properties?.map((item: any, index: any) => {
                                 return (
-                                    <Domains
+                                    <Property
                                         key={index}
                                         items={item}
                                     />
                                 )
-                            }) :
+                            }): 
                                 <div className='w-full'>
                                     <span className='font-semibold text-lg'>Data not found!</span>
                                 </div>
@@ -324,7 +313,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
-    if (token && access !== "owner") {
+    if (token && access !== "tenant") {
         return {
             redirect: {
                 destination: "/",

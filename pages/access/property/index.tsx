@@ -100,20 +100,10 @@ const Home = ({ pageProps }: Props) => {
                 onClick={() => goToPropertyAccess(id)}
             >
                 <img src={property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
-                <div className='w-full divide-y-2 divide-gray h-full flex-col lg:w-[70%] p-2'>
+                <div className='w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2'>
                     <div className='w-full text-left p-2'>
-                        <h3 className='font-semibold'>{property?.propertyName || "-"}</h3>
+                        <h3 className='font-semibold text-lg'>{property?.propertyName || "-"}</h3>
                         <p className='text-sm'>{property?.propertyDescription || 'lorem'}</p>
-                    </div>
-                    <div className='w-full flex items-center text-left p-2 gap-2'>
-                        <div className='font-semibold text-gray-5 flex items-center gap-2'>
-                            <MdOutlineBusiness className='w-4 h-4' />
-                            5 Building
-                        </div>
-                        <div className='font-semibold text-gray-5 flex items-center gap-2'>
-                            <MdOutlineHome className='w-4 h-4' />
-                            2322 units
-                        </div>
                     </div>
                 </div>
                 <div className='w-full h-full hidden lg:flex justify-start lg:w-[10%]'>
@@ -127,7 +117,7 @@ const Home = ({ pageProps }: Props) => {
 
     return (
         <AuthLayout
-            title="Select Access"
+            title="Select Property"
             logo="../../.../../image/logo/logo-icon.svg"
             description=""
         >
@@ -192,16 +182,6 @@ const Home = ({ pageProps }: Props) => {
                         <div className="w-full h-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4 overflow-y-auto">
                             <button
                                 type='button'
-                                onClick={() => gotToAccess("property")}
-                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
-                            >
-                                <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                                <h3 className='font-semibold'>Property</h3>
-                                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-                            </button>
-
-                            <button
-                                type='button'
                                 onClick={() => gotToAccess("owner")}
                                 className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
                             >
@@ -212,11 +192,11 @@ const Home = ({ pageProps }: Props) => {
 
                             <button
                                 type='button'
-                                onClick={() => gotToAccess("employee")}
-                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+                                onClick={() => gotToAccess("property")}
+                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${router.pathname.includes("property") ? "bg-gray" : "bg-white"}`}
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                                <h3 className='font-semibold'>Employee</h3>
+                                <h3 className='font-semibold'>Property</h3>
                                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
                             </button>
 
@@ -271,14 +251,18 @@ const Home = ({ pageProps }: Props) => {
                             </div>
                         </div>
                         <div className='w-full flex flex-col gap-4 p-8'>
-                            {properties?.map((item: any, index: any) => {
+                            {properties?.length > 0 ? properties?.map((item: any, index: any) => {
                                 return (
                                     <Property
                                         key={index}
                                         items={item}
                                     />
                                 )
-                            })}
+                            }) :
+                                <div className='w-full'>
+                                    <span className='font-semibold text-lg'>Data not found!</span>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

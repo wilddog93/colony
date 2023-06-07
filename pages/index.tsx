@@ -125,16 +125,6 @@ const Home = ({ pageProps }: Props) => {
             <div className="w-full h-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4 overflow-y-auto">
               <button
                 type='button'
-                onClick={() => gotToAccess("property")}
-                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
-              >
-                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                <h3 className='font-semibold'>Property</h3>
-                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
-              </button>
-
-              <button
-                type='button'
                 onClick={() => gotToAccess("owner")}
                 className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
               >
@@ -145,11 +135,11 @@ const Home = ({ pageProps }: Props) => {
 
               <button
                 type='button'
-                onClick={() => gotToAccess("employee")}
+                onClick={() => gotToAccess("property")}
                 className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
               >
                 <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                <h3 className='font-semibold'>Employee</h3>
+                <h3 className='font-semibold'>Property</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
               </button>
 
