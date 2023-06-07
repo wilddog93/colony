@@ -254,10 +254,28 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     };
   }
 
-  if (token && access == "property-master") {
+  if (token && access == "employee") {
     return {
       redirect: {
-        destination: "/access/property",
+        destination: "/access/employee",
+        permanent: false,
+      },
+    };
+  }
+
+  if (token && access == "owner") {
+    return {
+      redirect: {
+        destination: "/access/owner",
+        permanent: false,
+      },
+    };
+  }
+
+  if (token && access == "tenant") {
+    return {
+      redirect: {
+        destination: "/access/tenant",
         permanent: false,
       },
     };
