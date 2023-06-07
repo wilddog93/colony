@@ -166,7 +166,7 @@ const Home = ({ pageProps }: Props) => {
                         </div>
 
                         <Cards
-                            className='mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
+                            className='mt-34 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto'
                         >
                             <div className='w-full lg:w-1/5'>
                                 <img src="../../../image/user/user-01.png" alt="avatar" className='rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto' />
@@ -265,7 +265,7 @@ const Home = ({ pageProps }: Props) => {
                                     onClick={() => console.log("add property")}
                                     className="lg:ml-auto rounded-lg"
                                 >
-                                    <span>New Property</span>
+                                    <span>New Company</span>
                                     <MdAdd className='w-6 h-6' />
                                 </Button>
                             </div>
@@ -329,7 +329,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
-    if (token && access !== "property") {
+    if (token && access !== "owner") {
         return {
             redirect: {
                 destination: "/",
