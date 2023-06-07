@@ -337,7 +337,7 @@ export const webNewPassword = createAsyncThunk<any, any, { state: RootState }>('
     }
 });
 
-// property-access
+// employee-access
 export const webPropertyAccess = createAsyncThunk<any, AccessData, { state: RootState }>('auth/web/access/property/{id}', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         headers: {
@@ -353,7 +353,7 @@ export const webPropertyAccess = createAsyncThunk<any, AccessData, { state: Root
         if (status == 200) {
             setCookie('accessToken', data?.accessToken, { secure: true, maxAge: 60 * 60 * 24 })
             setCookie('refreshToken', data?.refreshToken, { secure: true, maxAge: 60 * 60 * 24 })
-            setCookie('access', "property", { secure: true })
+            setCookie('access', "employee", { secure: true })
             setCookie('accessId', params.id, { secure: true })
             newData = {
                 ...data,

@@ -203,11 +203,11 @@ const Home = ({ pageProps }: Props) => {
 
                             <button
                                 type='button'
-                                onClick={() => gotToAccess("property")}
+                                onClick={() => gotToAccess("employee")}
                                 className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
-                                <h3 className='font-semibold'>Property</h3>
+                                <h3 className='font-semibold'>Employee</h3>
                                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
                             </button>
 
