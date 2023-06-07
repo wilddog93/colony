@@ -17,6 +17,7 @@ import Modal from '../../../components/Modal';
 import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import LoadingPage from '../../../components/LoadingPage';
 import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
+import { webPropertyAccess } from '../../../redux/features/auth/authReducers';
 
 interface PageProps {
     page: string;
@@ -77,13 +78,21 @@ const Home = ({ pageProps }: Props) => {
         return data || [];
     }, [property.properties])
 
+    const goToPropertyAccess = (id: number) => {
+        dispatch(webPropertyAccess({
+            id,
+            token,
+            callback: () => router.push({ pathname: "/property/building-management" })
+        }))
+    }
+
     const Property = (props: any) => {
         const { id, propertyStructureName, property } = props?.items;
         return (
             <button
                 type='button'
                 className='w-full h-[200px] tracking-wide inline-flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
-                onClick={() => console.log(id)}
+                onClick={() => goToPropertyAccess(id)}
             >
                 <img src={property?.propertyLogo || "../../../image/logo/logo-icon.svg"} alt="icon" className='w-14 h-14 object-contain' />
                 <h3 className='font-semibold'>{property?.propertyName || "-"}</h3>
