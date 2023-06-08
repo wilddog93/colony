@@ -96,7 +96,7 @@ const Home = ({ pageProps }: Props) => {
         return (
             <button
                 type='button'
-                className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-auto'
+                className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
                 onClick={() => goToPropertyAccess(id)}
             >
                 <img src={property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
@@ -250,19 +250,21 @@ const Home = ({ pageProps }: Props) => {
                                 </Button>
                             </div>
                         </div>
-                        <div className='w-full flex flex-col gap-4 p-8'>
-                            {properties?.length > 0 ? properties?.map((item: any, index: any) => {
-                                return (
-                                    <Property
-                                        key={index}
-                                        items={item}
-                                    />
-                                )
-                            }): 
-                                <div className='w-full'>
-                                    <span className='font-semibold text-lg'>Data not found!</span>
-                                </div>
-                            }
+                        <div className='w-full overflow-auto p-8'>
+                            <div className='w-full h-full flex flex-col gap-4 '>
+                                {properties?.length > 0 ? properties?.map((item: any, index: any) => {
+                                    return (
+                                        <Property
+                                            key={index}
+                                            items={item}
+                                        />
+                                    )
+                                }) :
+                                    <div className='w-full'>
+                                        <span className='font-semibold text-lg'>Data not found!</span>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

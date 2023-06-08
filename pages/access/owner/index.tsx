@@ -97,10 +97,10 @@ const Home = ({ pageProps }: Props) => {
         return (
             <button
                 type='button'
-                className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-auto'
+                className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
                 onClick={() => goToDomainAccess(id)}
             >
-                <img src={domain?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
+                <img src={domain?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto' />
                 <div className='w-full divide-y-2 divide-gray flex flex-col justify-between lg:w-[70%] p-2'>
                     <div className='w-full text-left p-2'>
                         <h3 className='font-semibold text-lg'>{domain?.domainName || "-"}</h3>
@@ -261,19 +261,21 @@ const Home = ({ pageProps }: Props) => {
                                 </Button>
                             </div>
                         </div>
-                        <div className='w-full flex flex-col gap-4 p-8'>
-                            {domains?.length > 0 ? domains?.map((item: any, index: any) => {
-                                return (
-                                    <Domains
-                                        key={index}
-                                        items={item}
-                                    />
-                                )
-                            }) :
-                                <div className='w-full'>
-                                    <span className='font-semibold text-lg'>Data not found!</span>
-                                </div>
-                            }
+                        <div className='w-full overflow-auto p-8'>
+                            <div className='w-full h-full flex flex-col gap-4 '>
+                                {domains?.length > 0 ? domains?.map((item: any, index: any) => {
+                                    return (
+                                        <Domains
+                                            key={index}
+                                            items={item}
+                                        />
+                                    )
+                                }) :
+                                    <div className='w-full'>
+                                        <span className='font-semibold text-lg'>Data not found!</span>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
