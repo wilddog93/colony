@@ -238,17 +238,6 @@ const Home = ({ pageProps }: Props) => {
                                 <h3 className='text-title-lg font-semibold'>Access List</h3>
                                 <p className='text-base text-gray-5'>Select your workspace</p>
                             </div>
-                            <div className='w-full flex'>
-                                <Button
-                                    type="button"
-                                    variant="primary"
-                                    onClick={() => console.log("add property")}
-                                    className="lg:ml-auto rounded-lg"
-                                >
-                                    <span>New Property</span>
-                                    <MdAdd className='w-6 h-6' />
-                                </Button>
-                            </div>
                         </div>
                         <div className='w-full overflow-auto p-8'>
                             <div className='w-full h-full flex flex-col gap-4 '>
