@@ -10,7 +10,7 @@ import DefaultLayout from '../../../components/Layouts/DefaultLayouts';
 import { getAuthMe, selectAuth, webDomainAccess, webLogout } from '../../../redux/features/auth/authReducers';
 import AuthLayout from '../../../components/Layouts/AuthLayouts';
 import Link from 'next/link';
-import { MdAdd, MdArrowBack, MdChevronLeft, MdChevronRight, MdLogin, MdLogout, MdMail, MdMailOutline, MdOutlineBusiness, MdOutlineHome } from 'react-icons/md';
+import { MdAdd, MdArrowBack, MdChevronLeft, MdChevronRight, MdLogin, MdLogout, MdMail, MdMailOutline, MdOutlineBusiness, MdOutlineHome, MdWarning } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Modal from '../../../components/Modal';
@@ -18,7 +18,9 @@ import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import LoadingPage from '../../../components/LoadingPage';
 import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
 import { webPropertyAccess } from '../../../redux/features/auth/authReducers';
-import { getAccessDomain, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import { createAccessDomain, getAccessDomain, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import { EventType, SubmitHandler, useForm, useWatch } from 'react-hook-form';
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 
 interface PageProps {
     page: string;
@@ -31,7 +33,22 @@ type Props = {
     pageProps: PageProps
 }
 
-const Home = ({ pageProps }: Props) => {
+type FormValues = {
+    id?: any;
+    domainName?: string | any;
+    domainDescription?: string | any;
+};
+
+type WatchProps = {
+    value?: any | null
+};
+
+type WatchChangeProps = {
+    name?: any | null;
+    type?: EventType | any
+};
+
+const OwnerAccess = ({ pageProps }: Props) => {
     // props
     const { token, access, firebaseToken, page } = pageProps;
 
@@ -44,6 +61,61 @@ const Home = ({ pageProps }: Props) => {
     // sidebar
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isSignOut, setIsSignOut] = useState(false);
+
+    // form data
+    const [isForm, setIsForm] = useState(false);
+    const [formData, setFormData] = useState<FormValues>({});
+    const [watchValue, setWatchValue] = useState<FormValues | any>();
+    const [watchChangeValue, setWatchChangeValue] = useState<WatchChangeProps>();
+
+    const {
+        register,
+        getValues,
+        setValue,
+        handleSubmit,
+        watch,
+        reset,
+        setError,
+        clearErrors,
+        formState: { errors, isValid },
+        control,
+    } = useForm({
+        mode: "all",
+        defaultValues: useMemo<FormValues>(() => ({
+            id: null,
+            domainName: null,
+            domainDescription: null
+        }), [])
+    });
+
+    useEffect(() => {
+        const subscription = watch((value, { name, type }) => {
+            if (value) {
+                setWatchValue(value)
+                setWatchChangeValue({ name, type })
+            }
+        }
+        );
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    const isOpenForm = () => {
+        setIsForm(true)
+    };
+
+    const isCloseForm = () => {
+        setIsForm(false)
+        reset({
+            id: null,
+            domainName: null,
+            domainDescription: null,
+        })
+    };
+
+    const descriptionValue = useWatch({
+        name: "domainDescription",
+        control
+    });
 
     useEffect(() => {
         if (!token) {
@@ -92,13 +164,15 @@ const Home = ({ pageProps }: Props) => {
         }))
     }
 
+    console.log(domain.domains?.data, 'loading')
+
     const Domains = (props: any) => {
         const { id, domainStructureName, domain } = props?.items;
         return (
             <button
                 type='button'
                 className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
-                onClick={() => goToDomainAccess(id)}
+                onClick={() => goToDomainAccess(domain.id)}
             >
                 <img src={domain?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto' />
                 <div className='w-full divide-y-2 divide-gray flex flex-col justify-between lg:w-[70%] p-2'>
@@ -122,9 +196,23 @@ const Home = ({ pageProps }: Props) => {
                 </div>
             </button>
         )
-    }
+    };
 
-    console.log(domain?.domains, 'data')
+    const onSubmit: SubmitHandler<FormValues> = (value) => {
+        console.log(value, 'event form')
+        dispatch(createAccessDomain({
+            data: {
+                domainName: value.domainName,
+                domainDescription: value.domainDescription,
+            },
+            token,
+            isSuccess: () => {
+                dispatch(getAccessDomain({ token }))
+                isCloseForm()
+            },
+            isError: () => console.log()
+        }))
+    }
 
     return (
         <AuthLayout
@@ -253,7 +341,7 @@ const Home = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     variant="primary"
-                                    onClick={() => console.log("add property")}
+                                    onClick={isOpenForm}
                                     className="lg:ml-auto rounded-lg"
                                 >
                                     <span>New Company</span>
@@ -313,6 +401,97 @@ const Home = ({ pageProps }: Props) => {
                     </div>
                 </div>
             </Modal>
+
+            {/* new form */}
+            <Modal
+                isOpen={isForm}
+                onClose={isCloseForm}
+                size='small'
+            >
+                <form onSubmit={handleSubmit(onSubmit)} className='w-full'>
+                    <ModalHeader
+                        className='mb-3 border-b-2 border-gray p-4'
+                        isClose
+                        onClick={isCloseForm}
+                    >
+                        <div className='w-full'>
+                            <h3 className='text-lg font-bold'>New Company</h3>
+                        </div>
+                    </ModalHeader>
+
+                    <div className='w-full p-4'>
+                        <div className='w-full mb-3 px-4'>
+                            <label className='mb-2.5 block font-medium text-black dark:text-white'>
+                                Company Name
+                                <span>*</span>
+                            </label>
+                            <div className='relative'>
+                                <input
+                                    type='text'
+                                    placeholder='Company Name...'
+                                    className='w-full rounded-xl border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                                    {...register("domainName", {
+                                        required: {
+                                            value: true,
+                                            message: "Company Name is required."
+                                        }
+                                    })}
+                                />
+                            </div>
+                            {errors?.domainName && (
+                                <div className="mt-1 text-xs flex items-center text-red-300">
+                                    <MdWarning className="w-4 h-4 mr-1" />
+                                    <span className="text-red-300">
+                                        {errors?.domainName?.message as any}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className='w-full mb-3 px-4'>
+                            <label className='mb-2.5 block font-medium text-black dark:text-white'>
+                                Company Description
+                                <span>*</span>
+                            </label>
+                            <div className='relative'>
+                                <textarea
+                                    cols={0.5}
+                                    rows={5}
+                                    maxLength={400}
+                                    autoFocus
+                                    placeholder='Domain Description...'
+                                    className='w-full rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+                                    {...register("domainDescription")}
+                                />
+                                <div className="mt-1 text-xs flex items-center">
+                                    <span className="text-graydark">
+                                        {descriptionValue?.length || 0} / 400 characters.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ModalFooter
+                        isClose
+                        onClick={isCloseForm}
+                        className='border-t-2 border-gray p-4'
+                    >
+                        <Button
+                            type="submit"
+                            onSubmit={handleSubmit(onSubmit)}
+                            variant="primary"
+                            className="rounded-lg text-sm"
+                            disabled={domain.pending}
+                        >
+                            {domain.pending ? <Fragment>
+                                Loading ....
+                                <FaCircleNotch className='w-5 h-5 animate-spin-2' />
+                            </Fragment> : "Save"}
+                        </Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
         </AuthLayout>
     )
 }
@@ -349,4 +528,4 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     };
 };
 
-export default Home;
+export default OwnerAccess;

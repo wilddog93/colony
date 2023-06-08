@@ -99,7 +99,7 @@ const Home = ({ pageProps }: Props) => {
             <button
                 type='button'
                 className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
-                onClick={() => goToPropertyAccess(id)}
+                onClick={() => goToPropertyAccess(property.id)}
             >
                 <img src={property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
                 <div className='w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2'>

@@ -195,7 +195,7 @@ const Invoices = ({ pageProps }: Props) => {
 
     const goToTask = (id: any) => {
         if (!id) return;
-        return router.push({ pathname: `/property/tasks/settings/team-members/${id}` })
+        return router.push({ pathname: `/employee/tasks/settings/team-members/${id}` })
     };
 
     const genWorkStatus = (value: string) => {
@@ -410,7 +410,7 @@ const Invoices = ({ pageProps }: Props) => {
                                 <Button
                                     type="button"
                                     className='rounded-lg text-sm font-semibold py-3'
-                                    onClick={() => router.push("/property/billings/invoices/form")}
+                                    onClick={() => router.push("/employee/billings/invoices/form")}
                                     variant='primary'
                                 >
                                     <span className='hidden lg:inline-block'>New Invoices</span>

@@ -36,7 +36,8 @@ interface HeadersConfiguration {
 interface DomainData {
     data: any;
     token?: any;
-    callback: () => void
+    isSuccess: () => void
+    isError: () => void
 }
 
 interface DefaultGetData {
@@ -82,6 +83,36 @@ export const getAccessDomain = createAsyncThunk<any, DefaultGetData, { state: Ro
     }
 });
 
+export const createAccessDomain = createAsyncThunk<any, DomainData, { state: RootState }>('post/web/domain', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.post("domain", params.data, config);
+        const { data, status } = response;
+        if (status == 201) {
+            params.isSuccess();
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        params.isError();
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const domainSlice = createSlice({
@@ -117,6 +148,26 @@ export const domainSlice = createSlice({
                 }
             })
             .addCase(getAccessDomain.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // create-access-property
+            .addCase(createAccessDomain.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(createAccessDomain.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(createAccessDomain.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
