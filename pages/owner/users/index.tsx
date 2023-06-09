@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdArrowDropUp, MdArrowRightAlt, MdEdit, MdMuseum } from 'react-icons/md';
+import { MdEdit, MdMuseum } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Barcharts from '../../../components/Chart/Barcharts';
@@ -10,12 +10,13 @@ import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
+import DomainSidebar from '../../../components/Layouts/Sidebar/Domain';
 
 type Props = {
   pageProps: any
 }
 
-const Dashboard = ({ pageProps }: Props) => {
+const DomainUserManagement = ({ pageProps }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
   const { token, access, firebaseToken } = pageProps;
@@ -321,7 +322,7 @@ const Dashboard = ({ pageProps }: Props) => {
     <DomainLayouts
       title="Colony"
       header="Owner"
-      head="Dashboard"
+      head="User Management"
       logo="../image/logo/logo-icon.svg"
       description=""
       images="../image/logo/building-logo.svg"
@@ -332,45 +333,23 @@ const Dashboard = ({ pageProps }: Props) => {
         className: "w-8 h-8 text-meta-5"
       }}
     >
-      <div className='w-full absolute inset-0 mt-16 z-99 bg-boxdark flex text-white'>
+      <div className='w-full absolute inset-0 z-99 bg-boxdark flex text-white'>
         <div className="relative w-full bg-gray overflow-y-auto">
-          <div className='bg-[#1C2D3D] top-0 z-40 w-full py-8 px-6 gap-2 h-[170px]'>
-            <div className="w-full flex gap-2 items-center justify-between">
-              <div className="flex items-center gap-4">
-                <img src="../image/logo/logo-icon.svg" alt="logo" className='w-18 h-18 object-cover object-center bg-white p-2 rounded-full' />
-                <div>
-                  <h3 className='text-lg lg:text-title-lg font-semibold'>Your Company Name</h3>
-                  <p className='text-sm lg:text-base'>Manage your property</p>
-                </div>
+          <div className="w-full h-full flex">
+            <DomainSidebar
+              setSidebar={setSidebarOpen}
+              sidebar={sidebarOpen}
+              token={token}
+            >
+              <div className='py-8'>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Non quo voluptatem, qui at atque quaerat! Laudantium quae earum, aut et tempore ratione deleniti quos iusto amet dolores, veritatis velit nulla?
               </div>
+            </DomainSidebar>
 
-              <div className='flex'>
-                <Button
-                  type="button"
-                  variant="primary"
-                  className="rounded-lg"
-                >
-                  <span>Edit Info</span>
-                  <MdEdit className='w-5 h-5' />
-                </Button>
-              </div>
-            </div>
-
-          </div>
-
-          <div className='w-full relative -mt-16 tracking-wide text-left text-boxdark-2 py-6 px-8 2xl:px-10'>
-            <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
-              <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 tracking-wider mb-5">
-                <Cards className='w-full lg:col-span-2 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                  <Barcharts data={bardataHour} options={barOptionsHour} className='w-full max-w-max' height='200px' />
-                </Cards>
-                <div className='w-full flex flex-col gap-4'>
-                  <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                    <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
-                  </Cards>
-                  <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                    <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
-                  </Cards>
+            <div className='w-full relative tracking-wide text-left text-boxdark-2 py-6 px-8 2xl:px-10 mt-20 overflow-y-auto'>
+              <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
+                <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 tracking-wider mb-5">
+                  user management
                 </div>
               </div>
             </div>
@@ -404,4 +383,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Dashboard;
+export default DomainUserManagement;

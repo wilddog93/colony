@@ -566,10 +566,18 @@ export const menuOwnerMaster : MenuProps[] = [
     pathname: "Properties",
     pages: "properties",
     url: "/owner/properties",
+    query: {
+      page: 1,
+      limit: 10,
+    },
   },
   {
     pathname: "User & Access",
     pages: "users",
     url: "/owner/users",
+    query: {
+      page: 1,
+      limit: 10,
+    },
   },
 ]

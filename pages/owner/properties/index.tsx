@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { SetStateAction, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdEdit, MdMuseum } from 'react-icons/md';
+import { MdAdd, MdEdit, MdMapsHomeWork, MdMuseum, MdPlace } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Barcharts from '../../../components/Chart/Barcharts';
@@ -11,10 +11,146 @@ import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
 import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
+import DomainSidebar from '../../../components/Layouts/Sidebar/Domain';
+import { SearchInput } from '../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import CardTables from '../../../components/tables/layouts/CardTables';
+import { DivisionProps, createDivisionArr } from '../../../components/tables/components/taskData';
+import { ColumnDef } from '@tanstack/react-table';
+import Teams from '../../../components/Task/Teams';
+import { getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
+import { RequestQueryBuilder } from '@nestjsx/crud-request';
 
 type Props = {
   pageProps: any
+};
+
+type PropertyData = {
+  id?: number | string,
+  createdAt?: Date | string,
+  updatedAt?: Date | string,
+  propertyName?: string,
+  propertyDescription?: string,
+  propertyLogo?: string,
+  totalAdmin?: number,
+  totalUnit?: number,
+  totalUnitTenant?: number,
+  totalOngoingComplaint?: number,
+  website?: string,
+  email?: string,
+  phoneNumber?: number | string,
+  street?: string,
+  aditionalInfo?: string,
+  postCode?: string,
+  city?: string,
+  province?: string,
+  country?: string,
+  gpsLocation?: string,
+  legalEntityName?: string,
+  legalEntityDescription?: string,
+  legalEntityLogo?: string | any,
+  status?: string,
+  legalEntity?: PropertyData
 }
+
+type Options = {
+  value: any,
+  label: any
+}
+
+const sortOpt: Options[] = [
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
+];
+
+const stylesSelectSort = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const stylesSelect = {
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    // console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      // flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
 
 const DomainProperty = ({ pageProps }: Props) => {
   const router = useRouter();
@@ -22,301 +158,137 @@ const DomainProperty = ({ pageProps }: Props) => {
   const { token, access, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // state
+  const [search, setSearch] = useState<string | any>('');
+  const [sort, setSort] = useState<Options>();
+  // table
+  const [dataTable, setDataTable] = useState<PropertyData[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState({});
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
   // redux
   const dispatch = useAppDispatch();
-  const { data } = useAppSelector(selectAuth);
+  const { properties, pending, error } = useAppSelector(selectDomainProperty);
 
-  // state
-  const [doghnutData, setDoghnutData] = useState([]);
-  const [doghnutLabel, setDoghnutLabel] = useState([]);
+  const columns = useMemo<ColumnDef<PropertyData, any>[]>(() => [
+    {
+      accessorKey: 'id',
+      header: (info) => (
+        <div className='uppercase'>Title</div>
+      ),
+      cell: ({ getValue, row }) => {
+        let property = row?.original?.propertyName;
+        let address = row?.original?.gpsLocation;
+        let status = row?.original?.status;
+        console.log(row.original, 'rows')
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <div className='w-full lg:w-1/5 text-lg font-semibold'>
+              <img src="../image/logo/logo-icon.svg" alt="" className='w-full object-cover object-center' />
+            </div>
+            <div className='w-full lg:w-4/5 flex flex-col gap-2 justify-around text-lg font-semibold '>
+              <div className='w-full flex flex-col gap-2'>
+                <div className='w-full flex items-center gap-2 justify-between'>
+                  <div>{property || "-"}</div>
+                  <div className={!status ? "hidden" : "p-1.5 bg-boxdark text-white text-sm rounded-lg"}>{status}</div>
+                </div>
+                <div className='w-full flex gap-2 text-sm font-normal'>
+                  <div className='w-auto'>
+                    <MdPlace className='w-5 h-5' />
+                  </div>
+                  <p className='w-4/5'>{address || "-"}</p>
+                </div>
+              </div>
 
-  let doughnutData = {
-    labels: ['Guest', 'Available', 'Tenants'],
-    datasets: [
-      {
-        label: '# Votes',
-        data: [20, 100, 500],
-        backgroundColor: [
-          '#44C2FD',
-          '#FAEE81',
-          '#5F59F7',
-        ],
-        borderColor: [
-          '#44C2FD',
-          '#FAEE81',
-          '#5F59F7',
-        ],
-        borderWidth: 1,
-      },
-    ]
-  };
+              <div className='border-b-2 border-gray w-full'></div>
 
-  let bardata = {
-    labels: ["B1", "B2", "G"],
-    datasets: [
-      {
-        label: "Single",
-        borderRadius: 0,
-        data: [100, 250, 50],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
+              <div>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente, quis!</p>
+              </div>
+            </div>
+          </div>
+        )
       },
-      {
-        label: "Tandem",
-        borderRadius: 0,
-        data: [100, 90, 50],
-        backgroundColor: "#FF8859",
-        barThickness: 20,
-      },
-      {
-        label: "Guest",
-        borderRadius: 0,
-        data: [100, 10, 50],
-        backgroundColor: "#44C2FD",
-        barThickness: 20,
-      },
-    ],
-  };
-
-  let bardataMonths = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [
-      {
-        label: "Months",
-        borderRadius: 0,
-        data: [100, 250, 50, 30, 15, 3, 90, 200, 145, 32, 55, 89],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      }
-    ],
-  };
-
-  let bardataHour = {
-    labels: ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"],
-    datasets: [
-      {
-        label: "In",
-        borderRadius: 0,
-        data: [100, 250, 50, 30, 15, 3, 90],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      },
-      {
-        label: "Out",
-        borderRadius: 0,
-        data: [100, 90, 50, 69, 8, 78, 44],
-        backgroundColor: "#FF8859",
-        barThickness: 20,
-      },
-    ],
-  };
-
-  let doughnutOptions = {
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        responsive: true,
-        display: true,
-        position: "right",
-        align: "center",
-        labels: {
-          boxWidth: 20,
-          font: {
-            size: 16,
-          },
-          generateLabels: (chart: any) => {
-            const { labels, datasets } = chart.data;
-            if (labels.length > 0) {
-              return labels.map((label: any, i: any) => {
-                const { borderColor, backgroundColor, data } = datasets[0];
-                const total = data.reduce((a: number, b: number) => a + b, 0);
-
-                const formattedLabel = data.map((val: number, i: any) => {
-                  let currentValue = val;
-                  let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
-                  return {
-                    value: currentValue,
-                    label,
-                    percentage,
-                    backgroundColor: backgroundColor[i],
-                    borderColor: borderColor[i]
-                  };
-                });
-
-                return {
-                  text: `${formattedLabel[i].label} - ${formattedLabel[i].percentage}%`,
-                  fillStyle: formattedLabel[i].backgroundColor,
-                  hidden: !chart.getDataVisibility(i),
-                  index: i,
-                };
-              });
-            }
-            return [];
-          }
-        },
-      },
-      parsing: {
-        key: 'id'
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Parking Lots',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-      animation: {
-        animateScale: true,
-        animateRotate: true
-      },
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        },
-        callbacks: {
-          label: function (item: any) {
-            let dataset = item.dataset;
-            const total = dataset.data.reduce(function (sum: number, current: any) { return sum + Number(current) }, 0)
-            let currentValue = item.parsed;
-            let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
-            return `${item.label} : ${currentValue} ${currentValue > 1 ? "lots" : "lot"} - ${percentage}%`
-          }
-        }
-      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     }
-  };
-
-  let barOptions = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Total Lots by Type 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-    },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
-
-  let barOptionsMonths = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Incoming Guest/Month 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-    },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
-
-  let barOptionsHour = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Peak Hour on July 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-    },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
+  ], []);
 
   useEffect(() => {
     if (token) {
       dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
     }
   }, [token]);
+
+  console.log({query, search, sort}, "sort")
+
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1)
+    if (query?.limit) setLimit(Number(query?.limit) || 10)
+    if (query?.search) setSearch(query?.search)
+    if (query?.sort) setSort({ value: query?.sort, label: query?.sort == "ASC" ? "A-Z" : "Z-A" })
+  }, [])
+
+  useEffect(() => {
+    let qr : any = {
+      page: pages,
+      limit: limit
+    };
+    if (search) qr = { ...qr, search: search }
+    if (sort?.value) qr = { ...qr, sort: sort?.value }
+
+    router.replace({ pathname, query: qr })
+  }, [search, sort])
+
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    const search = {
+      $and: [
+        {
+          $or: [
+            { "propertyName": { $contL: query?.search } },
+            { "propertyDescription": { $contL: query?.search } }
+          ],
+        },
+      ],
+    };
+    // query?.status && search["$and"].push({ status: query?.status });
+
+    qb.search(search);
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    if (query?.status) qb.sortBy({ field: "propertyName" || "propertyDescription", order: !query?.status ? "ASC" : "DESC" })
+    qb.query();
+    return qb;
+  }, [query])
+
+  useEffect(() => {
+    if (token) dispatch(getDomainProperty({ params: filters.queryObject, token }))
+  }, [token, filters]);
+
+  useEffect(() => {
+    let arr: PropertyData[] = [];
+    const { data, pageCount, total } = properties;
+    if (data || data?.length > 0) {
+      data?.map((item: PropertyData) => {
+        arr.push(item)
+      })
+      setDataTable(data)
+      setPageCount(pageCount)
+      setTotal(total)
+    } else {
+      setDataTable([])
+      setPageCount(1)
+      setTotal(0)
+    }
+  }, [properties.data])
 
   return (
     <DomainLayouts
@@ -333,32 +305,78 @@ const DomainProperty = ({ pageProps }: Props) => {
         className: "w-8 h-8 text-meta-5"
       }}
     >
-      <div className='w-full absolute inset-0 mt-16 z-99 bg-boxdark flex text-white'>
+      <div className='w-full absolute inset-0 z-99 bg-boxdark flex text-white'>
         <div className="relative w-full bg-gray overflow-y-auto">
-          <div className="w-full flex mt-20">
-            {/* <SidebarBody
-              setSidebarOpen={setSidebarOpen}
-              sidebarOpen={sidebarOpen}
+          <div className="w-full h-full flex">
+            <DomainSidebar
+              setSidebar={setSidebarOpen}
+              sidebar={sidebarOpen}
+              token={token}
             >
-              <div className='text-black'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita nemo earum quae, excepturi culpa quam repellat esse, perspiciatis corrupti in iure accusantium et vero labore officia qui quibusdam eveniet sit ad quo ipsum assumenda illum! Harum quo, deserunt repellat qui nemo iusto consequuntur quod debitis quia architecto nihil aperiam sapiente voluptatibus doloribus accusamus saepe incidunt itaque adipisci pariatur reiciendis explicabo alias! Iure magni reiciendis excepturi consequatur totam amet laudantium eligendi, nesciunt qui voluptas. Natus, nam at, rerum voluptatum ab praesentium laboriosam ullam numquam perferendis laborum corporis odio cum tempore? Ipsum nostrum officia ad laborum in, cupiditate nobis. Autem, facere iure!
+              <div className='py-8'>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Non quo voluptatem, qui at atque quaerat! Laudantium quae earum, aut et tempore ratione deleniti quos iusto amet dolores, veritatis velit nulla?
               </div>
-            </SidebarBody> */}
+            </DomainSidebar>
 
-            <div className='w-full relative -mt-16 tracking-wide text-left text-boxdark-2 py-6 px-8 2xl:px-10'>
-              <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
-                <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 tracking-wider mb-5">
-                  <Cards className='w-full lg:col-span-2 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                    <Barcharts data={bardataHour} options={barOptionsHour} className='w-full max-w-max' height='200px' />
-                  </Cards>
-                  <div className='w-full flex flex-col gap-4'>
-                    <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                      <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
-                    </Cards>
-                    <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                      <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
-                    </Cards>
+            <div className='w-full relative tracking-wide text-left text-boxdark-2 2xl:px-10 mt-20 overflow-hidden'>
+              <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
+                {/* filters */}
+                <div className='sticky z-40 top-0 w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 py-6 px-8 bg-gray'>
+                  <div className='w-full lg:col-span-3'>
+                    <SearchInput
+                      className='w-full text-sm rounded-xl'
+                      classNamePrefix=''
+                      filter={search}
+                      setFilter={setSearch}
+                      placeholder='Search...'
+                    />
                   </div>
+                  <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                    <DropdownSelect
+                      customStyles={stylesSelectSort}
+                      value={sort}
+                      onChange={setSort}
+                      error=""
+                      className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                      classNamePrefix=""
+                      formatOptionLabel=""
+                      instanceId='1'
+                      isDisabled={false}
+                      isMulti={false}
+                      placeholder='Sorts...'
+                      options={sortOpt}
+                      icon='MdSort'
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    className="rounded-lg"
+                    onClick={() => console.log("new property")}
+                  >
+                    New Property
+                    <MdAdd className='w-5 h-5' />
+                  </Button>
+                </div>
+                <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5">
+                  <div className='px-8'>
+                    <h3 className='text-lg lg:text-title-lg font-semibold'>Property List</h3>
+                  </div>
+                  <CardTables
+                    loading={loading}
+                    setLoading={setLoading}
+                    pages={pages}
+                    setPages={setPages}
+                    limit={limit}
+                    setLimit={setLimit}
+                    pageCount={pageCount}
+                    columns={columns}
+                    dataTable={dataTable}
+                    total={total}
+                    setIsSelected={setIsSelectedRow}
+                    // isInfiniteScroll
+                    classTable="px-4"
+                  />
                 </div>
               </div>
             </div>

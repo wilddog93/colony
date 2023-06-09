@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect, useRef, Fragment, Dispatch, SetStateAction } from 'react';
 import { useRouter } from 'next/router';
-import { menuBM, menuOwnerMaster, menuPropertyMaster } from '../../../../utils/routes';
-import SidebarLink from '../SidebarLink';
-import Icon from '../../../Icon';
-import SidebarLinkGroup from '../SidebarLinkGroup';
-import SidebarList from '../SidebarList';
+import { MdArrowBack, MdOutlineBusiness } from 'react-icons/md';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { selectAuth } from '../../../../redux/features/auth/authReducers';
+
 
 type Props = {
-    sidebarOpen?: boolean,
-    setSidebarOpen?: any,
-    logo?: any,
-    title?: any,
-    images?: string,
-    token?: any
+    sidebar: boolean
+    setSidebar: Dispatch<SetStateAction<boolean>>;
+    className?: string;
+    token?: any;
+    defaultImage?: string;
+    isSelectProperty?: boolean;
+    children: JSX.Element;
 }
 
-const DomainSidebar = (props: Props) => {
-    const { sidebarOpen, setSidebarOpen, logo, title, images, token } = props;
-    const router = useRouter()
-    const { pathname, query } = router
-
+const DomainSidebar = ({ sidebar, setSidebar, className, token, defaultImage, children }: Props) => {
+    const router = useRouter();
+    const { pathname, query } = router;
     const trigger = useRef<HTMLButtonElement>(null)
-    const sidebar = useRef<HTMLDivElement>(null)
+    const sidebarRef = useRef<HTMLDivElement>(null)
 
+    // property-access
+    const dispatch = useAppDispatch();
+    const { data } = useAppSelector(selectAuth);
     const getFromLocalStorage = (key: string) => {
         if (!key || typeof window === 'undefined') {
             return ""
@@ -31,13 +31,9 @@ const DomainSidebar = (props: Props) => {
         return localStorage.getItem(key)
     };
 
-    const initiaLocalStorage: any = { sidebar: getFromLocalStorage("sidebar-expanded") ? JSON.parse(getFromLocalStorage("sidebar-expanded") || '{}') : [] };
+    const initiaLocalStorage: any = { sidebar: getFromLocalStorage("sidebar-component") ? JSON.parse(getFromLocalStorage("sidebar-component") || '{}') : [] };
 
     const [sidebarExpanded, setSidebarExpanded] = useState(initiaLocalStorage === null ? false : initiaLocalStorage === 'true');
-
-    useEffect(() => {
-        setSidebarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
-    }, [initiaLocalStorage])
 
     // close on click outside
     useEffect(() => {
@@ -45,18 +41,18 @@ const DomainSidebar = (props: Props) => {
             target: any
         }
         const clickHandler = ({ target }: Props) => {
-            if (!sidebar.current || !trigger.current) return
+            if (!sidebarRef.current || !trigger.current) return
             if (
-                !sidebarOpen ||
-                sidebar.current.contains(target) ||
+                !sidebar ||
+                sidebarRef.current.contains(target) ||
                 trigger.current.contains(target)
             )
                 return
-            setSidebarOpen(false)
+            setSidebar(false)
         }
         document.addEventListener('click', clickHandler)
         return () => document.removeEventListener('click', clickHandler)
-    }, [])
+    })
 
     // close if the esc key is pressed
     useEffect(() => {
@@ -64,12 +60,12 @@ const DomainSidebar = (props: Props) => {
             keyCode: any
         }
         const keyHandler = ({ keyCode }: Props) => {
-            if (!sidebarOpen || keyCode !== 27) return
-            setSidebarOpen(false)
+            if (!sidebar || keyCode !== 27) return
+            setSidebar(false)
         }
         document.addEventListener('keydown', keyHandler)
         return () => document.removeEventListener('keydown', keyHandler)
-    }, [])
+    })
 
     useEffect(() => {
         const body = document.querySelector('body');
@@ -79,82 +75,53 @@ const DomainSidebar = (props: Props) => {
             throw new Error('box.parentNode is not an Element');
         }
 
-        localStorage.setItem('sidebar-expanded', sidebarExpanded?.toString())
+        console.log(parentNode.querySelector('body'), 'body');
+
+        localStorage.setItem('sidebar-component', sidebarExpanded?.toString())
         if (sidebarExpanded) {
-            body?.classList.add('sidebar-expanded')
+            body?.classList.add('sidebar-component')
         } else {
-            body?.classList.remove('sidebar-expanded')
+            body?.classList.remove('sidebar-component')
         }
     }, [sidebarExpanded]);
 
     return (
         <Fragment>
             <aside
-                ref={sidebar}
-                // className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-in-out dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
+                ref={sidebarRef}
+                className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-sm mt-16 flex-col overflow-y-hidden bg-boxdark duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebar ? 'translate-x-0' : '-translate-x-full'} ${className}`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
-                <div className='flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5'>
-                    <Link href='/'>
-                        <div className="flex items-center gap-2">
-                            <img src={logo || "image/logo/logo-icon.png"} alt='logo-icon' className='object-cover object-center' />
-                            <span className='flex-shrink-0 lg:flex text-white text-2xl font-semibold'>{!title ? "Building" : title}</span>
-                        </div>
-                    </Link>
 
-                    <button
-                        type='button'
-                        ref={trigger}
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        aria-controls='sidebar'
-                        aria-expanded={sidebarOpen}
-                        className='block text-white'
-                    >
-                        <svg
-                            className='fill-current'
-                            width='20'
-                            height='18'
-                            viewBox='0 0 20 18'
-                            fill='none'
-                            xmlns='http://www.w3.org/2000/svg'
-                        >
-                            <path
-                                d='M19 8.175H2.98748L9.36248 1.6875C9.69998 1.35 9.69998 0.825 9.36248 0.4875C9.02498 0.15 8.49998 0.15 8.16248 0.4875L0.399976 8.3625C0.0624756 8.7 0.0624756 9.225 0.399976 9.5625L8.16248 17.4375C8.31248 17.5875 8.53748 17.7 8.76248 17.7C8.98748 17.7 9.17498 17.625 9.36248 17.475C9.69998 17.1375 9.69998 16.6125 9.36248 16.275L3.02498 9.8625H19C19.45 9.8625 19.825 9.4875 19.825 9.0375C19.825 8.55 19.45 8.175 19 8.175Z'
-                                fill=''
-                            />
-                        </svg>
-                    </button>
-                </div>
-                {/* <!-- SIDEBAR HEADER --> */}
-
-                <div className='no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear'>
+                <div className='w-full flex flex-col h-full overflow-y-auto duration-300 ease-linear'>
                     {/* <!-- Sidebar Menu --> */}
-                    <nav className='mt-3 py-4 px-4  lg:px-6'>
-                        {/* <!-- Menu Group --> */}
-                        <div>
-                            <div className='w-full flex justify-between items-center mb-6 px-4 py-2.5 bg-white rounded-lg'>
-                                <div className='flex items-center gap-2'>
-                                    <img src={`${images ? images : "./image/logo/building-logo.svg"}`} alt='building logo' />
-                                    <h3 className='text-lg font-semibold text-black'>
-                                        Company Name
-                                    </h3>
-                                </div>
-                            </div>
-
-                            <SidebarList menus={menuOwnerMaster} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} />
+                    <div className='w-full flex-flex-col gap-2 px-4 lg:px-6 overflow-y-auto pt-8'>
+                        <div className="w-full flex mb-3 -mt-5">
+                            <button
+                                type='button'
+                                ref={trigger}
+                                onClick={() => setSidebar(!sidebar)}
+                                aria-controls='sidebar-component'
+                                aria-expanded={sidebar}
+                                className='ml-auto inline-block text-black lg:hidden bg-white rounded-lg  p-1.5'
+                            >
+                                <MdArrowBack className='w-5 h-5' />
+                            </button>
                         </div>
-                    </nav>
+                        <div className='w-full'>
+                            {children}
+                        </div>
+                    </div>
                     {/* <!-- Sidebar Menu --> */}
                 </div>
             </aside>
+            {/* overlay */}
             <button
                 ref={trigger}
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                aria-controls='sidebar'
-                aria-expanded={sidebarOpen}
-                className={`${sidebarOpen && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
+                onClick={() => setSidebar(!sidebar)}
+                aria-controls='sidebar-component'
+                aria-expanded={sidebar}
+                className={`lg:static ${sidebar && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
 
             </button>
         </Fragment>

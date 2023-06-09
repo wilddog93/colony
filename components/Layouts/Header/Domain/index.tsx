@@ -25,7 +25,7 @@ const DomainHeader = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, 
         <Fragment>
             <header className='sticky top-0 z-999 flex w-full bg-boxdark-2 drop-shadow-none'>
                 <div className='w-full flex flex-grow items-center gap-4 shadow-2'>
-                    <div className='w-full lg:w-2/3 flex items-center gap-2 sm:gap-8 px-6 py-6 lg:py-0'>
+                    <div className='w-full lg:w-2/3 flex items-center gap-2 sm:gap-8 px-6 py-5 lg:py-0'>
                         {/* <!-- Hamburger Toggle BTN --> */}
                         <button
                             aria-controls='sidebar'
@@ -78,8 +78,8 @@ const DomainHeader = ({ header, userDefault, sidebarOpen, setSidebarOpen, logo, 
                                             <li key={id} className='w-full flex  max-w-max'>
                                                 <ActiveLink
                                                     href={{ pathname: route.url, query: route?.query }}
-                                                    className={`text-base py-6 ${route?.className}`}
-                                                    activeClass="border-b-2 border-primary"
+                                                    className={`text-base ${route?.className}`}
+                                                    activeClass="border-b-4 border-primary"
                                                     pages={route?.pages}
                                                 >
                                                     {!route?.icons?.icon ? null :
@@ -142,7 +142,7 @@ export const ActiveLink = ({ children, href, className, activeClass, pages }: an
             //     ? "border-primary font-bold mb-3 md:mb-0 text-primary"
             //     : "text-gray-500 hover:text-gray-700 border-transparent"
             //     } ${className} block py-4 text-base border-b-4 rounded focus:outline-none whitespace-no-wrap`}
-            className={`group relative w-full max-w-max flex items-center py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${active ? `border-b-2 border-primary ${activeClass}` : ""} ${className}`}
+            className={`group relative w-full max-w-max flex items-center py-5 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${active ? `border-b-2 border-primary ${activeClass}` : ""} ${className}`}
         >
             {children}
         </Link>

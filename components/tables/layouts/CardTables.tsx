@@ -200,8 +200,6 @@ function CardTables(props: any) {
         handleScroll(refTable.current)
     }, [handleScroll]);
 
-    console.log(table.getFilteredSelectedRowModel().flatRows, 'pages select')
-
     useEffect(() => {
         setIsSelected(table.getFilteredSelectedRowModel().flatRows.map((d) => d.original));
     }, [table.getFilteredSelectedRowModel()]);
