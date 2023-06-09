@@ -1,6 +1,6 @@
 import React, { SetStateAction, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdAdd, MdEdit, MdMapsHomeWork, MdMuseum, MdPlace } from 'react-icons/md';
+import { MdAdd, MdEdit, MdMailOutline, MdMapsHomeWork, MdMuseum, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic, MdPhone, MdPlace } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Barcharts from '../../../components/Chart/Barcharts';
@@ -20,6 +20,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import Teams from '../../../components/Task/Teams';
 import { getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { getDomainId, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import { formatPhone } from '../../../utils/useHooks/useFunction';
 
 type Props = {
   pageProps: any
@@ -153,9 +155,10 @@ const stylesSelect = {
 };
 
 const DomainProperty = ({ pageProps }: Props) => {
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, accessId, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // state
@@ -173,6 +176,7 @@ const DomainProperty = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { properties, pending, error } = useAppSelector(selectDomainProperty);
+  const { domain } = useAppSelector(selectDomainAccess);
 
   const columns = useMemo<ColumnDef<PropertyData, any>[]>(() => [
     {
@@ -224,7 +228,7 @@ const DomainProperty = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  console.log({query, search, sort}, "sort")
+  console.log(domain, "domain")
 
   useEffect(() => {
     if (query?.page) setPages(Number(query?.page) || 1)
@@ -274,6 +278,13 @@ const DomainProperty = ({ pageProps }: Props) => {
   }, [token, filters]);
 
   useEffect(() => {
+    if(accessId) {
+      dispatch(getDomainId({ id: accessId, token }))
+    }
+  }, [accessId])
+  
+
+  useEffect(() => {
     let arr: PropertyData[] = [];
     const { data, pageCount, total } = properties;
     if (data || data?.length > 0) {
@@ -313,8 +324,54 @@ const DomainProperty = ({ pageProps }: Props) => {
               sidebar={sidebarOpen}
               token={token}
             >
-              <div className='py-8'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Non quo voluptatem, qui at atque quaerat! Laudantium quae earum, aut et tempore ratione deleniti quos iusto amet dolores, veritatis velit nulla?
+              <div className='w-full flex flex-col gap-4 py-8 px-4'>
+                <div className='w-full'>
+                  <img 
+                    src={domain?.domainLogo ? `${url + domain?.domainLogo}` : "../image/logo/logo-icon.svg"} 
+                    alt=""
+                    className='w-[200px] h-[200px] object-cover object-center rounded-lg p-2 bg-white'
+                  />
+                </div>
+
+                <div className="w-full">
+                  <p>{domain.domainCode || "-"}</p>
+                  <h3 className='text-lg lg:text-title-lg font-semibold'>{domain?.domainName || "-"}</h3>
+                </div>
+
+                <div className="w-full">
+                  <span>{domain?.domainStatus || "-"}</span>
+                </div>
+
+                <div className="w-full">
+                  <div className='w-full flex flex-col gap-2'>
+                    <p>Description :</p>
+                    <p>
+                      {domain?.domainDescription || "-"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className='border-b-2 w-full'></div>
+
+                <div className="w-full flex flex-col gap-2">
+                  <h3 className='mb-3'>Contact Info</h3>
+                  <div className='w-full flex gap-2'>
+                    <div><MdOutlinePhone className='w-5 h-5' /></div>
+                    <p>{domain?.phoneNumber ? formatPhone("+", domain?.phoneNumber) : "-"}</p>
+                  </div>
+                  <div className='w-full flex gap-2'>
+                    <div><MdMailOutline className='w-5 h-5' /></div>
+                    <p>{domain?.email ? domain?.email : "-"}</p>
+                  </div>
+                  <div className='w-full flex gap-2'>
+                    <div><MdOutlinePublic className='w-5 h-5' /></div>
+                    <p>{domain?.website ? domain?.website : "-"}</p>
+                  </div>
+                  <div className='w-full flex gap-2'>
+                    <div><MdOutlinePlace className='w-5 h-5' /></div>
+                    <p>{domain?.gpsLocation ? domain?.gpsLocation : "-"}</p>
+                  </div>
+                </div>
               </div>
             </DomainSidebar>
 
@@ -374,7 +431,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                     dataTable={dataTable}
                     total={total}
                     setIsSelected={setIsSelectedRow}
-                    // isInfiniteScroll
+                    isInfiniteScroll
                     classTable="px-4"
                   />
                 </div>
@@ -394,6 +451,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token || access !== "owner") {
@@ -406,7 +464,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 

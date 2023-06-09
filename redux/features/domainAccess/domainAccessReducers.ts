@@ -26,6 +26,7 @@ const initialState: DomainState = {
 };
 
 interface HeadersConfiguration {
+    params?: any,
     headers: {
         "Content-Type"?: string;
         "Accept"?: string
@@ -41,8 +42,9 @@ interface DomainData {
 }
 
 interface DefaultGetData {
-    token?: any,
-    params?: any
+    id?: any;
+    token?: any;
+    params?: any;
 }
 
 // rejection
@@ -55,6 +57,63 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 }
 
 // domain
+export const getDomain = createAsyncThunk<any, DefaultGetData, { state: RootState }>('/domain', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.get("domain", config);
+        const { data, status } = response;
+        if (status == 200) {
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+export const getDomainId = createAsyncThunk<any, DefaultGetData, { state: RootState }>('/domain/{id}', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        params: params?.params,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.get(`domain/${params.id}`, config);
+        const { data, status } = response;
+        if (status == 200) {
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 export const getAccessDomain = createAsyncThunk<any, DefaultGetData, { state: RootState }>('auth/web/access/domain', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         headers: {
@@ -132,6 +191,48 @@ export const domainSlice = createSlice({
     // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
     extraReducers: builder => {
         builder
+            // get-domain
+            .addCase(getDomain.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(getDomain.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false,
+                    domains: payload
+                }
+            })
+            .addCase(getDomain.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // by id
+            .addCase(getDomainId.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(getDomainId.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false,
+                    domain: payload
+                }
+            })
+            .addCase(getDomainId.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
             // get-access-property
             .addCase(getAccessDomain.pending, state => {
                 return {
@@ -185,9 +286,9 @@ export const domainSlice = createSlice({
 });
 // SLICER
 
-const domainReducers = domainSlice.reducer;
+const domainAccessReducers = domainSlice.reducer;
 
 export const { resetDomainAccess } = domainSlice.actions
 export const selectDomainAccess = (state: RootState) => state.domainAccess;
 
-export default domainReducers;
+export default domainAccessReducers;
