@@ -160,7 +160,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
         dispatch(webDomainAccess({
             id,
             token,
-            callback: () => router.push({ pathname: "/owner/dashboard" })
+            callback: () => router.push({ pathname: "/owner/home" })
         }))
     }
 

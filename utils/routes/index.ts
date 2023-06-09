@@ -559,7 +559,7 @@ export const menuPayments: MenuProps[] = [
 export const menuOwnerMaster : MenuProps[] = [
   {
     pathname: "Home",
-    pages: "dashboard",
+    pages: "home",
     url: "/owner/home",
   },
   {
