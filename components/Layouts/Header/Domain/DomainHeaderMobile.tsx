@@ -1,28 +1,25 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { menuBM, menuOwnerMaster, menuPropertyMaster } from '../../../utils/routes';
-import SidebarLink from './SidebarLink';
-import Icon from '../../Icon';
-import SidebarLinkGroup from './SidebarLinkGroup';
-import SidebarList from './SidebarList';
+import { menuOwnerMaster } from '../../../../utils/routes';
+import SidebarList from '../../Sidebar/SidebarList';
 
 type Props = {
-    sidebarOpen?: boolean,
-    setSidebarOpen?: any,
+    isOpen?: boolean,
+    setIsOpen?: any,
     logo?: any,
     title?: any,
     images?: string,
     token?: any
 }
 
-const Sidebar = (props: Props) => {
-    const { sidebarOpen, setSidebarOpen, logo, title, images, token } = props;
+const DomainHeaderMobile = (props: Props) => {
+    const { isOpen, setIsOpen, logo, title, images, token } = props;
     const router = useRouter()
     const { pathname, query } = router
 
     const trigger = useRef<HTMLButtonElement>(null)
-    const sidebar = useRef<HTMLDivElement>(null)
+    const navbar = useRef<HTMLDivElement>(null)
 
     const getFromLocalStorage = (key: string) => {
         if (!key || typeof window === 'undefined') {
@@ -31,12 +28,12 @@ const Sidebar = (props: Props) => {
         return localStorage.getItem(key)
     };
 
-    const initiaLocalStorage: any = { sidebar: getFromLocalStorage("sidebar-expanded") ? JSON.parse(getFromLocalStorage("sidebar-expanded") || '{}') : [] };
+    const initiaLocalStorage: any = { navbar: getFromLocalStorage("navbar-expanded") ? JSON.parse(getFromLocalStorage("navbar-expanded") || '{}') : [] };
 
-    const [sidebarExpanded, setSidebarExpanded] = useState(initiaLocalStorage === null ? false : initiaLocalStorage === 'true');
+    const [navbarExpanded, setNavbarExpanded] = useState(initiaLocalStorage === null ? false : initiaLocalStorage === 'true');
 
     useEffect(() => {
-        setSidebarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
+        setNavbarExpanded(initiaLocalStorage === null ? false : initiaLocalStorage === 'true')
     }, [initiaLocalStorage])
 
     // close on click outside
@@ -45,14 +42,14 @@ const Sidebar = (props: Props) => {
             target: any
         }
         const clickHandler = ({ target }: Props) => {
-            if (!sidebar.current || !trigger.current) return
+            if (!navbar.current || !trigger.current) return
             if (
-                !sidebarOpen ||
-                sidebar.current.contains(target) ||
+                !isOpen ||
+                navbar.current.contains(target) ||
                 trigger.current.contains(target)
             )
                 return
-            setSidebarOpen(false)
+            setIsOpen(false)
         }
         document.addEventListener('click', clickHandler)
         return () => document.removeEventListener('click', clickHandler)
@@ -64,8 +61,8 @@ const Sidebar = (props: Props) => {
             keyCode: any
         }
         const keyHandler = ({ keyCode }: Props) => {
-            if (!sidebarOpen || keyCode !== 27) return
-            setSidebarOpen(false)
+            if (!isOpen || keyCode !== 27) return
+            setIsOpen(false)
         }
         document.addEventListener('keydown', keyHandler)
         return () => document.removeEventListener('keydown', keyHandler)
@@ -79,20 +76,20 @@ const Sidebar = (props: Props) => {
             throw new Error('box.parentNode is not an Element');
         }
 
-        localStorage.setItem('sidebar-expanded', sidebarExpanded?.toString())
-        if (sidebarExpanded) {
-            body?.classList.add('sidebar-expanded')
+        localStorage.setItem('navbar-expanded', navbarExpanded?.toString())
+        if (navbarExpanded) {
+            body?.classList.add('navbar-expanded')
         } else {
-            body?.classList.remove('sidebar-expanded')
+            body?.classList.remove('navbar-expanded')
         }
-    }, [sidebarExpanded]);
+    }, [navbarExpanded]);
 
     return (
         <Fragment>
             <aside
-                ref={sidebar}
-                // className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-in-out dark:bg-boxdark ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                ref={navbar}
+                // className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`absolute left-0 top-0 z-9999 flex h-screen w-full lg:w-90 flex-col overflow-y-hidden bg-boxdark-2 duration-300 ease-in-out dark:bg-boxdark ${isOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
@@ -107,9 +104,9 @@ const Sidebar = (props: Props) => {
                     <button
                         type='button'
                         ref={trigger}
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        aria-controls='sidebar'
-                        aria-expanded={sidebarOpen}
+                        onClick={() => setIsOpen(!isOpen)}
+                        aria-controls='navbar'
+                        aria-expanded={isOpen}
                         className='block text-white'
                     >
                         <svg
@@ -138,12 +135,12 @@ const Sidebar = (props: Props) => {
                                 <div className='flex items-center gap-2'>
                                     <img src={`${images ? images : "./image/logo/building-logo.svg"}`} alt='building logo' />
                                     <h3 className='text-lg font-semibold text-black'>
-                                        Building Name
+                                        Company Name
                                     </h3>
                                 </div>
                             </div>
 
-                            <SidebarList menus={menuPropertyMaster} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} />
+                            <SidebarList menus={menuOwnerMaster} sidebarExpanded={navbarExpanded} setSidebarExpanded={setNavbarExpanded} />
                         </div>
                     </nav>
                     {/* <!-- Sidebar Menu --> */}
@@ -151,14 +148,14 @@ const Sidebar = (props: Props) => {
             </aside>
             <button
                 ref={trigger}
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                aria-controls='sidebar'
-                aria-expanded={sidebarOpen}
-                className={`${sidebarOpen && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
+                onClick={() => setIsOpen(!isOpen)}
+                aria-controls='navbar'
+                aria-expanded={isOpen}
+                className={`${isOpen && 'fixed z-9998 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100'}`}>
 
             </button>
         </Fragment>
     )
 }
 
-export default Sidebar;
+export default DomainHeaderMobile;

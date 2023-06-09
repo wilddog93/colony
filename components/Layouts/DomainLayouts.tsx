@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Sidebar from './Sidebar';
-import Header from './Header';
 import Head from 'next/head';
+import DomainHeader from './Header/Domain';
+import { menuOwnerMaster } from '../../utils/routes';
 
 type Props = {
     children?: any,
@@ -16,7 +16,7 @@ type Props = {
     icons?: any;
 }
 
-const DefaultLayouts = ({ children, title, description, logo, header, head, images, userDefault, token, icons }: Props) => {
+const DomainLayouts = ({ children, title, description, logo, header, head, images, userDefault, token, icons }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
@@ -27,19 +27,14 @@ const DefaultLayouts = ({ children, title, description, logo, header, head, imag
                 <meta name="description" content={`Colony - ${description}`} />
             </Head>
             {/* <!-- ===== Page Wrapper Start ===== --> */}
-            <div className='flex h-screen overflow-hidden'>
-                {/* <!-- ===== Sidebar Start ===== --> */}
-                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={token} />
-                {/* <!-- ===== Sidebar End ===== --> */}
-
-                {/* <!-- ===== Content Area Start ===== --> */}
+            <div className='w-full flex h-screen overflow-hidden'>
                 <div className='relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden'>
+                    {/* <DomainSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={token} /> */}
                     {/* <!-- ===== Header Start ===== --> */}
-                    <Header logo={logo} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} header={header} userDefault={userDefault} token={token} icons={icons} />
+                    <DomainHeader routes={menuOwnerMaster} logo={logo} images={images} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} header={header} userDefault={userDefault} token={token} icons={icons} />
                     {/* <!-- ===== Header End ===== --> */}
 
                     {/* <!-- ===== Main Content Start ===== --> */}
-                    {/* <div className='mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10'> */}
                     <main className='mx-auto max-w-screen-2xl'>
                         {children}
                     </main>
@@ -52,4 +47,4 @@ const DefaultLayouts = ({ children, title, description, logo, header, head, imag
     )
 }
 
-export default DefaultLayouts;
+export default DomainLayouts;

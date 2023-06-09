@@ -17,7 +17,7 @@ export type MenuProps = {
 };
 
 // master routes
-export const menuMaster: MenuProps[] = [
+export const menuPropertyMaster: MenuProps[] = [
   {
     subMenus: [
       {
@@ -554,3 +554,22 @@ export const menuPayments: MenuProps[] = [
     title: "Settings"
   },
 ];
+
+// Menu Master owner
+export const menuOwnerMaster : MenuProps[] = [
+  {
+    pathname: "Home",
+    pages: "dashboard",
+    url: "/owner/home",
+  },
+  {
+    pathname: "Properties",
+    pages: "properties",
+    url: "/owner/properties",
+  },
+  {
+    pathname: "User & Access",
+    pages: "users",
+    url: "/owner/users",
+  },
+]

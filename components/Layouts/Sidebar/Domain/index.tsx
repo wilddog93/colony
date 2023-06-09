@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { menuBM, menuOwnerMaster, menuPropertyMaster } from '../../../utils/routes';
-import SidebarLink from './SidebarLink';
-import Icon from '../../Icon';
-import SidebarLinkGroup from './SidebarLinkGroup';
-import SidebarList from './SidebarList';
+import { menuBM, menuOwnerMaster, menuPropertyMaster } from '../../../../utils/routes';
+import SidebarLink from '../SidebarLink';
+import Icon from '../../../Icon';
+import SidebarLinkGroup from '../SidebarLinkGroup';
+import SidebarList from '../SidebarList';
 
 type Props = {
     sidebarOpen?: boolean,
@@ -16,7 +16,7 @@ type Props = {
     token?: any
 }
 
-const Sidebar = (props: Props) => {
+const DomainSidebar = (props: Props) => {
     const { sidebarOpen, setSidebarOpen, logo, title, images, token } = props;
     const router = useRouter()
     const { pathname, query } = router
@@ -138,12 +138,12 @@ const Sidebar = (props: Props) => {
                                 <div className='flex items-center gap-2'>
                                     <img src={`${images ? images : "./image/logo/building-logo.svg"}`} alt='building logo' />
                                     <h3 className='text-lg font-semibold text-black'>
-                                        Building Name
+                                        Company Name
                                     </h3>
                                 </div>
                             </div>
 
-                            <SidebarList menus={menuPropertyMaster} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} />
+                            <SidebarList menus={menuOwnerMaster} sidebarExpanded={sidebarExpanded} setSidebarExpanded={setSidebarExpanded} />
                         </div>
                     </nav>
                     {/* <!-- Sidebar Menu --> */}
@@ -161,4 +161,4 @@ const Sidebar = (props: Props) => {
     )
 }
 
-export default Sidebar;
+export default DomainSidebar;
