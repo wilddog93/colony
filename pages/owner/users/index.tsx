@@ -17,6 +17,8 @@ import PropertyForm from '../../../components/Forms/owner/PropertyForm';
 import SelectTables from '../../../components/tables/layouts/SelectTables';
 import { getDomainUserAll, selectDomainUser } from '../../../redux/features/domain/domainUser';
 import Button from '../../../components/Button/Button';
+import Tabs from '../../../components/Layouts/Tabs';
+import { menuParkings } from '../../../utils/routes';
 
 type Props = {
   pageProps: any
@@ -317,38 +319,45 @@ const DomainUsers = ({ pageProps }: Props) => {
             <div className='w-full relative tracking-wide text-left text-boxdark-2 2xl:px-10 mt-20 overflow-hidden'>
               <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
                 {/* filters */}
-                <div className='sticky z-40 top-0 w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 py-6 px-8 bg-gray'>
-                  <div className='w-full lg:col-span-3'>
-                    <SearchInput
-                      className='w-full text-sm rounded-xl'
-                      classNamePrefix=''
-                      filter={search}
-                      setFilter={setSearch}
-                      placeholder='Search...'
-                    />
+                <div className='sticky z-40 top-0 w-full py-6 px-8 bg-gray'>
+                  <div className='w-full mb-5'>
+                    <h3 className='text-lg lg:text-title-lg font-semibold'>User List</h3>
                   </div>
-                  <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                    <DropdownSelect
-                      customStyles={stylesSelectSort}
-                      value={sort}
-                      onChange={setSort}
-                      error=""
-                      className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                      classNamePrefix=""
-                      formatOptionLabel=""
-                      instanceId='1'
-                      isDisabled={false}
-                      isMulti={false}
-                      placeholder='Sorts...'
-                      options={sortOpt}
-                      icon='MdSort'
-                    />
+
+                  {/* <div className='w-full mb-5'>
+                    <Tabs menus={menuParkings} />
+                  </div> */}
+
+                  <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5">
+                    <div className='w-full lg:col-span-3'>
+                      <SearchInput
+                        className='w-full text-sm rounded-xl'
+                        classNamePrefix=''
+                        filter={search}
+                        setFilter={setSearch}
+                        placeholder='Search...'
+                      />
+                    </div>
+                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                      <DropdownSelect
+                        customStyles={stylesSelectSort}
+                        value={sort}
+                        onChange={setSort}
+                        error=""
+                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                        classNamePrefix=""
+                        formatOptionLabel=""
+                        instanceId='1'
+                        isDisabled={false}
+                        isMulti={false}
+                        placeholder='Sorts...'
+                        options={sortOpt}
+                        icon='MdSort'
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  <div className='px-8'>
-                    <h3 className='text-lg lg:text-title-lg font-semibold'>User List</h3>
-                  </div>
                   <SelectTables
                     loading={loading}
                     setLoading={setLoading}

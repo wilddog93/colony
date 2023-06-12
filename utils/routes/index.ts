@@ -572,7 +572,7 @@ export const menuOwnerMaster : MenuProps[] = [
     },
   },
   {
-    pathname: "User & Access",
+    pathname: "Users",
     pages: "users",
     url: "/owner/users",
     query: {
