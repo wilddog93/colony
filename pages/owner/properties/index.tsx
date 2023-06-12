@@ -1,6 +1,6 @@
 import React, { SetStateAction, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdAdd, MdEdit, MdMailOutline, MdMapsHomeWork, MdMuseum, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic, MdPhone, MdPlace } from 'react-icons/md';
+import { MdAdd, MdEdit, MdHome, MdMailOutline, MdMapsHomeWork, MdMuseum, MdOutlineHome, MdOutlinePeople, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic, MdOutlineWarning, MdPhone, MdPlace } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Barcharts from '../../../components/Chart/Barcharts';
@@ -188,11 +188,16 @@ const DomainProperty = ({ pageProps }: Props) => {
         let property = row?.original?.propertyName;
         let address = row?.original?.gpsLocation;
         let status = row?.original?.status;
+        let totalUnit = row?.original?.totalUnit;
+        let totalUnitTenant = row?.original?.totalUnitTenant;
+        let totalAdmin = row?.original?.totalAdmin;
+        let totalOngoingComplaint = row?.original?.totalOngoingComplaint;
+
         console.log(row.original, 'rows')
         return (
           <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
             <div className='w-full lg:w-1/5 text-lg font-semibold'>
-              <img src="../image/logo/logo-icon.svg" alt="" className='w-full object-cover object-center' />
+              <img src="../image/logo/logo-icon.svg" alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
             </div>
             <div className='w-full lg:w-4/5 flex flex-col gap-2 justify-around text-lg font-semibold '>
               <div className='w-full flex flex-col gap-2'>
@@ -210,8 +215,27 @@ const DomainProperty = ({ pageProps }: Props) => {
 
               <div className='border-b-2 border-gray w-full'></div>
 
-              <div>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente, quis!</p>
+              <div className="w-full flex items-center gap-4">
+                <div className='flex items-center gap-2 text-base'>
+                  <div>
+                    <MdOutlineHome className='w-6 h-6' />
+                  </div>
+                  <p className=''>{totalUnitTenant || 0}/<span className='text-gray-5 font-normal'>{totalUnit || 0}</span></p>
+                </div>
+
+                <div className='flex items-center gap-2 text-base'>
+                  <div>
+                    <MdOutlinePeople className='w-6 h-6' />
+                  </div>
+                  <p className=''>{totalAdmin || 0}</p>
+                </div>
+
+                <div className='flex items-center gap-2 text-base'>
+                  <div>
+                    <MdOutlineWarning className='w-6 h-6' />
+                  </div>
+                  <p className=''>{totalOngoingComplaint || 0}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -228,8 +252,6 @@ const DomainProperty = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  console.log(domain, "domain")
-
   useEffect(() => {
     if (query?.page) setPages(Number(query?.page) || 1)
     if (query?.limit) setLimit(Number(query?.limit) || 10)
@@ -238,7 +260,7 @@ const DomainProperty = ({ pageProps }: Props) => {
   }, [])
 
   useEffect(() => {
-    let qr : any = {
+    let qr: any = {
       page: pages,
       limit: limit
     };
@@ -278,11 +300,11 @@ const DomainProperty = ({ pageProps }: Props) => {
   }, [token, filters]);
 
   useEffect(() => {
-    if(accessId) {
+    if (accessId) {
       dispatch(getDomainId({ id: accessId, token }))
     }
   }, [accessId])
-  
+
 
   useEffect(() => {
     let arr: PropertyData[] = [];
@@ -300,6 +322,9 @@ const DomainProperty = ({ pageProps }: Props) => {
       setTotal(0)
     }
   }, [properties.data])
+
+  console.log(dataTable, 'data')
+  console.log(domain, "data domain")
 
   return (
     <DomainLayouts
@@ -326,8 +351,8 @@ const DomainProperty = ({ pageProps }: Props) => {
             >
               <div className='w-full flex flex-col gap-4 py-8 px-4'>
                 <div className='w-full'>
-                  <img 
-                    src={domain?.domainLogo ? `${url + domain?.domainLogo}` : "../image/logo/logo-icon.svg"} 
+                  <img
+                    src={domain?.domainLogo ? `${url + domain?.domainLogo}` : "../image/logo/logo-icon.svg"}
                     alt=""
                     className='w-[200px] h-[200px] object-cover object-center rounded-lg p-2 bg-white'
                   />
