@@ -1,316 +1,226 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdEdit, MdMuseum } from 'react-icons/md';
-import Button from '../../../components/Button/Button';
-import Cards from '../../../components/Cards/Cards';
-import Barcharts from '../../../components/Chart/Barcharts';
-import Doughnutcharts from '../../../components/Chart/Doughnutcharts';
+import { MdMuseum, MdOutlineRemoveRedEye } from 'react-icons/md';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
-import DomainSidebar from '../../../components/Layouts/Sidebar/Domain';
+import { SearchInput } from '../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
+import { ColumnDef } from '@tanstack/react-table';
+import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { getDomainId, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import Modal from '../../../components/Modal';
+import { ModalHeader } from '../../../components/Modal/ModalComponent';
+import PropertyForm from '../../../components/Forms/owner/PropertyForm';
+import SelectTables from '../../../components/tables/layouts/SelectTables';
+import { getDomainUserAll, selectDomainUser } from '../../../redux/features/domain/domainUser';
+import Button from '../../../components/Button/Button';
 
 type Props = {
   pageProps: any
+};
+
+type UserData = {
+  id?: number | string,
+  email?: string,
+  firstName?: string,
+  lastName?: string,
+  nickName?: string,
+  documentNumber?: number | string,
+  documentSource?: string,
+  profileImage?: string,
+  phoneNumber?: number | string,
+  birthday?: Date | string | any,
+  gender?: string,
+  userAddress?: string
 }
 
-const DomainUserManagement = ({ pageProps }: Props) => {
+type Options = {
+  value: any,
+  label: any
+}
+
+const sortOpt: Options[] = [
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
+];
+
+const stylesSelectSort = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const DomainUsers = ({ pageProps }: Props) => {
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, accessId, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // state
+  const [search, setSearch] = useState<string | any>('');
+  const [sort, setSort] = useState<Options>();
+  // table
+  const [dataTable, setDataTable] = useState<UserData[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState({});
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  // form
+  const [isForm, setIsForm] = useState(false);
+  const [formData, setFormData] = useState<any>({})
+
+  const isOpenForm = () => {
+    setIsForm(true)
+  }
+  const isCloseForm = () => {
+    setIsForm(false)
+  }
 
   // redux
   const dispatch = useAppDispatch();
-  const { data } = useAppSelector(selectAuth);
+  const { users } = useAppSelector(selectDomainUser);
 
-  // state
-  const [doghnutData, setDoghnutData] = useState([]);
-  const [doghnutLabel, setDoghnutLabel] = useState([]);
+  console.log(users, "user data")
 
-  let doughnutData = {
-    labels: ['Guest', 'Available', 'Tenants'],
-    datasets: [
-      {
-        label: '# Votes',
-        data: [20, 100, 500],
-        backgroundColor: [
-          '#44C2FD',
-          '#FAEE81',
-          '#5F59F7',
-        ],
-        borderColor: [
-          '#44C2FD',
-          '#FAEE81',
-          '#5F59F7',
-        ],
-        borderWidth: 1,
+  const columns = useMemo<ColumnDef<UserData, any>[]>(() => [
+    {
+      accessorKey: 'firstName',
+      header: (info) => (
+        <div className='uppercase'>Name</div>
+      ),
+      cell: ({ getValue, row }) => {
+        let image = row?.original?.profileImage;
+        let firstName = row?.original?.firstName;
+        let lastName = row?.original?.lastName;
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
+            <img
+              src={image ? `${url}images/${image}` : "../image/user/user-01.png"}
+              alt="avatar"
+              className='object-cover object-center w-10 h-10'
+            />
+            <span>{`${firstName || " "} ${lastName || " "}`}</span>
+          </div>
+        )
       },
-    ]
-  };
-
-  let bardata = {
-    labels: ["B1", "B2", "G"],
-    datasets: [
-      {
-        label: "Single",
-        borderRadius: 0,
-        data: [100, 250, 50],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      },
-      {
-        label: "Tandem",
-        borderRadius: 0,
-        data: [100, 90, 50],
-        backgroundColor: "#FF8859",
-        barThickness: 20,
-      },
-      {
-        label: "Guest",
-        borderRadius: 0,
-        data: [100, 10, 50],
-        backgroundColor: "#44C2FD",
-        barThickness: 20,
-      },
-    ],
-  };
-
-  let bardataMonths = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [
-      {
-        label: "Months",
-        borderRadius: 0,
-        data: [100, 250, 50, 30, 15, 3, 90, 200, 145, 32, 55, 89],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      }
-    ],
-  };
-
-  let bardataHour = {
-    labels: ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"],
-    datasets: [
-      {
-        label: "In",
-        borderRadius: 0,
-        data: [100, 250, 50, 30, 15, 3, 90],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      },
-      {
-        label: "Out",
-        borderRadius: 0,
-        data: [100, 90, 50, 69, 8, 78, 44],
-        backgroundColor: "#FF8859",
-        barThickness: 20,
-      },
-    ],
-  };
-
-  let doughnutOptions = {
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        responsive: true,
-        display: true,
-        position: "right",
-        align: "center",
-        labels: {
-          boxWidth: 20,
-          font: {
-            size: 16,
-          },
-          generateLabels: (chart: any) => {
-            const { labels, datasets } = chart.data;
-            if (labels.length > 0) {
-              return labels.map((label: any, i: any) => {
-                const { borderColor, backgroundColor, data } = datasets[0];
-                const total = data.reduce((a: number, b: number) => a + b, 0);
-
-                const formattedLabel = data.map((val: number, i: any) => {
-                  let currentValue = val;
-                  let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
-                  return {
-                    value: currentValue,
-                    label,
-                    percentage,
-                    backgroundColor: backgroundColor[i],
-                    borderColor: borderColor[i]
-                  };
-                });
-
-                return {
-                  text: `${formattedLabel[i].label} - ${formattedLabel[i].percentage}%`,
-                  fillStyle: formattedLabel[i].backgroundColor,
-                  hidden: !chart.getDataVisibility(i),
-                  index: i,
-                };
-              });
-            }
-            return [];
-          }
-        },
-      },
-      parsing: {
-        key: 'id'
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Parking Lots',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-      animation: {
-        animateScale: true,
-        animateRotate: true
-      },
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        },
-        callbacks: {
-          label: function (item: any) {
-            let dataset = item.dataset;
-            const total = dataset.data.reduce(function (sum: number, current: any) { return sum + Number(current) }, 0)
-            let currentValue = item.parsed;
-            let percentage = Math.floor(((currentValue / total) * 100) + 0.5);
-            return `${item.label} : ${currentValue} ${currentValue > 1 ? "lots" : "lot"} - ${percentage}%`
-          }
-        }
-      },
-    }
-  };
-
-  let barOptions = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Total Lots by Type 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
+    {
+      accessorKey: 'email',
+      header: (info) => (
+        <div className='uppercase'>Email</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue()}</span>
+          </div>
+        )
       },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     },
-  };
-
-  let barOptionsMonths = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
+    {
+      accessorKey: 'phoneNumber',
+      header: (info) => (
+        <div className='uppercase'>Phone Number</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue() || "-"}</span>
+          </div>
+        )
       },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Incoming Guest/Month 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
+    {
+      accessorKey: 'gender',
+      header: (info) => (
+        <div className='uppercase'>Gender</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue()}</span>
+          </div>
+        )
       },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     },
-  };
-
-  let barOptionsHour = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
+    {
+      accessorKey: 'id',
+      header: (info) => (
+        <div className='w-full uppercase text-center'>Actions</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 p-4 tracking-wider text-center justify-center'>
+            <Button
+              type="button"
+              variant="secondary-outline-none"
+              className="py-0 px-0 text-center"
+              onClick={() => console.log("details")}
+            >
+              <MdOutlineRemoveRedEye className='w-5 h-5' />
+            </Button>
+          </div>
+        )
       },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Peak Hour on July 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
     },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
+  ], []);
 
   useEffect(() => {
     if (token) {
@@ -318,11 +228,79 @@ const DomainUserManagement = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1)
+    if (query?.limit) setLimit(Number(query?.limit) || 10)
+    if (query?.search) setSearch(query?.search)
+    if (query?.sort) setSort({ value: query?.sort, label: query?.sort == "ASC" ? "A-Z" : "Z-A" })
+  }, [])
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit
+    };
+    if (search) qr = { ...qr, search: search }
+    if (sort?.value) qr = { ...qr, sort: sort?.value }
+
+    router.replace({ pathname, query: qr })
+  }, [search, sort])
+
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    const search = {
+      $and: [
+        {
+          $or: [
+            { "email": { $contL: query?.search } },
+            { "firstName": { $contL: query?.search } },
+            { "lastName": { $contL: query?.search } },
+            { "nickName": { $contL: query?.search } },
+            { "gender": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+    // query?.status && search["$and"].push({ status: query?.status });
+
+    qb.search(search);
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    if (query?.status) qb.sortBy({ field: "firstName", order: !query?.status ? "ASC" : "DESC" })
+    qb.query();
+    return qb;
+  }, [query])
+
+  useEffect(() => {
+    if (token) dispatch(getDomainUserAll({ params: filters.queryObject, token }))
+  }, [token, filters]);
+
+
+  useEffect(() => {
+    let arr: UserData[] = [];
+    const { data, pageCount, total } = users;
+    if (data || data?.length > 0) {
+      data?.map((item: UserData) => {
+        arr.push(item)
+      })
+      setDataTable(data)
+      setPageCount(pageCount)
+      setTotal(total)
+    } else {
+      setDataTable([])
+      setPageCount(1)
+      setTotal(0)
+    }
+  }, [users.data]);
+
   return (
     <DomainLayouts
       title="Colony"
       header="Owner"
-      head="User Management"
+      head="Users"
       logo="../image/logo/logo-icon.svg"
       description=""
       images="../image/logo/building-logo.svg"
@@ -336,26 +314,83 @@ const DomainUserManagement = ({ pageProps }: Props) => {
       <div className='w-full absolute inset-0 z-99 bg-boxdark flex text-white'>
         <div className="relative w-full bg-gray overflow-y-auto">
           <div className="w-full h-full flex">
-            <DomainSidebar
-              setSidebar={setSidebarOpen}
-              sidebar={sidebarOpen}
-              token={token}
-            >
-              <div className='py-8'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Non quo voluptatem, qui at atque quaerat! Laudantium quae earum, aut et tempore ratione deleniti quos iusto amet dolores, veritatis velit nulla?
-              </div>
-            </DomainSidebar>
-
-            <div className='w-full relative tracking-wide text-left text-boxdark-2 py-6 px-8 2xl:px-10 mt-20 overflow-y-auto'>
-              <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
-                <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 tracking-wider mb-5">
-                  user management
+            <div className='w-full relative tracking-wide text-left text-boxdark-2 2xl:px-10 mt-20 overflow-hidden'>
+              <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
+                {/* filters */}
+                <div className='sticky z-40 top-0 w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 py-6 px-8 bg-gray'>
+                  <div className='w-full lg:col-span-3'>
+                    <SearchInput
+                      className='w-full text-sm rounded-xl'
+                      classNamePrefix=''
+                      filter={search}
+                      setFilter={setSearch}
+                      placeholder='Search...'
+                    />
+                  </div>
+                  <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
+                    <DropdownSelect
+                      customStyles={stylesSelectSort}
+                      value={sort}
+                      onChange={setSort}
+                      error=""
+                      className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                      classNamePrefix=""
+                      formatOptionLabel=""
+                      instanceId='1'
+                      isDisabled={false}
+                      isMulti={false}
+                      placeholder='Sorts...'
+                      options={sortOpt}
+                      icon='MdSort'
+                    />
+                  </div>
+                </div>
+                <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
+                  <div className='px-8'>
+                    <h3 className='text-lg lg:text-title-lg font-semibold'>User List</h3>
+                  </div>
+                  <SelectTables
+                    loading={loading}
+                    setLoading={setLoading}
+                    pages={pages}
+                    setPages={setPages}
+                    limit={limit}
+                    setLimit={setLimit}
+                    pageCount={pageCount}
+                    columns={columns}
+                    dataTable={dataTable}
+                    total={total}
+                    setIsSelected={setIsSelectedRow}
+                    classTable="px-4"
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* modal */}
+      <Modal
+        isOpen={isForm}
+        onClose={isCloseForm}
+        size='small'
+      >
+        <div>
+          <ModalHeader
+            className='border-b-2 border-gray p-4'
+            isClose
+            onClick={isCloseForm}
+          >
+            <div className='w-full flex'>
+              <h3>New Property</h3>
+            </div>
+          </ModalHeader>
+          <div className='w-full'>
+            <PropertyForm onClose={isCloseForm} isOpen={isForm} />
+          </div>
+        </div>
+      </Modal>
     </DomainLayouts>
   )
 };
@@ -367,6 +402,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token || access !== "owner") {
@@ -379,8 +415,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 
-export default DomainUserManagement;
+export default DomainUsers;

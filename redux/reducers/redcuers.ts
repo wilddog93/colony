@@ -5,6 +5,7 @@ import authReducers from '../features/auth/authReducers';
 import propertyReducers from '../features/propertyAccess/propertyAccessReducers';
 import domainPropertyReducers from '../features/domain/domainProperty';
 import domainAccessReducers from '../features/domainAccess/domainAccessReducers';
+import domainUserReducers from '../features/domain/domainUser';
 
 export const combinedReducer = combineReducers({
     //All reducer
@@ -13,5 +14,6 @@ export const combinedReducer = combineReducers({
     authentication: authReducers,
     propertyAccess: propertyReducers,
     domainAccess: domainAccessReducers,
-    domainProperty: domainPropertyReducers
+    domainProperty: domainPropertyReducers,
+    domainUser: domainUserReducers
 });
