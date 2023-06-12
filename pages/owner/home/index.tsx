@@ -10,6 +10,7 @@ import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
+import PieCharts from '../../../components/Chart/Piecharts';
 
 type Props = {
   pageProps: any
@@ -24,10 +25,6 @@ const DomainHome = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-
-  // state
-  const [doghnutData, setDoghnutData] = useState([]);
-  const [doghnutLabel, setDoghnutLabel] = useState([]);
 
   let doughnutData = {
     labels: ['Guest', 'Available', 'Tenants'],
@@ -50,58 +47,18 @@ const DomainHome = ({ pageProps }: Props) => {
     ]
   };
 
-  let bardata = {
-    labels: ["B1", "B2", "G"],
-    datasets: [
-      {
-        label: "Single",
-        borderRadius: 0,
-        data: [100, 250, 50],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      },
-      {
-        label: "Tandem",
-        borderRadius: 0,
-        data: [100, 90, 50],
-        backgroundColor: "#FF8859",
-        barThickness: 20,
-      },
-      {
-        label: "Guest",
-        borderRadius: 0,
-        data: [100, 10, 50],
-        backgroundColor: "#44C2FD",
-        barThickness: 20,
-      },
-    ],
-  };
-
-  let bardataMonths = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [
-      {
-        label: "Months",
-        borderRadius: 0,
-        data: [100, 250, 50, 30, 15, 3, 90, 200, 145, 32, 55, 89],
-        backgroundColor: "#5F59F7",
-        barThickness: 20,
-      }
-    ],
-  };
-
   let bardataHour = {
     labels: ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"],
     datasets: [
       {
-        label: "In",
+        label: "Outstanding",
         borderRadius: 0,
         data: [100, 250, 50, 30, 15, 3, 90],
         backgroundColor: "#5F59F7",
         barThickness: 20,
       },
       {
-        label: "Out",
+        label: "Running",
         borderRadius: 0,
         data: [100, 90, 50, 69, 8, 78, 44],
         backgroundColor: "#FF8859",
@@ -161,7 +118,7 @@ const DomainHome = ({ pageProps }: Props) => {
         display: true,
         position: "top",
         align: "start",
-        text: 'Parking Lots',
+        text: 'Unit per apartment',
         font: {
           size: 16,
           weight: 300
@@ -191,92 +148,21 @@ const DomainHome = ({ pageProps }: Props) => {
     }
   };
 
-  let barOptions = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Total Lots by Type 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-    },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
-
-  let barOptionsMonths = {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        titleFont: {
-          size: 16
-        },
-        bodyFont: {
-          size: 16
-        }
-      },
-      legend: {
-        display: true,
-        position: "top",
-        align: "end",
-        labels: {
-          boxWidth: 15,
-          usePointStyle: false,
-          pointStyle: "circle",
-        },
-      },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Incoming Guest/Month 2022',
-        font: {
-          size: 16,
-          weight: 300
-        },
-      },
-    },
-    elements: {
-      bar: {
-        percentage: 0.1,
-        categoryPercentage: 0,
-      },
-    },
-  };
-
   let barOptionsHour = {
     responsive: true,
     plugins: {
+      title: {
+        display: true,
+        align: "start",
+        text: 'Total Income (Million IDR)',
+        font: {
+          weight: "300",
+          size: "16px"
+        }
+      },
       tooltip: {
         titleFont: {
-          size: 16
+          size: 20
         },
         bodyFont: {
           size: 16
@@ -292,21 +178,24 @@ const DomainHome = ({ pageProps }: Props) => {
           pointStyle: "circle",
         },
       },
-      title: {
-        display: true,
-        position: "top",
-        align: "start",
-        text: 'Peak Hour on July 2022',
-        font: {
-          size: 16,
-          weight: 300
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        ticks: {
+          beginAtZero: false,
+          min: 0,
+          max: 10,
         },
       },
     },
     elements: {
       bar: {
         percentage: 0.1,
-        categoryPercentage: 0,
+        categoryPercentage: 1,
       },
     },
   };
@@ -362,14 +251,35 @@ const DomainHome = ({ pageProps }: Props) => {
             <div className="w-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
               <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 tracking-wider mb-5">
                 <Cards className='w-full lg:col-span-2 bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
+                  <div className='w-full grid grid-cols-4 border-b-2 border-gray p-4'>
+                      <div className="w-full">
+                        <h3>Total Property</h3>
+                        <p className='font-semibold'>32</p>
+                      </div>
+
+                      <div className="w-full">
+                        <h3>Total Unit</h3>
+                        <p className='font-semibold'>3225</p>
+                      </div>
+
+                      <div className="w-full">
+                        <h3>Total Tenant</h3>
+                        <p className='font-semibold'>2412</p>
+                      </div>
+
+                      <div className="w-full">
+                        <h3>Total Issues</h3>
+                        <p className='font-semibold'>332</p>
+                      </div>
+                  </div>
                   <Barcharts data={bardataHour} options={barOptionsHour} className='w-full max-w-max' height='200px' />
                 </Cards>
                 <div className='w-full flex flex-col gap-4'>
                   <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                    <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
+                    <PieCharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
                   </Cards>
                   <Cards className='w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray p-4'>
-                    <Doughnutcharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
+                    <PieCharts data={doughnutData} options={doughnutOptions} className='w-full max-w-max' height='300px' />
                   </Cards>
                 </div>
               </div>
