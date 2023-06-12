@@ -22,6 +22,9 @@ import { getDomainProperty, selectDomainProperty } from '../../../redux/features
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { getDomainId, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
 import { formatPhone } from '../../../utils/useHooks/useFunction';
+import Modal from '../../../components/Modal';
+import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
+import PropertyForm from '../../../components/Forms/owner/PropertyForm';
 
 type Props = {
   pageProps: any
@@ -172,6 +175,17 @@ const DomainProperty = ({ pageProps }: Props) => {
   const [pageCount, setPageCount] = useState(1);
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
+
+  // form
+  const [isForm, setIsForm] = useState(false);
+  const [formData, setFormData] = useState<any>({})
+
+  const isOpenForm = () => {
+    setIsForm(true)
+  }
+  const isCloseForm = () => {
+    setIsForm(false)
+  }
 
   // redux
   const dispatch = useAppDispatch();
@@ -434,7 +448,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                     type="button"
                     variant="primary"
                     className="rounded-lg"
-                    onClick={() => console.log("new property")}
+                    onClick={isOpenForm}
                   >
                     New Property
                     <MdAdd className='w-5 h-5' />
@@ -465,6 +479,28 @@ const DomainProperty = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* modal */}
+      <Modal
+        isOpen={isForm}
+        onClose={isCloseForm}
+        size='small'
+      >
+        <div>
+          <ModalHeader
+            className='border-b-2 border-gray p-4'
+            isClose
+            onClick={isCloseForm}
+          >
+            <div className='w-full flex'>
+              <h3>New Property</h3>
+            </div>
+          </ModalHeader>
+          <div className='w-full'>
+            <PropertyForm onClose={isCloseForm} isOpen={isForm} />
+          </div>
+        </div>
+      </Modal>
     </DomainLayouts>
   )
 };
