@@ -206,6 +206,10 @@ const DomainHome = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  const goToManage = () => {
+    router.push({ pathname: "/owner/home/general-information" })
+  }
+
   return (
     <DomainLayouts
       title="Colony"
@@ -238,6 +242,7 @@ const DomainHome = ({ pageProps }: Props) => {
                   type="button"
                   variant="primary"
                   className="rounded-lg"
+                  onClick={goToManage}
                 >
                   <span>Edit Info</span>
                   <MdEdit className='w-5 h-5' />

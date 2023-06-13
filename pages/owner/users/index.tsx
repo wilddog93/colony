@@ -316,7 +316,7 @@ const DomainUsers = ({ pageProps }: Props) => {
       <div className='w-full absolute inset-0 z-99 bg-boxdark flex text-white'>
         <div className="relative w-full bg-gray overflow-y-auto">
           <div className="w-full h-full flex">
-            <div className='w-full relative tracking-wide text-left text-boxdark-2 2xl:px-10 mt-20 overflow-hidden'>
+            <div className='w-full relative tracking-wide text-left text-boxdark-2 mt-20 overflow-hidden'>
               <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
                 {/* filters */}
                 <div className='sticky z-40 top-0 w-full py-6 px-8 bg-gray'>

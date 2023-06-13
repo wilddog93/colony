@@ -414,7 +414,7 @@ const DomainProperty = ({ pageProps }: Props) => {
               </div>
             </DomainSidebar>
 
-            <div className='w-full relative tracking-wide text-left text-boxdark-2 2xl:px-10 mt-20 overflow-hidden'>
+            <div className='w-full relative tracking-wide text-left text-boxdark-2 mt-20 overflow-hidden'>
               <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
                 {/* filters */}
                 <div className='sticky z-40 top-0 w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 py-6 px-8 bg-gray'>

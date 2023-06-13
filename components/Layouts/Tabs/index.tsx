@@ -21,7 +21,7 @@ const ActiveLink = ({ children, href, className }: any) => {
 };
 
 const Tabs = (props: any) => {
-    const primary = "flex flex-col md:flex-row overflow-x-auto scrollbar-none bg-white shadow rounded px-4 transform transition-all duration-300";
+    const primary = "flex flex-col md:flex-row overflow-x-auto scrollbar-none bg-white shadow-card rounded px-4 transform transition-all duration-300";
     const underline = "flex flex-col md:flex-row overflow-x-auto scrollbar-none shadow ronded px-4 transform transition-all duration-300";
     let { variant, menus, domainGroup, complaint } = props;
     const router = useRouter();

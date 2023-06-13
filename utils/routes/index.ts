@@ -581,3 +581,43 @@ export const menuOwnerMaster : MenuProps[] = [
     },
   },
 ]
+
+export const menuManageDomainOwner : MenuProps[] = [
+  {
+    pathname: "General Information",
+    pages: "home",
+    url: "/owner/home/general-information",
+  },
+  {
+    pathname: "Legal Entity",
+    pages: "home",
+    url: "/owner/home/legal-entity",
+  },
+  {
+    pathname: "Users",
+    pages: "home",
+    url: "/owner/home/users",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Roles",
+    pages: "home",
+    url: "/owner/home/roles",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Access Group",
+    pages: "home",
+    url: "/owner/home/access-group",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+]
