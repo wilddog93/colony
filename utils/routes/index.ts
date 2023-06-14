@@ -589,14 +589,9 @@ export const menuManageDomainOwner : MenuProps[] = [
     url: "/owner/home/general-information",
   },
   {
-    pathname: "Legal Entity",
-    pages: "home",
-    url: "/owner/home/legal-entity",
-  },
-  {
     pathname: "Users",
     pages: "home",
-    url: "/owner/home/users",
+    url: "/owner/home/user-list",
     query: {
       page: 1,
       limit: 10,

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export const formatPhone = (code: any, val: any) => {
     // val.replace(/\D+/g, '')
     if (val == undefined || !val) {
@@ -59,3 +61,44 @@ export const formatMoney = ({
         console.log(e);
     }
 };
+
+export const toBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () =>
+            resolve({
+                size: file.size,
+                name: file.name,
+                images: reader.result,
+            });
+        reader.onerror = (error) => reject(error);
+    });
+};
+
+export const multiBase64 = (images: any, setFiles: any) => {
+    const filePathsPromises: any[] = [];
+    const fileObj = images;
+    const totalFiles = images.length;
+    const preview = async () => {
+        if (!images || images.length == 0) {
+            setFiles(undefined);
+            return;
+        } else {
+            for (let i = 0; i < totalFiles; i++) {
+                const img = fileObj[i];
+                // console.log(img, 'image obj')
+                filePathsPromises.push(toBase64(img));
+                const filePaths = await Promise.all(filePathsPromises);
+                const mappedFiles = filePaths.map((base64File) => ({
+                    name: base64File?.name,
+                    size: base64File?.size,
+                    source: base64File?.images
+                }));
+                setFiles(mappedFiles)
+                return mappedFiles
+            }
+        }
+    };
+    preview();
+}
