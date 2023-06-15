@@ -31,21 +31,21 @@ type Props = {
 
 type FormValues = {
   id?: number | string | null;
-  domainCode?: string | null;
-  domainName?: string | null;
-  domainLogo?: string | null;
-  domainDescription?: string | null;
-  domainOwner?: any | any[];
-  legalEntityName?: string | null;
-  domainWebsite?: string | null;
-  domainEmail?: string | null;
-  domainPhoneNumber?: string | null;
-  domainCountry?: any | null;
-  domainState?: any | null;
-  domainCity?: any | null;
-  domainPostalCode?: string | null;
-  domainGpsLocation?: string | null;
-  domainAddress?: string | null;
+  domainCode: string | null;
+  domainName: string | null;
+  domainLogo: string | null;
+  domainDescription: string | null;
+  domainOwner: any | any[];
+  legalEntityName: string | null;
+  domainWebsite: string | null;
+  domainEmail: string | null;
+  domainPhoneNumber: string | null;
+  domainCountry: any | null;
+  domainState: any | null;
+  domainCity: any | null;
+  domainPostalCode: string | null;
+  domainGpsLocation: string | null;
+  domainAddress: string | null;
 };
 
 type Options = {
@@ -135,22 +135,22 @@ const DomainInformation = ({ pageProps }: Props) => {
   } = useForm({
     mode: "all",
     defaultValues: useMemo<FormValues>(() => ({
-      id: null,
-      domainCode: null,
-      domainName: null,
-      domainLogo: null,
-      domainDescription: null,
-      domainOwner: {},
-      legalEntityName: null,
-      domainWebsite: null,
-      domainEmail: null,
-      domainPhoneNumber: null,
+      id: "",
+      domainCode: "",
+      domainName: "",
+      domainLogo: "",
+      domainDescription: "",
+      domainOwner: null,
+      legalEntityName: "",
+      domainWebsite: "",
+      domainEmail: "",
+      domainPhoneNumber: "",
       domainCountry: null,
       domainState: null,
       domainCity: null,
-      domainPostalCode: null,
-      domainAddress: null,
-      domainGpsLocation: null,
+      domainPostalCode: "",
+      domainAddress: "",
+      domainGpsLocation: "",
     }), [])
   });
 
@@ -294,16 +294,7 @@ const DomainInformation = ({ pageProps }: Props) => {
     if (watchChange?.name == "domainState") setValue("domainCity", null)
   }, [watchChange?.name]);
 
-  console.log(valueCity, 'country')
-
-  const AnyReactComponent = ({ text }: any) => <div>{text}</div>;
-  const defaultProps = {
-    center: {
-      lat: 10.99835602,
-      lng: 77.01502627
-    },
-    zoom: 11
-  };
+  console.log(errors, 'errors form')
 
   console.log({ googleMapAPI, url }, 'country API')
 
@@ -331,6 +322,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                 <div className='static z-40 top-0 w-full mt-6 px-8 bg-gray'>
                   <div className='w-full mb-5'>
                     <button
+                      type='button'
                       className='focus:outline-none flex items-center gap-2'
                       onClick={() => router.push("/owner/home")}
                     >
@@ -361,7 +353,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                         <Button
                           type="submit"
                           variant='primary'
-                          onSubmit={handleSubmit(onSubmit)}
+                          onClick={handleSubmit(onSubmit)}
                           className="rounded-lg text-sm"
                         >
                           Save
@@ -374,7 +366,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                       <Cards
                         className='w-full bg-white p-6 shadow-card rounded-xl'
                       >
-                        <div className='w-full grid grid-cols-5 gap-4'>
+                        <div className='w-full grid col-span-1 sm:grid-cols-5 gap-4'>
                           {/* domain code */}
                           <label className='col-span-1 my-auto font-semibold' htmlFor="domainCode">
                             Domain Code
@@ -385,7 +377,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                               type='text'
                               placeholder='Domain code...'
                               autoFocus
-                              className={`w-full text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                               {...register("domainCode")}
                             />
                             {errors?.domainCode && (
@@ -408,7 +400,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                               type='text'
                               placeholder='Domain Name...'
                               autoFocus
-                              className={`w-full text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                               {...register("domainName", {
                                 required: {
                                   value: true,
@@ -431,7 +423,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                             Display Picture
                           </label>
                           <div className='w-full col-span-4'>
-                            <div className='flex gap-4'>
+                            <div className='flex flex-col lg:flex-row gap-4'>
                               <div className='w-[200px] h-[200px] relative flex gap-2 group hover:cursor-pointer'>
                                 <label htmlFor='logo' className='w-full h-full hover:cursor-pointer'>
                                   <img
@@ -458,7 +450,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                                   id='logo'
                                   placeholder='Domain Logo...'
                                   autoFocus
-                                  className={`w-full focus:outline-none max-w-max text-sm text-primary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100`}
+                                  className={`w-full focus:outline-none max-w-max text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100`}
                                   onChange={onSelectImage}
                                   ref={imageRef}
                                   accept="image/*"
@@ -535,7 +527,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                               type='email'
                               placeholder='Email...'
                               autoFocus
-                              className={`w-full text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                               {...register("domainEmail", {
                                 required: {
                                   value: true,
@@ -747,7 +739,7 @@ const DomainInformation = ({ pageProps }: Props) => {
                               type='text'
                               placeholder='Post Code...'
                               autoFocus
-                              className={`w-full text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                               {...register("domainPostalCode", {
                                 required: {
                                   value: true,
@@ -799,11 +791,14 @@ const DomainInformation = ({ pageProps }: Props) => {
                             Location
                           </label>
                           <div className='w-full col-span-4'>
-                            <input
-                              type='text'
-                              placeholder='Address...'
-                              className={`w-full text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                            <textarea
+                              cols={0.5}
+                              rows={5}
+                              maxLength={400}
+                              placeholder='Street address...'
+                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:bg-transparent`}
                               value={search?.address as any}
+                              disabled
                             />
                             <div className='w-full mt-3'>
                               <GoogleMaps apiKey={googleMapAPI as string} value={search} setValue={setSearch} />

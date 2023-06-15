@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { MdOutlineLocationSearching, MdPlace } from 'react-icons/md';
+import { MdOutlineLocationSearching, MdPlace, MdSearch } from 'react-icons/md';
 import Button from '../Button/Button';
 
 const containerStyle = {
@@ -26,7 +26,7 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
         lng: -122.4194
     });
 
-    const libraries: any[] = ['places'];
+    const [ libraries ] = useState(['places']);
 
     const onLoad = useCallback((ref: any) => {
         setSearchBox(ref);
@@ -85,15 +85,15 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
 
 
     return (
-        <LoadScript googleMapsApiKey={apiKey} libraries={libraries} version="weekly">
+        <LoadScript googleMapsApiKey={apiKey} libraries={libraries as any[]} version="weekly">
             <StandaloneSearchBox onLoad={onLoad} onPlacesChanged={handlePlaceChanged}>
                 <div className="relative">
                     <input
                         type="text"
                         placeholder="Search for a location"
-                        className='w-full mb-3 text-sm text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent'
+                        className='w-full mb-3 text-sm pl-10 rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent'
                     />
-
+                    <MdSearch className='w-6 h-6 absolute top-3 left-3' />
                 </div>
             </StandaloneSearchBox>
 
@@ -112,7 +112,7 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
                     zoom={12}
                 >
                     {currentPosition && <Marker position={currentPosition} />}
-                    {position && <Marker position={position} />}
+                    {position && <Marker clickable={true} position={position} />}
                 </GoogleMap>
             </div>
         </LoadScript>
