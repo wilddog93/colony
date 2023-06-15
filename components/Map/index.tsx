@@ -44,7 +44,9 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
         if (location) {
             setValue({
                 url: place.url,
-                address: place.formatted_address
+                address: place.formatted_address,
+                lat: location.lat(),
+                lng: location.lng()
             })
             setCenter({
                 lat: location.lat(),
