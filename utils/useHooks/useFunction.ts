@@ -102,3 +102,8 @@ export const multiBase64 = (images: any, setFiles: any) => {
     };
     preview();
 }
+
+export const isBase64 = (str: any) => {
+    let res = str?.includes("base64");
+    return res;
+};

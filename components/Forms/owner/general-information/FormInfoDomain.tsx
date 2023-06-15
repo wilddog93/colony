@@ -7,9 +7,14 @@ import { MdDelete, MdWarning } from 'react-icons/md';
 import DropdownSelect from '../../../Dropdown/DropdownSelect';
 import PhoneInput from 'react-phone-input-2';
 import GoogleMaps from '../../../Map';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
+import { getDomainId, selectDomainAccess, updateAccessDomain } from '../../../../redux/features/domainAccess/domainAccessReducers';
+import { FaCircleNotch } from 'react-icons/fa';
+import { isBase64 } from '../../../../utils/useHooks/useFunction';
 
 type Props = {
     token?: string | any;
+    id?: string | number | any;
     items?: any
 }
 
@@ -30,7 +35,6 @@ type FormValues = {
     street?: string | null;
     gpsLatitude?: string | null;
     gpsLongitude?: string | null;
-    searchGoogleMap?: any;
 };
 
 type Options = {
@@ -86,7 +90,7 @@ const WebOptions: Options[] = [
     }
 ]
 
-const FormInfoDomain = ({ token, items }: Props) => {
+const FormInfoDomain = ({ token, items, id }: Props) => {
     const googleMapAPI = process.env.GOOGLE_MAP_API;
     const url = process.env.API_ENDPOINT
     // form country opt
@@ -99,8 +103,12 @@ const FormInfoDomain = ({ token, items }: Props) => {
     const [watchValue, setWatchValue] = useState<FormValues | any>()
     const [watchChange, setWatchChange] = useState<any | null>(null)
     const [previewImg, setPreviewImg] = useState<string | any>();
-    const [files, setFiles] = useState<any | any[]>();
+    const [files, setFiles] = useState<any | any[]>("");
     let imageRef = useRef<HTMLInputElement>(null)
+
+    // redux
+    const dispatch = useAppDispatch();
+    const { domain, pending, error, message } = useAppSelector(selectDomainAccess);
 
     // form
     const {
@@ -156,7 +164,12 @@ const FormInfoDomain = ({ token, items }: Props) => {
                 gpsLatitude: items?.gpsLatitude,
                 gpsLongitude: items?.gpsLongitude,
             })
-            setSearch(items?.searchGoogleMap)
+            setSearch({
+                address: items?.street,
+                lat: items?.gpsLatitude,
+                lng: items?.gpsLongitude
+            })
+            setFiles(items?.domainLogo)
         }
     }, [items]);
 
@@ -171,11 +184,20 @@ const FormInfoDomain = ({ token, items }: Props) => {
         return () => subscription.unsubscribe();
     }, [watch]);
 
+    const images = useWatch({
+        name: "domainLogo",
+        control
+    });
+
+    const imageStatus = useMemo(() => {
+        return isBase64(files)
+    }, [files])
+
     const onSubmit: SubmitHandler<FormValues> = (value) => {
         let formData: FormValues = {
             domainName: value.domainName,
             domainDescription: value.domainDescription,
-            domainLogo: value.domainLogo,
+            domainLogo: imageStatus ? value.domainLogo : "",
             legalEntityName: value.legalEntityName,
             email: value.email,
             phoneNumber: value.phoneNumber,
@@ -188,13 +210,16 @@ const FormInfoDomain = ({ token, items }: Props) => {
             gpsLongitude: value.gpsLongitude,
             street: value.street
         }
-        console.log(formData, 'event form')
+        dispatch(updateAccessDomain({
+            id,
+            data: formData,
+            token,
+            isError: () => dispatch(getDomainId({ id, token })),
+            isSuccess: () => dispatch(getDomainId({ id, token })),
+        }))
     }
 
-    const images = useWatch({
-        name: "domainLogo",
-        control
-    });
+    console.log(imageStatus, 'res status')
 
     const descriptionValue = useWatch({
         name: "domainDescription",
@@ -347,8 +372,14 @@ const FormInfoDomain = ({ token, items }: Props) => {
                             variant='primary'
                             onClick={handleSubmit(onSubmit)}
                             className="rounded-lg text-sm"
+                            disabled={pending}
                         >
-                            Save
+                            {pending ?
+                                <div className='flex gap-2 items-center'>
+                                    <span>Loading...</span>
+                                    <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
+                                </div>
+                                : "Save"}
                         </Button>
                     </div>
                 </div>
@@ -395,10 +426,16 @@ const FormInfoDomain = ({ token, items }: Props) => {
                                 <div className='flex flex-col lg:flex-row gap-4'>
                                     <div className='w-[200px] h-[200px] relative flex gap-2 group hover:cursor-pointer'>
                                         <label htmlFor='logo' className='w-full h-full hover:cursor-pointer'>
-                                            <img
-                                                src={files ? files : "../../image/logo/logo-icon.svg"} alt="logo"
-                                                className='w-full max-w-[200px] h-full min-h-[200px] object-cover object-center border border-gray shadow-card rounded-lg p-4'
-                                            />
+                                            {!files ?
+                                                <img
+                                                    src={"../../image/no-image.jpeg"} alt="logo"
+                                                    className='w-full max-w-[200px] h-full min-h-[200px] object-cover object-center border border-gray shadow-card rounded-lg p-4'
+                                                />
+                                                : <img
+                                                    src={imageStatus ? files : `${url}domain/domainLogo/${files}`} alt="logo"
+                                                    className='w-full max-w-[200px] h-full min-h-[200px] object-cover object-center border border-gray shadow-card rounded-lg p-4'
+                                                />
+                                            }
                                         </label>
                                         <div className={`${!files ? "hidden " : ""}absolute inset-0 flex`}>
                                             <Button
