@@ -206,12 +206,12 @@ export const updateAccessDomain = createAsyncThunk<any, DomainData, { state: Roo
 
 
 // SLICER
-export const domainSlice = createSlice({
-    name: 'domainAccess',
+export const accessDomainSlice = createSlice({
+    name: 'accessDomain',
     initialState,
     reducers: {
         // leave this empty here
-        resetDomainAccess(state) {
+        resetAccessDomain(state) {
             state.domain = {}
             state.pending = false
             state.error = false
@@ -338,9 +338,9 @@ export const domainSlice = createSlice({
 });
 // SLICER
 
-const domainAccessReducers = domainSlice.reducer;
+const accessDomainReducers = accessDomainSlice.reducer;
 
-export const { resetDomainAccess } = domainSlice.actions
-export const selectDomainAccess = (state: RootState) => state.domainAccess;
+export const { resetAccessDomain } = accessDomainSlice.actions
+export const selectAccessDomain = (state: RootState) => state.accessDomain;
 
-export default domainAccessReducers;
+export default accessDomainReducers;

@@ -17,6 +17,8 @@ import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
+import { getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
+import { getDomainAccess, selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers ';
 
 type Props = {
   pageProps: any
@@ -27,19 +29,12 @@ type Options = {
   label: any
 }
 
-type UserData = {
-  id?: number | string,
-  email?: string,
-  firstName?: string,
-  lastName?: string,
-  nickName?: string,
-  documentNumber?: number | string,
-  documentSource?: string,
-  profileImage?: string,
-  phoneNumber?: number | string,
-  birthday?: Date | string | any,
-  gender?: string,
-  userAddress?: string
+type DomainAccessGroupData = {
+  id?: number | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  domainAccessGroupName?: string
+  domainAccessGroupAcceses?: any | any[]
 }
 
 const sortOpt: Options[] = [
@@ -136,14 +131,7 @@ const stylesSelect = {
   menuList: (provided: any) => (provided)
 };
 
-const RoleOptions = [
-  { value: "Employee", label: "Employee" },
-  { value: "Merchant", label: "Merchant" },
-  { value: "Owner", label: "Owner" },
-  { value: "Tenant", label: "Tenant" },
-]
-
-const DomainAccessManagement = ({ pageProps }: Props) => {
+const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
@@ -152,17 +140,20 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
 
   // redux
   const dispatch = useAppDispatch();
-  const { users, user, pending, error, message } = useAppSelector(selectDomainUser);
+  const { domainAccessGroups, domainAccessGroup, pending, error, message } = useAppSelector(selectDomainAccessGroup);
+  const { domainAccesses } = useAppSelector(selectDomainAccess);
   const { data } = useAppSelector(selectAuth);
 
   // params
   const [search, setSearch] = useState<any>("");
   const [sort, setSort] = useState<Options>();
   const [roles, setRoles] = useState<Options>();
+  const [accesses, setAccesses] = useState<Options>();
+  const [accessOpt, setAccessOpt] = useState<Options[]>([])
 
   // table
-  const [dataTable, setDataTable] = useState<any[]>([]);
-  const [isSelectedRow, setIsSelectedRow] = useState<UserData[]>();
+  const [dataTable, setDataTable] = useState<DomainAccessGroupData[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState<DomainAccessGroupData[]>();
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
@@ -186,7 +177,7 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  const columns = useMemo<ColumnDef<UserData, any>[]>(() => [
+  const columns = useMemo<ColumnDef<DomainAccessGroupData, any>[]>(() => [
     {
       id: 'select',
       header: ({ table }) => {
@@ -216,51 +207,13 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
       minSize: 10
     },
     {
-      accessorKey: 'user.firstName',
+      accessorKey: 'domainAccessGroupName',
       header: (info) => (
-        <div className='uppercase'>Name</div>
-      ),
-      cell: ({ getValue, row }) => {
-        let image = row?.original?.profileImage;
-        let firstName = row?.original?.firstName;
-        let lastName = row?.original?.lastName;
-        return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
-            <img
-              src={image ? `${url}images/${image}` : "../../image/user/user-01.png"}
-              alt="avatar"
-              className='object-cover object-center w-10 h-10'
-            />
-            <span>{`${firstName || " "} ${lastName || " "}`}</span>
-          </div>
-        )
-      },
-      footer: props => props.column.id,
-      enableColumnFilter: false,
-    },
-    {
-      accessorKey: 'email',
-      header: (info) => (
-        <div className='uppercase'>Email</div>
+        <div className='uppercase'>Access Group Name</div>
       ),
       cell: ({ getValue, row }) => {
         return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
-            <span>{getValue()}</span>
-          </div>
-        )
-      },
-      footer: props => props.column.id,
-      enableColumnFilter: false,
-    },
-    {
-      accessorKey: 'phoneNumber',
-      header: (info) => (
-        <div className='uppercase'>Phone Number</div>
-      ),
-      cell: ({ getValue, row }) => {
-        return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer tracking-wider items-center text-center lg:text-left'>
             <span>{getValue() || "-"}</span>
           </div>
         )
@@ -269,14 +222,31 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'gender',
+      accessorKey: 'domainAccessGroupAcceses',
       header: (info) => (
-        <div className='uppercase'>Gender</div>
+        <div className='uppercase'>Access</div>
       ),
       cell: ({ getValue, row }) => {
+        let access = getValue();
+        let index: any[] = [0, 1, 2];
+        const lastIndex = access.length - 1;
+        console.log(lastIndex, 'last index')
         return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
-            <span>{getValue()}</span>
+          <div className='w-full flex flex-col cursor-pointer tracking-wider'>
+            {access?.length == 0 ? null
+              : access?.length > 3 ?
+                index?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{access[acc]?.domainAccess?.domainAccessName},</div>
+                  )
+                }) :
+                access?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{acc?.domainAccess?.domainAccessName}{lastIndex == i ? "" : ','}</div>
+                  )
+                })
+            }
+            {access?.length > 3 ? `+${(access?.length - index.length)} more access` : null}
           </div>
         )
       },
@@ -318,6 +288,7 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
     if (query?.limit) setLimit(Number(query?.limit) || 10)
     if (query?.search) setSearch(query?.search)
     if (query?.sort) setSort({ value: query?.sort, label: query?.sort == "ASC" ? "A-Z" : "Z-A" })
+    if (query?.accesses) setAccesses({ value: query?.accesses, label: "" })
   }, [])
 
   useEffect(() => {
@@ -327,10 +298,10 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
     };
     if (search) qr = { ...qr, search: search }
     if (sort?.value) qr = { ...qr, sort: sort?.value }
-    if (roles?.value) qr = { ...qr, roles: roles?.value }
+    if (accesses?.value) qr = { ...qr, accesses: accesses?.value }
 
     router.replace({ pathname, query: qr })
-  }, [search, sort, roles])
+  }, [search, sort, accesses])
 
 
   const filters = useMemo(() => {
@@ -339,40 +310,36 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
       $and: [
         {
           $or: [
-            { "user.email": { $contL: query?.search } },
-            { "user.firstName": { $contL: query?.search } },
-            { "user.lastName": { $contL: query?.search } },
-            { "user.nickName": { $contL: query?.search } },
-            { "user.gender": { $contL: query?.search } },
+            { "domainAccessGroupName": { $contL: query?.search } },
           ],
         },
       ],
     };
-    query?.roles && search["$and"].push({ "domainStructure.domainStructureName": query?.roles });
+    query?.accesses && search["$and"].push({ "domainAccessGroupAcceses.domainAccess.domainAccessCode": query?.accesses });
 
     qb.search(search);
 
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    if (query?.sort) qb.sortBy({ field: "user.firstName", order: !query?.status ? "ASC" : "DESC" })
+    if (query?.sort) qb.sortBy({ field: "domainAccessGroupName", order: !query?.status ? "ASC" : "DESC" })
     qb.query();
     return qb;
   }, [query])
 
   useEffect(() => {
-    if (token) dispatch(getDomainUser({ params: filters.queryObject, token }))
+    if (token) dispatch(getDomainAccessGroup({ params: filters.queryObject, token }))
   }, [token, filters]);
 
 
   useEffect(() => {
-    let arr: UserData[] = [];
-    const { data, pageCount, total } = users;
+    let arr: DomainAccessGroupData[] = [];
+    const { data, pageCount, total } = domainAccessGroups;
     if (data || data?.length > 0) {
-      data?.map((item: UserData) => {
+      data?.map((item: DomainAccessGroupData) => {
         arr.push(item)
       })
-      setDataTable(data)
+      setDataTable(arr)
       setPageCount(pageCount)
       setTotal(total)
     } else {
@@ -380,9 +347,50 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
       setPageCount(1)
       setTotal(0)
     }
-  }, [users.data]);
+  }, [domainAccessGroups.data]);
 
-  // console.log(isSelectedRow, 'selected')
+  const filterAccess = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    const search: any = {
+      $and: [
+        {
+          $or: [
+            { "domainAccessName": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    qb.search(search);
+
+    if (query?.sort) qb.sortBy({ field: "domainAccessName", order: !query?.status ? "ASC" : "DESC" })
+    qb.query();
+    return qb;
+  }, [query])
+
+  useEffect(() => {
+    if (token) dispatch(getDomainAccess({ params: filterAccess.queryObject, token }))
+  }, [token, filters]);
+
+  useEffect(() => {
+    let arr: any[] = [];
+    const { data } = domainAccesses;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        console.log(item, 'items')
+        arr.push({
+          ...item,
+          value: item.domainAccessCode,
+          label: item.domainAccessName,
+        })
+      })
+      setAccessOpt(arr)
+    } else {
+      setAccessOpt([])
+    }
+  }, [domainAccesses.data]);
+
+  console.log(domainAccessGroups, 'options')
 
   return (
     <DomainLayouts
@@ -434,7 +442,7 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
                     <Cards
                       className='w-full bg-white shadow-card rounded-xl'
                     >
-                      <div className="w-full grid grid-cols-1 lg:grid-cols-7 gap-2.5 p-4">
+                      <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-2.5 p-4">
                         <div className='w-full lg:col-span-3'>
                           <SearchInput
                             className='w-full text-sm rounded-xl'
@@ -459,6 +467,23 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
                             placeholder='Sorts...'
                             options={sortOpt}
                             icon='MdSort'
+                          />
+                        </div>
+                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                          <DropdownSelect
+                            customStyles={stylesSelect}
+                            value={accesses}
+                            onChange={setAccesses}
+                            error=""
+                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                            classNamePrefix=""
+                            formatOptionLabel=""
+                            instanceId='1'
+                            isDisabled={false}
+                            isMulti={false}
+                            placeholder='Access...'
+                            options={accessOpt}
+                            icon=''
                           />
                         </div>
                         <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
@@ -536,4 +561,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default DomainAccessManagement;
+export default DomainAccessGroupManagement;

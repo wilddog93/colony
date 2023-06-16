@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import Tabs from '../../../../components/Layouts/Tabs';
 import { menuManageDomainOwner } from '../../../../utils/routes';
 import FormInfoDomain from '../../../../components/Forms/owner/general-information/FormInfoDomain';
-import { getDomainId, selectDomainAccess } from '../../../../redux/features/domainAccess/domainAccessReducers';
+import { getDomainId, selectAccessDomain } from '../../../../redux/features/accessDomain/accessDomainReducers';
 
 // googlemap
 
@@ -46,7 +46,7 @@ const DomainInformation = ({ pageProps }: Props) => {
 
   // redux
   const dispatch = useAppDispatch();
-  const { domain } = useAppSelector(selectDomainAccess);
+  const { domain } = useAppSelector(selectAccessDomain);
   const { data } = useAppSelector(selectAuth);
 
   const [formData, setFormData] = useState<FormValues>({})

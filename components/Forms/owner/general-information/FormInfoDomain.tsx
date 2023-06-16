@@ -8,7 +8,7 @@ import DropdownSelect from '../../../Dropdown/DropdownSelect';
 import PhoneInput from 'react-phone-input-2';
 import GoogleMaps from '../../../Map';
 import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getDomainId, selectDomainAccess, updateAccessDomain } from '../../../../redux/features/domainAccess/domainAccessReducers';
+import { getDomainId, selectAccessDomain, updateAccessDomain } from '../../../../redux/features/accessDomain/accessDomainReducers';
 import { FaCircleNotch } from 'react-icons/fa';
 import { isBase64 } from '../../../../utils/useHooks/useFunction';
 
@@ -108,7 +108,7 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
 
     // redux
     const dispatch = useAppDispatch();
-    const { domain, pending, error, message } = useAppSelector(selectDomainAccess);
+    const { domain, pending, error, message } = useAppSelector(selectAccessDomain);
 
     // form
     const {

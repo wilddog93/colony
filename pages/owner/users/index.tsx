@@ -10,7 +10,7 @@ import { SearchInput } from '../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
-import { getDomainId, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import { getDomainId, selectDomainAccess } from '../../../redux/features/accessDomain/accessDomainReducers';
 import Modal from '../../../components/Modal';
 import { ModalHeader } from '../../../components/Modal/ModalComponent';
 import PropertyForm from '../../../components/Forms/owner/PropertyForm';

@@ -18,7 +18,7 @@ import { FaCircleNotch, FaRegQuestionCircle } from 'react-icons/fa';
 import LoadingPage from '../../../components/LoadingPage';
 import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
 import { webPropertyAccess } from '../../../redux/features/auth/authReducers';
-import { createAccessDomain, getAccessDomain, selectDomainAccess } from '../../../redux/features/domainAccess/domainAccessReducers';
+import { createAccessDomain, getAccessDomain, selectAccessDomain } from '../../../redux/features/accessDomain/accessDomainReducers';
 import { EventType, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 
@@ -55,7 +55,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
-    const domain = useAppSelector(selectDomainAccess);
+    const domain = useAppSelector(selectAccessDomain);
     const { user } = data;
 
     // sidebar

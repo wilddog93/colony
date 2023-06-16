@@ -3,9 +3,11 @@ import counterSlice from '../features/counter/counterSlice';
 import kanyeReducer from '../features/kanye/kanyeReducer';
 import authReducers from '../features/auth/authReducers';
 import propertyReducers from '../features/propertyAccess/propertyAccessReducers';
+import accessDomainReducers from '../features/accessDomain/accessDomainReducers';
 import domainPropertyReducers from '../features/domain/domainProperty';
-import domainAccessReducers from '../features/domainAccess/domainAccessReducers';
 import domainUserReducers from '../features/domain/domainUser';
+import domainAccessGroupReducers from '../features/domain/user-management/domainAccessGroupReducers';
+import domainAccessReducers from '../features/domain/user-management/domainAccessReducers ';
 
 export const combinedReducer = combineReducers({
     //All reducer
@@ -13,7 +15,9 @@ export const combinedReducer = combineReducers({
     kanyeQuote: kanyeReducer,
     authentication: authReducers,
     propertyAccess: propertyReducers,
-    domainAccess: domainAccessReducers,
+    accessDomain: accessDomainReducers,
     domainProperty: domainPropertyReducers,
-    domainUser: domainUserReducers
+    domainUser: domainUserReducers,
+    domainAccessGroup: domainAccessGroupReducers,
+    domainAccess: domainAccessReducers,
 });
