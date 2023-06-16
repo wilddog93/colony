@@ -423,7 +423,7 @@ const DomainAccessManagement = ({ pageProps }: Props) => {
 
                 <div className='sticky z-40 top-0 w-full px-8'>
                   <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
-                    <h3 className='text-base lg:text-title-md font-semibold'>Access Group Management</h3>
+                    <h3 className='text-base lg:text-title-md font-semibold'>Access Group</h3>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
