@@ -1,32 +1,184 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../../components/Layouts/DomainLayouts'
-import { MdChevronLeft, MdEdit, MdMuseum } from 'react-icons/md';
+import { MdAdd, MdChevronLeft, MdDelete, MdEdit, MdMuseum, MdOutlineRemoveRedEye, MdPersonAddAlt } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
 import Cards from '../../../../components/Cards/Cards';
-import Barcharts from '../../../../components/Chart/Barcharts';
-import Doughnutcharts from '../../../../components/Chart/Doughnutcharts';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
-import PieCharts from '../../../../components/Chart/Piecharts';
 import Tabs from '../../../../components/Layouts/Tabs';
-import { menuManageDomainOwner, menuParkings } from '../../../../utils/routes';
+import { menuManageDomainOwner } from '../../../../utils/routes';
+import { getDomainUser, selectDomainUser } from '../../../../redux/features/domain/domainUser';
+import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { ColumnDef } from '@tanstack/react-table';
+import { SearchInput } from '../../../../components/Forms/SearchInput';
+import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
+import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 
 type Props = {
   pageProps: any
+};
+
+type Options = {
+  value: any,
+  label: any
 }
 
-const DomainInformation = ({ pageProps }: Props) => {
+type UserData = {
+  id?: number | string,
+  email?: string,
+  firstName?: string,
+  lastName?: string,
+  nickName?: string,
+  documentNumber?: number | string,
+  documentSource?: string,
+  profileImage?: string,
+  phoneNumber?: number | string,
+  birthday?: Date | string | any,
+  gender?: string,
+  userAddress?: string
+}
+
+const sortOpt: Options[] = [
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
+];
+
+const stylesSelectSort = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    flexDirection: "row-reverse"
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const stylesSelect = {
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: 'none'
+  }),
+  dropdownIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  clearIndicator: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#7B8C9E',
+    })
+  },
+  singleValue: (provided: any) => {
+    return ({
+      ...provided,
+      color: '#5F59F7',
+    })
+  },
+  control: (provided: any, state: any) => {
+    // console.log(provided, "control")
+    return ({
+      ...provided,
+      background: "",
+      padding: '.6rem',
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+      },
+      minHeight: 40,
+      // flexDirection: "row-reverse"
+    })
+  },
+  menuList: (provided: any) => (provided)
+};
+
+const RoleOptions = [
+  { value: "Employee", label: "Employee" },
+  { value: "Merchant", label: "Merchant" },
+  { value: "Owner", label: "Owner" },
+  { value: "Tenant", label: "Tenant" },
+]
+
+const DomainRoleManagement = ({ pageProps }: Props) => {
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, accessId, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // redux
   const dispatch = useAppDispatch();
+  const { users, user, pending, error, message } = useAppSelector(selectDomainUser);
   const { data } = useAppSelector(selectAuth);
+
+  // params
+  const [search, setSearch] = useState<any>("");
+  const [sort, setSort] = useState<Options>();
+  const [roles, setRoles] = useState<Options>();
+
+  // table
+  const [dataTable, setDataTable] = useState<any[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState<UserData[]>();
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  // form
+  const [isForm, setIsForm] = useState(false);
+  const [formData, setFormData] = useState<any>({})
+
+  const isOpenForm = () => {
+    setIsForm(true)
+  }
+  const isCloseForm = () => {
+    setIsForm(false)
+  }
 
   useEffect(() => {
     if (token) {
@@ -34,10 +186,208 @@ const DomainInformation = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  const columns = useMemo<ColumnDef<UserData, any>[]>(() => [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        return (
+          <IndeterminateCheckbox
+            {...{
+              checked: table?.getIsAllRowsSelected(),
+              indeterminate: table?.getIsSomeRowsSelected(),
+              onChange: table?.getToggleAllRowsSelectedHandler()
+            }}
+          />
+        )
+      },
+      cell: ({ row }) => (
+        <div className="px-1">
+          <IndeterminateCheckbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler()
+            }}
+          />
+        </div>
+      ),
+      size: 10,
+      minSize: 10
+    },
+    {
+      accessorKey: 'user.firstName',
+      header: (info) => (
+        <div className='uppercase'>Name</div>
+      ),
+      cell: ({ getValue, row }) => {
+        let image = row?.original?.profileImage;
+        let firstName = row?.original?.firstName;
+        let lastName = row?.original?.lastName;
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
+            <img
+              src={image ? `${url}images/${image}` : "../../image/user/user-01.png"}
+              alt="avatar"
+              className='object-cover object-center w-10 h-10'
+            />
+            <span>{`${firstName || " "} ${lastName || " "}`}</span>
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      accessorKey: 'email',
+      header: (info) => (
+        <div className='uppercase'>Email</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue()}</span>
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      accessorKey: 'phoneNumber',
+      header: (info) => (
+        <div className='uppercase'>Phone Number</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue() || "-"}</span>
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      accessorKey: 'gender',
+      header: (info) => (
+        <div className='uppercase'>Gender</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+            <span>{getValue()}</span>
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      accessorKey: 'id',
+      header: (info) => (
+        <div className='w-full uppercase text-center'>Actions</div>
+      ),
+      cell: ({ getValue, row }) => {
+        return (
+          <div className='w-full flex flex-col lg:flex-row gap-4 p-4 tracking-wider text-center justify-center'>
+            <Button
+              type="button"
+              variant="secondary-outline-none"
+              className="py-0 px-0 text-center"
+              onClick={() => console.log("details")}
+            >
+              <MdOutlineRemoveRedEye className='w-5 h-5' />
+            </Button>
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+  ], []);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1)
+    if (query?.limit) setLimit(Number(query?.limit) || 10)
+    if (query?.search) setSearch(query?.search)
+    if (query?.sort) setSort({ value: query?.sort, label: query?.sort == "ASC" ? "A-Z" : "Z-A" })
+  }, [])
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit
+    };
+    if (search) qr = { ...qr, search: search }
+    if (sort?.value) qr = { ...qr, sort: sort?.value }
+    if (roles?.value) qr = { ...qr, roles: roles?.value }
+
+    router.replace({ pathname, query: qr })
+  }, [search, sort, roles])
+
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    const search: any = {
+      $and: [
+        {
+          $or: [
+            { "user.email": { $contL: query?.search } },
+            { "user.firstName": { $contL: query?.search } },
+            { "user.lastName": { $contL: query?.search } },
+            { "user.nickName": { $contL: query?.search } },
+            { "user.gender": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+    query?.roles && search["$and"].push({ "domainStructure.domainStructureName": query?.roles });
+
+    qb.search(search);
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    if (query?.sort) qb.sortBy({ field: "user.firstName", order: !query?.status ? "ASC" : "DESC" })
+    qb.query();
+    return qb;
+  }, [query])
+
+  useEffect(() => {
+    if (token) dispatch(getDomainUser({ params: filters.queryObject, token }))
+  }, [token, filters]);
+
+
+  useEffect(() => {
+    let arr: UserData[] = [];
+    const { data, pageCount, total } = users;
+    if (data || data?.length > 0) {
+      data?.map((item: UserData) => {
+        arr.push(item)
+      })
+      setDataTable(data)
+      setPageCount(pageCount)
+      setTotal(total)
+    } else {
+      setDataTable([])
+      setPageCount(1)
+      setTotal(0)
+    }
+  }, [users.data]);
+
+  // console.log(isSelectedRow, 'selected')
+
   return (
     <DomainLayouts
       title="Colony"
-      header="Owner"
+      header="Role Management"
       head="Home"
       logo="../../image/logo/logo-icon.svg"
       description=""
@@ -69,78 +419,88 @@ const DomainInformation = ({ pageProps }: Props) => {
                   <div className='w-full mb-5'>
                     <Tabs menus={menuManageDomainOwner} />
                   </div>
-
-                  {/* <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5">
-                    <div className='w-full lg:col-span-3'>
-                      <SearchInput
-                        className='w-full text-sm rounded-xl'
-                        classNamePrefix=''
-                        filter={search}
-                        setFilter={setSearch}
-                        placeholder='Search...'
-                      />
-                    </div>
-                    <div className='w-full flex flex-col lg:flex-row items-center gap-2'>
-                      <DropdownSelect
-                        customStyles={stylesSelectSort}
-                        value={sort}
-                        onChange={setSort}
-                        error=""
-                        className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                        classNamePrefix=""
-                        formatOptionLabel=""
-                        instanceId='1'
-                        isDisabled={false}
-                        isMulti={false}
-                        placeholder='Sorts...'
-                        options={sortOpt}
-                        icon='MdSort'
-                      />
-                    </div>
-                  </div> */}
                 </div>
 
                 <div className='sticky z-40 top-0 w-full px-8'>
-                  <div className='w-full flex items-center gap-4 justify-between mb-5 bg-white p-4 rounded-lg shadow-card'>
-                    <h3 className='text-base lg:text-title-md font-semibold'>General Information</h3>
-                    <div className='flex items-center gap-2'>
-                      <Button
-                        type="button"
-                        variant='secondary-outline'
-                        onClick={() => console.log("save")}
-                        className="rounded-lg text-sm"
-                      >
-                        Cancel
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant='primary'
-                        onClick={() => console.log("save")}
-                        className="rounded-lg text-sm"
-                      >
-                        Save
-                      </Button>
-                    </div>
+                  <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
+                    <h3 className='text-base lg:text-title-md font-semibold'>Role Management</h3>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  {/* <SelectTables
-                    loading={loading}
-                    setLoading={setLoading}
-                    pages={pages}
-                    setPages={setPages}
-                    limit={limit}
-                    setLimit={setLimit}
-                    pageCount={pageCount}
-                    columns={columns}
-                    dataTable={dataTable}
-                    total={total}
-                    setIsSelected={setIsSelectedRow}
-                    classTable="px-4"
-                  /> */}
-                  <div className='px-4'>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi nam eum deserunt laboriosam natus? Quasi harum impedit architecto maxime minus tempore a, veniam quaerat dolore. Eius adipisci officiis similique molestias fugit, culpa ullam dolores facere, sint esse, voluptatum quis? Odit aspernatur tempora eos repellendus soluta nostrum facere nam, perferendis est blanditiis quos corporis incidunt suscipit nesciunt dicta aliquid molestias inventore velit itaque nobis quia minima exercitationem repudiandae. Ducimus nostrum quasi molestiae tenetur delectus ab hic sequi neque, mollitia similique soluta cum, inventore aliquam obcaecati aspernatur praesentium deleniti reiciendis ex natus! Culpa, quibusdam tempora, delectus veniam deserunt animi exercitationem ducimus possimus, perspiciatis dolorum id. Laudantium quidem perspiciatis deleniti assumenda eligendi, modi quasi ipsum accusantium nisi sequi dicta, cupiditate molestias asperiores amet distinctio magnam quibusdam necessitatibus facilis at reprehenderit velit? Cum, velit. Necessitatibus delectus corrupti magni reiciendis. Repellat porro et ea sed molestias expedita fugit tempore cupiditate, nostrum dignissimos eligendi cumque nam quo corporis aperiam natus asperiores atque quasi temporibus. Ipsa aut, error obcaecati nulla pariatur, possimus corporis debitis facilis veritatis labore earum odit culpa sapiente rem! Amet obcaecati odit exercitationem accusantium atque beatae dignissimos alias, at, itaque eius, vero libero minima sequi explicabo debitis mollitia tempora suscipit rerum officia? Nisi ex numquam ad impedit quasi nostrum tempora commodi sequi. In, voluptatibus iure? Earum, tempore! Corporis esse placeat voluptatibus non quos fugit excepturi voluptas nam. Repellat dolorum vitae non obcaecati. Amet minus nam maiores. Enim harum est amet molestias ea aliquid! Consequatur officia labore praesentium, quae iure dignissimos ipsam odio eius sed dolorum quibusdam provident debitis non, quas illo facilis earum repellendus ex eum neque et ut fuga aperiam. Rem ullam, dolores odit ea numquam, quis totam facilis inventore, distinctio sunt neque! Necessitatibus facilis aspernatur est, quae fuga ex laboriosam nam iusto a ullam quidem magni reprehenderit alias odit molestiae suscipit deleniti molestias? Esse explicabo delectus ab voluptatem consequuntur a, quisquam tempora eos culpa nesciunt, sint, dolores facilis! Ea sequi optio libero quod quisquam modi voluptate consectetur consequatur, totam, in, est repellat placeat saepe. Ex fuga inventore, quidem minima quas culpa cum asperiores deleniti illum mollitia non, minus sapiente fugit ipsam a sunt voluptates. Cumque, quaerat. Eius suscipit aliquam earum quasi vitae ducimus excepturi. Totam quis eveniet iste cupiditate id laboriosam quasi nesciunt, aspernatur ratione accusantium odit minima facilis in provident voluptas nihil, tenetur a repellendus sint corrupti animi pariatur unde praesentium quaerat? Sit eveniet exercitationem adipisci soluta earum. Quis iste beatae sit facilis est quae veniam illum nisi quia. Recusandae eum ipsum voluptatibus neque quis laborum modi libero possimus fugit a ut numquam amet quae, impedit officiis officia quisquam? Vel quis ab facere asperiores, harum dolores, sunt consectetur similique deleniti ad cupiditate ipsam ratione voluptatum ullam voluptas mollitia id dolorem rem officia doloremque exercitationem placeat sapiente corporis! Placeat, nam eius? Corporis nesciunt, rem esse neque commodi ratione ducimus expedita distinctio modi nihil quibusdam facilis nemo eveniet maiores culpa iusto atque quasi eos ab! Nulla, deleniti amet vel consequuntur beatae aut quae tempore, placeat quibusdam, hic nihil labore officia ad atque. Repellendus molestias veniam explicabo eveniet, nobis neque! Culpa in sint minus eaque magnam eligendi voluptate, non tempore doloremque animi ad nulla aut quasi earum, modi eum et quos nihil exercitationem quae? Magni maxime sequi autem, commodi ullam dolore dolorem aut placeat et debitis voluptas error. Tempora corrupti consectetur earum exercitationem, eos non obcaecati voluptatem facere officiis quae assumenda quibusdam, aliquam iure incidunt at omnis quam ducimus ut, eius molestias! Beatae nisi accusamus totam maiores odit est officia modi soluta nesciunt esse recusandae sequi fugiat, alias qui voluptatibus tempore ex cumque aliquid quas itaque ducimus. Iste deserunt error dolor blanditiis sed delectus ullam, esse minus eum, animi sapiente officia, placeat voluptatibus praesentium voluptate libero. Natus nam possimus sed ab minima, quas dolorem quae excepturi nulla deserunt! Impedit, blanditiis neque exercitationem assumenda et eaque ipsam minus, placeat dicta corrupti in eum labore id dignissimos ad natus quia, nemo distinctio! Nam expedita accusantium eos, error cum totam esse dolores! Voluptate odio, laudantium officia suscipit deserunt quod amet error recusandae voluptatibus fugiat, itaque harum dolore. Totam sint sapiente facere placeat fugit, mollitia soluta asperiores reprehenderit delectus tenetur nulla! Nulla maiores alias obcaecati a voluptates error debitis, saepe, doloremque repellendus officiis similique expedita aspernatur aliquid earum doloribus, veritatis sint enim repudiandae fugiat quam! Eos consectetur adipisci officia, neque officiis blanditiis voluptatem sint necessitatibus. Autem deleniti suscipit, doloremque dolores, reiciendis quod accusantium nihil in quia pariatur eligendi harum magnam. Eaque aliquam fuga quas iste sequi repudiandae quod aperiam molestias quo voluptate incidunt, consequatur voluptas voluptatum fugiat esse consequuntur non, doloremque cum culpa numquam, veritatis cumque! Autem atque temporibus quos facilis cumque laboriosam delectus dolor, ad, corrupti laborum adipisci illum beatae. Facere molestias voluptas, repudiandae cupiditate esse iste enim deleniti veniam asperiores, ullam laborum nostrum consectetur dolore omnis illo ipsa, fuga doloremque ducimus quia perspiciatis saepe velit dolor neque natus? Incidunt dicta maxime necessitatibus unde suscipit dolorem expedita eum perferendis provident mollitia accusantium minus ratione odit natus, distinctio reiciendis velit ipsa nostrum dolor iste saepe? Amet minima enim ipsam, voluptate ex obcaecati voluptas incidunt! Deleniti fuga non assumenda voluptas quisquam beatae eos veritatis aliquam est. Perspiciatis ex veritatis dolorem reprehenderit quidem doloribus omnis eligendi officiis dolore exercitationem, nam nihil est dolorum dicta error, repellendus voluptatum hic adipisci accusantium quam. Sit quasi voluptas reiciendis? Cum soluta voluptatum ratione incidunt praesentium, at voluptatibus ex quisquam earum! Mollitia, odio assumenda, error enim molestiae explicabo soluta nemo, voluptatibus pariatur sequi at earum eveniet neque adipisci asperiores! Eius ex quos odio fugit, culpa est voluptatem ullam perferendis quisquam debitis doloremque numquam. Maxime quae nemo aut voluptatum distinctio, inventore sunt quia incidunt illo ullam, eum corrupti quidem aliquam vel earum qui ab reiciendis unde corporis debitis ducimus laborum architecto est aspernatur? Dolorem laboriosam, provident consectetur at nemo harum, neque corporis doloremque corrupti qui beatae accusamus accusantium unde odio dolore a. Repudiandae, est odit. Dolor deserunt accusantium dicta laboriosam, ipsam praesentium culpa corrupti porro delectus eligendi! Nobis vitae natus facilis suscipit, expedita repellendus ullam quasi voluptatum modi exercitationem quos at eaque eius! Soluta, officia porro.
+                  <div className='w-full'>
+
+                  </div>
+                  <div className='px-2'>
+                    <Cards
+                      className='w-full bg-white shadow-card rounded-xl'
+                    >
+                      <div className="w-full grid grid-cols-1 lg:grid-cols-7 gap-2.5 p-4">
+                        <div className='w-full lg:col-span-3'>
+                          <SearchInput
+                            className='w-full text-sm rounded-xl'
+                            classNamePrefix=''
+                            filter={search}
+                            setFilter={setSearch}
+                            placeholder='Search...'
+                          />
+                        </div>
+                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                          <DropdownSelect
+                            customStyles={stylesSelectSort}
+                            value={sort}
+                            onChange={setSort}
+                            error=""
+                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                            classNamePrefix=""
+                            formatOptionLabel=""
+                            instanceId='1'
+                            isDisabled={false}
+                            isMulti={false}
+                            placeholder='Sorts...'
+                            options={sortOpt}
+                            icon='MdSort'
+                          />
+                        </div>
+                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                          <Button
+                            className="rounded-lg text-sm border-1 lg:ml-auto"
+                            type="button"
+                            variant="primary-outline"
+                            disabled={!isSelectedRow || isSelectedRow?.length == 0}
+                          >
+                            <MdDelete className='w-4 h-4' />
+                            <span>Delete</span>
+                          </Button>
+                          <Button
+                            className="rounded-lg text-sm"
+                            type="button"
+                            variant="primary"
+                          >
+                            <span>Add</span>
+                            <MdAdd className='w-4 h-4' />
+                          </Button>
+                        </div>
+                      </div>
+                    </Cards>
+                  </div>
+
+                  <div className="px-2">
+                    <Cards className="w-full bg-white shadow-card rounded-xl tracking-wider">
+                      <SelectTables
+                        loading={loading}
+                        setLoading={setLoading}
+                        pages={pages}
+                        setPages={setPages}
+                        limit={limit}
+                        setLimit={setLimit}
+                        pageCount={pageCount}
+                        columns={columns}
+                        dataTable={dataTable}
+                        total={total}
+                        setIsSelected={setIsSelectedRow}
+                        classTable=""
+                      />
+                    </Cards>
                   </div>
                 </div>
               </div>
@@ -159,6 +519,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token || access !== "owner") {
@@ -171,8 +532,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 
-export default DomainInformation;
+export default DomainRoleManagement;

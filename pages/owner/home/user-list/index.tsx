@@ -143,7 +143,7 @@ const RoleOptions = [
   { value: "Tenant", label: "Tenant" },
 ]
 
-const DomainInformation = ({ pageProps }: Props) => {
+const DomainUserManagement = ({ pageProps }: Props) => {
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
@@ -389,7 +389,7 @@ const DomainInformation = ({ pageProps }: Props) => {
   return (
     <DomainLayouts
       title="Colony"
-      header="Users"
+      header="User Management"
       head="Home"
       logo="../../image/logo/logo-icon.svg"
       description=""
@@ -424,8 +424,8 @@ const DomainInformation = ({ pageProps }: Props) => {
                 </div>
 
                 <div className='sticky z-40 top-0 w-full px-8'>
-                  <div className='w-full flex items-center gap-4 justify-between bg-white p-4 rounded-lg shadow-card'>
-                    <h3 className='text-base lg:text-title-md font-semibold'>Users Management</h3>
+                  <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
+                    <h3 className='text-base lg:text-title-md font-semibold'>User Management</h3>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
@@ -538,6 +538,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token || access !== "owner") {
@@ -550,8 +551,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 
-export default DomainInformation;
+export default DomainUserManagement;
