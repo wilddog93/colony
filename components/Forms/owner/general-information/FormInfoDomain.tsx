@@ -33,8 +33,8 @@ type FormValues = {
     city?: any | null;
     postCode?: string | null;
     street?: string | null;
-    gpsLatitude?: string | null;
-    gpsLongitude?: string | null;
+    gpsLatitude?: string | number | null;
+    gpsLongitude?: string | number | null;
 };
 
 type Options = {
@@ -160,14 +160,14 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
                 province: items?.province,
                 city: items?.city,
                 postCode: items?.postCode,
-                street: items?.street,
-                gpsLatitude: items?.gpsLatitude,
-                gpsLongitude: items?.gpsLongitude,
+                street: items?.street ? items?.street : "",
+                gpsLatitude: items?.gpsLatitude ? Number(items?.gpsLatitude) : 0,
+                gpsLongitude: items?.gpsLongitude ? Number(items?.gpsLongitude) : 0,
             })
             setSearch({
-                address: items?.street,
-                lat: items?.gpsLatitude,
-                lng: items?.gpsLongitude
+                address: items?.street ? items?.street : "",
+                lat: items?.gpsLatitude ? Number(items?.gpsLatitude) : 0,
+                lng: items?.gpsLongitude ? Number(items?.gpsLongitude) : 0
             })
             setFiles(items?.domainLogo)
         }
@@ -197,7 +197,7 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
         let formData: FormValues = {
             domainName: value.domainName,
             domainDescription: value.domainDescription,
-            domainLogo: imageStatus ? value.domainLogo : "",
+            domainLogo: imageStatus ? value.domainLogo : undefined,
             legalEntityName: value.legalEntityName,
             email: value.email,
             phoneNumber: value.phoneNumber,
@@ -218,8 +218,6 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
             isSuccess: () => dispatch(getDomainId({ id, token })),
         }))
     }
-
-    console.log(imageStatus, 'res status')
 
     const descriptionValue = useWatch({
         name: "domainDescription",

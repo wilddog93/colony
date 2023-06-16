@@ -36,11 +36,6 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
         const place = searchBox.getPlaces()[0];
         const location = place.geometry.location;
 
-        console.log({
-            url: place.url,
-            address: place.formatted_address
-        }, 'place')
-
         if (location) {
             setValue({
                 url: place.url,
@@ -85,6 +80,19 @@ const GoogleMaps = ({ apiKey, value, setValue }: GoogleProps) => {
         getCurrentPosition();
     }, []);
 
+    useEffect(() => {
+      if(value?.lat) {
+        setCenter({
+            lat: value?.lat,
+            lng: value?.lng,
+        });
+        setPosition({
+            lat: value?.lat,
+            lng: value?.lng,
+        });
+      }
+    }, [value])
+    
 
     return (
         <LoadScript googleMapsApiKey={apiKey} libraries={libraries as any[]} version="weekly">
