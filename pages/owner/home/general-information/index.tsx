@@ -101,7 +101,7 @@ const DomainInformation = ({ pageProps }: Props) => {
   return (
     <DomainLayouts
       title="Colony"
-      header="Owner"
+      header="General Information"
       head="Home"
       logo="../../image/logo/logo-icon.svg"
       description=""

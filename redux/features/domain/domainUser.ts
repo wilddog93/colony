@@ -85,6 +85,47 @@ export const getDomainUserAll = createAsyncThunk<any, DefaultGetData, { state: R
     }
 });
 
+// domain-users-domain
+export const getDomainUser = createAsyncThunk<any, DefaultGetData, { state: RootState }>('domain-user', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        params: params.params,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+
+    let newData = {}
+
+    try {
+        const response = await axios.get("user/domain", config);
+        const { data, status } = response;
+
+        if (status == 200) {
+            newData = {
+                ...data,
+                data: data?.data?.map((item: any) => ({
+                    ...item.user,
+                    domainStructure: item.domainStructure
+                }))
+            }
+            return newData
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const domainPropertySlice = createSlice({
@@ -104,7 +145,7 @@ export const domainPropertySlice = createSlice({
     // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
     extraReducers: builder => {
         builder
-            // get-domain-property
+            // get-domain-user-all
             .addCase(getDomainUserAll.pending, state => {
                 return {
                     ...state,
@@ -120,6 +161,27 @@ export const domainPropertySlice = createSlice({
                 }
             })
             .addCase(getDomainUserAll.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // get-domain-user-domain only
+            .addCase(getDomainUser.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(getDomainUser.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false,
+                    users: payload
+                }
+            })
+            .addCase(getDomainUser.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
