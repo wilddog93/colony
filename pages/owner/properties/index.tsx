@@ -206,12 +206,12 @@ const DomainProperty = ({ pageProps }: Props) => {
         let totalUnitTenant = row?.original?.totalUnitTenant;
         let totalAdmin = row?.original?.totalAdmin;
         let totalOngoingComplaint = row?.original?.totalOngoingComplaint;
+        let logo = row?.original?.propertyLogo;
 
-        console.log(row.original, 'rows')
         return (
           <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
             <div className='w-full lg:w-1/5 text-lg font-semibold'>
-              <img src="../image/logo/logo-icon.svg" alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
+              <img src={logo ? `${url}property/propertyLogo/${logo}` : "../image/logo/logo-icon.svg"} alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
             </div>
             <div className='w-full lg:w-4/5 flex flex-col gap-2 justify-around text-lg font-semibold '>
               <div className='w-full flex flex-col gap-2'>
@@ -366,7 +366,7 @@ const DomainProperty = ({ pageProps }: Props) => {
               <div className='w-full flex flex-col gap-4 py-8 px-4'>
                 <div className='w-full'>
                   <img
-                    src={domain?.domainLogo ? `${url + domain?.domainLogo}` : "../image/logo/logo-icon.svg"}
+                    src={domain?.domainLogo ? `${url}domain/domainLogo/${domain?.domainLogo}` : "../image/logo/logo-icon.svg"}
                     alt=""
                     className='w-[200px] h-[200px] object-cover object-center rounded-lg p-2 bg-white'
                   />
