@@ -39,7 +39,7 @@ const Modal = ({ isOpen, onClose, children, size }: Props) => {
                     <div className="flex min-h-screen items-center">
                         <Dialog.Panel
                             as='div'
-                            className={`bg-white max-h-[700px] rounded-2xl overflow-y-auto overflow-x-hidden shadow-boxdark mx-auto w-full relative ${sizes}`}
+                            className={`bg-white max-h-[700px] rounded-2xl shadow-boxdark mx-auto w-full relative ${sizes}`}
                         >
                             {children}
                             <div className='' tabIndex={0}></div>

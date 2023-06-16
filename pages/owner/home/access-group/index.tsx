@@ -19,6 +19,8 @@ import SelectTables from '../../../../components/tables/layouts/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 import { getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
 import { getDomainAccess, selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers ';
+import Modal from '../../../../components/Modal';
+import AccessGroupForm from '../../../../components/Owner/home/user-management/AccessGroupForm';
 
 type Props = {
   pageProps: any
@@ -161,7 +163,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false)
 
   // form
-  const [isForm, setIsForm] = useState(false);
+  const [isForm, setIsForm] = useState<boolean>(false);
   const [formData, setFormData] = useState<any>({})
 
   const isOpenForm = () => {
@@ -500,6 +502,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
                             className="rounded-lg text-sm"
                             type="button"
                             variant="primary"
+                            onClick={isOpenForm}
                           >
                             <span>Add</span>
                             <MdAdd className='w-4 h-4' />
@@ -533,6 +536,15 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* modal form */}
+      <Modal
+        isOpen={isForm}
+        onClose={isCloseForm}
+        size='small'
+      >
+        <AccessGroupForm token={token} isOpen={isForm} items={formData} onClose={isCloseForm} options={accessOpt} />
+      </Modal>
     </DomainLayouts>
   )
 };
