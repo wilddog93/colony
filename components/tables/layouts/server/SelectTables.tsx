@@ -18,11 +18,11 @@ import {
     RankingInfo
 } from '@tanstack/match-sorter-utils'
 
-import { makeData, ColumnItems } from '../components/makeData'
-import { Filter, fuzzyFilter } from '../components/TableComponent';
+import { makeData, ColumnItems } from '../../components/makeData'
+import { Filter, fuzzyFilter } from '../../components/TableComponent';
 import { MdArrowDropDown, MdArrowDropUp, MdArrowUpward, MdChevronLeft, MdChevronRight } from 'react-icons/md';
 import { NextRouter, useRouter } from 'next/router';
-import Button from '../../Button/Button';
+import Button from '../../../Button/Button';
 import { FaCircleNotch } from 'react-icons/fa';
 
 declare module '@tanstack/table-core' {
@@ -128,6 +128,11 @@ function SelectTables(props: any) {
     }, [filterPages])
 
     const [visiblePages, setVisiblePages] = useState(getVisiblePages(pages, pageCount));
+    
+    useEffect(() => {
+        setVisiblePages(getVisiblePages(pages, pageCount))
+    }, [getVisiblePages, pages, pageCount])
+
     const changePage = useCallback((p: number | any) => {
         setLoading(true);
 
@@ -156,8 +161,7 @@ function SelectTables(props: any) {
 
     useEffect(() => {
         if (!pages) {
-            table.setPageIndex(0)
-            setPageIndex(0)
+            setPageIndex(1 - 1)
             setActivePage(1)
         }
         setPageIndex(pages - 1)
@@ -198,13 +202,17 @@ function SelectTables(props: any) {
         handleScroll(refTable.current)
     }, [handleScroll]);
 
-    
+
     useEffect(() => {
         setIsSelected(table.getFilteredSelectedRowModel().flatRows.map((d) => d.original));
     }, [table.getFilteredSelectedRowModel()]);
-    
 
-    console.log({ pages, limit, pageCount, total }, 'pages select')
+    // useEffect(() => {
+    //     if (total) table.setPageSize(total)
+    // }, [total])
+
+
+    console.log({ activePage, pages, limit, pageCount, total }, 'pages select')
 
     return (
         <div className="grid grid-cols-1">
@@ -287,7 +295,7 @@ function SelectTables(props: any) {
                             <th colSpan={table.getVisibleLeafColumns().length}>
                                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
                                     <div className="flex flex-row items-center text-xs">
-                                        {table.getPageCount() >= 1 ? (
+                                        {pageCount >= 1 ? (
                                             <>
                                                 <div className="mr-10 text-gray-500 font-normal">
                                                     Rows per page
@@ -295,8 +303,7 @@ function SelectTables(props: any) {
 
                                                 <select
                                                     className="focus:outline-none bg-transparent text-gray-500 font-normal"
-                                                    value={table.getState().pagination.pageSize}
-                                                    // onChange={(e) => table.setPageSize(Number(e.target.value))}
+                                                    value={limit}
                                                     onChange={(e) => setLimit(Number(e.target.value))}
                                                 >
                                                     {
@@ -315,7 +322,7 @@ function SelectTables(props: any) {
 
                                     <div className="flex items-center justify-between">
                                         <div className="text-xs text-gray-500 font-normal">
-                                            <strong>{table.getState().pagination.pageIndex + 1}</strong> of <strong>{table.getPageCount()} </strong> pages
+                                            <strong>{pages}</strong> of <strong>{pageCount} </strong> pages
                                         </div>
                                         <div className="">
                                             <Button
@@ -325,7 +332,7 @@ function SelectTables(props: any) {
                                                     if (activePage === 1) return;
                                                     changePage(activePage - 1);
                                                 }}
-                                                disabled={table.getState().pagination.pageIndex === 0}
+                                                disabled={pageIndex == 0}
                                             >
                                                 <MdChevronLeft className="h-5 w-5" />
                                             </Button>
@@ -355,8 +362,7 @@ function SelectTables(props: any) {
                                                         if (activePage === pageCount) return;
                                                         changePage(activePage + 1);
                                                     }}
-                                                    // disabled={activePage === pageCount}
-                                                    disabled={!table.getCanNextPage()}
+                                                    disabled={activePage === pageCount}
                                                 >
                                                     <MdChevronRight className="h-5 w-5" />
                                                 </Button>

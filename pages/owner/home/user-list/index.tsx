@@ -15,7 +15,7 @@ import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ColumnDef } from '@tanstack/react-table';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import SelectTables from '../../../../components/tables/layouts/server/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 
 type Props = {
@@ -332,7 +332,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
     if (roles?.value) qr = { ...qr, roles: roles?.value }
 
     router.replace({ pathname, query: qr })
-  }, [search, sort, roles])
+  }, [search, sort, roles, pages, limit])
 
 
   const filters = useMemo(() => {

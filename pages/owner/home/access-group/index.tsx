@@ -15,7 +15,7 @@ import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ColumnDef } from '@tanstack/react-table';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import SelectTables from '../../../../components/tables/layouts/server/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
 import { getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
 import { getDomainAccess, selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers ';
@@ -75,7 +75,7 @@ const stylesSelectSort = {
     return ({
       ...provided,
       background: "",
-      padding: '.6rem',
+      padding: '.5rem',
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -118,7 +118,7 @@ const stylesSelect = {
     return ({
       ...provided,
       background: "",
-      padding: '.6rem',
+      padding: '.5rem',
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -303,7 +303,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
     if (accesses?.value) qr = { ...qr, accesses: accesses?.value }
 
     router.replace({ pathname, query: qr })
-  }, [search, sort, accesses])
+  }, [search, sort, accesses, limit, pages])
 
 
   const filters = useMemo(() => {
@@ -392,7 +392,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
     }
   }, [domainAccesses.data]);
 
-  console.log(domainAccessGroups, 'options')
+  console.log({dataTable, pageCount, total}, 'options')
 
   return (
     <DomainLayouts
@@ -513,7 +513,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
                   </div>
 
                   <div className="px-2">
-                    <Cards className="w-full bg-white shadow-card rounded-xl tracking-wider">
+                    <Cards className="h-300 w-full bg-white shadow-card rounded-xl tracking-wider">
                       <SelectTables
                         loading={loading}
                         setLoading={setLoading}

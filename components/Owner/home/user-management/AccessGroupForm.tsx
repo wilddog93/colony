@@ -4,6 +4,10 @@ import { Controller, EventType, SubmitHandler, useForm } from 'react-hook-form'
 import { MdWarning } from 'react-icons/md'
 import { ModalFooter } from '../../../Modal/ModalComponent'
 import Button from '../../../Button/Button';
+import { useAppDispatch, useAppSelector } from '../../../../redux/Hook'
+import { selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers '
+import { FaCircleNotch } from 'react-icons/fa'
+import { createDomainAccessGroup, getDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers'
 
 type Options = {
     value: any,
@@ -82,6 +86,9 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
     const [watchValue, setWatchValue] = useState<FormValues | any>();
     const [watchChangeValue, setWatchChangeValue] = useState<WatchChangeProps>();
 
+    const dispatch = useAppDispatch();
+    const { domainAccesses, domainAccess, pending, error, message } = useAppSelector(selectDomainAccess)
+
     const {
         register,
         getValues,
@@ -127,6 +134,16 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
             domainAccess: value.domainAccess?.length > 0 ? value.domainAccess?.map(({ id }: any) => id) : [],
         }
         console.log({ value, formData }, 'form values')
+        dispatch(createDomainAccessGroup({
+            token,
+            data: formData,
+            isSuccess: () => {
+                dispatch(getDomainAccessGroup({ token }))
+                reset({ domainAccessGroupName: null, domainAccess: null })
+                onClose()
+            },
+            isError: () => console.log(""),
+        }))
     }
 
     return (
@@ -216,9 +233,13 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
                         onClick={handleSubmit(onSubmit)}
                         variant="primary"
                         className="text-sm rounded-lg"
-                    // disabled={pending}
+                        disabled={pending}
                     >
-                        <span>Save</span>
+                        {pending ?
+                            <div className='flex items-center gap-2'>
+                                <span>Loading...</span>
+                                <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
+                            </div> : "save"}
                     </Button>
                 </div>
             </ModalFooter>
