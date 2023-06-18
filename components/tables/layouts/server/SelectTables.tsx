@@ -207,12 +207,12 @@ function SelectTables(props: any) {
         setIsSelected(table.getFilteredSelectedRowModel().flatRows.map((d) => d.original));
     }, [table.getFilteredSelectedRowModel()]);
 
-    // useEffect(() => {
-    //     if (total) table.setPageSize(total)
-    // }, [total])
+    useEffect(() => {
+        if (dataTable?.length == 0) setPages(1)
+    }, [dataTable])
 
 
-    console.log({ activePage, pages, limit, pageCount, total }, 'pages select')
+    // console.log({ activePage, pages, limit, pageCount, total }, 'pages select')
 
     return (
         <div className="grid grid-cols-1">

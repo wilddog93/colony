@@ -5,9 +5,9 @@ import { MdWarning } from 'react-icons/md'
 import { ModalFooter } from '../../../Modal/ModalComponent'
 import Button from '../../../Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../../redux/Hook'
-import { selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers '
 import { FaCircleNotch } from 'react-icons/fa'
-import { createDomainAccessGroup, getDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers'
+import { createDomainAccessGroup, getDomainAccessGroup, selectDomainAccessGroup, updateDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers'
+import { toast } from 'react-toastify'
 
 type Options = {
     value: any,
@@ -20,6 +20,8 @@ type Props = {
     onClose: () => void;
     token?: any;
     options: Options[];
+    isUpdate?: boolean;
+    filters?: any;
 }
 
 type FormValues = {
@@ -82,12 +84,12 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
+const AccessGroupForm = ({ items, isOpen, onClose, token, options, isUpdate, filters }: Props) => {
     const [watchValue, setWatchValue] = useState<FormValues | any>();
     const [watchChangeValue, setWatchChangeValue] = useState<WatchChangeProps>();
 
     const dispatch = useAppDispatch();
-    const { domainAccesses, domainAccess, pending, error, message } = useAppSelector(selectDomainAccess)
+    const { domainAccessGroups, domainAccessGroup, pending, error, message } = useAppSelector(selectDomainAccessGroup);
 
     const {
         register,
@@ -103,8 +105,8 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
     } = useForm({
         mode: "all",
         defaultValues: useMemo<FormValues>(() => ({
-            id: null,
-            domainAccessGroupName: null,
+            id: items?.id,
+            domainAccessGroupName: items?.domainAccessGroupName,
             domainAccess: null,
         }), [items])
     });
@@ -134,20 +136,39 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
             domainAccess: value.domainAccess?.length > 0 ? value.domainAccess?.map(({ id }: any) => id) : [],
         }
         console.log({ value, formData }, 'form values')
-        dispatch(createDomainAccessGroup({
-            token,
-            data: formData,
-            isSuccess: () => {
-                dispatch(getDomainAccessGroup({ token }))
-                reset({ domainAccessGroupName: null, domainAccess: null })
-                onClose()
-            },
-            isError: () => console.log(""),
-        }))
+        
+        if(isUpdate) {
+            dispatch(updateDomainAccessGroup({
+                id: value.id,
+                token,
+                data: formData,
+                isSuccess: () => {
+                    dispatch(getDomainAccessGroup({ params: filters, token }))
+                    reset({ domainAccessGroupName: null, domainAccess: null })
+                    toast.dark("Update domain access group is successfully.")
+                    onClose()
+                },
+                isError: () => toast.error("Update domain access group is successfully."),
+            }))
+        } else {
+            dispatch(createDomainAccessGroup({
+                token,
+                data: formData,
+                isSuccess: () => {
+                    dispatch(getDomainAccessGroup({ params: filters, token }))
+                    reset({ domainAccessGroupName: null, domainAccess: null })
+                    toast.dark("Create domain access group is successfully.")
+                    onClose()
+                },
+                isError: () => toast.error("Create domain access group is failed."),
+            }))
+        }
     }
 
+    console.log(pending, 'loading')
+
     return (
-        <form className='w-full p-4' onSubmit={handleSubmit(onSubmit)}>
+        <form className='w-full p-4 text-sm' onSubmit={handleSubmit(onSubmit)}>
             <div className='w-full px-4 mb-3'>
                 <label htmlFor='accessGroupName' className='mb-2.5 block font-medium text-black dark:text-white'>
                     Access Group Name
@@ -239,7 +260,7 @@ const AccessGroupForm = ({ items, isOpen, onClose, token, options }: Props) => {
                             <div className='flex items-center gap-2'>
                                 <span>Loading...</span>
                                 <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
-                            </div> : "save"}
+                            </div> : isUpdate ? "Update" : "Save"}
                     </Button>
                 </div>
             </ModalFooter>

@@ -164,6 +164,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
 
   // form
   const [isForm, setIsForm] = useState<boolean>(false);
+  const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
   const [formData, setFormData] = useState<any>({})
 
   const isOpenForm = () => {
@@ -171,6 +172,26 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   }
   const isCloseForm = () => {
     setIsForm(false)
+  }
+
+  const isOpenFormEdit = (items: DomainAccessGroupData) => {
+    console.log(items, 'edit')
+    let newObj: any = {};
+    newObj = {
+      ...items,
+      domainAccess: items?.domainAccessGroupAcceses?.length > 0 ? items?.domainAccessGroupAcceses?.map((item:any) => ({
+        ...item.domainAccess,
+        value: item.domainAccess.domainAccessCode,
+        label: item.domainAccess.domainAccessName,
+      })) : []
+    }
+    console.log(newObj, 'edit new')
+    setFormData(newObj)
+    setIsFormEdit(true)
+  }
+  const isCloseFormEdit = () => {
+    setFormData({})
+    setIsFormEdit(false)
   }
 
   useEffect(() => {
@@ -267,9 +288,9 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
               type="button"
               variant="secondary-outline-none"
               className="py-0 px-0 text-center"
-              onClick={() => console.log("details")}
+              onClick={() => isOpenFormEdit(row?.original)}
             >
-              <MdOutlineRemoveRedEye className='w-5 h-5' />
+              <MdEdit className='w-5 h-5' />
             </Button>
           </div>
         )
@@ -349,7 +370,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
       setPageCount(1)
       setTotal(0)
     }
-  }, [domainAccessGroups.data]);
+  }, [domainAccessGroups]);
 
   const filterAccess = useMemo(() => {
     const qb = RequestQueryBuilder.create();
@@ -392,7 +413,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
     }
   }, [domainAccesses.data]);
 
-  console.log({dataTable, pageCount, total}, 'options')
+  console.log({ dataTable, pageCount, total }, 'options')
 
   return (
     <DomainLayouts
@@ -543,7 +564,16 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
         onClose={isCloseForm}
         size='small'
       >
-        <AccessGroupForm token={token} isOpen={isForm} items={formData} onClose={isCloseForm} options={accessOpt} />
+        <AccessGroupForm token={token} isOpen={isForm} items={formData} onClose={isCloseForm} options={accessOpt} filters={filters.queryObject} />
+      </Modal>
+
+      {/* modal form edit */}
+      <Modal
+        isOpen={isFormEdit}
+        onClose={isCloseFormEdit}
+        size='small'
+      >
+        <AccessGroupForm token={token} isOpen={isFormEdit} items={formData} onClose={isCloseFormEdit} options={accessOpt} filters={filters.queryObject} isUpdate />
       </Modal>
     </DomainLayouts>
   )
