@@ -20,7 +20,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import Teams from '../../../components/Task/Teams';
 import { getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
-import { getDomainId, selectDomainAccess } from '../../../redux/features/accessDomain/accessDomainReducers';
+import { getDomainId, selectAccessDomain } from '../../../redux/features/accessDomain/accessDomainReducers';
 import { formatPhone } from '../../../utils/useHooks/useFunction';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
@@ -190,7 +190,7 @@ const DomainProperty = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { properties, pending, error } = useAppSelector(selectDomainProperty);
-  const { domain } = useAppSelector(selectDomainAccess);
+  const { domain } = useAppSelector(selectAccessDomain);
 
   const columns = useMemo<ColumnDef<PropertyData, any>[]>(() => [
     {

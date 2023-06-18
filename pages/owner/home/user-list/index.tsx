@@ -424,85 +424,76 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                 </div>
 
                 <div className='sticky z-40 top-0 w-full px-8'>
-                  <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
+                  <div className='w-full flex flex-col gap-4 bg-white px-4 py-5 rounded-lg shadow-card'>
                     <h3 className='text-base lg:text-title-md font-semibold'>User Management</h3>
+
+                    <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-2.5">
+                      <div className='w-full lg:col-span-3'>
+                        <SearchInput
+                          className='w-full text-sm rounded-xl'
+                          classNamePrefix=''
+                          filter={search}
+                          setFilter={setSearch}
+                          placeholder='Search...'
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelectSort}
+                          value={sort}
+                          onChange={setSort}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Sorts...'
+                          options={sortOpt}
+                          icon='MdSort'
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelect}
+                          value={roles}
+                          onChange={setRoles}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Roles...'
+                          options={RoleOptions}
+                          icon=''
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <Button
+                          className="rounded-lg text-sm border-1 lg:ml-auto"
+                          type="button"
+                          variant="primary-outline"
+                          disabled={!isSelectedRow || isSelectedRow?.length == 0}
+                        >
+                          <MdDelete className='w-4 h-4' />
+                          <span>Delete</span>
+                        </Button>
+                        <Button
+                          className="rounded-lg text-sm"
+                          type="button"
+                          variant="primary"
+                        >
+                          <span>Invite</span>
+                          <MdPersonAddAlt className='w-4 h-4' />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  <div className='w-full'>
-
-                  </div>
-                  <div className='px-2'>
-                    <Cards
-                      className='w-full bg-white shadow-card rounded-xl'
-                    >
-                      <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-2.5 p-4">
-                        <div className='w-full lg:col-span-3'>
-                          <SearchInput
-                            className='w-full text-sm rounded-xl'
-                            classNamePrefix=''
-                            filter={search}
-                            setFilter={setSearch}
-                            placeholder='Search...'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <DropdownSelect
-                            customStyles={stylesSelectSort}
-                            value={sort}
-                            onChange={setSort}
-                            error=""
-                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                            classNamePrefix=""
-                            formatOptionLabel=""
-                            instanceId='1'
-                            isDisabled={false}
-                            isMulti={false}
-                            placeholder='Sorts...'
-                            options={sortOpt}
-                            icon='MdSort'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <DropdownSelect
-                            customStyles={stylesSelect}
-                            value={roles}
-                            onChange={setRoles}
-                            error=""
-                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                            classNamePrefix=""
-                            formatOptionLabel=""
-                            instanceId='1'
-                            isDisabled={false}
-                            isMulti={false}
-                            placeholder='Roles...'
-                            options={RoleOptions}
-                            icon=''
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <Button
-                            className="rounded-lg text-sm border-1 lg:ml-auto"
-                            type="button"
-                            variant="primary-outline"
-                            disabled={!isSelectedRow || isSelectedRow?.length == 0}
-                          >
-                            <MdDelete className='w-4 h-4' />
-                            <span>Delete</span>
-                          </Button>
-                          <Button
-                            className="rounded-lg text-sm"
-                            type="button"
-                            variant="primary"
-                          >
-                            <span>Invite</span>
-                            <MdPersonAddAlt className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                    </Cards>
-                  </div>
-
                   <div className="px-2">
                     <Cards className="w-full bg-white shadow-card rounded-xl tracking-wider">
                       <SelectTables

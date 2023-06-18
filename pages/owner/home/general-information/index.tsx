@@ -89,9 +89,9 @@ const DomainInformation = ({ pageProps }: Props) => {
         url: getWebString(domain?.website).url,
         website: getWebString(domain?.website).website,
         phoneNumber: !domain?.phoneNumber ? "" : domain?.phoneNumber,
-        country: domain?.country ? { label: domain?.country, name: domain?.country } : null,
-        province: domain?.province ? { label: domain?.province, name: domain?.province } : null,
-        city: domain?.city ? { label: domain?.city, name: domain?.city } : null,
+        country: domain?.country ? { value: domain?.country, label: domain?.country } : null,
+        province: domain?.province ? { value: domain?.province, label: domain?.province } : null,
+        city: domain?.city ? { label: domain?.city, value: domain?.city } : null,
       })
     }
   }, [domain])

@@ -299,7 +299,7 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
             arr.push({
                 ...item,
                 label: item.name,
-                value: item.isoCode
+                value: item.name
             })
         })
         setCountries(arr);
@@ -312,7 +312,7 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
             State.getStatesOfCountry(valueCountry?.isoCode).map((item: any) => {
                 arr.push({
                     ...item,
-                    value: item.isoCode,
+                    value: item.name,
                     label: item.name
                 })
             })
@@ -867,15 +867,6 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
                                 Location
                             </label>
                             <div className='w-full col-span-4'>
-                                {/* <textarea
-                              cols={0.5}
-                              rows={5}
-                              maxLength={400}
-                              placeholder='Street address...'
-                              className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:bg-transparent`}
-                              value={search?.address as any}
-                              disabled
-                            /> */}
                                 <div className='w-full'>
                                     <GoogleMaps apiKey={googleMapAPI as string} value={search} setValue={setSearch} />
                                 </div>

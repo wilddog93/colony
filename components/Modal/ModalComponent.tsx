@@ -18,7 +18,7 @@ const ModalHeader = ({ className, children, isClose, onClick }: ModalProps) => {
                 type="button"
                 onClick={onClick}
                 variant=''
-                className={`border border-gray rounded-md px-1 py-[0.25rem] ml-auto mr-2 bg-gray focus:outline-none ${!isClose ? "hidden" : "inline-block"}`}
+                className={`border border-gray rounded-md px-[0.25rem] py-[0.25rem] ml-auto mr-2 bg-gray focus:outline-none ${!isClose ? "hidden" : "inline-block"}`}
             >
                 <MdClose className='text-gray-4 w-5 h-5' />
             </Button>

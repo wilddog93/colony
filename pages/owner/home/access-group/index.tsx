@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../../components/Layouts/DomainLayouts'
 import { MdAdd, MdChevronLeft, MdDelete, MdEdit, MdMuseum, MdOutlineRemoveRedEye, MdPersonAddAlt } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
@@ -17,10 +17,12 @@ import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../../components/tables/layouts/server/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
-import { getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
+import { deleteDomainAccessGroups, getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
 import { getDomainAccess, selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers ';
 import Modal from '../../../../components/Modal';
 import AccessGroupForm from '../../../../components/Owner/home/user-management/AccessGroupForm';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
+import { toast } from 'react-toastify';
 
 type Props = {
   pageProps: any
@@ -155,7 +157,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
 
   // table
   const [dataTable, setDataTable] = useState<DomainAccessGroupData[]>([]);
-  const [isSelectedRow, setIsSelectedRow] = useState<DomainAccessGroupData[]>();
+  const [isSelectedRow, setIsSelectedRow] = useState<DomainAccessGroupData[]>([]);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
@@ -165,21 +167,23 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   // form
   const [isForm, setIsForm] = useState<boolean>(false);
   const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
+  const [isFormDelete, setIsFormDelete] = useState<boolean>(false);
   const [formData, setFormData] = useState<any>({})
-
+  // create
   const isOpenForm = () => {
     setIsForm(true)
   }
   const isCloseForm = () => {
+    setFormData({})
     setIsForm(false)
   }
-
+  // update
   const isOpenFormEdit = (items: DomainAccessGroupData) => {
     console.log(items, 'edit')
     let newObj: any = {};
     newObj = {
       ...items,
-      domainAccess: items?.domainAccessGroupAcceses?.length > 0 ? items?.domainAccessGroupAcceses?.map((item:any) => ({
+      domainAccess: items?.domainAccessGroupAcceses?.length > 0 ? items?.domainAccessGroupAcceses?.map((item: any) => ({
         ...item.domainAccess,
         value: item.domainAccess.domainAccessCode,
         label: item.domainAccess.domainAccessName,
@@ -192,6 +196,15 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   const isCloseFormEdit = () => {
     setFormData({})
     setIsFormEdit(false)
+  }
+  // delte arr
+  const isOpenFormDelete = (items: DomainAccessGroupData[]) => {
+    setFormData(items)
+    setIsFormDelete(true)
+  }
+  const isCloseFormDelete = () => {
+    setFormData({})
+    setIsFormDelete(false)
   }
 
   useEffect(() => {
@@ -413,7 +426,28 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
     }
   }, [domainAccesses.data]);
 
-  console.log({ dataTable, pageCount, total }, 'options')
+  const onDeleteAccess = (items: DomainAccessGroupData[]) => {
+    console.log(items, 'data delete')
+    if(!items || items.length == 0) {
+      toast.error("Data not found!")
+    }
+    let newData = {
+      id: items.length > 0 ? items.map((item) => item.id) : []
+    }
+    dispatch(deleteDomainAccessGroups({ 
+      data: newData, 
+      token, 
+      isSuccess : () => {
+        toast.dark("Delete Access Group is successfully!")
+        dispatch(getDomainAccessGroup({ params: filters.queryObject, token }))
+        isCloseFormDelete();
+      },
+      isError : () => toast.error("Delete Access Group is failed!"),
+    }))
+  }
+
+  // console.log({ dataTable, pageCount, total }, 'options')
+  console.log({ data: isSelectedRow }, "form delete")
 
   return (
     <DomainLayouts
@@ -453,85 +487,78 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
                 </div>
 
                 <div className='sticky z-40 top-0 w-full px-8'>
-                  <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
+                  <div className='w-full flex flex-col gap-4 bg-white px-4 py-5 rounded-lg shadow-card'>
                     <h3 className='text-base lg:text-title-md font-semibold'>Access Group</h3>
+
+                    <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-2.5">
+                      <div className='w-full lg:col-span-3'>
+                        <SearchInput
+                          className='w-full text-sm rounded-xl'
+                          classNamePrefix=''
+                          filter={search}
+                          setFilter={setSearch}
+                          placeholder='Search...'
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelectSort}
+                          value={sort}
+                          onChange={setSort}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Sorts...'
+                          options={sortOpt}
+                          icon='MdSort'
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelect}
+                          value={accesses}
+                          onChange={setAccesses}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Access...'
+                          options={accessOpt}
+                          icon=''
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <Button
+                          className="rounded-lg text-sm border-1 lg:ml-auto"
+                          type="button"
+                          variant="primary-outline"
+                          onClick={() => isOpenFormDelete(isSelectedRow)}
+                          disabled={!isSelectedRow || isSelectedRow?.length == 0}
+                        >
+                          <MdDelete className='w-4 h-4' />
+                          <span>Delete</span>
+                        </Button>
+                        <Button
+                          className="rounded-lg text-sm"
+                          type="button"
+                          variant="primary"
+                          onClick={isOpenForm}
+                        >
+                          <span>Add</span>
+                          <MdAdd className='w-4 h-4' />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  <div className='w-full'>
-
-                  </div>
-                  <div className='px-2'>
-                    <Cards
-                      className='w-full bg-white shadow-card rounded-xl'
-                    >
-                      <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-2.5 p-4">
-                        <div className='w-full lg:col-span-3'>
-                          <SearchInput
-                            className='w-full text-sm rounded-xl'
-                            classNamePrefix=''
-                            filter={search}
-                            setFilter={setSearch}
-                            placeholder='Search...'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <DropdownSelect
-                            customStyles={stylesSelectSort}
-                            value={sort}
-                            onChange={setSort}
-                            error=""
-                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                            classNamePrefix=""
-                            formatOptionLabel=""
-                            instanceId='1'
-                            isDisabled={false}
-                            isMulti={false}
-                            placeholder='Sorts...'
-                            options={sortOpt}
-                            icon='MdSort'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <DropdownSelect
-                            customStyles={stylesSelect}
-                            value={accesses}
-                            onChange={setAccesses}
-                            error=""
-                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                            classNamePrefix=""
-                            formatOptionLabel=""
-                            instanceId='1'
-                            isDisabled={false}
-                            isMulti={false}
-                            placeholder='Access...'
-                            options={accessOpt}
-                            icon=''
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <Button
-                            className="rounded-lg text-sm border-1 lg:ml-auto"
-                            type="button"
-                            variant="primary-outline"
-                            disabled={!isSelectedRow || isSelectedRow?.length == 0}
-                          >
-                            <MdDelete className='w-4 h-4' />
-                            <span>Delete</span>
-                          </Button>
-                          <Button
-                            className="rounded-lg text-sm"
-                            type="button"
-                            variant="primary"
-                            onClick={isOpenForm}
-                          >
-                            <span>Add</span>
-                            <MdAdd className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                    </Cards>
-                  </div>
 
                   <div className="px-2">
                     <Cards className="h-300 w-full bg-white shadow-card rounded-xl tracking-wider">
@@ -574,6 +601,46 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
         size='small'
       >
         <AccessGroupForm token={token} isOpen={isFormEdit} items={formData} onClose={isCloseFormEdit} options={accessOpt} filters={filters.queryObject} isUpdate />
+      </Modal>
+
+      {/* modal form delete */}
+      <Modal
+        isOpen={isFormDelete}
+        onClose={isCloseFormDelete}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormDelete()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Delete Domain Access Group</h3>
+              <p className='text-gray-5'>Are you sure to delete access group?</p>
+            </div>
+          </ModalHeader>
+
+          <div className='w-full p-4 flex items-center justify-end gap-2'>
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg text-sm"
+              onClick={isCloseFormDelete}
+            >
+              Discard
+            </Button>
+
+            <Button
+              type="submit"
+              variant="primary"
+              className="rounded-lg text-sm"
+              onClick={() => onDeleteAccess(formData)}
+            >
+              Yes, Delete
+            </Button>
+          </div>
+        </Fragment>
       </Modal>
     </DomainLayouts>
   )

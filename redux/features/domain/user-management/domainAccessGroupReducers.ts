@@ -147,6 +147,36 @@ export const updateDomainAccessGroup = createAsyncThunk<any, DomainData, { state
     }
 });
 
+export const deleteDomainAccessGroups = createAsyncThunk<any, DomainData, { state: RootState }>('/delete/domainAccessGroups/', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.delete(`domainAccessGroup`, { data: params.data, headers: config.headers });
+        const { data, status } = response;
+        if (status == 204) {
+            params.isSuccess()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        params.isError()
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const domainAccessGroupSlice = createSlice({
@@ -224,6 +254,26 @@ export const domainAccessGroupSlice = createSlice({
                 }
             })
             .addCase(updateDomainAccessGroup.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // delete by arr id
+            .addCase(deleteDomainAccessGroups.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(deleteDomainAccessGroups.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(deleteDomainAccessGroups.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;

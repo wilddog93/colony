@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdEdit, MdMuseum } from 'react-icons/md';
+import { MdEdit, MdMuseum, MdSettings } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
 import Cards from '../../../components/Cards/Cards';
 import Barcharts from '../../../components/Chart/Barcharts';
@@ -11,20 +11,25 @@ import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
 import PieCharts from '../../../components/Chart/Piecharts';
+import { selectDomainProperty } from '../../../redux/features/domain/domainProperty';
+import { getDomainId, selectAccessDomain } from '../../../redux/features/accessDomain/accessDomainReducers';
 
 type Props = {
   pageProps: any
 }
 
 const DomainHome = ({ pageProps }: Props) => {
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, accessId, firebaseToken } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { domain } = useAppSelector(selectAccessDomain);
+  const { properties, pending, error } = useAppSelector(selectDomainProperty);
 
   let doughnutData = {
     labels: ['Guest', 'Available', 'Tenants'],
@@ -208,7 +213,15 @@ const DomainHome = ({ pageProps }: Props) => {
 
   const goToManage = () => {
     router.push({ pathname: "/owner/home/general-information" })
-  }
+  };
+
+  useEffect(() => {
+    if (accessId) {
+      dispatch(getDomainId({ id: accessId, token }))
+    }
+  }, [accessId])
+
+  console.log(domain, "data domain")
 
   return (
     <DomainLayouts
@@ -230,9 +243,9 @@ const DomainHome = ({ pageProps }: Props) => {
           <div className='bg-[#1C2D3D] top-0 z-40 w-full py-8 px-6 gap-2 h-[170px]'>
             <div className="w-full flex gap-2 items-center justify-between">
               <div className="flex items-center gap-4">
-                <img src="../image/logo/logo-icon.svg" alt="logo" className='w-18 h-18 object-cover object-center bg-white p-2 rounded-full' />
+                <img src={domain?.domainLogo ? `${url}domain/domainLogo/${domain?.domainLogo}` : "../image/logo/logo-icon.svg"} alt="logo" className='w-18 h-18 object-cover object-center bg-white p-1 rounded-full' />
                 <div>
-                  <h3 className='text-lg lg:text-title-lg font-semibold'>Your Company Name</h3>
+                  <h3 className='text-lg lg:text-title-lg font-semibold'>{domain?.domainName}</h3>
                   <p className='text-sm lg:text-base'>Manage your property</p>
                 </div>
               </div>
@@ -244,8 +257,8 @@ const DomainHome = ({ pageProps }: Props) => {
                   className="rounded-lg"
                   onClick={goToManage}
                 >
-                  <span>Edit Info</span>
-                  <MdEdit className='w-5 h-5' />
+                  <span>Manage Domain</span>
+                  <MdSettings className='w-5 h-5' />
                 </Button>
               </div>
             </div>
@@ -303,6 +316,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token || access !== "owner") {
@@ -315,7 +329,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 
