@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../../components/Layouts/DomainLayouts'
-import { MdAdd, MdChevronLeft, MdDelete, MdEdit, MdMuseum, MdOutlineRemoveRedEye, MdPersonAddAlt } from 'react-icons/md';
+import { MdAdd, MdChevronLeft, MdDelete, MdEdit, MdMail, MdMuseum, MdOutlineRemoveRedEye, MdPersonAddAlt, MdPhone, MdSettings } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
 import Cards from '../../../../components/Cards/Cards';
 import { getCookies } from 'cookies-next';
@@ -17,6 +17,10 @@ import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
 import SelectTables from '../../../../components/tables/layouts/server/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
+import Modal from '../../../../components/Modal';
+import { ModalHeader } from '../../../../components/Modal/ModalComponent';
+import { formatPhone } from '../../../../utils/useHooks/useFunction';
+import DomainInviteForm from '../../../../components/Owner/home/users/DomainInvite';
 
 type Props = {
   pageProps: any
@@ -173,13 +177,28 @@ const DomainUserManagement = ({ pageProps }: Props) => {
 
   // form
   const [isForm, setIsForm] = useState(false);
+  const [isFormInvite, setIsFormInvite] = useState(false);
   const [formData, setFormData] = useState<any>({})
 
-  const isOpenForm = () => {
+  const isOpenForm = (users: UserData) => {
+    setFormData(users);
     setIsForm(true)
   }
   const isCloseForm = () => {
+    setFormData({});
     setIsForm(false)
+  }
+
+  const isOpenFormInvite = (users: UserData) => {
+    setFormData({
+      email: "",
+      domainStructure: accessId
+    });
+    setIsFormInvite(true)
+  }
+  const isCloseFormInvite = () => {
+    setFormData({});
+    setIsFormInvite(false)
   }
 
   useEffect(() => {
@@ -297,7 +316,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
               type="button"
               variant="secondary-outline-none"
               className="py-0 px-0 text-center"
-              onClick={() => console.log("details")}
+              onClick={() => isOpenForm(row?.original)}
             >
               <MdOutlineRemoveRedEye className='w-5 h-5' />
             </Button>
@@ -485,6 +504,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                           className="rounded-lg text-sm"
                           type="button"
                           variant="primary"
+                          onClick={isOpenFormInvite}
                         >
                           <span>Invite</span>
                           <MdPersonAddAlt className='w-4 h-4' />
@@ -518,6 +538,99 @@ const DomainUserManagement = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
+
+      {/* modal detail */}
+      <Modal
+        isOpen={isForm}
+        onClose={isCloseForm}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseForm()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Profile Info</h3>
+            </div>
+          </ModalHeader>
+
+          <div className='w-full flex flex-col gap-4 p-4'>
+            <div className='w-full flex flex-col items-center justify-center gap-4 border-b-2 border-gray py-2'>
+              <div className='w-full'>
+                <img
+                  src={formData?.profileImage ? `${url}user/profileImage/${formData?.profileImage}` : "../../image/user/user-01.png"}
+                  alt="avatar"
+                  className='w-32 h-32 object-cover object-center mx-auto'
+                />
+              </div>
+              <div className='w-full flex flex-col gap-2 text-center'>
+                <h3 className='font-semibold'>{formData?.firstName || ""} {formData?.lastName || ""}</h3>
+                <div className='w-full flex items-center justify-center gap-2'>
+                  <MdPhone className='w-5 h-5' />
+                  <p>{formData?.phoneNumber ? formatPhone("+", formData?.phoneNumber) : '-'}</p>
+                </div>
+
+                <div className='w-full flex items-center justify-center gap-2'>
+                  <MdMail className='w-5 h-5' />
+                  <p>{formData?.email ? formData?.email : '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* domain access */}
+            <div className='w-full flex items-center gap-4'>
+              <div className=''>
+                <img
+                  src={formData?.domainStructure?.domain?.domainLogo ? `${url}domain/domainLogo/${formData?.domainStructure?.domain?.domainLogo}` : "../../image/user/user-01.png"}
+                  alt="avatar"
+                  className='w-14 h-14 rounded-full object-cover object-center mx-auto'
+                />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <h3 className='font-semibold'>{formData?.domainStructure?.domain?.domainName || ""}</h3>
+
+                <div className='w-full max-w-max flex items-center gap-2 border px-2 py-1 rounded-lg text-sm bg-primary text-white font-semibold'>
+                  <p>{formData?.domainStructure?.domainStructureName ? formData?.domainStructure?.domainStructureName : '-'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className='w-full p-4 flex items-center justify-center gap-2'>
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg text-sm"
+              onClick={isCloseForm}
+            >
+              Remove Access
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
+
+      {/* modal form invite */}
+      <Modal
+        isOpen={isFormInvite}
+        onClose={isCloseFormInvite}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormInvite()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Invite User</h3>
+            </div>
+          </ModalHeader>
+          <DomainInviteForm token={token} isOpen={isFormInvite} items={formData} onClose={isCloseFormInvite} />
+        </Fragment>
+      </Modal>
     </DomainLayouts>
   )
 };

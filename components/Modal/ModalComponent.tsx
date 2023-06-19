@@ -3,9 +3,9 @@ import Button from '../Button/Button'
 import { MdClose } from 'react-icons/md'
 
 type ModalProps = {
-    className?: string, 
+    className?: string,
     children?: JSX.Element | string,
-    isClose?: boolean , 
+    isClose?: boolean,
     onClick?: () => void
 }
 
@@ -30,7 +30,6 @@ const ModalFooter = ({ className, children, isClose, onClick }: ModalProps) => {
 
     return (
         <div className={`w-full flex items-center gap-2 justify-end ${className}`}>
-            {children}
             <Button
                 type="button"
                 onClick={onClick}
@@ -39,6 +38,7 @@ const ModalFooter = ({ className, children, isClose, onClick }: ModalProps) => {
             >
                 Close
             </Button>
+            {children}
         </div>
     )
 };

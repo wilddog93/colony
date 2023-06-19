@@ -409,7 +409,7 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
   }, [token, filters]);
 
   useEffect(() => {
-    let arr: any[] = [];
+    let arr: any[] = [{ value: "all", label: "Select All" }];
     const { data } = domainAccesses;
     if (data || data?.length > 0) {
       data?.map((item: any) => {
@@ -428,21 +428,21 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
 
   const onDeleteAccess = (items: DomainAccessGroupData[]) => {
     console.log(items, 'data delete')
-    if(!items || items.length == 0) {
+    if (!items || items.length == 0) {
       toast.error("Data not found!")
     }
     let newData = {
       id: items.length > 0 ? items.map((item) => item.id) : []
     }
-    dispatch(deleteDomainAccessGroups({ 
-      data: newData, 
-      token, 
-      isSuccess : () => {
+    dispatch(deleteDomainAccessGroups({
+      data: newData,
+      token,
+      isSuccess: () => {
         toast.dark("Delete Access Group is successfully!")
         dispatch(getDomainAccessGroup({ params: filters.queryObject, token }))
         isCloseFormDelete();
       },
-      isError : () => toast.error("Delete Access Group is failed!"),
+      isError: () => toast.error("Delete Access Group is failed!"),
     }))
   }
 
@@ -591,7 +591,18 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
         onClose={isCloseForm}
         size='small'
       >
-        <AccessGroupForm token={token} isOpen={isForm} items={formData} onClose={isCloseForm} options={accessOpt} filters={filters.queryObject} />
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseForm()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>New Access Group</h3>
+            </div>
+          </ModalHeader>
+          <AccessGroupForm token={token} isOpen={isForm} items={formData} onClose={isCloseForm} options={accessOpt} filters={filters.queryObject} />
+        </Fragment>
       </Modal>
 
       {/* modal form edit */}
@@ -600,7 +611,18 @@ const DomainAccessGroupManagement = ({ pageProps }: Props) => {
         onClose={isCloseFormEdit}
         size='small'
       >
-        <AccessGroupForm token={token} isOpen={isFormEdit} items={formData} onClose={isCloseFormEdit} options={accessOpt} filters={filters.queryObject} isUpdate />
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormEdit()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Update Access Group</h3>
+            </div>
+          </ModalHeader>
+          <AccessGroupForm token={token} isOpen={isFormEdit} items={formData} onClose={isCloseFormEdit} options={accessOpt} filters={filters.queryObject} isUpdate />
+        </Fragment>
       </Modal>
 
       {/* modal form delete */}

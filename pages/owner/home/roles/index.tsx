@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../../components/Layouts/DomainLayouts'
 import { MdAdd, MdChevronLeft, MdDelete, MdEdit, MdMuseum, MdOutlineRemoveRedEye, MdPersonAddAlt } from 'react-icons/md';
 import Button from '../../../../components/Button/Button';
@@ -10,13 +10,20 @@ import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReduc
 import { useRouter } from 'next/router';
 import Tabs from '../../../../components/Layouts/Tabs';
 import { menuManageDomainOwner } from '../../../../utils/routes';
-import { getDomainUser, selectDomainUser } from '../../../../redux/features/domain/domainUser';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ColumnDef } from '@tanstack/react-table';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import SelectTables from '../../../../components/tables/layouts/SelectTables';
+import SelectTables from '../../../../components/tables/layouts/server/SelectTables';
 import { IndeterminateCheckbox } from '../../../../components/tables/components/TableComponent';
+import { deleteDomainAccessGroups, getDomainAccessGroup, selectDomainAccessGroup } from '../../../../redux/features/domain/user-management/domainAccessGroupReducers';
+import { getDomainAccess, selectDomainAccess } from '../../../../redux/features/domain/user-management/domainAccessReducers ';
+import Modal from '../../../../components/Modal';
+import AccessGroupForm from '../../../../components/Owner/home/user-management/AccessGroupForm';
+import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
+import { toast } from 'react-toastify';
+import { getDomainStructures, selectDomainStructures } from '../../../../redux/features/domain/domainStructure';
+import DomainRolesForm from '../../../../components/Owner/home/user-management/DomainRolesForm';
 
 type Props = {
   pageProps: any
@@ -27,19 +34,24 @@ type Options = {
   label: any
 }
 
-type UserData = {
-  id?: number | string,
-  email?: string,
-  firstName?: string,
-  lastName?: string,
-  nickName?: string,
-  documentNumber?: number | string,
-  documentSource?: string,
-  profileImage?: string,
-  phoneNumber?: number | string,
-  birthday?: Date | string | any,
-  gender?: string,
-  userAddress?: string
+type DomainAccessGroupData = {
+  id?: number | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  domainAccessGroupName?: string
+  domainAccessGroupAcceses?: any | any[]
+}
+
+type DomainStructureData = {
+  id?: number | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  domain?: any | any[];
+  domainStructureAcceses?: any | any[];
+  domainStructureAccessGroups?: any | any[];
+  domainAccess?: any[];
+  isEditable?: boolean;
+  domainStructureName?: string | any;
 }
 
 const sortOpt: Options[] = [
@@ -78,7 +90,7 @@ const stylesSelectSort = {
     return ({
       ...provided,
       background: "",
-      padding: '.6rem',
+      padding: '.5rem',
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -121,7 +133,7 @@ const stylesSelect = {
     return ({
       ...provided,
       background: "",
-      padding: '.6rem',
+      padding: '.5rem',
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -136,14 +148,7 @@ const stylesSelect = {
   menuList: (provided: any) => (provided)
 };
 
-const RoleOptions = [
-  { value: "Employee", label: "Employee" },
-  { value: "Merchant", label: "Merchant" },
-  { value: "Owner", label: "Owner" },
-  { value: "Tenant", label: "Tenant" },
-]
-
-const DomainRoleManagement = ({ pageProps }: Props) => {
+const DomainRolesManagement = ({ pageProps }: Props) => {
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
@@ -152,17 +157,18 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
 
   // redux
   const dispatch = useAppDispatch();
-  const { users, user, pending, error, message } = useAppSelector(selectDomainUser);
+  const { domainStructures, pending, error, message } = useAppSelector(selectDomainStructures);
+  const { domainAccessGroups } = useAppSelector(selectDomainAccessGroup);
+  const { domainAccesses } = useAppSelector(selectDomainAccess);
   const { data } = useAppSelector(selectAuth);
 
   // params
   const [search, setSearch] = useState<any>("");
   const [sort, setSort] = useState<Options>();
-  const [roles, setRoles] = useState<Options>();
 
   // table
-  const [dataTable, setDataTable] = useState<any[]>([]);
-  const [isSelectedRow, setIsSelectedRow] = useState<UserData[]>();
+  const [dataTable, setDataTable] = useState<DomainStructureData[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState<DomainStructureData[]>([]);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
@@ -170,14 +176,61 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false)
 
   // form
-  const [isForm, setIsForm] = useState(false);
-  const [formData, setFormData] = useState<any>({})
-
+  const [isForm, setIsForm] = useState<boolean>(false);
+  const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
+  const [isFormDelete, setIsFormDelete] = useState<boolean>(false);
+  const [formData, setFormData] = useState<any | any[]>();
+  const [accessGroupOpt, setAccessGroupOpt] = useState<Options[]>([]);
+  // create
   const isOpenForm = () => {
     setIsForm(true)
   }
   const isCloseForm = () => {
+    setFormData({})
     setIsForm(false)
+  }
+  // update
+  const isOpenFormEdit = (items: DomainStructureData) => {
+    console.log(items, 'form edit 1')
+    let newObj: DomainStructureData = {};
+    const domainAccessGroupAcceses: any[] = [];
+    const domainStructureAcceses: any[] = [];
+    const domainAccess: any[] = [];
+
+    items?.domainAccess?.forEach((x) => {
+      // domainAccess.push({ id: x.domainAccess.id, value: x.domainAccess.id, label: x.domainAccess.domainAccessName });
+      domainAccess.push({ domainAccess: { ...x, id: x.domainAccess.id, value: x.domainAccess.id, label: x.domainAccess.domainAccessName } });
+    });
+
+    items?.domainStructureAcceses?.forEach((x: any) => {
+      domainStructureAcceses.push({ id: x.domainAccess.id, value: x.domainAccess.id, label: x.domainAccess.domainAccessName });
+    });
+
+    items?.domainStructureAccessGroups?.forEach((x: any) => {
+      domainAccessGroupAcceses.push({id: x.domainAccessGroup.id, value: x.domainAccessGroup.id, label: x.domainAccessGroup.domainAccessGroupName, domainAccessGroupAcceses: domainAccess});
+    });
+
+    newObj = {
+      ...items,
+      id: items.id,
+      domainAccess: domainStructureAcceses?.filter((v, i, a) => a.findIndex(v2 => (v2.id === v.id)) === i),
+      domainStructureAccessGroups: domainAccessGroupAcceses?.filter((v, i, a) => a.findIndex(v2 => (v2.id === v.id)) === i),
+    };
+    setFormData(newObj);
+    setIsFormEdit(true)
+  }
+  const isCloseFormEdit = () => {
+    setFormData(undefined)
+    setIsFormEdit(false)
+  }
+  // delte arr
+  const isOpenFormDelete = (items: DomainStructureData[]) => {
+    setFormData(items)
+    setIsFormDelete(true)
+  }
+  const isCloseFormDelete = () => {
+    setFormData(undefined)
+    setIsFormDelete(false)
   }
 
   useEffect(() => {
@@ -186,7 +239,7 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  const columns = useMemo<ColumnDef<UserData, any>[]>(() => [
+  const columns = useMemo<ColumnDef<DomainStructureData, any>[]>(() => [
     {
       id: 'select',
       header: ({ table }) => {
@@ -216,51 +269,13 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
       minSize: 10
     },
     {
-      accessorKey: 'user.firstName',
+      accessorKey: 'domainStructureName',
       header: (info) => (
-        <div className='uppercase'>Name</div>
-      ),
-      cell: ({ getValue, row }) => {
-        let image = row?.original?.profileImage;
-        let firstName = row?.original?.firstName;
-        let lastName = row?.original?.lastName;
-        return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
-            <img
-              src={image ? `${url}images/${image}` : "../../image/user/user-01.png"}
-              alt="avatar"
-              className='object-cover object-center w-10 h-10'
-            />
-            <span>{`${firstName || " "} ${lastName || " "}`}</span>
-          </div>
-        )
-      },
-      footer: props => props.column.id,
-      enableColumnFilter: false,
-    },
-    {
-      accessorKey: 'email',
-      header: (info) => (
-        <div className='uppercase'>Email</div>
+        <div className='uppercase'>Roles Name</div>
       ),
       cell: ({ getValue, row }) => {
         return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
-            <span>{getValue()}</span>
-          </div>
-        )
-      },
-      footer: props => props.column.id,
-      enableColumnFilter: false,
-    },
-    {
-      accessorKey: 'phoneNumber',
-      header: (info) => (
-        <div className='uppercase'>Phone Number</div>
-      ),
-      cell: ({ getValue, row }) => {
-        return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer tracking-wider items-center text-center lg:text-left'>
             <span>{getValue() || "-"}</span>
           </div>
         )
@@ -269,14 +284,63 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'gender',
+      accessorKey: 'domainStructureAccessGroups',
       header: (info) => (
-        <div className='uppercase'>Gender</div>
+        <div className='uppercase'>Access Group</div>
       ),
       cell: ({ getValue, row }) => {
+        let access = getValue();
+        let index: any[] = [0, 1, 2];
+        const lastIndex = access?.length - 1;
+        console.log(lastIndex, 'last index')
         return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
-            <span>{getValue()}</span>
+          <div className='w-full flex flex-col cursor-pointer tracking-wider'>
+            {access?.length == 0 ? "-"
+              : access?.length > 3 ?
+                index?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{access[acc]?.domainAccessGroup?.domainAccessGroupName},</div>
+                  )
+                }) :
+                access?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{acc?.domainAccessGroup?.domainAccessGroupName}{lastIndex == i ? "" : ','}</div>
+                  )
+                })
+            }
+            {access?.length > 3 ? `+${(access?.length - index.length)} more access` : null}
+          </div>
+        )
+      },
+      footer: props => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      accessorKey: 'domainAccess',
+      header: (info) => (
+        <div className='uppercase'>Access</div>
+      ),
+      cell: ({ getValue, row }) => {
+        let access = getValue();
+        let index: any[] = [0, 1, 2];
+        const lastIndex = access?.length - 1;
+        console.log(lastIndex, 'last index')
+        return (
+          <div className='w-full flex flex-col cursor-pointer tracking-wider'>
+            {access?.length == 0 ? "-"
+              : access?.length > 3 ?
+                index?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{access[acc]?.domainAccess?.domainAccessName},</div>
+                  )
+                }) :
+                access?.map((acc: any, i: any) => {
+                  return (
+                    <div key={i}>{acc?.domainAccess?.domainAccessName}{lastIndex == i ? "" : ','}</div>
+                  )
+                })
+            }
+            {access?.length > 3 ? `+${(access?.length - index.length)} more access` : null}
           </div>
         )
       },
@@ -295,9 +359,9 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
               type="button"
               variant="secondary-outline-none"
               className="py-0 px-0 text-center"
-              onClick={() => console.log("details")}
+              onClick={() => isOpenFormEdit(row?.original)}
             >
-              <MdOutlineRemoveRedEye className='w-5 h-5' />
+              <MdEdit className='w-5 h-5' />
             </Button>
           </div>
         )
@@ -327,10 +391,9 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
     };
     if (search) qr = { ...qr, search: search }
     if (sort?.value) qr = { ...qr, sort: sort?.value }
-    if (roles?.value) qr = { ...qr, roles: roles?.value }
 
     router.replace({ pathname, query: qr })
-  }, [search, sort, roles])
+  }, [search, sort, limit, pages])
 
 
   const filters = useMemo(() => {
@@ -339,40 +402,42 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
       $and: [
         {
           $or: [
-            { "user.email": { $contL: query?.search } },
-            { "user.firstName": { $contL: query?.search } },
-            { "user.lastName": { $contL: query?.search } },
-            { "user.nickName": { $contL: query?.search } },
-            { "user.gender": { $contL: query?.search } },
+            { "domainStructureName": { $contL: query?.search } },
           ],
         },
       ],
     };
-    query?.roles && search["$and"].push({ "domainStructure.domainStructureName": query?.roles });
+    // query?.accesses && search["$and"].push({ "domainAccessGroupAcceses.domainAccess.domainAccessCode": query?.accesses });
 
     qb.search(search);
 
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    if (query?.sort) qb.sortBy({ field: "user.firstName", order: !query?.status ? "ASC" : "DESC" })
+    if (query?.sort) qb.sortBy({ field: "domainStructureName", order: !query?.status ? "ASC" : "DESC" })
     qb.query();
     return qb;
   }, [query])
 
   useEffect(() => {
-    if (token) dispatch(getDomainUser({ params: filters.queryObject, token }))
+    if (token) dispatch(getDomainStructures({ params: filters.queryObject, token }))
   }, [token, filters]);
 
-
   useEffect(() => {
-    let arr: UserData[] = [];
-    const { data, pageCount, total } = users;
+    let arr: DomainStructureData[] = [];
+    const { data, pageCount, total } = domainStructures;
     if (data || data?.length > 0) {
-      data?.map((item: UserData) => {
-        arr.push(item)
+      // console.log(data, 'data')
+      data?.map((item: DomainStructureData) => {
+        arr.push({
+          ...item,
+          domainAccess: item?.domainStructureAccessGroups?.reduce((r: any, d: any) => {
+            r = [...r, ...d.domainAccessGroup.domainAccessGroupAcceses]
+            return r;
+          }, item.domainStructureAcceses)
+        })
       })
-      setDataTable(data)
+      setDataTable(arr)
       setPageCount(pageCount)
       setTotal(total)
     } else {
@@ -380,14 +445,69 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
       setPageCount(1)
       setTotal(0)
     }
-  }, [users.data]);
+  }, [domainStructures.data]);
 
-  // console.log(isSelectedRow, 'selected')
+  console.log(domainStructures.data, 'tables')
+
+  const filterAccess = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({ field: "domainAccessGroupName", order: "ASC" })
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token) dispatch(getDomainAccessGroup({ params: filterAccess.queryObject, token }))
+  }, [token, filters]);
+
+  useEffect(() => {
+    let arr: any[] = [{ value: "all", label: "Select All" }];
+    const { data } = domainAccessGroups;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        console.log(item, 'items')
+        arr.push({
+          ...item,
+          value: item.id,
+          label: item.domainAccessGroupName,
+        })
+      })
+      setAccessGroupOpt(arr)
+    } else {
+      setAccessGroupOpt([])
+    }
+  }, [domainAccessGroups.data]);
+
+  console.log(accessGroupOpt, 'items opt')
+
+  const onDeleteAccess = (items: DomainAccessGroupData[]) => {
+    console.log(items, 'data delete')
+    if (!items || items.length == 0) {
+      toast.error("Data not found!")
+    }
+    let newData = {
+      id: items.length > 0 ? items.map((item) => item.id) : []
+    }
+    dispatch(deleteDomainAccessGroups({
+      data: newData,
+      token,
+      isSuccess: () => {
+        toast.dark("Delete Access Group is successfully!")
+        dispatch(getDomainAccessGroup({ params: filters.queryObject, token }))
+        isCloseFormDelete();
+      },
+      isError: () => toast.error("Delete Access Group is failed!"),
+    }))
+  }
+
+  // console.log({ dataTable, pageCount, total }, 'options')
+  console.log(formData, "form edit")
 
   return (
     <DomainLayouts
       title="Colony"
-      header="Role Management"
+      header="Access Group Management"
       head="Home"
       logo="../../image/logo/logo-icon.svg"
       description=""
@@ -422,70 +542,81 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
                 </div>
 
                 <div className='sticky z-40 top-0 w-full px-8'>
-                  <div className='w-full flex items-center gap-4 justify-between bg-white px-4 py-5 rounded-lg shadow-card'>
-                    <h3 className='text-base lg:text-title-md font-semibold'>Role Management</h3>
+                  <div className='w-full flex flex-col gap-4 bg-white px-4 py-5 rounded-lg shadow-card'>
+                    <h3 className='text-base lg:text-title-md font-semibold'>Roles Management</h3>
+
+                    <div className="w-full grid grid-cols-1 lg:grid-cols-7 gap-2.5">
+                      <div className='w-full lg:col-span-3'>
+                        <SearchInput
+                          className='w-full text-sm rounded-xl'
+                          classNamePrefix=''
+                          filter={search}
+                          setFilter={setSearch}
+                          placeholder='Search...'
+                        />
+                      </div>
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelectSort}
+                          value={sort}
+                          onChange={setSort}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Sorts...'
+                          options={sortOpt}
+                          icon='MdSort'
+                        />
+                      </div>
+                      {/* <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <DropdownSelect
+                          customStyles={stylesSelect}
+                          value={accesses}
+                          onChange={setAccesses}
+                          error=""
+                          className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                          classNamePrefix=""
+                          formatOptionLabel=""
+                          instanceId='1'
+                          isDisabled={false}
+                          isMulti={false}
+                          placeholder='Access...'
+                          options={accessOpt}
+                          icon=''
+                        />
+                      </div> */}
+                      <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
+                        <Button
+                          className="rounded-lg text-sm border-1 lg:ml-auto"
+                          type="button"
+                          variant="primary-outline"
+                          onClick={() => isOpenFormDelete(isSelectedRow)}
+                          disabled={!isSelectedRow || isSelectedRow?.length == 0}
+                        >
+                          <MdDelete className='w-4 h-4' />
+                          <span>Delete</span>
+                        </Button>
+                        <Button
+                          className="rounded-lg text-sm"
+                          type="button"
+                          variant="primary"
+                          onClick={isOpenForm}
+                        >
+                          <span>Add</span>
+                          <MdAdd className='w-4 h-4' />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  <div className='w-full'>
-
-                  </div>
-                  <div className='px-2'>
-                    <Cards
-                      className='w-full bg-white shadow-card rounded-xl'
-                    >
-                      <div className="w-full grid grid-cols-1 lg:grid-cols-7 gap-2.5 p-4">
-                        <div className='w-full lg:col-span-3'>
-                          <SearchInput
-                            className='w-full text-sm rounded-xl'
-                            classNamePrefix=''
-                            filter={search}
-                            setFilter={setSearch}
-                            placeholder='Search...'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <DropdownSelect
-                            customStyles={stylesSelectSort}
-                            value={sort}
-                            onChange={setSort}
-                            error=""
-                            className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
-                            classNamePrefix=""
-                            formatOptionLabel=""
-                            instanceId='1'
-                            isDisabled={false}
-                            isMulti={false}
-                            placeholder='Sorts...'
-                            options={sortOpt}
-                            icon='MdSort'
-                          />
-                        </div>
-                        <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2'>
-                          <Button
-                            className="rounded-lg text-sm border-1 lg:ml-auto"
-                            type="button"
-                            variant="primary-outline"
-                            disabled={!isSelectedRow || isSelectedRow?.length == 0}
-                          >
-                            <MdDelete className='w-4 h-4' />
-                            <span>Delete</span>
-                          </Button>
-                          <Button
-                            className="rounded-lg text-sm"
-                            type="button"
-                            variant="primary"
-                          >
-                            <span>Add</span>
-                            <MdAdd className='w-4 h-4' />
-                          </Button>
-                        </div>
-                      </div>
-                    </Cards>
-                  </div>
 
                   <div className="px-2">
-                    <Cards className="w-full bg-white shadow-card rounded-xl tracking-wider">
+                    <Cards className="h-300 w-full bg-white shadow-card rounded-xl tracking-wider">
                       <SelectTables
                         loading={loading}
                         setLoading={setLoading}
@@ -508,6 +639,100 @@ const DomainRoleManagement = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* modal form */}
+      <Modal
+        isOpen={isForm}
+        onClose={isCloseForm}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseForm()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>New Roles</h3>
+            </div>
+          </ModalHeader>
+          <DomainRolesForm
+            onClose={isCloseForm}
+            filters={filters.queryObject}
+            isOpen={isForm}
+            token={token}
+            options={accessGroupOpt}
+          />
+        </Fragment>
+      </Modal>
+
+      {/* modal update form */}
+      <Modal
+        isOpen={isFormEdit}
+        onClose={isCloseFormEdit}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormEdit()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Update Roles</h3>
+            </div>
+          </ModalHeader>
+          <DomainRolesForm
+            onClose={isCloseFormEdit}
+            filters={filters.queryObject}
+            isOpen={isFormEdit}
+            token={token}
+            items={formData}
+            options={accessGroupOpt}
+            isUpdate
+          />
+        </Fragment>
+      </Modal>
+
+      {/* modal form delete */}
+      <Modal
+        isOpen={isFormDelete}
+        onClose={isCloseFormDelete}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormDelete()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Delete Domain Access Group</h3>
+              <p className='text-gray-5'>Are you sure to delete access group?</p>
+            </div>
+          </ModalHeader>
+
+          <div className='w-full p-4 flex items-center justify-end gap-2'>
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg text-sm"
+              onClick={isCloseFormDelete}
+            >
+              Discard
+            </Button>
+
+            <Button
+              type="submit"
+              variant="primary"
+              className="rounded-lg text-sm"
+              onClick={() => onDeleteAccess(formData)}
+            >
+              Yes, Delete
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
     </DomainLayouts>
   )
 };
@@ -536,4 +761,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default DomainRoleManagement;
+export default DomainRolesManagement;

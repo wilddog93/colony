@@ -8,6 +8,7 @@ import domainPropertyReducers from '../features/domain/domainProperty';
 import domainUserReducers from '../features/domain/domainUser';
 import domainAccessGroupReducers from '../features/domain/user-management/domainAccessGroupReducers';
 import domainAccessReducers from '../features/domain/user-management/domainAccessReducers ';
+import domainStructureReducers from '../features/domain/domainStructure';
 
 export const combinedReducer = combineReducers({
     //All reducer
@@ -20,4 +21,5 @@ export const combinedReducer = combineReducers({
     domainUser: domainUserReducers,
     domainAccessGroup: domainAccessGroupReducers,
     domainAccess: domainAccessReducers,
+    domainStructures: domainStructureReducers,
 });

@@ -60,6 +60,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 // domain
 export const getDomainAccess = createAsyncThunk<any, DefaultGetData, { state: RootState }>('/domainAccess', async (params, { getState }) => {
     let config: HeadersConfiguration = {
+        params: params?.params,
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
