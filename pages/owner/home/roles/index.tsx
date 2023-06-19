@@ -22,7 +22,7 @@ import Modal from '../../../../components/Modal';
 import AccessGroupForm from '../../../../components/Owner/home/user-management/AccessGroupForm';
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
 import { toast } from 'react-toastify';
-import { getDomainStructures, selectDomainStructures } from '../../../../redux/features/domain/domainStructure';
+import { deleteDomainStructures, getDomainStructures, selectDomainStructures } from '../../../../redux/features/domain/domainStructure';
 import DomainRolesForm from '../../../../components/Owner/home/user-management/DomainRolesForm';
 
 type Props = {
@@ -481,7 +481,7 @@ const DomainRolesManagement = ({ pageProps }: Props) => {
 
   console.log(accessGroupOpt, 'items opt')
 
-  const onDeleteAccess = (items: DomainAccessGroupData[]) => {
+  const onDeleteAccess = (items: DomainStructureData[]) => {
     console.log(items, 'data delete')
     if (!items || items.length == 0) {
       toast.error("Data not found!")
@@ -489,15 +489,15 @@ const DomainRolesManagement = ({ pageProps }: Props) => {
     let newData = {
       id: items.length > 0 ? items.map((item) => item.id) : []
     }
-    dispatch(deleteDomainAccessGroups({
+    dispatch(deleteDomainStructures({
       data: newData,
       token,
       isSuccess: () => {
-        toast.dark("Delete Access Group is successfully!")
-        dispatch(getDomainAccessGroup({ params: filters.queryObject, token }))
+        toast.dark("Delete roles has benn successful!")
+        dispatch(getDomainStructures({ params: filters.queryObject, token }))
         isCloseFormDelete();
       },
-      isError: () => toast.error("Delete Access Group is failed!"),
+      isError: () => toast.error("Delete roles is failed!"),
     }))
   }
 
@@ -707,8 +707,8 @@ const DomainRolesManagement = ({ pageProps }: Props) => {
             className='p-4 flex justify-between border-b-2 border-gray'
           >
             <div className='flex flex-col gap-2 tracking-wide'>
-              <h3 className='text-lg font-semibold'>Delete Domain Access Group</h3>
-              <p className='text-gray-5'>Are you sure to delete access group?</p>
+              <h3 className='text-lg font-semibold'>Delete Roles</h3>
+              <p className='text-gray-5'>Are you sure to roles?</p>
             </div>
           </ModalHeader>
 
