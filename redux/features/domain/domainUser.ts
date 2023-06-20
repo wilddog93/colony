@@ -126,6 +126,42 @@ export const getDomainUser = createAsyncThunk<any, DefaultGetData, { state: Root
     }
 });
 
+// delete user arr
+export const deleteDomainUsers = createAsyncThunk<any, UserDomainData, { state: RootState }>('delete/domain-user', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.delete("user/domain/remove", { data: params.data, headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        } });
+        const { data, status } = response;
+
+        if (status == 204) {
+            params.isSuccess()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        params.isError()
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const domainPropertySlice = createSlice({
@@ -182,6 +218,26 @@ export const domainPropertySlice = createSlice({
                 }
             })
             .addCase(getDomainUser.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // delete arr user
+            .addCase(deleteDomainUsers.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(deleteDomainUsers.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false,
+                }
+            })
+            .addCase(deleteDomainUsers.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;

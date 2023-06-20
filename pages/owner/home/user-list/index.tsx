@@ -10,7 +10,7 @@ import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReduc
 import { useRouter } from 'next/router';
 import Tabs from '../../../../components/Layouts/Tabs';
 import { menuManageDomainOwner } from '../../../../utils/routes';
-import { getDomainUser, selectDomainUser } from '../../../../redux/features/domain/domainUser';
+import { deleteDomainUsers, getDomainUser, selectDomainUser } from '../../../../redux/features/domain/domainUser';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ColumnDef } from '@tanstack/react-table';
 import { SearchInput } from '../../../../components/Forms/SearchInput';
@@ -21,6 +21,9 @@ import Modal from '../../../../components/Modal';
 import { ModalHeader } from '../../../../components/Modal/ModalComponent';
 import { formatPhone } from '../../../../utils/useHooks/useFunction';
 import DomainInviteForm from '../../../../components/Owner/home/users/DomainInvite';
+import { getDomainStructures, selectDomainStructures } from '../../../../redux/features/domain/domainStructure';
+import { toast } from 'react-toastify';
+import { FaCircleNotch } from 'react-icons/fa';
 
 type Props = {
   pageProps: any
@@ -32,7 +35,7 @@ type Options = {
 }
 
 type UserData = {
-  id?: number | string,
+  id?: number | string | any,
   email?: string,
   firstName?: string,
   lastName?: string,
@@ -157,6 +160,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { users, user, pending, error, message } = useAppSelector(selectDomainUser);
+  const { domainStructures } = useAppSelector(selectDomainStructures);
   const { data } = useAppSelector(selectAuth);
 
   console.log(user, 'datatable')
@@ -165,10 +169,11 @@ const DomainUserManagement = ({ pageProps }: Props) => {
   const [search, setSearch] = useState<any>("");
   const [sort, setSort] = useState<Options>();
   const [roles, setRoles] = useState<Options>();
+  const [optionRoles, setOptionRoles] = useState<Options[]>([])
 
   // table
   const [dataTable, setDataTable] = useState<any[]>([]);
-  const [isSelectedRow, setIsSelectedRow] = useState<UserData[]>();
+  const [isSelectedRow, setIsSelectedRow] = useState<UserData[]>([]);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
@@ -178,6 +183,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
   // form
   const [isForm, setIsForm] = useState(false);
   const [isFormInvite, setIsFormInvite] = useState(false);
+  const [isFormDelete, setIsFormDelete] = useState(false);
   const [formData, setFormData] = useState<any>({})
 
   const isOpenForm = (users: UserData) => {
@@ -190,15 +196,20 @@ const DomainUserManagement = ({ pageProps }: Props) => {
   }
 
   const isOpenFormInvite = (users: UserData) => {
-    setFormData({
-      email: "",
-      domainStructure: accessId
-    });
     setIsFormInvite(true)
   }
   const isCloseFormInvite = () => {
     setFormData({});
     setIsFormInvite(false)
+  }
+
+  const isOpenFormDelete = (users: UserData[]) => {
+    setFormData(users);
+    setIsFormDelete(true)
+  }
+  const isCloseFormDelete = () => {
+    setFormData({});
+    setIsFormDelete(false)
   }
 
   useEffect(() => {
@@ -248,9 +259,9 @@ const DomainUserManagement = ({ pageProps }: Props) => {
         return (
           <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
             <img
-              src={image ? `${url}images/${image}` : "../../image/user/user-01.png"}
+              src={image ? `${url}user/profileImage/${image}` : "../../image/user/user-01.png"}
               alt="avatar"
-              className='object-cover object-center w-10 h-10'
+              className='object-cover object-center rounded-full w-10 h-10'
             />
             <span>{`${firstName || " "} ${lastName || " "}`}</span>
           </div>
@@ -385,6 +396,17 @@ const DomainUserManagement = ({ pageProps }: Props) => {
     if (token) dispatch(getDomainUser({ params: filters.queryObject, token }))
   }, [token, filters]);
 
+  const filterRoles = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({ field: "domainStructureName", order: "ASC" })
+    qb.query();
+    return qb;
+  }, [])
+
+  useEffect(() => {
+    if (token) dispatch(getDomainStructures({ params: filterRoles.queryObject, token }))
+  }, [token, filterRoles]);
 
   useEffect(() => {
     let arr: UserData[] = [];
@@ -403,7 +425,44 @@ const DomainUserManagement = ({ pageProps }: Props) => {
     }
   }, [users.data]);
 
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = domainStructures;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item.id,
+          label: item.domainStructureName
+        })
+      })
+    }
+    setOptionRoles(arr)
+  }, [domainStructures.data]);
+
+  const onDeleteUser = (users: UserData[]) => {
+    let formData: any = {
+      userId: users?.length > 0 ? users?.map(user => user.id) : [],
+    }
+
+    console.log(formData, 'form delete')
+    dispatch(deleteDomainUsers({ 
+      token, 
+      data: formData, 
+      isSuccess: () => {
+        setIsSelectedRow([])
+        isCloseFormDelete();
+        dispatch(getDomainUser({ params: filters.queryObject, token }))
+        toast.dark("Delete user has been successfull!")
+      },
+      isError: () => {
+        console.log("error")
+      }
+    }))
+  }
+
   // console.log(isSelectedRow, 'selected')
+  console.log(users, 'users')
 
   return (
     <DomainLayouts
@@ -495,6 +554,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                           className="rounded-lg text-sm border-1 lg:ml-auto"
                           type="button"
                           variant="primary-outline"
+                          onClick={() => isOpenFormDelete(isSelectedRow)}
                           disabled={!isSelectedRow || isSelectedRow?.length == 0}
                         >
                           <MdDelete className='w-4 h-4' />
@@ -563,7 +623,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                 <img
                   src={formData?.profileImage ? `${url}user/profileImage/${formData?.profileImage}` : "../../image/user/user-01.png"}
                   alt="avatar"
-                  className='w-32 h-32 object-cover object-center mx-auto'
+                  className='w-32 h-32 object-cover object-center mx-auto rounded-full'
                 />
               </div>
               <div className='w-full flex flex-col gap-2 text-center'>
@@ -628,7 +688,52 @@ const DomainUserManagement = ({ pageProps }: Props) => {
               <h3 className='text-lg font-semibold'>Invite User</h3>
             </div>
           </ModalHeader>
-          <DomainInviteForm token={token} isOpen={isFormInvite} items={formData} onClose={isCloseFormInvite} />
+          <DomainInviteForm filters={filters.queryObject} token={token} isOpen={isFormInvite} items={formData} onClose={isCloseFormInvite} options={optionRoles} />
+        </Fragment>
+      </Modal>
+
+      {/* modal form delete */}
+      <Modal
+        isOpen={isFormDelete}
+        onClose={isCloseFormDelete}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormDelete()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Delete Users</h3>
+              <p className='text-gray-5'>Are you sure to users?</p>
+            </div>
+          </ModalHeader>
+
+          <div className='w-full p-4 flex items-center justify-end gap-2'>
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg text-sm"
+              onClick={isCloseFormDelete}
+            >
+              Discard
+            </Button>
+
+            <Button
+              type="submit"
+              variant="primary"
+              className="rounded-lg text-sm"
+              onClick={() => onDeleteUser(formData)}
+            >
+              {pending ?
+                <div className='flex items-center gap-2'>
+                  <span>Loading</span>
+                  <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
+                </div>
+              : "Yes, Delete"}
+            </Button>
+          </div>
         </Fragment>
       </Modal>
     </DomainLayouts>
