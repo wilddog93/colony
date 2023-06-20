@@ -387,7 +387,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    if (query?.sort) qb.sortBy({ field: "user.firstName", order: !query?.status ? "ASC" : "DESC" })
+    if (query?.sort) qb.sortBy({ field: "user.firstName", order: !query?.sort ? "ASC" : "DESC" })
     qb.query();
     return qb;
   }, [query])
