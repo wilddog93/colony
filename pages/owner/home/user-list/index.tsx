@@ -259,7 +259,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
         return (
           <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
             <img
-              src={image ? `${url}user/profileImage/${image}` : "../../image/user/user-01.png"}
+              src={image ? `${url}user/profileImage/${image}` : "../../image/no-image.jpeg"}
               alt="avatar"
               className='object-cover object-center rounded-full w-10 h-10'
             />
@@ -380,7 +380,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
         },
       ],
     };
-    query?.roles && search["$and"].push({ "domainStructure.domainStructureName": query?.roles });
+    query?.roles && search["$and"].push({ "domainStructure.id": query?.roles });
 
     qb.search(search);
 
@@ -472,7 +472,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
       logo="../../image/logo/logo-icon.svg"
       description=""
       images="../../image/logo/building-logo.svg"
-      userDefault="../../image/user/user-01.png"
+      userDefault="../../image/no-image.jpeg"
       token={token}
       icons={{
         icon: MdMuseum,
@@ -545,7 +545,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                           isDisabled={false}
                           isMulti={false}
                           placeholder='Roles...'
-                          options={RoleOptions}
+                          options={optionRoles}
                           icon=''
                         />
                       </div>
@@ -621,7 +621,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
             <div className='w-full flex flex-col items-center justify-center gap-4 border-b-2 border-gray py-2'>
               <div className='w-full'>
                 <img
-                  src={formData?.profileImage ? `${url}user/profileImage/${formData?.profileImage}` : "../../image/user/user-01.png"}
+                  src={formData?.profileImage ? `${url}user/profileImage/${formData?.profileImage}` : "../../image/no-image.jpeg"}
                   alt="avatar"
                   className='w-32 h-32 object-cover object-center mx-auto rounded-full'
                 />
@@ -644,7 +644,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
             <div className='w-full flex items-center gap-4'>
               <div className=''>
                 <img
-                  src={formData?.domainStructure?.domain?.domainLogo ? `${url}domain/domainLogo/${formData?.domainStructure?.domain?.domainLogo}` : "../../image/user/user-01.png"}
+                  src={formData?.domainStructure?.domain?.domainLogo ? `${url}domain/domainLogo/${formData?.domainStructure?.domain?.domainLogo}` : "../../image/no-image.jpeg"}
                   alt="avatar"
                   className='w-14 h-14 rounded-full object-cover object-center mx-auto'
                 />
