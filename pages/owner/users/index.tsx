@@ -10,15 +10,16 @@ import { SearchInput } from '../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import { ColumnDef } from '@tanstack/react-table';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
-import { getDomainId, selectDomainAccess } from '../../../redux/features/accessDomain/accessDomainReducers';
+import { getDomainId } from '../../../redux/features/accessDomain/accessDomainReducers';
 import Modal from '../../../components/Modal';
 import { ModalHeader } from '../../../components/Modal/ModalComponent';
 import PropertyForm from '../../../components/Forms/owner/PropertyForm';
-import SelectTables from '../../../components/tables/layouts/SelectTables';
+import SelectTables from '../../../components/tables/layouts/server/SelectTables';
 import { getDomainUserAll, selectDomainUser } from '../../../redux/features/domain/domainUser';
 import Button from '../../../components/Button/Button';
 import Tabs from '../../../components/Layouts/Tabs';
 import { menuParkings } from '../../../utils/routes';
+import Cards from '../../../components/Cards/Cards';
 
 type Props = {
   pageProps: any
@@ -144,9 +145,9 @@ const DomainUsers = ({ pageProps }: Props) => {
         return (
           <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider items-center text-center lg:text-left'>
             <img
-              src={image ? `${url}images/${image}` : "../image/user/user-01.png"}
+              src={image ? `${url}user/profileImage/${image}` : "../image/no-image.jpeg"}
               alt="avatar"
-              className='object-cover object-center w-10 h-10'
+              className='object-cover rounded-full object-center w-10 h-10'
             />
             <span>{`${firstName || " "} ${lastName || " "}`}</span>
           </div>
@@ -358,20 +359,24 @@ const DomainUsers = ({ pageProps }: Props) => {
                   </div>
                 </div>
                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5 px-6">
-                  <SelectTables
-                    loading={loading}
-                    setLoading={setLoading}
-                    pages={pages}
-                    setPages={setPages}
-                    limit={limit}
-                    setLimit={setLimit}
-                    pageCount={pageCount}
-                    columns={columns}
-                    dataTable={dataTable}
-                    total={total}
-                    setIsSelected={setIsSelectedRow}
-                    classTable="px-4"
-                  />
+                  <Cards
+                    className=" w-full rounded-lg"
+                  >
+                    <SelectTables
+                      loading={loading}
+                      setLoading={setLoading}
+                      pages={pages}
+                      setPages={setPages}
+                      limit={limit}
+                      setLimit={setLimit}
+                      pageCount={pageCount}
+                      columns={columns}
+                      dataTable={dataTable}
+                      total={total}
+                      setIsSelected={setIsSelectedRow}
+                      classTable="px-4"
+                    />
+                  </Cards>
                 </div>
               </div>
             </div>
