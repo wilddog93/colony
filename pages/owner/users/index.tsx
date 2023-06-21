@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
-import { MdMuseum, MdOutlineRemoveRedEye } from 'react-icons/md';
+import { MdMail, MdMuseum, MdOutlineRemoveRedEye, MdPhone } from 'react-icons/md';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
@@ -20,6 +20,7 @@ import Button from '../../../components/Button/Button';
 import Tabs from '../../../components/Layouts/Tabs';
 import { menuParkings } from '../../../utils/routes';
 import Cards from '../../../components/Cards/Cards';
+import { formatPhone } from '../../../utils/useHooks/useFunction';
 
 type Props = {
   pageProps: any
@@ -117,6 +118,7 @@ const DomainUsers = ({ pageProps }: Props) => {
 
   // form
   const [isForm, setIsForm] = useState(false);
+  const [isFormDetail, setIsFormDetail] = useState(false);
   const [formData, setFormData] = useState<any>({})
 
   const isOpenForm = () => {
@@ -124,6 +126,14 @@ const DomainUsers = ({ pageProps }: Props) => {
   }
   const isCloseForm = () => {
     setIsForm(false)
+  }
+
+  const isOpenFormDetail = (items:UserData) => {
+    setFormData(items)
+    setIsFormDetail(true)
+  }
+  const isCloseFormDetail = () => {
+    setIsFormDetail(false)
   }
 
   // redux
@@ -213,7 +223,7 @@ const DomainUsers = ({ pageProps }: Props) => {
               type="button"
               variant="secondary-outline-none"
               className="py-0 px-0 text-center"
-              onClick={() => console.log("details")}
+              onClick={() => isOpenFormDetail(row?.original)}
             >
               <MdOutlineRemoveRedEye className='w-5 h-5' />
             </Button>
@@ -272,7 +282,7 @@ const DomainUsers = ({ pageProps }: Props) => {
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    if (query?.sort) qb.sortBy({ field: "firstName", order: !query?.status ? "ASC" : "DESC" })
+    if (query?.sort) qb.sortBy({ field: "firstName", order: query?.sort == "ASC" ? "ASC" : "DESC" })
     qb.query();
     return qb;
   }, [query])
@@ -404,6 +414,60 @@ const DomainUsers = ({ pageProps }: Props) => {
             <PropertyForm onClose={isCloseForm} isOpen={isForm} />
           </div>
         </div>
+      </Modal>
+
+      {/* modal detail */}
+      <Modal
+        isOpen={isFormDetail}
+        onClose={isCloseFormDetail}
+        size='small'
+      >
+        <Fragment>
+          <ModalHeader
+            isClose
+            onClick={() => isCloseFormDetail()}
+            className='p-4 flex justify-between border-b-2 border-gray'
+          >
+            <div className='flex flex-col gap-2 tracking-wide'>
+              <h3 className='text-lg font-semibold'>Profile Info</h3>
+            </div>
+          </ModalHeader>
+
+          <div className='w-full flex flex-col gap-4 p-4'>
+            <div className='w-full flex flex-col items-center justify-center gap-4 border-b-0 border-gray py-2'>
+              <div className='w-full'>
+                <img
+                  src={formData?.profileImage ? `${url}user/profileImage/${formData?.profileImage}` : "../../image/no-image.jpeg"}
+                  alt="avatar"
+                  className='w-32 h-32 object-cover object-center mx-auto rounded-full'
+                />
+              </div>
+              <div className='w-full flex flex-col gap-2 text-center'>
+                <h3 className='font-semibold'>{formData?.firstName || ""} {formData?.lastName || ""}</h3>
+                <div className='w-full flex items-center justify-center gap-2'>
+                  <MdPhone className='w-5 h-5' />
+                  <p>{formData?.phoneNumber ? formatPhone("+", formData?.phoneNumber) : '-'}</p>
+                </div>
+
+                <div className='w-full flex items-center justify-center gap-2'>
+                  <MdMail className='w-5 h-5' />
+                  <p>{formData?.email ? formData?.email : '-'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* <div className='w-full p-4 flex items-center justify-center gap-2'>
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg text-sm"
+              onClick={isCloseFormDetail}
+            >
+              Remove Access
+            </Button>
+          </div> */}
+        </Fragment>
       </Modal>
     </DomainLayouts>
   )
