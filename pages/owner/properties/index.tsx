@@ -25,6 +25,7 @@ import { formatPhone } from '../../../utils/useHooks/useFunction';
 import Modal from '../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../components/Modal/ModalComponent';
 import PropertyForm from '../../../components/Forms/owner/PropertyForm';
+import Link from 'next/link';
 
 type Props = {
   pageProps: any
@@ -209,7 +210,12 @@ const DomainProperty = ({ pageProps }: Props) => {
         let logo = row?.original?.propertyLogo;
 
         return (
-          <div className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
+          <Link href={{
+            pathname: `/owner/properties/${getValue()}`,
+            query: {
+              id: getValue()
+            }
+          }} className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
             <div className='w-full lg:w-1/5 text-lg font-semibold'>
               <img src={logo ? `${url}property/propertyLogo/${logo}` : "../image/logo/logo-icon.svg"} alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
             </div>
@@ -252,7 +258,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         )
       },
       footer: props => props.column.id,

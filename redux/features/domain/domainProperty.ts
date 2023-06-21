@@ -35,15 +35,17 @@ interface HeadersConfiguration {
 }
 
 interface PropertyData {
-    data: any;
+    id?: any;
+    data?: any;
     token?: any;
     isSuccess: () => void
     isError: () => void
 }
 
 interface DefaultGetData {
-    token?: any,
-    params?: any
+    id?: any;
+    token?: any;
+    params?: any;
 }
 
 // rejection
@@ -69,6 +71,93 @@ export const getDomainProperty = createAsyncThunk<any, DefaultGetData, { state: 
         const response = await axios.get("property", config);
         const { data, status } = response;
         if (status == 200) {
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+// get property by id
+export const getDomainPropertyById = createAsyncThunk<any, DefaultGetData, { state: RootState }>('property/id', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        params: params.params,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.get(`property/${params.id}`, config);
+        const { data, status } = response;
+        if (status == 200) {
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+export const createDomainProperty = createAsyncThunk<any, PropertyData, { state: RootState }>('create/property', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.post("property", params.data, config);
+        const { data, status } = response;
+        if (status == 201) {
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
+export const updateDomainProperty = createAsyncThunk<any, PropertyData, { state: RootState }>('update/property', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.patch(`property/${params.id}`, params.data, config);
+        const { data, status } = response;
+        if (status == 200) {
+            params.isSuccess()
             return data
         } else {
             throw response
@@ -120,6 +209,67 @@ export const domainPropertySlice = createSlice({
                 }
             })
             .addCase(getDomainProperty.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // get-domain-property
+            .addCase(getDomainPropertyById.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(getDomainPropertyById.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false,
+                    property: payload
+                }
+            })
+            .addCase(getDomainPropertyById.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // create-domain-property
+            .addCase(createDomainProperty.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(createDomainProperty.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(createDomainProperty.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // update-domain-property
+            .addCase(updateDomainProperty.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(updateDomainProperty.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(updateDomainProperty.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
