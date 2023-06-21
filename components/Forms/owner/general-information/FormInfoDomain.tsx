@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { getDomainId, selectAccessDomain, updateAccessDomain } from '../../../../redux/features/accessDomain/accessDomainReducers';
 import { FaCircleNotch } from 'react-icons/fa';
 import { isBase64 } from '../../../../utils/useHooks/useFunction';
+import { toast } from 'react-toastify';
 
 type Props = {
     token?: string | any;
@@ -214,8 +215,13 @@ const FormInfoDomain = ({ token, items, id }: Props) => {
             id,
             data: formData,
             token,
-            isError: () => dispatch(getDomainId({ id, token })),
-            isSuccess: () => dispatch(getDomainId({ id, token })),
+            isError: () => {
+                console.log("error")
+            },
+            isSuccess: () => {
+                dispatch(getDomainId({ id, token }))
+                toast.dark(`General Information has been updated.`)
+            },
         }))
     }
 
