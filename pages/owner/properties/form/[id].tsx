@@ -67,105 +67,6 @@ type PropertyData = {
     legalEntityLogo?: string | any,
     status?: string,
     legalEntity?: PropertyData
-}
-
-type Options = {
-    value: any,
-    label: any
-}
-
-const sortOpt: Options[] = [
-    { value: "ASC", label: "A-Z" },
-    { value: "DESC", label: "Z-A" },
-];
-
-const stylesSelectSort = {
-    indicatorsContainer: (provided: any) => ({
-        ...provided,
-        flexDirection: "row-reverse"
-    }),
-    indicatorSeparator: (provided: any) => ({
-        ...provided,
-        display: 'none'
-    }),
-    dropdownIndicator: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#7B8C9E',
-        })
-    },
-    clearIndicator: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#7B8C9E',
-        })
-    },
-    singleValue: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#5F59F7',
-        })
-    },
-    control: (provided: any, state: any) => {
-        return ({
-            ...provided,
-            background: "",
-            padding: '.6rem',
-            borderRadius: ".75rem",
-            borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-            color: "#5F59F7",
-            "&:hover": {
-                color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-                borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
-            },
-            minHeight: 40,
-            flexDirection: "row-reverse"
-        })
-    },
-    menuList: (provided: any) => (provided)
-};
-
-const stylesSelect = {
-    indicatorSeparator: (provided: any) => ({
-        ...provided,
-        display: 'none'
-    }),
-    dropdownIndicator: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#7B8C9E',
-        })
-    },
-    clearIndicator: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#7B8C9E',
-        })
-    },
-    singleValue: (provided: any) => {
-        return ({
-            ...provided,
-            color: '#5F59F7',
-        })
-    },
-    control: (provided: any, state: any) => {
-        // console.log(provided, "control")
-        return ({
-            ...provided,
-            background: "",
-            padding: '.6rem',
-            borderRadius: ".75rem",
-            borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-            color: "#5F59F7",
-            "&:hover": {
-                color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-                borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
-            },
-            minHeight: 40,
-            // flexDirection: "row-reverse"
-        })
-    },
-    menuList: (provided: any) => (provided)
 };
 
 const DomainProperty = ({ pageProps }: Props) => {
@@ -176,16 +77,8 @@ const DomainProperty = ({ pageProps }: Props) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // form
-    const [isForm, setIsForm] = useState(false);
     const [formData, setFormData] = useState<FormValues>({})
     // chart tab
-
-    const isOpenForm = () => {
-        setIsForm(true)
-    }
-    const isCloseForm = () => {
-        setIsForm(false)
-    }
 
     // redux
     const dispatch = useAppDispatch();
@@ -249,8 +142,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                 city: property?.city ? { label: property?.city, value: property?.city } : null,
             })
         }
-    }, [property])
-
+    }, [property]);
 
     return (
         <DomainLayouts
@@ -338,28 +230,6 @@ const DomainProperty = ({ pageProps }: Props) => {
                     </div>
                 </div>
             </div>
-
-            {/* modal */}
-            <Modal
-                isOpen={isForm}
-                onClose={isCloseForm}
-                size='small'
-            >
-                <div>
-                    <ModalHeader
-                        className='border-b-2 border-gray p-4'
-                        isClose
-                        onClick={isCloseForm}
-                    >
-                        <div className='w-full flex'>
-                            <h3>New Property</h3>
-                        </div>
-                    </ModalHeader>
-                    <div className='w-full'>
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Distinctio, ab?
-                    </div>
-                </div>
-            </Modal>
         </DomainLayouts>
     )
 };

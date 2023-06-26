@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import DomainSidebar from '../../../components/Layouts/Sidebar/Domain';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
-import CardTables from '../../../components/tables/layouts/CardTables';
+import CardTables from '../../../components/tables/layouts/server/CardTables';
 import { ColumnDef } from '@tanstack/react-table';
 import { getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
 import { QuerySortOperator, RequestQueryBuilder } from '@nestjsx/crud-request';
@@ -282,7 +282,7 @@ const DomainProperty = ({ pageProps }: Props) => {
     if (sort?.value) qr = { ...qr, sort: sort?.value }
 
     router.replace({ pathname, query: qr })
-  }, [search, sort])
+  }, [search, sort, limit, pages])
 
 
   const filters = useMemo(() => {
@@ -416,7 +416,7 @@ const DomainProperty = ({ pageProps }: Props) => {
             </DomainSidebar>
 
             <div className='w-full relative tracking-wide text-left text-boxdark-2 mt-20 overflow-hidden'>
-              <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6 overflow-y-auto">
+              <div className="w-full h-full flex flex-1 flex-col overflow-auto gap-2.5 lg:gap-6">
                 {/* filters */}
                 <div className='sticky z-40 top-0 w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 py-6 px-8 bg-gray'>
                   <div className='w-full lg:col-span-3'>
@@ -471,7 +471,6 @@ const DomainProperty = ({ pageProps }: Props) => {
                     dataTable={dataTable}
                     total={total}
                     setIsSelected={setIsSelectedRow}
-                    isInfiniteScroll
                     classTable="px-4"
                   />
                 </div>
