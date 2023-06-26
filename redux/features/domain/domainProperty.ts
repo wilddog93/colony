@@ -176,6 +176,35 @@ export const updateDomainProperty = createAsyncThunk<any, PropertyData, { state:
     }
 });
 
+export const deleteDomainProperty = createAsyncThunk<any, PropertyData, { state: RootState }>('delete/property', async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${params.token}`
+        },
+    };
+    try {
+        const response = await axios.delete(`property/${params.id}`, config);
+        const { data, status } = response;
+        if (status == 204) {
+            params.isSuccess()
+            return data
+        } else {
+            throw response
+        }
+    } catch (error: any) {
+        const { data, status } = error.response;
+        let newError: any = { message: data.message[0] }
+        toast.dark(newError.message)
+        if (error.response && error.response.status === 404) {
+            throw new Error('User not found');
+        } else {
+            throw new Error(newError.message);
+        }
+    }
+});
+
 
 // SLICER
 export const domainPropertySlice = createSlice({
@@ -272,6 +301,26 @@ export const domainPropertySlice = createSlice({
                 }
             })
             .addCase(updateDomainProperty.rejected, (state, { error }) => {
+                state.pending = false;
+                state.error = true;
+                state.message = error.message;
+            })
+
+            // delete
+            .addCase(deleteDomainProperty.pending, state => {
+                return {
+                    ...state,
+                    pending: true
+                }
+            })
+            .addCase(deleteDomainProperty.fulfilled, (state, { payload }) => {
+                return {
+                    ...state,
+                    pending: false,
+                    error: false
+                }
+            })
+            .addCase(deleteDomainProperty.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;

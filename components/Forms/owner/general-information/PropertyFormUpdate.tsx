@@ -13,6 +13,8 @@ import { isBase64 } from '../../../../utils/useHooks/useFunction';
 import { toast } from 'react-toastify';
 import { getDomainPropertyById, selectDomainProperty, updateDomainProperty } from '../../../../redux/features/domain/domainProperty';
 import { useRouter } from 'next/router';
+import Modal from '../../../Modal';
+import { ModalHeader } from '../../../Modal/ModalComponent';
 
 type Props = {
     token?: string | any;
@@ -115,6 +117,16 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
     // redux
     const dispatch = useAppDispatch();
     const { property, pending, error, message } = useAppSelector(selectDomainProperty);
+
+    // form delete
+    const [isFormDelete, setIsFormDelete] = useState(false);
+
+    const isOpenFormDelete = () => {
+        setIsFormDelete(true)
+    }
+    const isCloseFormDelete = () => {
+        setIsFormDelete(false)
+    }
 
     // form
     const {
@@ -379,7 +391,7 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
                 <div className='w-full lg:col-span-2 flex flex-col lg:flex-row items-center gap-2 justify-end'>
                     <Button
                         type="button"
-                        onClick={() => console.log("delete")}
+                        onClick={isOpenFormDelete}
                         variant=""
                         className="bg-white border-2 border-gray shadow-card rounded-lg text-sm py-4 px-4 text-gray-5"
                     >
@@ -901,6 +913,28 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
                     </Cards>
                 </div>
             </div>
+
+            {/* modal */}
+            <Modal
+                isOpen={isFormDelete}
+                onClose={isCloseFormDelete}
+                size='small'
+            >
+                <div>
+                    <ModalHeader
+                        className='border-b-2 border-gray p-4'
+                        isClose
+                        onClick={isCloseFormDelete}
+                    >
+                        <div className='w-full flex'>
+                            <h3>Are you</h3>
+                        </div>
+                    </ModalHeader>
+                    <div className='w-full'>
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Distinctio, ab?
+                    </div>
+                </div>
+            </Modal>
         </form>
     )
 }
