@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
 import { FaCircleNotch } from 'react-icons/fa';
 import { isBase64 } from '../../../../utils/useHooks/useFunction';
 import { toast } from 'react-toastify';
-import { getDomainPropertyById, selectDomainProperty, updateDomainProperty } from '../../../../redux/features/domain/domainProperty';
+import { deleteDomainProperty, getDomainPropertyById, selectDomainProperty, updateDomainProperty } from '../../../../redux/features/domain/domainProperty';
 import { useRouter } from 'next/router';
 import Modal from '../../../Modal';
 import { ModalHeader } from '../../../Modal/ModalComponent';
@@ -127,6 +127,29 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
     const isCloseFormDelete = () => {
         setIsFormDelete(false)
     }
+
+    const onDelete = (id: number | string) => {
+        if (!id) {
+            toast.error("Id Property not found!")
+            return;
+        }
+        console.log(id, 'id')
+        dispatch(deleteDomainProperty({
+            id,
+            token,
+            isError: () => console.log("error"),
+            isSuccess: () => {
+                toast.dark(`Property has been deleted.`)
+                router.push({
+                    pathname: "/owner/properties",
+                    query: {
+                        page: 1,
+                        limit: 10
+                    }
+                })
+            }
+        }))
+    };
 
     // form
     const {
@@ -374,6 +397,8 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
         if (search?.lng) (setValue('gpsLongitude', search.lng), clearErrors("gpsLongitude"))
         if (search?.address) (setValue('street', search.address), clearErrors("street"))
     }, [search])
+
+    console.log(items, 'data')
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='w-full'>
             <div className='sticky z-40 top-0 bottom-0 w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 py-6 px-8 bg-gray'>
@@ -926,12 +951,36 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
                         isClose
                         onClick={isCloseFormDelete}
                     >
-                        <div className='w-full flex'>
-                            <h3>Are you</h3>
+                        <div className='w-full flex flex-col gap-2'>
+                            <h3 className='font-semibold'>Delete Property</h3>
+                            <p>Are you sure to delete {items?.propertyName}?</p>
                         </div>
                     </ModalHeader>
-                    <div className='w-full'>
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Distinctio, ab?
+                    <div className='w-full p-4 flex gap-2 items-center justify-end'>
+                        <Button
+                            type="button"
+                            variant=""
+                            className="border-2 border-gray-4 rounded-lg text-sm text-gray-5 hover:text-gray-6"
+                            onClick={isCloseFormDelete}
+                        >
+                            Discard
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="primary"
+                            className="rounded-lg text-sm border-2 border-primary"
+                            onClick={() => onDelete(items.id)}
+                            disabled={pending}
+                        >
+                            {pending ? 
+                                <div className='flex items-center gap-2'>
+                                    <span>Loading...</span>
+                                    <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
+                                </div> :
+                                "Yes, Delete it"
+                            }
+                        </Button>
                     </div>
                 </div>
             </Modal>
