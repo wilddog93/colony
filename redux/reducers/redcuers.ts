@@ -9,12 +9,14 @@ import domainUserReducers from '../features/domain/domainUser';
 import domainAccessGroupReducers from '../features/domain/user-management/domainAccessGroupReducers';
 import domainAccessReducers from '../features/domain/user-management/domainAccessReducers ';
 import domainStructureReducers from '../features/domain/domainStructure';
+import propertyTypeReducers from '../features/property-type/propertyType';
 
 export const combinedReducer = combineReducers({
     //All reducer
     counter: counterSlice,
     kanyeQuote: kanyeReducer,
     authentication: authReducers,
+    propertyType: propertyTypeReducers,
     propertyAccess: propertyReducers,
     accessDomain: accessDomainReducers,
     domainProperty: domainPropertyReducers,

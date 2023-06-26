@@ -4,20 +4,26 @@ import { MdWarning } from 'react-icons/md';
 import { ModalFooter } from '../../Modal/ModalComponent';
 import Button from '../../Button/Button';
 import DropdownSelect from '../../Dropdown/DropdownSelect';
+import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
+import { getPropertyType, selectPropertyType } from '../../../redux/features/property-type/propertyType';
+import { createDomainProperty, getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
+import { toast } from 'react-toastify';
+import { FaCircleNotch } from 'react-icons/fa';
 
 type Props = {
     items?: any
     isOpen?: boolean;
-    onClose: () => void
+    onClose: () => void;
+    token?: any;
+    filters?: any;
 }
 
 type FormValues = {
     id?: any,
     propertyName?: string | any,
-    propertyCode?: string | number | any,
     propertyType?: any,
     propertyDescription?: any | string,
-    total?: number | string | any
 }
 
 type WatchProps = {
@@ -29,10 +35,10 @@ type WatchChangeProps = {
     type?: EventType | any
 };
 
-const PropsOptions = [
-    { value: "Apartment", label: "Apartment" },
-    { value: "Mall", label: "Mall" },
-]
+type Options = {
+    value?: any;
+    label?: any;
+};
 
 const stylesSelect = {
     indicatorSeparator: (provided: any) => ({
@@ -79,9 +85,15 @@ const stylesSelect = {
     menuList: (provided: any) => (provided)
 };
 
-const PropertyForm = ({ items, isOpen, onClose }: Props) => {
-    const [watchValue, setWatchValue] = useState<FormValues | any>();
+const PropertyForm = ({ items, isOpen, onClose, token, filters }: Props) => {
+    const [watchValue, setWatchValue] = useState<FormValues>();
     const [watchChangeValue, setWatchChangeValue] = useState<WatchChangeProps>();
+    const [propertyTypeOption, setPropertyTypeOption] = useState<Options[]>([]);
+
+    // redux
+    const dispatch = useAppDispatch();
+    const { propertyTypes } = useAppSelector(selectPropertyType);
+    const { properties, pending, error, message } = useAppSelector(selectDomainProperty);
 
     const {
         register,
@@ -98,8 +110,8 @@ const PropertyForm = ({ items, isOpen, onClose }: Props) => {
         mode: "all",
         defaultValues: useMemo<FormValues>(() => ({
             id: null,
-            propertyCode: null,
             propertyName: null,
+            propertyType: null,
             propertyDescription: null
         }), [])
     });
@@ -117,12 +129,65 @@ const PropertyForm = ({ items, isOpen, onClose }: Props) => {
 
     const onSubmit: SubmitHandler<FormValues> = (value) => {
         console.log(value, 'event form')
+        let formData = {
+            propertyName: value.propertyName,
+            propertyDescription: value.propertyDescription,
+            propertyType: value.propertyType?.id
+        }
+        dispatch(createDomainProperty({ 
+            token, 
+            data: formData, 
+            isSuccess : () => {
+                toast.dark(`Property ${value.propertyName} has been created!`);
+                dispatch(getDomainProperty({ token, params: filters }))
+                onClose();
+            },
+            isError: () => {
+                console.log(message)
+            }
+        }))
     };
 
     const descriptionValue = useWatch({
         name: "propertyDescription",
         control
     });
+
+    const filterPropType = useMemo(() => {
+        const qb = RequestQueryBuilder.create();
+        const search: any = {
+            $and: [],
+        };
+        // query?.annual && search["$and"].push({ "annual": query?.annual });
+
+        qb.search(search);
+        qb.sortBy({ field: "propertyTypeName", order: "ASC" })
+        qb.query();
+        return qb;
+    }, [])
+
+    useEffect(() => {
+        if (token) {
+            dispatch(getPropertyType({ token, params: filterPropType.queryObject }))
+        }
+    }, [filterPropType, token]);
+
+    useEffect(() => {
+        let arr: Options[] = [];
+        const { data } = propertyTypes;
+        if (!data || data?.length == 0) {
+            setPropertyTypeOption(arr);
+        } else {
+            data?.map((item: any) => {
+                arr.push({
+                    ...item,
+                    value: item.id,
+                    label: item.propertyTypeName
+                })
+            })
+            setPropertyTypeOption(arr)
+        }
+    }, [propertyTypes.data]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -176,7 +241,7 @@ const PropertyForm = ({ items, isOpen, onClose }: Props) => {
                                 isDisabled={false}
                                 isMulti={false}
                                 placeholder='Type...'
-                                options={PropsOptions}
+                                options={propertyTypeOption}
                                 icon=''
                             />
                         )}
@@ -231,9 +296,16 @@ const PropertyForm = ({ items, isOpen, onClose }: Props) => {
                     type="button"
                     variant="primary"
                     className="rounded-lg text-sm"
-                    onClick={onClose}
+                    onClick={handleSubmit(onSubmit)}
+                    disabled={pending}
                 >
-                    Save
+                    {pending ? 
+                        <div className='flex items-center gap-2'>
+                            <span>Loading...</span>
+                            <FaCircleNotch className='w-4 h-4 animate-spin-1.5' />
+                        </div> :
+                        "Save"
+                    }
                 </Button>
             </ModalFooter>
         </form>

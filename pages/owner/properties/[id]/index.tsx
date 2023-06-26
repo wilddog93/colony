@@ -334,6 +334,10 @@ const DomainProperty = ({ pageProps }: Props) => {
         }
     }, [properties.data])
 
+    const goToProperty = (id: number) => {
+        console.log(id, 'value go')
+    }
+
     console.log(property, 'data property')
     console.log(domain, "data domain")
 
@@ -430,7 +434,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                                         <Button
                                             type="button"
                                             onClick={() => router.push({
-                                                pathname: "/owner/home/general-information"
+                                                pathname: `/owner/properties/form/${query?.id}`
                                             })}
                                             variant=""
                                             className="bg-white border-2 border-gray shadow-card rounded-lg text-sm py-4 px-4"
@@ -456,9 +460,7 @@ const DomainProperty = ({ pageProps }: Props) => {
 
                                         <Button
                                             type="button"
-                                            onClick={() => router.push({ 
-                                                pathname: `/owner/properties/form/${query?.id}`
-                                            })}
+                                            onClick={() => console.log("open")}
                                             variant="primary"
                                             className="border-2 rounded-lg py-4 px-4 text-sm"
                                         >
@@ -493,7 +495,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                                                 <div>
                                                     Tenants
                                                     <p className='font-semibold'>
-                                                    {property?.totalUnitTenant}
+                                                        {property?.totalUnitTenant}
                                                     </p>
                                                 </div>
                                                 <div>
@@ -588,7 +590,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                         </div>
                     </ModalHeader>
                     <div className='w-full'>
-                        <PropertyForm onClose={isCloseForm} isOpen={isForm} />
+                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Modi, suscipit?
                     </div>
                 </div>
             </Modal>

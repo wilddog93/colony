@@ -9,17 +9,17 @@ import { toast } from 'react-toastify';
 import type { RootState } from '../../store';
 
 // here we are typing the types for the state
-export type DomainState = {
-    properties: any,
-    property: any,
+export type PropertyTypeState = {
+    propertyTypes: any,
+    propertyType: any,
     pending: boolean;
     error: boolean;
     message: any;
 };
 
-const initialState: DomainState = {
-    properties: {},
-    property: {},
+const initialState: PropertyTypeState = {
+    propertyTypes: {},
+    propertyType: {},
     pending: false,
     error: false,
     message: "",
@@ -34,7 +34,7 @@ interface HeadersConfiguration {
     }
 }
 
-interface PropertyData {
+interface PropertyTypeData {
     id?: any;
     data?: any;
     token?: any;
@@ -58,7 +58,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 }
 
 // domain-property
-export const getDomainProperty = createAsyncThunk<any, DefaultGetData, { state: RootState }>('property', async (params, { getState }) => {
+export const getPropertyType = createAsyncThunk<any, DefaultGetData, { state: RootState }>('property-type', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         params: params.params,
         headers: {
@@ -68,7 +68,7 @@ export const getDomainProperty = createAsyncThunk<any, DefaultGetData, { state: 
         },
     };
     try {
-        const response = await axios.get("property", config);
+        const response = await axios.get("propertyType", config);
         const { data, status } = response;
         if (status == 200) {
             return data
@@ -88,7 +88,7 @@ export const getDomainProperty = createAsyncThunk<any, DefaultGetData, { state: 
 });
 
 // get property by id
-export const getDomainPropertyById = createAsyncThunk<any, DefaultGetData, { state: RootState }>('property/id', async (params, { getState }) => {
+export const getPropertyTypeById = createAsyncThunk<any, DefaultGetData, { state: RootState }>('property-type/id', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         params: params.params,
         headers: {
@@ -98,7 +98,7 @@ export const getDomainPropertyById = createAsyncThunk<any, DefaultGetData, { sta
         },
     };
     try {
-        const response = await axios.get(`property/${params.id}`, config);
+        const response = await axios.get(`propertyType/${params.id}`, config);
         const { data, status } = response;
         if (status == 200) {
             return data
@@ -117,7 +117,7 @@ export const getDomainPropertyById = createAsyncThunk<any, DefaultGetData, { sta
     }
 });
 
-export const createDomainProperty = createAsyncThunk<any, PropertyData, { state: RootState }>('create/property', async (params, { getState }) => {
+export const createPropertyType = createAsyncThunk<any, PropertyTypeData, { state: RootState }>('create/property-type', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         headers: {
             "Content-Type": "application/json",
@@ -126,10 +126,9 @@ export const createDomainProperty = createAsyncThunk<any, PropertyData, { state:
         },
     };
     try {
-        const response = await axios.post("property", params.data, config);
+        const response = await axios.post("propertyType", params.data, config);
         const { data, status } = response;
         if (status == 201) {
-            params.isSuccess()
             return data
         } else {
             throw response
@@ -138,7 +137,6 @@ export const createDomainProperty = createAsyncThunk<any, PropertyData, { state:
         const { data, status } = error.response;
         let newError: any = { message: data.message[0] }
         toast.dark(newError.message)
-        params.isError()
         if (error.response && error.response.status === 404) {
             throw new Error('User not found');
         } else {
@@ -147,7 +145,7 @@ export const createDomainProperty = createAsyncThunk<any, PropertyData, { state:
     }
 });
 
-export const updateDomainProperty = createAsyncThunk<any, PropertyData, { state: RootState }>('update/property', async (params, { getState }) => {
+export const updatePropertyType = createAsyncThunk<any, PropertyTypeData, { state: RootState }>('update/property-type', async (params, { getState }) => {
     let config: HeadersConfiguration = {
         headers: {
             "Content-Type": "application/json",
@@ -156,7 +154,7 @@ export const updateDomainProperty = createAsyncThunk<any, PropertyData, { state:
         },
     };
     try {
-        const response = await axios.patch(`property/${params.id}`, params.data, config);
+        const response = await axios.patch(`propertyType/${params.id}`, params.data, config);
         const { data, status } = response;
         if (status == 200) {
             params.isSuccess()
@@ -178,13 +176,13 @@ export const updateDomainProperty = createAsyncThunk<any, PropertyData, { state:
 
 
 // SLICER
-export const domainPropertySlice = createSlice({
-    name: 'domainProperty',
+export const propertyTypeSlice = createSlice({
+    name: 'propertyType',
     initialState,
     reducers: {
         // leave this empty here
-        resetDomainProperty(state) {
-            state.property = {}
+        resetPropertyType(state) {
+            state.propertyType = {}
             state.pending = false
             state.error = false
             state.message = ""
@@ -196,82 +194,82 @@ export const domainPropertySlice = createSlice({
     extraReducers: builder => {
         builder
             // get-domain-property
-            .addCase(getDomainProperty.pending, state => {
+            .addCase(getPropertyType.pending, state => {
                 return {
                     ...state,
                     pending: true
                 }
             })
-            .addCase(getDomainProperty.fulfilled, (state, { payload }) => {
+            .addCase(getPropertyType.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
                     pending: false,
                     error: false,
-                    properties: payload
+                    propertyTypes: payload
                 }
             })
-            .addCase(getDomainProperty.rejected, (state, { error }) => {
+            .addCase(getPropertyType.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
             })
 
             // get-domain-property
-            .addCase(getDomainPropertyById.pending, state => {
+            .addCase(getPropertyTypeById.pending, state => {
                 return {
                     ...state,
                     pending: true
                 }
             })
-            .addCase(getDomainPropertyById.fulfilled, (state, { payload }) => {
+            .addCase(getPropertyTypeById.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
                     pending: false,
                     error: false,
-                    property: payload
+                    propertyType: payload
                 }
             })
-            .addCase(getDomainPropertyById.rejected, (state, { error }) => {
+            .addCase(getPropertyTypeById.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
             })
 
             // create-domain-property
-            .addCase(createDomainProperty.pending, state => {
+            .addCase(createPropertyType.pending, state => {
                 return {
                     ...state,
                     pending: true
                 }
             })
-            .addCase(createDomainProperty.fulfilled, (state, { payload }) => {
+            .addCase(createPropertyType.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
                     pending: false,
                     error: false
                 }
             })
-            .addCase(createDomainProperty.rejected, (state, { error }) => {
+            .addCase(createPropertyType.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
             })
 
             // update-domain-property
-            .addCase(updateDomainProperty.pending, state => {
+            .addCase(updatePropertyType.pending, state => {
                 return {
                     ...state,
                     pending: true
                 }
             })
-            .addCase(updateDomainProperty.fulfilled, (state, { payload }) => {
+            .addCase(updatePropertyType.fulfilled, (state, { payload }) => {
                 return {
                     ...state,
                     pending: false,
                     error: false
                 }
             })
-            .addCase(updateDomainProperty.rejected, (state, { error }) => {
+            .addCase(updatePropertyType.rejected, (state, { error }) => {
                 state.pending = false;
                 state.error = true;
                 state.message = error.message;
@@ -289,9 +287,9 @@ export const domainPropertySlice = createSlice({
 });
 // SLICER
 
-const domainPropertyReducers = domainPropertySlice.reducer;
+const propertyTypeReducers = propertyTypeSlice.reducer;
 
-export const { resetDomainProperty } = domainPropertySlice.actions
-export const selectDomainProperty = (state: RootState) => state.domainProperty;
+export const { resetPropertyType } = propertyTypeSlice.actions
+export const selectPropertyType = (state: RootState) => state.propertyType;
 
-export default domainPropertyReducers;
+export default propertyTypeReducers;

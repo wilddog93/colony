@@ -95,7 +95,7 @@ const WebOptions: Options[] = [
     }
 ]
 
-const FormInfoProperty = ({ token, items, id, isUpdate }: Props) => {
+const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
     const googleMapAPI = process.env.GOOGLE_MAP_API;
     const url = process.env.API_ENDPOINT;
     const router = useRouter();
@@ -216,18 +216,20 @@ const FormInfoProperty = ({ token, items, id, isUpdate }: Props) => {
             gpsLongitude: value.gpsLongitude,
             street: value.street
         }
-        dispatch(updateDomainProperty({
-            id: value.id,
-            data: formData,
-            token,
-            isError: () => {
-                console.log("error")
-            },
-            isSuccess: () => {
-                dispatch(getDomainPropertyById({ id: value.id, token }))
-                toast.dark(`General Information has been updated.`)
-            },
-        }))
+        if (isUpdate) {
+            dispatch(updateDomainProperty({
+                id: value.id,
+                data: formData,
+                token,
+                isError: () => {
+                    console.log("error")
+                },
+                isSuccess: () => {
+                    dispatch(getDomainPropertyById({ id: value.id, token }))
+                    toast.dark(`General Information has been updated.`)
+                },
+            }))
+        }
     }
 
     const descriptionValue = useWatch({
@@ -903,4 +905,4 @@ const FormInfoProperty = ({ token, items, id, isUpdate }: Props) => {
     )
 }
 
-export default FormInfoProperty
+export default PropertyFormUpdate

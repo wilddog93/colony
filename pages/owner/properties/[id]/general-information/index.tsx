@@ -26,7 +26,7 @@ import Modal from '../../../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
 import PropertyForm from '../../../../../components/Forms/owner/PropertyForm';
 import FormInfoDomain from '../../../../../components/Forms/owner/general-information/FormInfoDomain';
-import FormInfoProperty from '../../../../../components/Forms/owner/general-information/FormInfoProperty';
+import FormInfoProperty from '../../../../../components/Forms/owner/general-information/PropertyFormUpdate';
 
 type Props = {
     pageProps: any

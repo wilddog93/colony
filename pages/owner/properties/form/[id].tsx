@@ -1,32 +1,19 @@
-import React, { SetStateAction, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../../components/Layouts/DomainLayouts'
-import { MdAdd, MdArrowCircleRight, MdArrowRight, MdArrowRightAlt, MdChevronLeft, MdEdit, MdHome, MdMailOutline, MdMapsHomeWork, MdMuseum, MdOutlineHome, MdOutlineMailOutline, MdOutlinePeople, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic, MdOutlineWarning, MdPhone, MdPlace } from 'react-icons/md';
-import Button from '../../../../components/Button/Button';
-import Cards from '../../../../components/Cards/Cards';
-import Barcharts from '../../../../components/Chart/Barcharts';
-import Doughnutcharts from '../../../../components/Chart/Doughnutcharts';
+import { MdMailOutline, MdMuseum, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic } from 'react-icons/md';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../redux/features/auth/authReducers';
+import { getAuthMe } from '../../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
-import SidebarBody from '../../../../components/Layouts/Sidebar/SidebarBody';
 import DomainSidebar from '../../../../components/Layouts/Sidebar/Domain';
-import { SearchInput } from '../../../../components/Forms/SearchInput';
-import DropdownSelect from '../../../../components/Dropdown/DropdownSelect';
-import CardTables from '../../../../components/tables/layouts/CardTables';
-import { DivisionProps, createDivisionArr } from '../../../../components/tables/components/taskData';
-import { ColumnDef } from '@tanstack/react-table';
-import Teams from '../../../../components/Task/Teams';
-import { getDomainProperty, getDomainPropertyById, selectDomainProperty } from '../../../../redux/features/domain/domainProperty';
+import { getDomainPropertyById, selectDomainProperty } from '../../../../redux/features/domain/domainProperty';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { getDomainId, selectAccessDomain } from '../../../../redux/features/accessDomain/accessDomainReducers';
 import { formatPhone } from '../../../../utils/useHooks/useFunction';
 import Modal from '../../../../components/Modal';
 import { ModalFooter, ModalHeader } from '../../../../components/Modal/ModalComponent';
-import PropertyForm from '../../../../components/Forms/owner/PropertyForm';
-import FormInfoDomain from '../../../../components/Forms/owner/general-information/FormInfoDomain';
-import FormInfoProperty from '../../../../components/Forms/owner/general-information/FormInfoProperty';
+import PropertyFormUpdate from '../../../../components/Forms/owner/general-information/PropertyFormUpdate';
 
 type Props = {
     pageProps: any
@@ -344,7 +331,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                                 {/* filters */}
                                 <div className="w-full grid col-span-1 gap-4 tracking-wider mb-5">
                                     {/* Form */}
-                                    <FormInfoProperty items={formData} token={token} id={query} isUpdate />
+                                    <PropertyFormUpdate items={formData} token={token} id={query} isUpdate />
                                 </div>
                             </div>
                         </div>
@@ -369,7 +356,7 @@ const DomainProperty = ({ pageProps }: Props) => {
                         </div>
                     </ModalHeader>
                     <div className='w-full'>
-                        <PropertyForm onClose={isCloseForm} isOpen={isForm} />
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Distinctio, ab?
                     </div>
                 </div>
             </Modal>

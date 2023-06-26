@@ -2,24 +2,18 @@ import React, { SetStateAction, useEffect, useMemo, useState } from 'react'
 import DomainLayouts from '../../../components/Layouts/DomainLayouts'
 import { MdAdd, MdEdit, MdHome, MdMailOutline, MdMapsHomeWork, MdMuseum, MdOutlineHome, MdOutlinePeople, MdOutlinePhone, MdOutlinePlace, MdOutlinePublic, MdOutlineWarning, MdPhone, MdPlace } from 'react-icons/md';
 import Button from '../../../components/Button/Button';
-import Cards from '../../../components/Cards/Cards';
-import Barcharts from '../../../components/Chart/Barcharts';
-import Doughnutcharts from '../../../components/Chart/Doughnutcharts';
 import { getCookies } from 'cookies-next';
 import { GetServerSideProps } from 'next';
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAuthMe, selectAuth } from '../../../redux/features/auth/authReducers';
 import { useRouter } from 'next/router';
-import SidebarBody from '../../../components/Layouts/Sidebar/SidebarBody';
 import DomainSidebar from '../../../components/Layouts/Sidebar/Domain';
 import { SearchInput } from '../../../components/Forms/SearchInput';
 import DropdownSelect from '../../../components/Dropdown/DropdownSelect';
 import CardTables from '../../../components/tables/layouts/CardTables';
-import { DivisionProps, createDivisionArr } from '../../../components/tables/components/taskData';
 import { ColumnDef } from '@tanstack/react-table';
-import Teams from '../../../components/Task/Teams';
 import { getDomainProperty, selectDomainProperty } from '../../../redux/features/domain/domainProperty';
-import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { QuerySortOperator, RequestQueryBuilder } from '@nestjsx/crud-request';
 import { getDomainId, selectAccessDomain } from '../../../redux/features/accessDomain/accessDomainReducers';
 import { formatPhone } from '../../../utils/useHooks/useFunction';
 import Modal from '../../../components/Modal';
@@ -217,7 +211,7 @@ const DomainProperty = ({ pageProps }: Props) => {
             }
           }} className='w-full flex flex-col lg:flex-row gap-4 cursor-pointer p-4 tracking-wider'>
             <div className='w-full lg:w-1/5 text-lg font-semibold'>
-              <img src={logo ? `${url}property/propertyLogo/${logo}` : "../image/logo/logo-icon.svg"} alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
+              <img src={logo ? `${url}property/propertyLogo/${logo}` : "../image/no-image.jpeg"} alt="" className='w-full max-w-[150px] object-cover object-center m-auto' />
             </div>
             <div className='w-full lg:w-4/5 flex flex-col gap-2 justify-around text-lg font-semibold '>
               <div className='w-full flex flex-col gap-2'>
@@ -310,7 +304,8 @@ const DomainProperty = ({ pageProps }: Props) => {
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    if (query?.status) qb.sortBy({ field: "propertyName" || "propertyDescription", order: !query?.status ? "ASC" : "DESC" })
+    if (query?.sort) qb.sortBy({ field: "propertyName" || "propertyDescription", order: query.sort as QuerySortOperator })
+    qb.sortBy({ field: "createdAt", order: "DESC" })
     qb.query();
     return qb;
   }, [query])
@@ -503,7 +498,7 @@ const DomainProperty = ({ pageProps }: Props) => {
             </div>
           </ModalHeader>
           <div className='w-full'>
-            <PropertyForm onClose={isCloseForm} isOpen={isForm} />
+            <PropertyForm token={token} onClose={isCloseForm} isOpen={isForm} filters={filters.queryObject} />
           </div>
         </div>
       </Modal>
