@@ -428,12 +428,12 @@ const PropertyFormUpdate = ({ token, items, id, isUpdate }: Props) => {
                         type="submit"
                         onSubmit={handleSubmit(onSubmit)}
                         variant="primary"
-                        className="border-2 rounded-lg py-4 px-4 text-sm"
+                        className="shadow-card rounded-lg py-4 px-4 text-sm"
                         disabled={pending}
                     >
                         {!pending ?
                             <Fragment>
-                                <span>Manage Property</span>
+                                <span>Save</span>
                                 <MdOutlineSave className='w-5 h-5' />
                             </Fragment> :
                             <Fragment>
