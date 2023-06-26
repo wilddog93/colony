@@ -312,7 +312,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                             <button
                                 type='button'
                                 onClick={() => gotToAccess("merchant")}
-                                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+                                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${router.pathname.includes("merchant") ? "bg-gray" : "bg-white"}`}
                             >
                                 <img src="../../image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
                                 <h3 className='font-semibold'>Merchant</h3>
@@ -354,7 +354,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                                     onClick={isOpenForm}
                                     className="lg:ml-auto rounded-lg"
                                 >
-                                    <span>New Company</span>
+                                    <span>New Shop</span>
                                     <MdAdd className='w-6 h-6' />
                                 </Button>
                             </div>
@@ -425,14 +425,14 @@ const OwnerAccess = ({ pageProps }: Props) => {
                         onClick={isCloseForm}
                     >
                         <div className='w-full'>
-                            <h3 className='text-lg font-bold'>New Company</h3>
+                            <h3 className='text-lg font-bold'>New Shop</h3>
                         </div>
                     </ModalHeader>
 
                     <div className='w-full p-4'>
                         <div className='w-full mb-3 px-4'>
                             <label className='mb-2.5 block font-medium text-black dark:text-white'>
-                                Company Name
+                                Shop Name
                                 <span>*</span>
                             </label>
                             <div className='relative'>
@@ -460,7 +460,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
 
                         <div className='w-full mb-3 px-4'>
                             <label className='mb-2.5 block font-medium text-black dark:text-white'>
-                                Company Description
+                                Shop Description
                                 <span>*</span>
                             </label>
                             <div className='relative'>
@@ -515,7 +515,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     const access = cookies['access'] || null;
     const firebaseToken = cookies['firebaseToken'] || null;
 
-    if (token && access !== "owner") {
+    if (token && access !== "merchant") {
         return {
             redirect: {
                 destination: "/",
