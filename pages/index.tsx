@@ -152,6 +152,16 @@ const Home = ({ pageProps }: Props) => {
                 <h3 className='font-semibold'>Tenant</h3>
                 <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
               </button>
+
+              <button
+                type='button'
+                onClick={() => gotToAccess("merchant")}
+                className='tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left'
+              >
+                <img src="./image/logo/logo-icon.svg" alt="icon" className='w-14 h-14 object-contain' />
+                <h3 className='font-semibold'>Merchant</h3>
+                <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, beatae!</p>
+              </button>
             </div>
           </div>
 
@@ -276,6 +286,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     return {
       redirect: {
         destination: "/access/tenant",
+        permanent: false,
+      },
+    };
+  }
+
+  if (token && access == "merchant") {
+    return {
+      redirect: {
+        destination: "/access/merchant",
         permanent: false,
       },
     };
