@@ -9,10 +9,11 @@ type Props = {
     className?: string;
     token?: any;
     defaultImage?: string;
-    isSelectProperty?: boolean
+    isSelectProperty?: boolean;
+    propertyId?: number | string | any;
 }
 
-function SidebarComponent({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty }: Props) {
+function SidebarComponent({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty, propertyId }: Props) {
 
     return (
         <React.Fragment>
@@ -24,6 +25,7 @@ function SidebarComponent({ sidebar, setSidebar, menus, className, token, defaul
                 token={token}
                 defaultImage={defaultImage}
                 isSelectProperty={isSelectProperty}
+                propertyId={propertyId}
             />
         </React.Fragment>
     )

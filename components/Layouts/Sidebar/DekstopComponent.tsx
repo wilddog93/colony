@@ -7,6 +7,7 @@ import PropertySelect from '../../BM/PropertySelect'
 import { useAppDispatch, useAppSelector } from '../../../redux/Hook';
 import { getAccessProperty, selectPropertyAccess } from '../../../redux/features/propertyAccess/propertyAccessReducers';
 import { selectAuth, webPropertyAccess } from '../../../redux/features/auth/authReducers';
+import { getCookie } from 'cookies-next';
 
 
 type Props = {
@@ -16,10 +17,11 @@ type Props = {
     className?: string;
     token?: any;
     defaultImage?: string;
-    isSelectProperty?: boolean
+    isSelectProperty?: boolean;
+    propertyId?: number | string | any;
 }
 
-const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty }: Props) => {
+const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaultImage, isSelectProperty, propertyId }: Props) => {
     const router = useRouter();
     const { pathname, query } = router;
     const trigger = useRef<HTMLButtonElement>(null)
@@ -29,9 +31,8 @@ const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaul
     const dispatch = useAppDispatch();
     const { data } = useAppSelector(selectAuth);
     const { properties } = useAppSelector(selectPropertyAccess);
-    const [propertiesOptions, setPropertiesOptions] = useState<any[]>();
-    const [propertiesSelect, setPropertiesSelect] = useState<any | any[]>();
-    console.log({ properties, propertiesOptions, propertiesSelect }, 'property')
+    const [propertiesOptions, setPropertiesOptions] = useState<any[]>([]);
+    const [propertiesSelect, setPropertiesSelect] = useState<any | null>(null);
     const getFromLocalStorage = (key: string) => {
         if (!key || typeof window === 'undefined') {
             return ""
@@ -114,7 +115,8 @@ const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaul
     }, [properties?.data])
 
     useEffect(() => {
-        if(isSelectProperty && propertiesSelect) {
+        console.log(propertiesSelect, "propertiesSelect", propertyId)
+        if(propertiesSelect !== undefined && propertiesSelect) {
             dispatch(webPropertyAccess({ 
                 id: propertiesSelect?.value,
                 token: token,
@@ -122,8 +124,15 @@ const DekstopComponent = ({ sidebar, setSidebar, menus, className, token, defaul
             }))
         }
     }, [propertiesSelect])
-    
-    console.log(propertiesSelect, 'select')
+
+    useEffect(() => {
+        let idx = Number(propertyId)
+        let selected: any | any[] = propertiesOptions?.length > 0 && idx ?  propertiesOptions?.find(({ id }) => id === idx) : null;
+        console.log(selected, "selected", idx)
+        if (idx && selected?.id) {
+            setPropertiesSelect(selected)
+        }
+    }, [propertyId, propertiesOptions]); 
 
     return (
         <Fragment>

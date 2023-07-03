@@ -21,7 +21,7 @@ type Props = {
 const Dashboard = ({ pageProps }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, access, firebaseToken } = pageProps;
+  const { token, access, firebaseToken, accessId } = pageProps;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // redux
@@ -344,6 +344,7 @@ const Dashboard = ({ pageProps }: Props) => {
           token={token}
           defaultImage='../image/no-image.jpeg'
           isSelectProperty
+          propertyId={accessId}
         />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] overflow-y-auto">
@@ -475,6 +476,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies['accessToken'] || null;
   const access = cookies['access'] || null;
+  const accessId = cookies['accessId'] || null;
   const firebaseToken = cookies['firebaseToken'] || null;
 
   if (!token) {
@@ -487,7 +489,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, firebaseToken, accessId },
   };
 };
 

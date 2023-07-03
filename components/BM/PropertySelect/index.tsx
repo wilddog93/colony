@@ -64,12 +64,13 @@ const stylesSelect = {
 };
 
 const index: FC<Props> = ({ value, setValue, options, token, defaultImage }) => {
+    const url = process.env.API_ENDPOINT;
     const formatOptionLabel = (props: any) => {
         console.log(props, 'property select')
         return (
             <div className='w-full flex items-center gap-2 rounded'>
-                <img src={props?.image || defaultImage} className='object-cover object-center w-10 h-10 rounded' alt="" />
-                <div className="font-semibold text-lg">
+                <img src={props?.image ? url + `property/propertyLogo/${props?.image}` : defaultImage} className='object-cover object-center w-10 h-10 rounded' alt="" />
+                <div className="font-semibold">
                     {props.label}
                 </div>
             </div>
