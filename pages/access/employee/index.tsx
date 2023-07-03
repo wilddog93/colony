@@ -34,6 +34,11 @@ const Home = ({ pageProps }: Props) => {
     // props
     const { token, access, firebaseToken, page } = pageProps;
 
+    // url
+    const url = process.env.API_ENDPOINT;
+
+    console.log(url, "url")
+
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
@@ -101,7 +106,11 @@ const Home = ({ pageProps }: Props) => {
                 className='w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none'
                 onClick={() => goToPropertyAccess(property.id)}
             >
-                <img src={property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"} alt="icon" className='w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto' />
+                <img 
+                    src={property?.propertyLogo ? url + `property/propertyLogo/${property?.propertyLogo}` : "../../.../../image/logo/logo-icon.svg"} 
+                    alt="icon" 
+                    className='w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto rounded-lg' 
+                />
                 <div className='w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2'>
                     <div className='w-full text-left p-2'>
                         <h3 className='font-semibold text-lg'>{property?.propertyName || "-"}</h3>
