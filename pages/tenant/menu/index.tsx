@@ -5,6 +5,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlinePlayArrow } from "react-icons/md";
 import { MdAttachFile } from "react-icons/md";
 import { MdOutlineUpload } from "react-icons/md";
+import VideoButton from "../../../components/Tenant/button/VideoButton";
 
 type Props = {
   pageProps: any;
@@ -75,12 +76,7 @@ const tenant = ({ pageProps }: Props) => {
                 </div>
             </div>
 
-            <div className="bg-primary rounded-lg text-white p-2 flex flex-row gap-2 items-center justify-center">
-                <span className="font-semibold text-base">Upload Video</span>
-                <MdOutlineUpload className="w-5 h-5"/>
-            </div>
-            
-
+            <VideoButton/>
           </div>
         </div>
       </div>
