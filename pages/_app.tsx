@@ -50,10 +50,6 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
     setTimeout(() => setLoading(false), 1000)
   }, []);
 
-  useEffect(() => {
-    !isTokenFound ? router.replace({ pathname, query }) : null
-  }, [isTokenFound]);
-
   if (loading) return (
     <div id="preloader" className="fixed left-0 top-0 z-999999 h-screen flex items-center justify-center w-screen bg-white">
       <svg className="fill-current h-20 w-20 animate-spin-1.5" width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
