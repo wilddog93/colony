@@ -19,12 +19,19 @@ type Props = {
 
 const SignIn = (props: any) => {
     const { value, setValue, onChangePage, isOpen, firebaseToken } = props;
-
+    
     const isOpened = useMemo(() => isOpen, [isOpen])
-
+    
     const router = useRouter();
+    const { pathname, query } = router
     const dispatch = useAppDispatch();
     const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
+    
+    useEffect(() => {
+        !firebaseToken ? router.replace({ pathname, query }) : null
+    }, [firebaseToken]);
+
+    // console.log(firebaseToken, 'token check')
 
     // state
     const [isHidden, setIsHidden] = useState(true);
