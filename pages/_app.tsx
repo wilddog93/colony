@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import type { AppProps } from "next/app";
 import { wrapper } from "../redux/store";
@@ -45,6 +45,31 @@ const MyApp: FC<AppProps> = ({ Component, ...pageProps }) => {
     })();
   }, []);
 
+  // to get new firebase token if its not exist
+  const getFirebaseToken = async() => {
+    const hasFirebaseMessagingSupport = await isSupported();
+    if (hasFirebaseMessagingSupport) {
+      const { requestForToken, messaging } = await import("./api/firebaseConfig");
+      await requestForToken({ setIsTokenFound, setFirebaseToken });
+      onMessage(messaging, (payload: any) => {
+        setIsNotification(true);
+        setNotification({
+          title: payload?.data.title,
+          context: payload?.data.context,
+          body: payload?.data.data,
+        });
+        console.log(payload, "test");
+      });
+    }
+  };
+
+  useEffect(() => {
+    if(!firebaseToken) {
+      getFirebaseToken()
+    }
+  }, [firebaseToken]);
+
+  console.log(firebaseToken, 'token check')
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000)

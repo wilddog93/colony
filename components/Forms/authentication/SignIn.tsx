@@ -28,10 +28,10 @@ const SignIn = (props: any) => {
     const { data, error, isLogin, message, pending } = useAppSelector(selectAuth);
     
     useEffect(() => {
-        !firebaseToken ? router.replace({ pathname, query }) : null
+        !firebaseToken || firebaseToken == null ? router.push({ pathname, query }) : null
     }, [firebaseToken]);
 
-    // console.log(firebaseToken, 'token check')
+    console.log({message, firebaseToken}, 'message check')
 
     // state
     const [isHidden, setIsHidden] = useState(true);
