@@ -151,171 +151,174 @@ const Home = ({ pageProps }: Props) => {
       title="Select Tenant"
       logo="../../.../../image/logo/logo-icon.svg"
       description="">
-      <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden lg:overflow-y-auto">
-        <div
-          className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
-          <div className="w-full flex flex-col justify-center gap-6">
-            <div className="flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0">
-              <div className="w-full">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setCookie("access", "login");
-                    router.push({ pathname: "/" });
-                  }}
-                  variant="primary-outline-none"
-                  className="rounded-lg lg:px-0">
-                  <MdChevronLeft className="w-5 h-5" />
-                  <span className="font-semibold">Back</span>
-                </Button>
-              </div>
-              <div className="w-full flex flex-col lg:flex-row items-center">
-                <h2 className="font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left">
-                  Welcome Back {user?.lastName || "-"}
-                </h2>
-                <Button
-                  onClick={() => console.log("profile")}
-                  type="button"
-                  variant="primary-outline-none"
-                  className="font-semibold ml-0 lg:ml-auto">
-                  <h2 className="text-sm sm:text-base">Manage Profile.</h2>
-                </Button>
-              </div>
-              <p className="text-gray-5 text-sm sm:text-title-sm text-center lg:text-left">
-                Do you have any plan today?
-              </p>
-            </div>
-
-            <Cards className="mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
-              <div className="w-full lg:w-1/5">
-                <img
-                  src="../../../image/user/user-01.png"
-                  alt="avatar"
-                  className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
-                />
-              </div>
-              <div className="w-full lg:w-5/5">
-                <div className="w-full flex flex-col lg:flex-row items-center justify-center sm:justify-start gap-2 my-3 sm:my-0">
-                  <div className="font-semibold text-graydark text-base lg:text-title-md">
-                    {user?.lastName || "-"}
-                  </div>
-                  <h3 className="text-sm lg:text-base">{`${
-                    user?.firstName || ""
-                  } ${user?.lastName || ""}`}</h3>
-                </div>
-                <div className="w-full flex flex-1 gap-2 justify-center sm:justify-start">
-                  <div>
-                    <MdMail className="w-6 h-6" />
-                  </div>
-                  <p>{user?.email || "-"}</p>
-                </div>
-              </div>
-            </Cards>
-          </div>
-
-          {/* data-property */}
-          <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
-            <h3 className="text-lg tracking-wide">Select Your Access :</h3>
-            <div className="w-full h-full overflow-auto">
-              <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => gotToAccess("owner")}
-                  className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
-                  <img
-                    src="../../image/logo/logo-icon.svg"
-                    alt="icon"
-                    className="w-14 h-14 object-contain"
-                  />
-                  <h3 className="font-semibold">Owner</h3>
-                  <p className="text-sm">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Atque, beatae!
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => gotToAccess("employee")}
-                  className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}>
-                  <img
-                    src="../../image/logo/logo-icon.svg"
-                    alt="icon"
-                    className="w-14 h-14 object-contain"
-                  />
-                  <h3 className="font-semibold">Employee</h3>
-                  <p className="text-sm">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Atque, beatae!
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => gotToAccess("tenant")}
-                  className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${
-                    router.pathname.includes("tenant") ? "bg-gray" : "bg-white"
-                  }`}>
-                  <img
-                    src="../../image/logo/logo-icon.svg"
-                    alt="icon"
-                    className="w-14 h-14 object-contain"
-                  />
-                  <h3 className="font-semibold">Tenant</h3>
-                  <p className="text-sm">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Atque, beatae!
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => gotToAccess("merchant")}
-                  className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
-                  <img
-                    src="../../image/logo/logo-icon.svg"
-                    alt="icon"
-                    className="w-14 h-14 object-contain"
-                  />
-                  <h3 className="font-semibold">Merchant</h3>
-                  <p className="text-sm">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Atque, beatae!
-                  </p>
-                </button>
-              </div>
-              <div className="w-full flex flex-col justify-center gap-6">
-                <div className="w-full flex flex-col gap-2 items-start text-left">
+      <div className="bg-gray w-full lg:px-44 lg:py-10">
+        <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden lg:overflow-y-auto">
+          <div
+            className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
+            <div className="w-full flex flex-col justify-center gap-6">
+              <div className="flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0">
+                <div className="w-full">
                   <Button
-                    onClick={isOpenSignOut}
                     type="button"
+                    onClick={() => {
+                      setCookie("access", "login");
+                      router.push({ pathname: "/" });
+                    }}
                     variant="primary-outline-none"
-                    className="px-0 py-0">
-                    <span className="p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1">
-                      <MdLogin className="w-6 h-6 rotate-180" />
-                    </span>
-                    <h2 className="text-base lg:text-lg text-graydark dark:text-white">
-                      Sign Out.
-                    </h2>
+                    className="rounded-lg lg:px-0">
+                    <MdChevronLeft className="w-5 h-5" />
+                    <span className="font-semibold">Back</span>
                   </Button>
                 </div>
+                <div className="w-full flex flex-col lg:flex-row items-center">
+                  <h2 className="font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left">
+                    Welcome Back {user?.lastName || "-"}
+                  </h2>
+                  <Button
+                    onClick={() => console.log("profile")}
+                    type="button"
+                    variant="primary-outline-none"
+                    className="font-semibold ml-0 lg:ml-auto">
+                    <h2 className="text-sm sm:text-base">Manage Profile.</h2>
+                  </Button>
+                </div>
+                <p className="text-gray-5 text-sm sm:text-title-sm text-center lg:text-left">
+                  Do you have any plan today?
+                </p>
+              </div>
+
+              <Cards className="mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
+                <div className="w-full lg:w-1/5">
+                  <img
+                    src="../../../image/user/user-01.png"
+                    alt="avatar"
+                    className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
+                  />
+                </div>
+                <div className="w-full lg:w-5/5">
+                  <div className="w-full flex flex-col lg:flex-row items-center justify-center sm:justify-start gap-2 my-3 sm:my-0">
+                    <div className="font-semibold text-graydark text-base lg:text-title-md">
+                      {user?.lastName || "-"}
+                    </div>
+                    <h3 className="text-sm lg:text-base">{`${
+                      user?.firstName || ""
+                    } ${user?.lastName || ""}`}</h3>
+                  </div>
+                  <div className="w-full flex flex-1 gap-2 justify-center sm:justify-start">
+                    <div>
+                      <MdMail className="w-6 h-6" />
+                    </div>
+                    <p>{user?.email || "-"}</p>
+                  </div>
+                </div>
+              </Cards>
+            </div>
+
+            {/* data-property */}
+            <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
+              <h3 className="text-lg tracking-wide">Select Your Access :</h3>
+              <div className="w-full h-full overflow-auto">
+                <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                  <button
+                    type="button"
+                    onClick={() => gotToAccess("owner")}
+                    className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                    <img
+                      src="../../image/logo/logo-icon.svg"
+                      alt="icon"
+                      className="w-14 h-14 object-contain"
+                    />
+                    <h3 className="font-semibold">Owner</h3>
+                    <p className="text-sm">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Atque, beatae!
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => gotToAccess("employee")}
+                    className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}>
+                    <img
+                      src="../../image/logo/logo-icon.svg"
+                      alt="icon"
+                      className="w-14 h-14 object-contain"
+                    />
+                    <h3 className="font-semibold">Employee</h3>
+                    <p className="text-sm">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Atque, beatae!
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => gotToAccess("tenant")}
+                    className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${
+                      router.pathname.includes("tenant")
+                        ? "bg-gray"
+                        : "bg-white"
+                    }`}>
+                    <img
+                      src="../../image/logo/logo-icon.svg"
+                      alt="icon"
+                      className="w-14 h-14 object-contain"
+                    />
+                    <h3 className="font-semibold">Tenant</h3>
+                    <p className="text-sm">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Atque, beatae!
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => gotToAccess("merchant")}
+                    className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                    <img
+                      src="../../image/logo/logo-icon.svg"
+                      alt="icon"
+                      className="w-14 h-14 object-contain"
+                    />
+                    <h3 className="font-semibold">Merchant</h3>
+                    <p className="text-sm">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Atque, beatae!
+                    </p>
+                  </button>
+                </div>
+                <div className="w-full flex flex-col justify-center gap-6">
+                  <div className="w-full flex flex-col gap-2 items-start text-left">
+                    <Button
+                      onClick={isOpenSignOut}
+                      type="button"
+                      variant="primary-outline-none"
+                      className="px-0 py-0">
+                      <span className="p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1">
+                        <MdLogin className="w-6 h-6 rotate-180" />
+                      </span>
+                      <h2 className="text-base lg:text-lg text-graydark dark:text-white">
+                        Sign Out.
+                      </h2>
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div
-          className={`w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out`}>
-          <div className="w-full h-full flex flex-col items-center">
-            <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8">
-              <div className="w-full">
-                <h3 className="text-title-lg font-semibold">Access List</h3>
-                <p className="text-base text-gray-5">Select your workspace</p>
+          <div
+            className={`w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out`}>
+            <div className="w-full h-full flex flex-col items-center">
+              <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8">
+                <div className="w-full">
+                  <h3 className="text-title-lg font-semibold">Access List</h3>
+                  <p className="text-base text-gray-5">Select your workspace</p>
+                </div>
               </div>
-            </div>
-            <div className="w-full overflow-auto p-8">
-              <div className="w-full h-full flex flex-col gap-4 ">
-                {/* {properties?.length > 0 ? properties?.map((item: any, index: any) => {
+              <div className="w-full overflow-auto p-8">
+                <div className="w-full h-full flex flex-col gap-4 ">
+                  {/* {properties?.length > 0 ? properties?.map((item: any, index: any) => {
                                     return (
                                         <Property
                                             key={index}
@@ -328,25 +331,28 @@ const Home = ({ pageProps }: Props) => {
                                     </div>
                                 } */}
 
-                <button
-                  type="button"
-                  className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
-                  onClick={() => router.push("/tenant/menu")}>
-                  <img
-                    src={"../../.../../image/logo/logo-icon.svg"}
-                    alt="icon"
-                    className="w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto"
-                  />
-                  <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
-                    <div className="w-full text-left p-2">
-                      <h3 className="font-semibold text-lg">{"Tenant Name"}</h3>
-                      <p className="text-sm">{"lorem"}</p>
+                  <button
+                    type="button"
+                    className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
+                    onClick={() => router.push("/tenant/menu")}>
+                    <img
+                      src={"../../.../../image/logo/logo-icon.svg"}
+                      alt="icon"
+                      className="w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto"
+                    />
+                    <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
+                      <div className="w-full text-left p-2">
+                        <h3 className="font-semibold text-lg">
+                          {"Tenant Name"}
+                        </h3>
+                        <p className="text-sm">{"lorem"}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">
-                    <MdChevronRight className="w-7 h-7 m-auto" />
-                  </div>
-                </button>
+                    <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">
+                      <MdChevronRight className="w-7 h-7 m-auto" />
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
