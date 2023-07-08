@@ -164,7 +164,7 @@ const Home = ({ pageProps }: Props) => {
                     router.push({ pathname: "/" });
                   }}
                   variant="primary-outline-none"
-                  className="rounded-lg px-0">
+                  className="rounded-lg lg:px-0">
                   <MdChevronLeft className="w-5 h-5" />
                   <span className="font-semibold">Back</span>
                 </Button>
@@ -214,91 +214,92 @@ const Home = ({ pageProps }: Props) => {
           </div>
 
           {/* data-property */}
-          <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-6">
+          <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
             <h3 className="text-lg tracking-wide">Select Your Access :</h3>
-            <div className="w-full h-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4 overflow-y-auto">
-              <button
-                type="button"
-                onClick={() => gotToAccess("owner")}
-                className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
-                <img
-                  src="../../image/logo/logo-icon.svg"
-                  alt="icon"
-                  className="w-14 h-14 object-contain"
-                />
-                <h3 className="font-semibold">Owner</h3>
-                <p className="text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Atque, beatae!
-                </p>
-              </button>
+            <div className="w-full h-full overflow-auto">
+              <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => gotToAccess("owner")}
+                  className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                  <img
+                    src="../../image/logo/logo-icon.svg"
+                    alt="icon"
+                    className="w-14 h-14 object-contain"
+                  />
+                  <h3 className="font-semibold">Owner</h3>
+                  <p className="text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Atque, beatae!
+                  </p>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => gotToAccess("employee")}
-                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}>
-                <img
-                  src="../../image/logo/logo-icon.svg"
-                  alt="icon"
-                  className="w-14 h-14 object-contain"
-                />
-                <h3 className="font-semibold">Employee</h3>
-                <p className="text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Atque, beatae!
-                </p>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => gotToAccess("employee")}
+                  className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}>
+                  <img
+                    src="../../image/logo/logo-icon.svg"
+                    alt="icon"
+                    className="w-14 h-14 object-contain"
+                  />
+                  <h3 className="font-semibold">Employee</h3>
+                  <p className="text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Atque, beatae!
+                  </p>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => gotToAccess("tenant")}
-                className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${
-                  router.pathname.includes("tenant") ? "bg-gray" : "bg-white"
-                }`}>
-                <img
-                  src="../../image/logo/logo-icon.svg"
-                  alt="icon"
-                  className="w-14 h-14 object-contain"
-                />
-                <h3 className="font-semibold">Tenant</h3>
-                <p className="text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Atque, beatae!
-                </p>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => gotToAccess("tenant")}
+                  className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${
+                    router.pathname.includes("tenant") ? "bg-gray" : "bg-white"
+                  }`}>
+                  <img
+                    src="../../image/logo/logo-icon.svg"
+                    alt="icon"
+                    className="w-14 h-14 object-contain"
+                  />
+                  <h3 className="font-semibold">Tenant</h3>
+                  <p className="text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Atque, beatae!
+                  </p>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => gotToAccess("merchant")}
-                className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
-                <img
-                  src="../../image/logo/logo-icon.svg"
-                  alt="icon"
-                  className="w-14 h-14 object-contain"
-                />
-                <h3 className="font-semibold">Merchant</h3>
-                <p className="text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Atque, beatae!
-                </p>
-              </button>
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col justify-center gap-6">
-            <div className="w-full flex flex-col gap-2 items-start mb-5 text-left">
-              <Button
-                onClick={isOpenSignOut}
-                type="button"
-                variant="primary-outline-none"
-                className="mb-5.5 px-0 py-0">
-                <span className="p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1">
-                  <MdLogin className="w-6 h-6 rotate-180" />
-                </span>
-                <h2 className="text-base lg:text-lg text-graydark dark:text-white">
-                  Sign Out.
-                </h2>
-              </Button>
+                <button
+                  type="button"
+                  onClick={() => gotToAccess("merchant")}
+                  className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                  <img
+                    src="../../image/logo/logo-icon.svg"
+                    alt="icon"
+                    className="w-14 h-14 object-contain"
+                  />
+                  <h3 className="font-semibold">Merchant</h3>
+                  <p className="text-sm">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Atque, beatae!
+                  </p>
+                </button>
+              </div>
+              <div className="w-full flex flex-col justify-center gap-6">
+                <div className="w-full flex flex-col gap-2 items-start text-left">
+                  <Button
+                    onClick={isOpenSignOut}
+                    type="button"
+                    variant="primary-outline-none"
+                    className="px-0 py-0">
+                    <span className="p-2 rounded-lg bg-primary text-white hover:opacity-80 hover:shadow-1">
+                      <MdLogin className="w-6 h-6 rotate-180" />
+                    </span>
+                    <h2 className="text-base lg:text-lg text-graydark dark:text-white">
+                      Sign Out.
+                    </h2>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
