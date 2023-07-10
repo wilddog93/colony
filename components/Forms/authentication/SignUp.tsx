@@ -355,7 +355,7 @@ const SignUp = (props: any) => {
                     value={firstName}
                     onChange={onFirstNameChange}
                     type="text"
-                    placeholder="Firstname"
+                    placeholder="First name"
                     className="text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                   />
 
@@ -372,7 +372,7 @@ const SignUp = (props: any) => {
                     value={lastName}
                     onChange={onLastNameChange}
                     type="text"
-                    placeholder="Lastname"
+                    placeholder="Last name"
                     className="text-sm lg:text-md w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                   />
 
@@ -518,7 +518,7 @@ const SignUp = (props: any) => {
                 onChange={onConfirmPasswordChange}
                 type={isHiddenCPass ? "password" : "text"}
                 id="verify-password"
-                placeholder="Enter your verify password"
+                placeholder="Please re-enter your password"
                 autoFocus
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               />
@@ -561,10 +561,10 @@ const SignUp = (props: any) => {
             </div>
 
             <div className="w-full flex flex-col justify-center items-center lg:items-start">
-              <p>Already have an account?</p>
+              <p className="px-4">Already have an account?</p>
               <Button
                 type="button"
-                className="text-primary px-0 py-0 text-left"
+                className="text-primary text-left"
                 onClick={() =>
                   onChangePage({
                     page: "sign-in",
