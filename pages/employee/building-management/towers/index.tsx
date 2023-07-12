@@ -33,6 +33,13 @@ type Props = {
   pageProps: any;
 };
 
+type FormValues = {
+  id?: number | string;
+  towerName?: string;
+  towerDescription?: string;
+  gpsLocation?: string;
+};
+
 const Towers = ({ pageProps }: Props) => {
   const router = useRouter();
   const { query, pathname } = router;
@@ -99,7 +106,7 @@ const Towers = ({ pageProps }: Props) => {
 
     // if (query?.sort)
     qb.sortBy({
-      field: "createdAt",
+      field: "updatedAt",
       order: "DESC",
     });
     qb.query();
@@ -215,7 +222,11 @@ const Towers = ({ pageProps }: Props) => {
                 ? dataTable?.map((tower: any) => {
                     return (
                       <Fragment key={tower.id}>
-                        <CardTower items={tower} token={token} />
+                        <CardTower
+                          items={tower}
+                          token={token}
+                          filterTower={filters.queryObject}
+                        />
                       </Fragment>
                     );
                   })

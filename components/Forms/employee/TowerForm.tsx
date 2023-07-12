@@ -6,6 +6,7 @@ import {
   createTowers,
   getTowers,
   selectTowerManagement,
+  updateTowers,
 } from "../../../redux/features/building-management/tower/towerReducers";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import Button from "../../Button/Button";
@@ -98,19 +99,30 @@ export default function TowerForm(props: Props) {
       towerDescription: value.towerDescription,
       gpsLocation: value.gpsLocation,
     };
-    dispatch(
-      createTowers({
-        data: newData,
-        token: token,
-        isSuccess() {
-          isCloseModal();
-          dispatch(getTowers({ params: filters, token }));
-        },
-      })
-    );
     if (!isUpdate) {
+      dispatch(
+        createTowers({
+          data: newData,
+          token: token,
+          isSuccess() {
+            isCloseModal();
+            dispatch(getTowers({ params: filters, token }));
+          },
+        })
+      );
       console.log("this is create");
     } else {
+      dispatch(
+        updateTowers({
+          id: value?.id,
+          data: newData,
+          token: token,
+          isSuccess() {
+            isCloseModal();
+            dispatch(getTowers({ params: filters, token }));
+          },
+        })
+      );
       console.log("this is update");
     }
   };
@@ -212,7 +224,9 @@ export default function TowerForm(props: Props) {
             className="rounded-md text-sm shadow-card border-primary"
             onClick={handleSubmit(onSubmit)}
             disabled={!isValid || pending}>
-            <span className="font-semibold">Save</span>
+            <span className="font-semibold">
+              {isUpdate ? "Update" : "Save"}
+            </span>
             {pending ? (
               <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
             ) : (
