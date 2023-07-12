@@ -27,6 +27,7 @@ import {
 } from "../../../../redux/features/building-management/tower/towerReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { getAuthMe } from "../../../../redux/features/auth/authReducers";
+import TowerForm from "../../../../components/Forms/employee/TowerForm";
 
 type Props = {
   pageProps: any;
@@ -97,10 +98,10 @@ const Towers = ({ pageProps }: Props) => {
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
     // if (query?.sort)
-    //   qb.sortBy({
-    //     field: "firstName",
-    //     order: query?.sort == "ASC" ? "ASC" : "DESC",
-    //   });
+    qb.sortBy({
+      field: "createdAt",
+      order: "DESC",
+    });
     qb.query();
     return qb;
   }, [query]);
@@ -229,10 +230,11 @@ const Towers = ({ pageProps }: Props) => {
         isOpen={isOpenTower}
         onClose={() => setIsOpenTower(false)}
         size="small">
-        <ExampleForm
-          isOpen={true}
-          isOpenModal={() => setIsOpenTower(true)}
+        <TowerForm
           isCloseModal={() => setIsOpenTower(false)}
+          isOpen={isOpenTower}
+          token={token}
+          filters={filters.queryObject}
         />
       </Modal>
 

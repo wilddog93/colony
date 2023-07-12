@@ -37,7 +37,7 @@ interface HeadersConfiguration {
 interface TowerData {
   data: any;
   token?: any;
-  callback: () => void;
+  isSuccess: () => void;
 }
 
 interface DefaultGetData {
@@ -88,6 +88,39 @@ export const getTowers = createAsyncThunk<
   }
 });
 
+export const createTowers = createAsyncThunk<
+  any,
+  TowerData,
+  { state: RootState }
+>("/tower/create", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post("tower", params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // SLICER
 export const towerSlice = createSlice({
   name: "tower",
@@ -106,7 +139,7 @@ export const towerSlice = createSlice({
   // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
   extraReducers: (builder) => {
     builder
-      // get-access-property
+      // get-towers
       .addCase(getTowers.pending, (state) => {
         return {
           ...state,
@@ -122,6 +155,26 @@ export const towerSlice = createSlice({
         };
       })
       .addCase(getTowers.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // create-towers
+      .addCase(createTowers.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(createTowers.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(createTowers.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

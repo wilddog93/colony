@@ -18,6 +18,7 @@ import {
 } from "../../../redux/features/building-management/floor/floorReducers";
 import { useAppDispatch, useAppSelector } from "../../../redux/Hook";
 import axios from "axios";
+import Link from "next/link";
 
 type Props = {
   items?: any;
@@ -190,7 +191,7 @@ const CardTower = ({ items, token }: Props) => {
   console.log(dataFloor, "data floor");
 
   return (
-    <Cards className="w-full py-4 border border-gray rounded-xl shadow-1">
+    <Cards className="w-full py-4 border border-gray rounded-xl shadow-1 overflow-auto">
       <div className="w-full px-4 flex items-start lg:items-center justify-between tracking-wide">
         <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center gap-2.5">
           <div className="w-full lg:max-w-max flex items-center justify-between">
@@ -209,10 +210,29 @@ const CardTower = ({ items, token }: Props) => {
           <div className="border-t-2 lg:border-l-2 border-gray lg:h-14 hidden lg:inline-block"></div>
           <div className="w-full flex flex-col">
             <h3 className="text-xl lg:text-2xl">{items?.towerName || "-"}</h3>
-            <div className="w-full flex gap-2 py-2 text-meta-4 items-start">
-              <MdLocationOn className="w-1/12 my-1" />
-              <p className="text-sm w-11/12">{items?.gpsLocation || "-"}</p>
-            </div>
+
+            {items?.gpsLocation && items?.gpsLocation.includes("http") ? (
+              <Link
+                href={items?.gpsLocation}
+                target="_blank"
+                className="w-full flex gap-2 py-2 text-meta-4 items-start hover:underline hover:text-primary hover:font-semibold">
+                <MdLocationOn className="w-1/12 my-1" />
+                <p className="text-sm w-11/12">
+                  {items?.gpsLocation && items?.gpsLocation?.length > 50
+                    ? `${items?.gpsLocation.substring(50, 0)}...`
+                    : items?.gpsLocation || "-"}
+                </p>
+              </Link>
+            ) : (
+              <div className="w-full flex gap-2 py-2 text-meta-4 items-start">
+                <MdLocationOn className="w-1/12 my-1" />
+                <p className="text-sm w-11/12">
+                  {items?.gpsLocation && items?.gpsLocation?.length > 50
+                    ? `${items?.gpsLocation.substring(50, 0)}...`
+                    : items?.gpsLocation || "-"}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
