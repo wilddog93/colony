@@ -260,12 +260,38 @@ const CardTower = ({ items, token }: Props) => {
       </div>
 
       {/* units */}
-      <FloorUnit id={tabFloor.id} token={token} />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-6 2xl:gap-7.5 border-b border-gray bg-[#F5F9FD] p-4 h-full max-h-70 overflow-y-auto overflow-x-hidden">
+        {tabFloor.id ? (
+          <Fragment>
+            <Button
+              className="text-sm py-6 px-8 font-semibold rounded-md mr-4"
+              variant="primary-outline-none"
+              type="button"
+              onClick={() => console.log("add unit")}>
+              <div className="flex flex-col items-center gap-2">
+                <div className="p-2 bg-primary rounded-md">
+                  <MdAdd className="w-4 h-4 text-white" />
+                </div>
+                <span className="">Add Room</span>
+              </div>
+            </Button>
+            <FloorUnit id={tabFloor.id} token={token} />
+          </Fragment>
+        ) : (
+          <span className="text-gray-5 m-auto text-sm">
+            Unit data not found
+          </span>
+        )}
+      </div>
 
       <div className="w-full flex items-center mt-3 px-4 gap-2.5 lg:gap-6 text-sm">
         <p className="ml-auto font-semibold">Total:</p>
-        <p className="text-gray-4">14 Floors</p>
-        <p className="text-gray-4">222 Units</p>
+        <p className="text-gray-4">
+          {dataFloor.length > 1
+            ? `${dataFloor.length} Floors`
+            : `${dataFloor.length} Floor`}
+        </p>
+        {/* <p className="text-gray-4">222 Units</p> */}
       </div>
     </Cards>
   );
