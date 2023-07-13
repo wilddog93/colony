@@ -21,6 +21,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import ScrollCardTables from "../../../components/tables/layouts/ScrollCardTables";
 import OverviewMenu from "../../../components/merchant/OverviewMenu";
 import OverviewTabs from "../../../components/merchant/OverviewTabs";
+import Modal from "../../../components/Modal";
+import { ModalHeader } from "../../../components/Modal/ModalComponent";
+import NewItem from "../../../components/Forms/Merchant/detail/NewItem";
+import MerchantTables from "../../../components/tables/layouts/merchant/MerchantTable";
 
 type Props = {
   pageProps: any;
@@ -87,6 +91,17 @@ const merchant = ({ pageProps }: Props) => {
       router.replace({ pathname });
     }
     router.push({ pathname: `/property/billings/receipt/${items.id}` });
+  };
+
+  // form
+  const [isForm, setIsForm] = useState(false);
+  const [formData, setFormData] = useState<any>({});
+
+  const isOpenForm = () => {
+    setIsForm(true);
+  };
+  const isCloseForm = () => {
+    setIsForm(false);
   };
 
   //modal
@@ -236,7 +251,7 @@ const merchant = ({ pageProps }: Props) => {
       userDefault="../image/user/user-01.png"
       token={token}>
       <div className="w-full absolute inset-0 mt-16 z-99 bg-white flex">
-        <div className="w-full flex flex-row p-2">
+        <div className="w-full flex flex-col lg:flex-row p-2">
           <div className="w-full lg:w-3/5 flex flex-col p-4">
             {/* Profile Card */}
             <Cards className="w-full bg-white border border-stroke shadow rounded-lg p-4 text-sm">
@@ -244,7 +259,7 @@ const merchant = ({ pageProps }: Props) => {
                 <div className="flex flex-col lg:flex-row items-center lg:items-start">
                   <div className="w-[250px] max-w-[250px] px-2 ">
                     <img
-                      src="../../../image/no-image.jpeg"
+                      src="../../../image/empty-images.png"
                       className="rounded-full border-none w-[200px] lg:w-[180px] max-w-[250px] h-[200px] lg:h-[180px] object-cover object-center m-auto"></img>
                   </div>
                   <div className="w-full px-2">
@@ -306,9 +321,10 @@ const merchant = ({ pageProps }: Props) => {
               <div className="lg:w-full">
                 <Tabs menus={menuMerchant} />
               </div>
-              <div className="lg:w-1/4 flex justify-end">
+              <div className="w-full lg:w-1/4 flex justify-start lg:justify-end">
                 <Button
                   type="button"
+                  onClick={isOpenForm}
                   className="rounded-lg text-sm font-semibold py-4"
                   variant="primary">
                   <span>New Item</span>
@@ -383,7 +399,7 @@ const merchant = ({ pageProps }: Props) => {
                 </div>
               </div>
               {/* Table data */}
-              <ScrollCardTables
+              <MerchantTables
                 columns={columns}
                 dataTable={dataTable}
                 loading={loading}
@@ -407,6 +423,21 @@ const merchant = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+      <Modal isOpen={isForm} onClose={isCloseForm} size="medium">
+        <div>
+          <ModalHeader
+            className="border-b-2 border-gray p-4"
+            isClose
+            onClick={isCloseForm}>
+            <div className="w-full flex">
+              <h3>New Item</h3>
+            </div>
+          </ModalHeader>
+          <div className="w-full">
+            <NewItem token={token} onClose={isCloseForm} isOpen={isForm} />
+          </div>
+        </div>
+      </Modal>
     </MerchantLayouts>
   );
 };

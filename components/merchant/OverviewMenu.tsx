@@ -15,7 +15,7 @@ const OverviewMenu = () => {
   return (
     <div>
       <div className="w-full mx-auto text-gray-5">
-        <ul className="flex w-full md:hidden items-center justify-between bg-white px-6 py-4">
+        <ul className="flex w-full items-center justify-between px-6 py-4">
           <li
             onClick={() => handleClick("Overview")}
             className="mx-2 font-bold active:border-b-[#5F59F7] p-2 hover:text-[#5F59F7] hover:border-b-[#5F59F7]">

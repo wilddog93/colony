@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-
+import Overview from "./Overview";
+import Display from "./Display";
+import Transaction from "./Transaction";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Icon from "../Icon";
@@ -20,7 +22,7 @@ const ActiveLink = ({ children, href, className }: any) => {
   );
 };
 
-const OverviewTabs = (props: any) => {
+const Tabs = (props: any) => {
   const primary =
     "flex flex-col md:flex-row overflow-x-auto scrollbar-none bg-white shadow-card rounded px-4 transform transition-all duration-300";
   const underline =
@@ -29,11 +31,10 @@ const OverviewTabs = (props: any) => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
 
-  if (domainGroup == true) {
-    variant = underline;
-  } else {
-    variant = primary;
-  }
+  const [activeComponent, setActiveComponent] = useState<string>("");
+  const [isActive, setIsActive] = useState(false);
+
+  variant = primary;
 
   const handleResize = () => {
     if (window.innerWidth < 768) {
@@ -41,6 +42,10 @@ const OverviewTabs = (props: any) => {
     } else {
       setIsMobile(false);
     }
+  };
+
+  const handleClick = (componentName: string) => {
+    setActiveComponent(componentName);
   };
 
   // create an event listener
@@ -98,34 +103,54 @@ const OverviewTabs = (props: any) => {
         </button>
         {/* <!-- Hamburger Toggle BTN --> */}
       </div>
-
-      <div
-        className={`${variant} ${
-          isMobile ? "-translate-y-full scale-0" : "translate-y-1 scale-100"
-        }`}
-        style={{ boxShadow: "inset 0 -2px 0 #edf2f7" }}>
-        {!isMobile &&
-          menus?.length > 0 &&
-          menus?.map((menu: any, idx: any) => {
-            return (
-              <ActiveLink
-                key={idx}
-                href={{ pathname: menu?.url, query: menu?.query }}
-                className="mx-2 flex items-center">
-                {router.pathname == menu.url && menu.icon ? (
-                  <Icon
-                    className="w-4 h-4 text-primary mr-1"
-                    aria-hidden="true"
-                    icon={menu?.icon}
-                  />
-                ) : null}
-                {menu.pathname}
-              </ActiveLink>
-            );
-          })}
+      <div className="w-full flex flex-col">
+        <div
+          className={`${variant} ${
+            isMobile ? "-translate-y-full scale-0" : "translate-y-1 scale-100"
+          }`}
+          style={{ boxShadow: "inset 0 -2px 0 #edf2f7" }}>
+          {!isMobile && (
+            <div className="w-full flex flex-col space-y-3">
+              <ul className="flex flex-row w-full items-center">
+                <li
+                  onClick={() => handleClick("Overview")}
+                  className={`${
+                    activeComponent === "Overview"
+                      ? "border-primary font-bold mb-3 md:mb-0 text-primary"
+                      : "text-gray-500 hover:text-gray-700 border-transparent"
+                  } mx-2 block py-4 cursor-pointer text-base border-b-4 rounded focus:outline-none whitespace-no-wrap`}>
+                  <span>Overview</span>
+                </li>
+                <li
+                  onClick={() => handleClick("Display")}
+                  className={`${
+                    activeComponent === "Display"
+                      ? "border-primary font-bold mb-3 md:mb-0 text-primary"
+                      : "text-gray-500 hover:text-gray-700 border-transparent"
+                  } mx-2 block py-4 cursor-pointer text-base border-b-4 rounded focus:outline-none whitespace-no-wrap`}>
+                  <span>Menu Display</span>
+                </li>
+                <li
+                  onClick={() => handleClick("Transaction")}
+                  className={`${
+                    activeComponent === "Transaction"
+                      ? "border-primary font-bold mb-3 md:mb-0 text-primary"
+                      : "text-gray-500 hover:text-gray-700 border-transparent"
+                  } mx-2 block py-4 cursor-pointer text-base border-b-4 rounded focus:outline-none whitespace-no-wrap`}>
+                  <span>Transaction History</span>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+        <div className="mt-2">
+          {activeComponent === "Overview" && <Overview />}
+          {activeComponent === "Display" && <Display />}
+          {activeComponent === "Transaction" && <Transaction />}
+        </div>
       </div>
     </div>
   );
 };
 
-export default OverviewTabs;
+export default Tabs;
