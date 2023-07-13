@@ -3,6 +3,7 @@ import Cards from "../../Cards/Cards";
 import {
   MdAdd,
   MdArrowDropDown,
+  MdDelete,
   MdEdit,
   MdLocationOn,
   MdMoreHoriz,
@@ -22,6 +23,8 @@ import Link from "next/link";
 import TowerForm from "../../Forms/employee/TowerForm";
 import Modal from "../../Modal";
 import FloorBatchForm from "../../Forms/employee/FloorBatchForm";
+import Menus from "../../Layouts/Header/Menus";
+import { startAt } from "@firebase/database";
 
 type Props = {
   items?: any;
@@ -31,9 +34,14 @@ type Props = {
 
 type FloorProps = {
   floorName?: string;
-  floorOrder?: number;
+  floorOrder?: number | any;
   id?: number;
   tower?: any;
+  floorType?: any;
+  startAt?: number | string | any;
+  length?: number | string | any;
+  addText?: number | string | any;
+  addTextPosition?: number | string | any;
 };
 
 type FormTowerValues = {
@@ -119,6 +127,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
 
   // modal floor
   const [isOpenAddFloor, setIsOpenAddFloor] = useState(false);
+  const [isOpenEditFloor, setIsOpenEditFloor] = useState(false);
 
   // open edit modal
   const openEditModal = (value: FormTowerValues) => {
@@ -142,6 +151,18 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   const closeAddFloorModal = () => {
     setFormData({});
     setIsOpenAddFloor(false);
+  };
+
+  // open edit floor modal
+  const openEditFloorModal = (value: FloorProps) => {
+    setFormData(value);
+    setIsOpenEditFloor(true);
+  };
+
+  // close add floor modal
+  const closeEditFloorModal = () => {
+    setFormData({});
+    setIsOpenEditFloor(false);
   };
 
   const filters = useMemo(() => {
@@ -174,6 +195,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
 
   // get floor
   const getFloorsData = async (params: any) => {
+    let resData: FloorProps[] = [];
     let config = {
       params: params.params,
       headers: {
@@ -203,13 +225,44 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   }, [token, filters]);
 
   const ComponentFloorTab = (props: FloorProps) => {
-    const { id, floorName, floorOrder, tower } = props;
+    const { id, floorName, tower, floorOrder } = props;
+
+    let editData = {
+      ...props,
+      floorOrder:
+        floorOrder == 1
+          ? { value: "Automatic", label: "Automatic" }
+          : { value: "Manual", label: "Manual" },
+    };
+    const tabDefault = [
+      {
+        text: "Edit",
+        icons: {
+          icon: MdEdit,
+          className: "w-5 h-5",
+        },
+        onClick: () => {
+          openEditFloorModal(editData);
+          console.log(editData, "data item1");
+        },
+      },
+      {
+        text: "Delete",
+        icons: {
+          icon: MdDelete,
+          className: "w-5 h-5",
+        },
+        onClick: () => {
+          console.log(id, "item");
+        },
+      },
+    ];
     if (id == tabFloor.id) {
       return (
         <DropdownDefault
           className=""
           position="left"
-          data={""}
+          data={tabDefault}
           title={
             <div className="inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold">
               {floorName || "-"}
@@ -378,6 +431,21 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           token={token}
           filters={filterTower}
           items={formData}
+        />
+      </Modal>
+
+      {/* modal edit floor*/}
+      <Modal
+        isOpen={isOpenEditFloor}
+        onClose={closeEditFloorModal}
+        size="small">
+        <FloorBatchForm
+          isCloseModal={closeEditFloorModal}
+          isOpen={isOpenEditFloor}
+          token={token}
+          filters={filterTower}
+          items={formData}
+          isUpdate
         />
       </Modal>
     </Fragment>

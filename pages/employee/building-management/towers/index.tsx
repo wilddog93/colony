@@ -7,6 +7,7 @@ import {
   MdArrowRightAlt,
   MdCleaningServices,
   MdLocalHotel,
+  MdMuseum,
 } from "react-icons/md";
 import CardTower from "../../../../components/BM/Towers/CardTower";
 import Modal from "../../../../components/Modal";
@@ -151,13 +152,21 @@ const Towers = ({ pageProps }: Props) => {
       description=""
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
-      token={token}>
+      token={token}
+      icons={{
+        icon: MdMuseum,
+        className: "w-8 h-8 text-meta-5",
+      }}>
       <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
           className=""
           menus={menuBM}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
+          token={token}
+          defaultImage="../../image/no-image.jpeg"
+          isSelectProperty
+          propertyId={accessId}
         />
 
         <div className=" w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
@@ -186,7 +195,7 @@ const Towers = ({ pageProps }: Props) => {
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() =>
-                  router.push("/property/building-management/towers/amenities")
+                  router.push("/employee/building-management/towers/amenities")
                 }
                 variant="primary-outline"
                 key={"1"}>
@@ -218,19 +227,25 @@ const Towers = ({ pageProps }: Props) => {
           <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-1 flex-col gap-2.5 lg:gap-6">
               {/* cards */}
-              {dataTable?.length > 0
-                ? dataTable?.map((tower: any) => {
-                    return (
-                      <Fragment key={tower.id}>
-                        <CardTower
-                          items={tower}
-                          token={token}
-                          filterTower={filters.queryObject}
-                        />
-                      </Fragment>
-                    );
-                  })
-                : null}
+              {dataTable?.length > 0 ? (
+                dataTable?.map((tower: any) => {
+                  return (
+                    <Fragment key={tower.id}>
+                      <CardTower
+                        items={tower}
+                        token={token}
+                        filterTower={filters.queryObject}
+                      />
+                    </Fragment>
+                  );
+                })
+              ) : (
+                <div className="w-full flex justify-center items-center">
+                  <span className="text-gray-5 font-semibold m-auto">
+                    Data tower not found!
+                  </span>
+                </div>
+              )}
             </div>
           </main>
         </div>
