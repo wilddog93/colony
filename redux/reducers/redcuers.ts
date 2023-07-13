@@ -12,6 +12,7 @@ import domainStructureReducers from "../features/domain/domainStructure";
 import propertyTypeReducers from "../features/property-type/propertyType";
 import towerReducers from "../features/building-management/tower/towerReducers";
 import floorReducers from "../features/building-management/floor/floorReducers";
+import floorTypeReducers from "../features/building-management/floorType/floorReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -28,4 +29,5 @@ export const combinedReducer = combineReducers({
   domainStructures: domainStructureReducers,
   towerManagement: towerReducers,
   floorManagement: floorReducers,
+  floorTypeManagement: floorTypeReducers,
 });
