@@ -97,9 +97,9 @@ const NewItem = ({ items, isOpen, onClose, token, filters }: Props) => {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: null,
-        propertyName: null,
-        propertyType: null,
-        propertyDescription: null,
+        itemName: null,
+        itemType: null,
+        itemDescription: null,
       }),
       []
     ),

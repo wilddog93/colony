@@ -252,72 +252,75 @@ const merchant = ({ pageProps }: Props) => {
       token={token}>
       <div className="w-full absolute inset-0 mt-16 z-99 bg-white flex">
         <div className="w-full flex flex-col lg:flex-row p-2">
-          <div className="w-full lg:w-3/5 flex flex-col p-4">
+          <div className="w-full lg:w-3/5 flex flex-col">
             {/* Profile Card */}
-            <Cards className="w-full bg-white border border-stroke shadow rounded-lg p-4 text-sm">
-              <div className="w-full">
-                <div className="flex flex-col lg:flex-row items-center lg:items-start">
-                  <div className="w-[250px] max-w-[250px] px-2 ">
-                    <img
-                      src="../../../image/empty-images.png"
-                      className="rounded-full border-none w-[200px] lg:w-[180px] max-w-[250px] h-[200px] lg:h-[180px] object-cover object-center m-auto"></img>
-                  </div>
-                  <div className="w-full px-2">
-                    <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                      <div className="w-full flex mb-3 lg:mb-0 items-center justify-between">
-                        <h3 className="text-lg uppercase text-primary font-bold mx-1">
+            <div className="w-full p-4">
+              <Cards className="w-full bg-white border border-stroke shadow rounded-lg p-4 text-sm">
+                <div className="w-full">
+                  <div className="flex flex-col lg:flex-row items-center lg:items-start">
+                    <div className="w-[250px] max-w-[250px] px-2 ">
+                      <img
+                        src="../../../image/empty-images.png"
+                        className="rounded-full border-none w-[200px] lg:w-[180px] max-w-[250px] h-[200px] lg:h-[180px] object-cover object-center m-auto"></img>
+                    </div>
+                    <div className="w-full px-2">
+                      <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                        <div className="w-full flex mb-3 lg:mb-0 items-center justify-between">
+                          <h3 className="text-lg uppercase text-primary font-bold mx-1">
+                            Colony
+                          </h3>
+                          <div className="px-2 py-1 rounded border capitalize bg-purple-100 text-primary border-primary">
+                            Active
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center w-full mt-2 text-gray-5">
+                        <div className="w-5 mr-1">
+                          <MdOutlineLocationOn />
+                        </div>
+                        <div className="text-left font-bold uppercase">
+                          Graha Sumartadinata
+                        </div>
+                      </div>
+                      <div className="flex items-center w-full mt-2 text-gray-5">
+                        <div className="w-5 mr-1">
+                          <TbBuildingCommunity />
+                        </div>
+                        <div className="text-left text-xs font-bold capitalize">
+                          COLONY
+                        </div>
+                      </div>
+                      <div className="w-full flex flex-col gap-2 my-3">
+                        <h3 className="text-left text-lg font-semibold text-gray-5">
                           Colony
                         </h3>
-                        <div className="px-2 py-1 rounded border capitalize bg-purple-100 text-primary border-primary">
-                          Active
+                        <div className="w-full flex items-center justify-between lg:justify-start">
+                          <div className="w-full max-w-max flex items-center text-yellow-300 mb-3">
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                          </div>
+                          <div className="w-full max-w-max text-gray-5 text-sm mb-3 text-left lg:ml-3">
+                            <span>0 / 5 from</span>
+                            <span> 0 user</span>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center w-full mt-2 text-gray-5">
-                      <div className="w-5 mr-1">
-                        <MdOutlineLocationOn />
-                      </div>
-                      <div className="text-left font-bold uppercase">
-                        Graha Sumartadinata
-                      </div>
-                    </div>
-                    <div className="flex items-center w-full mt-2 text-gray-5">
-                      <div className="w-5 mr-1">
-                        <TbBuildingCommunity />
-                      </div>
-                      <div className="text-left text-xs font-bold capitalize">
-                        COLONY
-                      </div>
-                    </div>
-                    <div className="w-full flex flex-col gap-2 my-3">
-                      <h3 className="text-left text-lg font-semibold text-gray-5">
-                        Colony
-                      </h3>
-                      <div className="w-full flex items-center justify-between lg:justify-start">
-                        <div className="w-full max-w-max flex items-center text-yellow-300 mb-3">
-                          <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
-                          <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
-                          <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
-                          <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
-                          <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                        <div className="w-full flex flex-col text-gray-5">
+                          <p className="text-xs lg:text-sm text-justify">
+                            colony
+                          </p>
                         </div>
-                        <div className="w-full max-w-max text-gray-5 text-sm mb-3 text-left lg:ml-3">
-                          <span>0 / 5 from</span>
-                          <span> 0 user</span>
-                        </div>
-                      </div>
-                      <div className="w-full flex flex-col text-gray-5">
-                        <p className="text-xs lg:text-sm text-justify">
-                          colony
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Cards>
+              </Cards>
+            </div>
+
             {/* Menu */}
-            <div className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center my-4">
+            <div className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center my-4 px-4">
               <div className="lg:w-full">
                 <Tabs menus={menuMerchant} />
               </div>
@@ -333,7 +336,7 @@ const merchant = ({ pageProps }: Props) => {
               </div>
             </div>
             {/* item details content */}
-            <div className="w-full flex flex-wrap items-center justify-between">
+            <div className="w-full flex flex-wrap items-center justify-between p-4">
               {/* search bar */}
               <div className="w-full md:w-2/6">
                 <SearchInput
@@ -398,22 +401,22 @@ const merchant = ({ pageProps }: Props) => {
                   />
                 </div>
               </div>
-              {/* Table data */}
-              <MerchantTables
-                columns={columns}
-                dataTable={dataTable}
-                loading={loading}
-                setLoading={setLoading}
-                pages={pages}
-                setPages={setPages}
-                limit={limit}
-                setLimit={setLimit}
-                pageCount={pageCount}
-                total={total}
-                isInfiniteScroll={false}
-                isHideHeader
-              />
             </div>
+            {/* Table data */}
+            <MerchantTables
+              columns={columns}
+              dataTable={dataTable}
+              loading={loading}
+              setLoading={setLoading}
+              pages={pages}
+              setPages={setPages}
+              limit={limit}
+              setLimit={setLimit}
+              pageCount={pageCount}
+              total={total}
+              isInfiniteScroll={false}
+              isHideHeader
+            />
           </div>
           {/* sisi kanan */}
           <div className="responsive w-full lg:w-2/5 p-4 lg:overflow-auto lg:h-screen">
