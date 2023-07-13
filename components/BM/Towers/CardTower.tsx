@@ -21,6 +21,7 @@ import axios from "axios";
 import Link from "next/link";
 import TowerForm from "../../Forms/employee/TowerForm";
 import Modal from "../../Modal";
+import FloorBatchForm from "../../Forms/employee/FloorBatchForm";
 
 type Props = {
   items?: any;
@@ -116,6 +117,9 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   const [isOpenEditTower, setIsOpenEditTower] = useState(false);
   const [formData, setFormData] = useState<any>({});
 
+  // modal floor
+  const [isOpenAddFloor, setIsOpenAddFloor] = useState(false);
+
   // open edit modal
   const openEditModal = (value: FormTowerValues) => {
     setFormData(value);
@@ -126,6 +130,18 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   const closeEditModal = () => {
     setFormData({});
     setIsOpenEditTower(false);
+  };
+
+  // open add floor modal
+  const openAddFloorModal = (value: FormTowerValues) => {
+    setFormData({ tower: value });
+    setIsOpenAddFloor(true);
+  };
+
+  // close add floor modal
+  const closeAddFloorModal = () => {
+    setFormData({});
+    setIsOpenAddFloor(false);
   };
 
   const filters = useMemo(() => {
@@ -299,7 +315,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
               className="text-xs py-1 px-2 font-semibold rounded-md"
               variant="primary"
               type="button"
-              onClick={() => console.log("add floor")}>
+              onClick={() => openAddFloorModal(items)}>
               <span className="hidden lg:inline-block">New Floor</span>
               <MdAdd className="w-4 h-4" />
             </Button>
@@ -351,6 +367,17 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           filters={filterTower}
           items={formData}
           isUpdate
+        />
+      </Modal>
+
+      {/* modal add floor*/}
+      <Modal isOpen={isOpenAddFloor} onClose={closeAddFloorModal} size="small">
+        <FloorBatchForm
+          isCloseModal={closeAddFloorModal}
+          isOpen={isOpenAddFloor}
+          token={token}
+          filters={filterTower}
+          items={formData}
         />
       </Modal>
     </Fragment>

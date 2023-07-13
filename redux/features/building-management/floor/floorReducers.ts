@@ -35,6 +35,7 @@ interface HeadersConfiguration {
 }
 
 interface FloorData {
+  id?: any;
   data: any;
   token?: any;
   isSuccess: () => void;
@@ -89,6 +90,74 @@ export const getFloors = createAsyncThunk<
   }
 });
 
+// create floor batch
+export const createFloorBatch = createAsyncThunk<
+  any,
+  FloorData,
+  { state: RootState }
+>("/floor/create/batch", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post("floor/batch", params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// create floor batch
+export const createFloors = createAsyncThunk<
+  any,
+  FloorData,
+  { state: RootState }
+>("/floor/create", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post("floor", params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // SLICER
 export const floorSlice = createSlice({
   name: "floors",
@@ -123,6 +192,46 @@ export const floorSlice = createSlice({
         };
       })
       .addCase(getFloors.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // create-floor
+      .addCase(createFloors.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(createFloors.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(createFloors.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // create-floor-batch
+      .addCase(createFloorBatch.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(createFloorBatch.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(createFloorBatch.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

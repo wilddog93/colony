@@ -53,12 +53,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 *::-webkit-scrollbar-thumb {
   border-radius: 5px;
   background-color: #fff;
-  background-image: -webkit-gradient(linear,
-      40% 0%,
-      75% 84%,
-      from(#ced4da),
-      to(#ced4da),
-      color-stop(0.6, #ced4da));
+  background-image: -webkit-gradient(
+    linear,
+    40% 0%,
+    75% 84%,
+    from(#ced4da),
+    to(#ced4da),
+    color-stop(0.6, #ced4da)
+  );
 }
 
 /* table */
@@ -103,14 +105,15 @@ td,
 
 /* start toastify */
 .Toastify__toast.Toastify__toast-theme--dark {
-  background-color: #5F59F7 !important;
+  background-color: #5f59f7 !important;
   color: white;
   font-weight: 800;
 }
 /* end toastify */
 
-@import url('react-phone.css');
-@import url('tooltip.css');
+@import url("react-phone.css");
+@import url("tooltip.css");
+@import url("checkbox.css");
 
 @tailwind base;
 @tailwind components;
