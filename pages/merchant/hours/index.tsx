@@ -131,9 +131,9 @@ const merchant = ({ pageProps }: Props) => {
 
   const columns = useMemo<ColumnDef<BillingProps, any>[]>(() => [], []);
 
-  useEffect(() => {
-    setDataTable(itemData(100));
-  }, [itemData]);
+  // useEffect(() => {
+  //   setDataTable(itemData(100));
+  // }, [itemData]);
 
   return (
     <MerchantLayouts

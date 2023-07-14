@@ -1,20 +1,90 @@
-import MerchantCard from "../../../components/merchant/MerchantCard";
-import MerchantMenu from "../../../components/merchant/MerchantMenu";
-import { useState, useMemo } from "react";
-import { formatMoney } from "../../../utils/useHooks/useFunction";
+import MerchantLayouts from "../../../components/Layouts/MerchantLayouts";
+import Cards from "../../../components/Cards/Cards";
+import { MdOutlineLocationOn } from "react-icons/md";
+import { TbBuildingCommunity } from "react-icons/tb";
+import { AiOutlineStar } from "react-icons/ai";
+import Tabs from "../../../components/Layouts/Tabs";
+import { menuMerchant } from "../../../utils/routes";
+import Button from "../../../components/Button/Button";
+import { MdAdd } from "react-icons/md";
+import { useState, useMemo, useEffect } from "react";
+import { SearchInput } from "../../../components/Forms/SearchInput";
+import DropdownSelect from "../../../components/Dropdown/DropdownSelect";
+import {
+  Items,
+  itemData,
+} from "../../../components/tables/components/itemData";
 import { useRouter } from "next/router";
-import { BillingProps } from "../../../components/tables/components/billingData";
 import { ColumnDef } from "@tanstack/react-table";
+import OverviewTabs from "../../../components/merchant/OverviewTabs";
+import Modal from "../../../components/Modal";
+import { ModalHeader } from "../../../components/Modal/ModalComponent";
 import SelectTables from "../../../components/tables/layouts/SelectTables";
-import OverviewMenu from "../../../components/merchant/OverviewMenu";
-import Discount from "../../../components/merchant/button/Discount";
-import Navbar from "../../../components/Tenant/Navbar";
+import CategoryForm from "../../../components/Forms/Merchant/Category/CategoryForm";
+import { formatMoney } from "../../../utils/useHooks/useFunction";
+import { BillingProps } from "../../../components/tables/components/billingData";
+import {
+  DiscountProps,
+  newDiscount,
+} from "../../../components/tables/components/discountData";
+import HourForm from "../../../components/Forms/Merchant/hours/HourForm";
+import DiscountForm from "../../../components/Forms/Merchant/Discounts/DiscountForm";
 
 type Props = {
   pageProps: any;
 };
 
+const sortOpt = [
+  { value: "A-Z", label: "A-Z" },
+  { value: "Z-A", label: "Z-A" },
+];
+
+const stylesSelect = {
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: "none",
+  }),
+  dropdownIndicator: (provided: any) => {
+    return {
+      ...provided,
+      color: "#7B8C9E",
+    };
+  },
+  clearIndicator: (provided: any) => {
+    return {
+      ...provided,
+      color: "#7B8C9E",
+    };
+  },
+  singleValue: (provided: any) => {
+    return {
+      ...provided,
+      color: "#5F59F7",
+    };
+  },
+  control: (provided: any, state: any) => {
+    // console.log(provided, "control")
+    return {
+      ...provided,
+      background: "",
+      padding: ".6rem",
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
+      },
+      minHeight: 40,
+      // flexDirection: "row-reverse"
+    };
+  },
+  menuList: (provided: any) => provided,
+};
+
 const merchant = ({ pageProps }: Props) => {
+  const { token, accessToken, firebaseToken } = pageProps;
+
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -27,268 +97,294 @@ const merchant = ({ pageProps }: Props) => {
     router.push({ pathname: `/property/billings/receipt/${items.id}` });
   };
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // form
+  const [isForm, setIsForm] = useState(false);
+  const [formData, setFormData] = useState<any>({});
+
+  const isOpenForm = () => {
+    setIsForm(true);
+  };
+  const isCloseForm = () => {
+    setIsForm(false);
+  };
+
+  //modal
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
 
-  // data-table
-  const [dataTable, setDataTable] = useState<BillingProps[]>([]);
-  const [isSelectedRow, setIsSelectedRow] = useState({});
+  //datatable
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(2000);
   const [total, setTotal] = useState(1000);
+  const [dataTable, setDataTable] = useState<Items[]>([]);
+  const [isSelectedRow, setIsSelectedRow] = useState({});
+  const [details, setDetails] = useState<Items>();
 
-  const columns = useMemo<ColumnDef<BillingProps, any>[]>(
+  const onCloseDelete = () => {
+    setDetails(undefined);
+    setIsOpenDelete(false);
+  };
+  const onOpenDelete = (items: any) => {
+    setDetails(items);
+    setIsOpenDelete(true);
+  };
+
+  const columns = useMemo<ColumnDef<DiscountProps, any>[]>(
     () => [
       {
-        accessorKey: "billingName",
-        header: (info) => <div className="uppercase text-left">Invoice ID</div>,
-        cell: ({ getValue, row }) => {
-          let id = row?.original?.id;
-          let code = row?.original?.billingCode;
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full flex flex-col cursor-pointer p-4 hover:cursor-pointer text-left">
-              <div className="text-lg font-semibold text-primary">{code}</div>
-              <div className="text-sm capitalize">{getValue()}</div>
-            </div>
-          );
-        },
+        accessorKey: "discountID",
+        header: (info) => <div className="uppercase text-left">ID</div>,
         footer: (props) => props.column.id,
         enableColumnFilter: false,
       },
       {
-        accessorKey: "billingCode",
-        header: (info) => <div className="uppercase">Unit</div>,
-        cell: ({ getValue, row }) => {
-          let id = row?.original?.id;
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full flex flex-col cursor-pointer p-4 hover:cursor-pointer">
-              <div className="text-lg font-semibold text-primary">
-                {getValue()}
-              </div>
-              <div className="text-sm">Tower - 1 F</div>
-            </div>
-          );
-        },
+        accessorKey: "discountName",
+        header: (info) => <div className="uppercase">Discount Name</div>,
         footer: (props) => props.column.id,
         enableColumnFilter: false,
       },
       {
-        accessorKey: "billingDescription",
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-sm text-gray-5 text-left p-4 hover:cursor-pointer">
-              {/* {getValue().length > 70 ? `${getValue().substring(70, 0)}...` : getValue()} */}
-              <div className="font-semibold">John Doe</div>
-              <div className="">johndoe@email.com</div>
-            </div>
-          );
-        },
+        accessorKey: "description",
         header: (props) => (
-          <div className="w-full text-left uppercase">Owner</div>
+          <div className="w-full text-left uppercase">Description</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
       },
       {
-        accessorKey: "totalBill",
-        cell: ({ row, getValue }) => {
-          const value = row?.original?.periodEnd;
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-sm p-4 text-right hover:cursor-pointer">
-              {`IDR ${formatMoney({ amount: getValue() })}`}
-            </div>
-          );
-        },
+        accessorKey: "amount",
         header: (props) => (
-          <div className="w-full text-right uppercase">Payment Amount</div>
+          <div className="w-full text-left uppercase">Amount / Rate</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "type",
+        header: (props) => (
+          <div className="w-full text-left uppercase">Type</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "description",
+        header: (props) => (
+          <div className="w-full text-left uppercase">Description</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "createdAt",
+        header: (props) => (
+          <div className="w-full text-left uppercase">Start Time</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "updatedAt",
+        header: (props) => (
+          <div className="w-full text-left uppercase">End Time</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "discountID",
+        header: (props) => (
+          <div className="w-full text-left uppercase">Action</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
       },
     ],
     []
   );
 
   return (
-    <>
-      <div className="flex flex-col overflow-x-scroll h-screen bg-[#1C2D3D] min-h-full">
-        {/* <div className="sticky top-0 z-30 w-full shadow bg-[#111F2C] md:w-full items-center transform transition-all duration-500 ease-in-out undefined">
-            <div className="relative flex flex-row px-6">
-                <div className="w-1/5 hidden lg:inline-block py-4">
-                    <div className="text-gray-500 text-lg lg:text-xl tracking-wider">
-                        <a className="inline-flex items-center py-2.5 font-bold text-white hover:text-[#5F59F7]">
-                            <img className="w-10 h-10 object-cover object-center mr-2" src="../../image/logo-icon.svg"/>
-                            <span className="uppercase">merchant</span>
-                        </a>
+    <MerchantLayouts
+      title="Colony"
+      header="Merchant"
+      head="Detail"
+      logo="../image/logo/logo-icon.svg"
+      description=""
+      images="../image/logo/building-logo.svg"
+      userDefault="../image/user/user-01.png"
+      token={token}>
+      <div className="w-full absolute inset-0 mt-16 z-99 bg-white flex">
+        <div className="w-full flex flex-col lg:flex-row p-2">
+          <div className="w-full lg:w-3/5 flex flex-col p-4">
+            {/* Profile Card */}
+            <div className="w-full p-4">
+              <Cards className="w-full bg-white border border-stroke shadow rounded-lg p-4 text-sm">
+                <div className="w-full">
+                  <div className="flex flex-col lg:flex-row items-center lg:items-start">
+                    <div className="w-[250px] max-w-[250px] px-2 ">
+                      <img
+                        src="../../../image/empty-images.png"
+                        className="rounded-full border-none w-[200px] lg:w-[180px] max-w-[250px] h-[200px] lg:h-[180px] object-cover object-center m-auto"></img>
                     </div>
+                    <div className="w-full px-2">
+                      <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                        <div className="w-full flex mb-3 lg:mb-0 items-center justify-between">
+                          <h3 className="text-lg uppercase text-primary font-bold mx-1">
+                            Colony
+                          </h3>
+                          <div className="px-2 py-1 rounded border capitalize bg-purple-100 text-primary border-primary">
+                            Active
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center w-full mt-2 text-gray-5">
+                        <div className="w-5 mr-1">
+                          <MdOutlineLocationOn />
+                        </div>
+                        <div className="text-left font-bold uppercase">
+                          Graha Sumartadinata
+                        </div>
+                      </div>
+                      <div className="flex items-center w-full mt-2 text-gray-5">
+                        <div className="w-5 mr-1">
+                          <TbBuildingCommunity />
+                        </div>
+                        <div className="text-left text-xs font-bold capitalize">
+                          COLONY
+                        </div>
+                      </div>
+                      <div className="w-full flex flex-col gap-2 my-3">
+                        <h3 className="text-left text-lg font-semibold text-gray-5">
+                          Colony
+                        </h3>
+                        <div className="w-full flex items-center justify-between lg:justify-start">
+                          <div className="w-full max-w-max flex items-center text-yellow-300 mb-3">
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                            <AiOutlineStar className="lg:w-6 lg:h-6 text-gray-5" />
+                          </div>
+                          <div className="w-full max-w-max text-gray-5 text-sm mb-3 text-left lg:ml-3">
+                            <span>0 / 5 from</span>
+                            <span> 0 user</span>
+                          </div>
+                        </div>
+                        <div className="w-full flex flex-col text-gray-5">
+                          <p className="text-xs lg:text-sm text-justify">
+                            colony
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="hidden lg:block border border-[#1C2D3D] inset-y-0 mx-6"></div>
-                
-                <div className="w-full lg:w-3/4 flex flex-row justify-between items-center py-4">
-                    <div className="w-full lg:w-1/2 flex justify-start items-center text-white">
-                        <button>
-                            <a>
-                                <span>Menu</span>
-                            </a>
-                            <svg 
-                                stroke="currentColor" 
-                                fill="currentColor" 
-                                stroke-width="0" 
-                                viewBox="0 0 24 24" 
-                                className="w-5 h-5 ml-2 hidden lg:inline-block" 
-                                height="1em" 
-                                width="1em" 
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill="none" d="M0 0h24v24H0z"></path>
-                                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
-                            </svg>
-                        </button>
-                        <button>
-                            <a>
-                                <span>Merchant</span>
-                            </a>
-                            <svg 
-                                stroke="currentColor" 
-                                fill="currentColor" 
-                                stroke-width="0" 
-                                viewBox="0 0 24 24" 
-                                className="w-5 h-5 ml-2 hidden lg:inline-block" 
-                                height="1em" 
-                                width="1em" 
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill="none" d="M0 0h24v24H0z"></path>
-                                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
-                            </svg>
-                        </button>
-                        <button className="mx-2 flex flex-row items-center">
-                            <img src="../../image/logo-icon.svg" className="w-10 h-10 mx-2"/>
-                            <div className="flex flex-row items-center">
-                                <a className="uppercase mx-2">Colony</a>
-                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" className="transform transition-all ease-in-out text-gray-600 w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h24v24H0z"></path><path d="M7 10l5 5 5-5z"></path></svg>
-                            </div>
-                        </button>
-                    </div>
-                    <div className="hidden lg:flex lg:w-1/2 justify-end">
-                        <button className="flex flex-row items-center text-white">
-                            <img src="../../image/user/user-01.png" className="w-10 h-10 mx-2 "/>
-                            <span className="font-bold px-2">John Doe</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white" aria-hidden="true" className="ml-2 -mr-1 h-5 w-5">
-                                <path 
-                                fill-rule="evenodd" 
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                                clip-rule="evenodd">
-                                </path>
-                            </svg>
-                        </button>
-                        <button>
-                            <span>
-                                <img/>
-                            </span>
-                        </button>
-                    </div>
-                </div>
+              </Cards>
             </div>
-        </div> */}
-        <Navbar />
-        <main className="h-screen pt-4">
-          <div className="flex flex-col space-y-2 lg:flex-row">
-            <div className="w-full lg:w-7/12 px-8 flex flex-col">
-              {/* profile */}
-              <MerchantCard />
-              {/* merchant menu */}
-              <div className="flex flex-col lg:flex-row justify-start mt-2 lg:justify-between items-center">
-                <MerchantMenu />
-                <div className="w-full mt-2 lg:mt-0 lg:w-1/4 flex justify-start lg:justify-end">
-                  <Discount />
-                </div>
+            {/* Menu */}
+            <div className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center my-4 px-4">
+              <div className="lg:w-full">
+                <Tabs menus={menuMerchant} />
               </div>
-
-              {/* card */}
-              <div className="flex flex-col mt-2 overflow-x-auto no-scrollbar">
-                <div className="flex flex-col space-y-2 no-scrollbar lg:space-y-0 mt-3 justify-center items-center lg:flex-row w-full">
-                  <div className="w-full lg:w-[70%] flex flex-row justify-center items-center">
-                    <div className="lg:w-[90%] w-full flex justify-center items-center bg-white rounded-lg mr-2 p-2">
-                      <input
-                        type="text"
-                        placeholder="search"
-                        className=" bg-transparent w-full"></input>
-                    </div>
-                    <div className="bg-[#5F59F7] p-3 flex justify-center items-center rounded-lg w-[10%]">
-                      <button>
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M8.33332 7.33326H7.80666L7.61999 7.15326C8.41999 6.21993 8.83332 4.9466 8.60666 3.59326C8.29332 1.73993 6.74666 0.259929 4.87999 0.0332621C2.05999 -0.313405 -0.313344 2.05993 0.0333232 4.87993C0.25999 6.74659 1.73999 8.29326 3.59332 8.6066C4.94666 8.83326 6.21999 8.41993 7.15332 7.61993L7.33332 7.80659V8.33326L10.1667 11.1666C10.44 11.4399 10.8867 11.4399 11.16 11.1666C11.4333 10.8933 11.4333 10.4466 11.16 10.1733L8.33332 7.33326ZM4.33332 7.33326C2.67332 7.33326 1.33332 5.99326 1.33332 4.33326C1.33332 2.67326 2.67332 1.33326 4.33332 1.33326C5.99332 1.33326 7.33332 2.67326 7.33332 4.33326C7.33332 5.99326 5.99332 7.33326 4.33332 7.33326Z"
-                            fill="#9DACBA"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="w-full flex flex-row justify-center px-2 items-center lg:w-[30%]">
-                    <p className="w-[50%] text-white">Discount type :</p>
-                    <div className="w-full flex-row flex lg:w-[50%] justify-start bg-white rounded-lg p-2">
-                      <div className="w-3/4 text-left flex justify-start">
-                        <p>All</p>
-                      </div>
-                      <div className="w-1/4 flex border-l-2 justify-center items-center">
-                        <svg
-                          stroke="currentColor"
-                          fill="currentColor"
-                          stroke-width="0"
-                          viewBox="0 0 24 24"
-                          className="transform transition-all ease-in-out text-gray-600 w-5 h-5"
-                          height="1em"
-                          width="1em"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path fill="none" d="M0 0h24v24H0z"></path>
-                          <path d="M7 10l5 5 5-5z"></path>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <ItemDetails/> */}
-                <SelectTables
-                  loading={loading}
-                  setLoading={setLoading}
-                  pages={pages}
-                  setPages={setPages}
-                  limit={limit}
-                  setLimit={setLimit}
-                  pageCount={pageCount}
-                  columns={columns}
-                  dataTable={dataTable}
-                  total={total}
-                  setIsSelected={setIsSelectedRow}
-                  // isInfiniteScroll
-                  classTable="bg-gray p-4"
+              <div className="w-full lg:w-1/4 flex justify-start lg:justify-end">
+                <Button
+                  type="button"
+                  onClick={isOpenForm}
+                  className="rounded-lg text-sm font-semibold py-4"
+                  variant="primary">
+                  <span>New Discount</span>
+                  <MdAdd />
+                </Button>
+              </div>
+            </div>
+            {/* item details content */}
+            <div className="w-full flex flex-wrap items-center justify-between p-4">
+              {/* search bar */}
+              <div className="w-full md:w-2/6">
+                <SearchInput
+                  className="w-full text-sm rounded-xl"
+                  classNamePrefix=""
+                  filter={search}
+                  setFilter={setSearch}
+                  placeholder="Search..."
                 />
               </div>
+              {/* filter */}
+              <div className="w-full md:w-4/6 flex flex-col md:flex-row justify-between mt-2 md:mt-0">
+                <div className="w-full md:w-1/3 flex justify-start items-center mb-2 md:mb-0 mx-0 md:mx-2">
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={sort}
+                    onChange={setSort}
+                    error=""
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId="1"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="Discount Type..."
+                    options={sortOpt}
+                    icon=""
+                  />
+                </div>
+              </div>
             </div>
-            <div className="w-full lg:w-5/12 pb-2 px-8 lg:px-4 flex flex-col">
-              <OverviewMenu />
+            {/* Table data */}
+            <div className="w-full grid">
+              <SelectTables
+                loading={loading}
+                setLoading={setLoading}
+                pages={pages}
+                setPages={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                pageCount={pageCount}
+                columns={columns}
+                dataTable={dataTable}
+                total={total}
+                setIsSelected={setIsSelectedRow}
+                // isInfiniteScroll
+                classTable="bg-gray p-4"
+              />
             </div>
           </div>
-        </main>
+          {/* sisi kanan */}
+          <div className="responsive w-full lg:w-2/5 p-4 lg:overflow-auto lg:h-screen">
+            {/* overview menu */}
+            {/* <OverviewMenu /> */}
+            <OverviewTabs />
+          </div>
+        </div>
       </div>
-    </>
+      <Modal isOpen={isForm} onClose={isCloseForm} size="medium">
+        <div>
+          <ModalHeader
+            className="border-b-2 border-gray p-4"
+            isClose
+            onClick={isCloseForm}>
+            <div className="w-full flex">
+              <h3>Add Discount</h3>
+            </div>
+          </ModalHeader>
+          <div className="w-full">
+            <DiscountForm token={token} onClose={isCloseForm} isOpen={isForm} />
+          </div>
+        </div>
+      </Modal>
+    </MerchantLayouts>
   );
 };
 

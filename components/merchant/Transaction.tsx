@@ -109,8 +109,8 @@ const Transaction = () => {
   const [search, setSearch] = useState(null);
 
   return (
-    <div className="flex flex-col mt-2 p-4 space-y-2">
-      <div className="w-full flex flex-wrap items-center justify-between ">
+    <div className="flex flex-col mt-2 pt-4 space-y-2">
+      <div className="w-full flex flex-wrap items-center justify-between px-4">
         <div className="w-full md:w-3/6">
           <div className="w-full">
             <form className="flex my-auto items-center relative w-full mr-6 text-gray-500 focus-within:text-primary">

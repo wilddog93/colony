@@ -215,6 +215,7 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                 )}
               </div>
             </div>
+            {/* Time picker */}
             <div className="mb-3 w-full flex flex-col md:flex-row items-center">
               <div className="w-full md:w-1/2 pr-0 md:pr-1">
                 <label className="overflow-hidden ">
