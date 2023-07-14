@@ -17,6 +17,7 @@ import {
   createFloorBatch,
   createFloors,
   selectFloorManagement,
+  updateFloors,
 } from "../../../redux/features/building-management/floor/floorReducers";
 import DropdownSelect from "../../Dropdown/DropdownSelect";
 
@@ -207,15 +208,33 @@ export default function FloorBatchForm(props: Props) {
       floorOrder: value?.floorOrder?.value,
       tower: value?.tower?.id,
     };
-    if (!isChecked) {
+    if (isUpdate) {
+      console.log("this is update");
       newData = {
-        ...newData,
         floorName: value?.floorName,
+        tower: value?.tower?.id,
       };
-      if (isUpdate) {
-        console.log("this is update");
-      } else {
-        console.log("this is create", newData);
+      dispatch(
+        updateFloors({
+          id: value?.id,
+          token,
+          data: newData,
+          isSuccess() {
+            dispatch(getTowers({ params: filters, token: token }));
+            isCloseModal();
+          },
+          isError() {
+            console.log("error");
+          },
+        })
+      );
+    } else {
+      console.log("this is create", newData);
+      if (!isChecked) {
+        newData = {
+          ...newData,
+          floorName: value?.floorName,
+        };
         dispatch(
           createFloors({
             token,
@@ -229,20 +248,15 @@ export default function FloorBatchForm(props: Props) {
             },
           })
         );
-      }
-    } else {
-      newData = {
-        ...newData,
-        addTextPosition: value?.addTextPosition?.value,
-        addText: value?.addText,
-        floorType: value?.floorType?.value,
-        startAt: Number(value?.startAt),
-        length: Number(value?.length),
-      };
-      if (isUpdate) {
-        console.log("this is update");
       } else {
-        console.log("this is create", newData);
+        newData = {
+          ...newData,
+          addTextPosition: value?.addTextPosition?.value,
+          addText: value?.addText,
+          floorType: value?.floorType?.value,
+          startAt: Number(value?.startAt),
+          length: Number(value?.length),
+        };
         dispatch(
           createFloorBatch({
             token,
@@ -296,7 +310,7 @@ export default function FloorBatchForm(props: Props) {
   console.log(watchValue, "result");
 
   useEffect(() => {
-    if (watchChange?.name === "isBulk") {
+    if (watchChange?.name === "isBulk" && !isUpdate) {
       reset({
         id: items?.id,
         tower: items?.tower,
@@ -309,7 +323,7 @@ export default function FloorBatchForm(props: Props) {
         floorOrder: { value: "Automatic", label: "Automatic" },
       });
     }
-  }, [watchChange, items]);
+  }, [watchChange, items, isUpdate]);
 
   return (
     <Fragment>
@@ -321,7 +335,8 @@ export default function FloorBatchForm(props: Props) {
           <h3 className="text-lg font-semibold">
             {isUpdate ? "Edit" : "Add"} Floor
           </h3>
-          <div className="flex items-center gap-1">
+          <div
+            className={`flex items-center gap-1 ${isUpdate ? "hidden" : ""}`}>
             <label className="switch">
               <input type="checkbox" {...register("isBulk")} />
               <div className="slider">
