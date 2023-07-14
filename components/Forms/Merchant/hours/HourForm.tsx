@@ -18,9 +18,11 @@ type Props = {
 
 type FormValues = {
   id?: any;
-  categoryName?: string | any;
-  itemCategory?: any;
-  categoryDescription?: any | string;
+  scheduleCode?: string | any;
+  scheduleType?: any;
+  Description?: any | string;
+  openTime?: any;
+  closeTime?: any;
 };
 
 type Options = {
@@ -74,7 +76,7 @@ const stylesSelect = {
 };
 
 const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
-  const [itemCategoryOption, setItemCategoryOption] = useState<Options[]>([]);
+  const [scheduleTypeOption, setscheduleTypeOption] = useState<Options[]>([]);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
 
   const handleTimeChange = (time: Date | null) => {
@@ -106,7 +108,7 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
   });
 
   const descriptionValue = useWatch({
-    name: "categoryDescription",
+    name: "Description",
     control,
   });
 
@@ -156,7 +158,7 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                   autoFocus
                   placeholder="Descriptions"
                   className="w-full rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                  {...register("categoryDescription")}
+                  {...register("Description")}
                 />
                 <div className="mt-1 text-xs flex items-center">
                   <span className="text-graydark">
@@ -170,7 +172,7 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
               <label
                 htmlFor="itemSubCategory"
                 className="mb-2.5 block font-medium text-black dark:text-white">
-                Item Category
+                Schedule Type
               </label>
               <div className="relative">
                 <Controller
@@ -189,12 +191,12 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                       instanceId="itemCategory"
                       isDisabled={false}
                       isMulti={false}
-                      placeholder="Select Category..."
-                      options={itemCategoryOption}
+                      placeholder="Schedule Type..."
+                      options={scheduleTypeOption}
                       icon=""
                     />
                   )}
-                  name={`itemCategory`}
+                  name={`scheduleType`}
                   control={control}
                   rules={{
                     required: {
@@ -203,11 +205,11 @@ const HourForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                     },
                   }}
                 />
-                {errors?.itemCategory && (
+                {errors?.scheduleType && (
                   <div className="mt-1 text-xs flex items-center text-red-300">
                     <MdWarning className="w-4 h-4 mr-1" />
                     <span className="text-red-300">
-                      {errors?.itemCategory?.message as any}
+                      {errors?.scheduleType?.message as any}
                     </span>
                   </div>
                 )}

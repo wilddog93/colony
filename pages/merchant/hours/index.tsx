@@ -255,15 +255,14 @@ const merchant = ({ pageProps }: Props) => {
                     instanceId="1"
                     isDisabled={false}
                     isMulti={false}
-                    placeholder="Category..."
+                    placeholder="Schedule Type..."
                     options={sortOpt}
                     icon=""
                   />
                 </div>
               </div>
-              {/* Table data */}
             </div>
-
+            {/* Table data */}
             <div className="w-full grid">
               <SelectTables
                 loading={loading}
