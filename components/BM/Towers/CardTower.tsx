@@ -34,11 +34,27 @@ import {
 import { FaCircleNotch } from "react-icons/fa";
 import UnitBatchForm from "../../Forms/employee/UnitBatchForm";
 import Dropdown from "../../Dropdown";
+import { Router, useRouter } from "next/router";
+import {
+  getUnitTypes,
+  selectUnitTypeManagement,
+} from "../../../redux/features/building-management/unitType/unitTypeReducers";
+import {
+  getAmenities,
+  selectAmenityManagement,
+} from "../../../redux/features/building-management/amenity/amenityReducers";
+
+type OptionProps = {
+  value: string | null;
+  label: React.ReactNode;
+};
 
 type Props = {
   items?: any;
   token?: any;
   filterTower?: any;
+  amenityOpt?: OptionProps[] | any[];
+  unitTypeOpt?: OptionProps[] | any[];
 };
 
 type FloorProps = {
@@ -58,21 +74,6 @@ type FormTowerValues = {
   towerName?: string;
   towerDescription?: string;
   gpsLocation?: string;
-};
-
-type UnitProps = {
-  floor?: FloorProps | any;
-  unitNameType?: any;
-  unitType?: any;
-  unitDescription?: string | any;
-  unitSize?: number | string | any;
-  amenity?: any | any[];
-  startAt?: number | any;
-  length?: number | any;
-  addText?: string | any;
-  addTextPosition?: any;
-  unitOrder?: any;
-  isBulk?: boolean | any;
 };
 
 const options = [
@@ -136,7 +137,15 @@ const customStylesSelect = {
   }),
 };
 
-const CardTower = ({ items, token, filterTower }: Props) => {
+const CardTower = ({
+  items,
+  token,
+  filterTower,
+  amenityOpt,
+  unitTypeOpt,
+}: Props) => {
+  const router = useRouter();
+  const { pathname, query } = router;
   const [value, setValue] = useState({
     value: "restaurant",
     label: "Restaurant",
@@ -160,9 +169,6 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   const [isOpenEditFloor, setIsOpenEditFloor] = useState(false);
   const [isOpenDeleteFloor, setIsOpenDeleteFloor] = useState(false);
 
-  // modal unit
-  const [isOpenAddUnit, setIsOpenAddUnit] = useState(false);
-
   // open edit modal
   const openEditModal = (value: FormTowerValues) => {
     setFormData(value);
@@ -177,6 +183,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
 
   // open add floor modal
   const openAddFloorModal = (value: FormTowerValues) => {
+    console.log(value, "check floor-tower-value");
     setFormData({ tower: value });
     setIsOpenAddFloor(true);
   };
@@ -189,6 +196,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
 
   // open edit floor modal
   const openEditFloorModal = (value: FloorProps) => {
+    console.log(value, "check floor-tower-value");
     setFormData(value);
     setIsOpenEditFloor(true);
   };
@@ -211,45 +219,20 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     setIsOpenDeleteFloor(false);
   };
 
-  // open add unit modal
-  const openAddUnitModal = (value: UnitProps) => {
-    setFormData(value);
-    setIsOpenAddUnit(true);
-  };
-
-  // close edit floor modal
-  const closeAddUnitModal = () => {
-    setFormData({});
-    setIsOpenAddUnit(false);
-  };
-
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
     const search = {
       $and: [
         {
-          $or: [
-            { "tower.id": { $eq: items.id } },
-            // { firstName: { $contL: query?.search } },
-            // { lastName: { $contL: query?.search } },
-            // { nickName: { $contL: query?.search } },
-            // { gender: { $contL: query?.search } },
-          ],
+          $or: [{ "tower.id": { $eq: items.id } }],
         },
       ],
     };
-    // query?.status && search["$and"].push({ status: query?.status });
 
     qb.search(search);
-
-    // if (query?.sort)
-    //   qb.sortBy({
-    //     field: "firstName",
-    //     order: query?.sort == "ASC" ? "ASC" : "DESC",
-    //   });
     qb.query();
     return qb;
-  }, [items]);
+  }, [items?.id]);
 
   // get floor
   const getFloorsData = async (params: any) => {
@@ -262,12 +245,17 @@ const CardTower = ({ items, token, filterTower }: Props) => {
         Authorization: `Bearer ${params.token}`,
       },
     };
+    let tabs: FloorProps = tabFloor;
     try {
       const response = await axios.get("floor", config);
       const { data, status } = response;
       if (status == 200) {
         setDataFloor(data?.data);
-        setTabFloor(data?.data[0] || {});
+        if (data?.data?.some((e: any) => e?.id == tabs?.id)) {
+          setTabFloor(tabs);
+        } else {
+          setTabFloor(data?.data[0]);
+        }
       } else {
         throw response;
       }
@@ -279,8 +267,9 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   };
 
   useEffect(() => {
-    if (token) getFloorsData({ params: filters.queryObject, token: token });
-  }, [token, filters]);
+    if (token && items?.id)
+      getFloorsData({ params: filters.queryObject, token: token });
+  }, [token, filters, items?.id]);
 
   const ComponentFloorTab = (props: FloorProps) => {
     const { id, floorName, tower, floorOrder } = props;
@@ -312,20 +301,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
         },
       },
     ];
-    if (id == tabFloor.id) {
-      // return (
-      //   <DropdownDefault
-      //     className=""
-      //     position="left"
-      //     data={tabDefault}
-      //     title={
-      //       <div className="inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold text-sm">
-      //         {floorName || "-"}
-      //         <MdMoreHoriz className="w-4 h-4" />
-      //       </div>
-      //     }
-      //   />
-      // );
+    if (id == tabFloor?.id) {
       return (
         <Dropdown
           menuName={floorName}
@@ -356,8 +332,9 @@ const CardTower = ({ items, token, filterTower }: Props) => {
         token,
         id: value?.id,
         isSuccess() {
+          // dispatch(getTowers({ params: filterTower, token }));
+          getFloorsData({ params: filters.queryObject, token: token });
           closeDeleteFloorModal();
-          dispatch(getTowers({ params: filterTower, token }));
           console.log("berhasil");
         },
         isError() {
@@ -367,7 +344,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     );
   };
 
-  console.log(formData, "check form");
+  console.log(items, "check floor-tower");
 
   return (
     <Fragment>
@@ -460,27 +437,16 @@ const CardTower = ({ items, token, filterTower }: Props) => {
         </div>
 
         {/* units */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-6 2xl:gap-7.5 border-b border-gray bg-[#F5F9FD] p-4 h-full max-h-70 overflow-y-auto overflow-x-hidden">
-          {tabFloor.id ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-6 2xl:gap-7.5 border-b border-gray bg-[#F5F9FD] px-4 py-10 h-full max-h-70 overflow-y-auto overflow-x-hidden">
+          {tabFloor?.id ? (
             <Fragment>
-              <Button
-                className="text-sm py-6 px-8 font-semibold rounded-md mr-4"
-                variant="primary-outline-none"
-                type="button"
-                onClick={() => console.log("add unit")}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    openAddUnitModal({ floor: tabFloor, isBulk: false })
-                  }
-                  className="flex flex-col items-center gap-2">
-                  <div className="p-2 bg-primary rounded-md">
-                    <MdAdd className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="">Add Room</span>
-                </button>
-              </Button>
-              <FloorUnit id={tabFloor.id} token={token} />
+              <FloorUnit
+                id={tabFloor?.id}
+                floor={tabFloor}
+                token={token}
+                amenityOpt={amenityOpt}
+                unitTypeOpt={unitTypeOpt}
+              />
             </Fragment>
           ) : (
             <span className="text-gray-5 m-auto text-sm">
@@ -518,8 +484,9 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           isCloseModal={closeAddFloorModal}
           isOpen={isOpenAddFloor}
           token={token}
-          filters={filterTower}
           items={formData}
+          filters={filterTower}
+          getData={() => getFloorsData({ token, params: filters.queryObject })}
         />
       </Modal>
 
@@ -534,6 +501,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           token={token}
           filters={filterTower}
           items={formData}
+          getData={() => getFloorsData({ token, params: filters.queryObject })}
           isUpdate
         />
       </Modal>
@@ -569,17 +537,6 @@ const CardTower = ({ items, token, filterTower }: Props) => {
             </Button>
           </ModalFooter>
         </Fragment>
-      </Modal>
-
-      {/* modal add unit*/}
-      <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
-        <UnitBatchForm
-          isCloseModal={closeAddUnitModal}
-          isOpen={isOpenAddUnit}
-          token={token}
-          filters={filterTower}
-          items={formData}
-        />
       </Modal>
     </Fragment>
   );

@@ -1,4 +1,12 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ModalFooter, ModalHeader } from "../../Modal/ModalComponent";
 import {
   MdAdd,
@@ -28,6 +36,30 @@ import {
   updateFloors,
 } from "../../../redux/features/building-management/floor/floorReducers";
 import DropdownSelect from "../../Dropdown/DropdownSelect";
+import {
+  createUnitBatch,
+  createUnits,
+  getUnits,
+  selectUnitManagement,
+  updateUnits,
+} from "../../../redux/features/building-management/unit/unitReducers";
+import {
+  getUnitTypes,
+  selectUnitTypeManagement,
+} from "../../../redux/features/building-management/unitType/unitTypeReducers";
+import {
+  getAmenities,
+  selectAmenityManagement,
+} from "../../../redux/features/building-management/amenity/amenityReducers";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useRouter } from "next/router";
+
+type OptionProps = {
+  value: string | null;
+  label: React.ReactNode;
+};
 
 type Props = {
   items?: any;
@@ -35,7 +67,9 @@ type Props = {
   isOpen?: boolean;
   isCloseModal: () => void;
   isUpdate?: boolean;
-  filters?: any;
+  getData: () => void;
+  amenityOpt?: OptionProps[] | any[];
+  unitTypeOpt?: OptionProps[] | any[];
 };
 
 type floorProps = {
@@ -150,24 +184,32 @@ const orderOption: Options[] = [
   },
 ];
 
-export default function UnitBatchForm(props: Props) {
-  const { isOpen, isCloseModal, items, isUpdate, filters, token } = props;
-
+export default function UnitBatchForm({
+  isOpen,
+  isCloseModal,
+  items,
+  isUpdate,
+  token,
+  getData,
+  amenityOpt,
+  unitTypeOpt,
+}: Props) {
+  const router = useRouter();
+  const { pathname, query } = router;
   const [watchValue, setWatchValue] = useState<FormValues | any>();
   const [watchChange, setWatchChange] = useState<any | null>(null);
 
-  const [amenities, setAmenities] = useState<any>({});
-  const [totalAdd, setTotalAdd] = useState<number | string>(0);
-
-  // checked
-  // const [isChecked, setIsChecked] = useState(false);
-  // let refChecked = useRef<HTMLInputElement>(null);
+  // all amenity
+  const [amenity, setAmenity] = useState<any | null>(null);
+  const [dataAmenity, setDataAmenity] = useState<any[]>([]);
+  const [totalAmenity, setTotalAmenity] = useState<number | string>(0);
 
   // redux
   const dispatch = useAppDispatch();
-  const { floors, floor, pending, error, message } = useAppSelector(
-    selectFloorManagement
-  );
+  const { units, unit, pending, error, message } =
+    useAppSelector(selectUnitManagement);
+  const { unitTypes } = useAppSelector(selectUnitTypeManagement);
+  const { amenities } = useAppSelector(selectAmenityManagement);
 
   // form
   const {
@@ -241,10 +283,6 @@ export default function UnitBatchForm(props: Props) {
     control,
   });
 
-  const onSubmit: SubmitHandler<FormValues> = async (value) => {
-    console.log(value, "form");
-  };
-
   useEffect(() => {
     if (isChecked) {
       register("length", {
@@ -278,8 +316,6 @@ export default function UnitBatchForm(props: Props) {
     }
   }, [register, unregister, isChecked]);
 
-  console.log(watchValue, "result");
-
   useEffect(() => {
     if (watchChange?.name === "isBulk" && !isUpdate) {
       reset({
@@ -300,6 +336,166 @@ export default function UnitBatchForm(props: Props) {
     }
   }, [watchChange, items, isUpdate]);
 
+  // description
+  const descriptionValue = useWatch({
+    name: "unitDescription",
+    control,
+  });
+
+  // all function amenity-start
+  const amenityValue = useWatch({
+    name: "amenity",
+    control,
+  });
+
+  const onAddAmenity = ({ amenity, total }: any) => {
+    console.log({ amenity, totalAmenity }, "add amenity");
+    if (!amenity?.id || !totalAmenity) {
+      toast.dark("Please input your amenities!");
+      return;
+    } else {
+      let newObj = {
+        ...amenity,
+        totalAmenity,
+      };
+
+      let newArr: any[] = dataAmenity;
+
+      const productArr = () => {
+        if (newArr?.length === 0) {
+          return [newObj];
+        } else {
+          if (newArr.some((obj) => obj.id == amenity?.id)) {
+            return newArr.map((items) => ({
+              ...items,
+              id: items?.id,
+              totalAmenity:
+                items?.id == amenity?.id
+                  ? items?.totalAmenity + totalAmenity
+                  : items?.totalAmenity,
+            }));
+          } else {
+            return [...newArr, newObj];
+          }
+        }
+      };
+      setDataAmenity(productArr());
+      setAmenity(null);
+      setTotalAmenity(0);
+    }
+  };
+
+  const onDeleteAmenity = (id: any) => {
+    setDataAmenity((item) => item.filter((e, i) => e?.id !== id));
+  };
+
+  useEffect(() => {
+    if (dataAmenity?.length > 0) {
+      setValue("amenity", dataAmenity);
+      clearErrors("amenity");
+    } else {
+      setValue("amenity", []);
+    }
+  }, [dataAmenity]);
+  // all function amenity-end
+
+  // submit
+
+  const onSubmit: SubmitHandler<FormValues> = async (value) => {
+    console.log(value, "form");
+    let newData: FormValues = {
+      floor: value?.floor?.id,
+    };
+    if (isUpdate) {
+      console.log("this is update");
+      newData = {
+        unitName: value?.unitName,
+        floor: value?.floor?.id,
+        unitType: value?.unitType?.id,
+        unitDescription: value?.unitDescription,
+        unitSize: value?.unitSize ? Number(value?.unitSize) : 0,
+        amenity:
+          value?.amenity?.length > 0
+            ? value?.amenity?.map((e: any) => ({
+                id: e.id,
+                totalAmenity: e.totalAmenity,
+              }))
+            : [],
+        unitOrder: value?.unitOrder?.value,
+      };
+      dispatch(
+        updateUnits({
+          id: value?.id,
+          token,
+          data: newData,
+          isSuccess() {
+            getData();
+            isCloseModal();
+          },
+          isError() {
+            console.log("error");
+          },
+        })
+      );
+    } else {
+      console.log("this is create", newData);
+      if (!isChecked) {
+        newData = {
+          ...newData,
+          unitName: value?.unitName,
+          unitType: value?.unitType?.id,
+          unitDescription: value?.unitDescription,
+          unitSize: value?.unitSize ? Number(value?.unitSize) : 0,
+          amenity:
+            value?.amenity?.length > 0
+              ? value?.amenity?.map((e: any) => ({
+                  id: e.id,
+                  totalAmenity: e.totalAmenity,
+                }))
+              : [],
+          unitOrder: value?.unitOrder?.value,
+        };
+        dispatch(
+          createUnits({
+            token,
+            data: newData,
+            isSuccess() {
+              getData();
+              isCloseModal();
+            },
+            isError() {
+              console.log("error");
+            },
+          })
+        );
+      } else {
+        newData = {
+          ...newData,
+          addTextPosition: value?.addTextPosition?.value,
+          addText: value?.addText,
+          unitType: value?.unitType?.value,
+          startAt: Number(value?.startAt),
+          length: Number(value?.length),
+        };
+        dispatch(
+          createUnitBatch({
+            token,
+            data: newData,
+            isSuccess() {
+              getData();
+              isCloseModal();
+            },
+            isError() {
+              console.log("error");
+            },
+          })
+        );
+      }
+    }
+  };
+
+  console.log("result unit-type : ", unitTypes);
+
   return (
     <Fragment>
       <ModalHeader
@@ -312,8 +508,8 @@ export default function UnitBatchForm(props: Props) {
           </h3>
           <div
             className={`flex items-center gap-1 ${isUpdate ? "hidden" : ""}`}>
-            <label className="switch">
-              <input type="checkbox" {...register("isBulk")} />
+            <label htmlFor="check" className="switch">
+              <input id="check" type="checkbox" {...register("isBulk")} />
               <div className="slider">
                 <div className="circle">
                   <MdClose className="cross" />
@@ -332,7 +528,9 @@ export default function UnitBatchForm(props: Props) {
           }`}>
           <div className="w-full lg:1/2 flex gap-2 py-2 px-4">
             <div className="w-2/3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitNameType">
                 Select Format
               </label>
               <Controller
@@ -348,7 +546,7 @@ export default function UnitBatchForm(props: Props) {
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel={""}
-                    instanceId="state"
+                    instanceId="unitNameType"
                     isDisabled={false}
                     isMulti={false}
                     placeholder="Select Format"
@@ -370,13 +568,16 @@ export default function UnitBatchForm(props: Props) {
             </div>
 
             <div className="w-1/3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="startAt">
                 Start At <span className="text-primary">*</span>
               </label>
               <input
                 type="number"
                 placeholder="Start At"
                 autoFocus
+                id="startAt"
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                 {...register("startAt")}
               />
@@ -393,7 +594,9 @@ export default function UnitBatchForm(props: Props) {
 
           <div className="w-full lg:1/2 flex gap-2 py-2 px-4">
             <div className="w-1/3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="addTextPosition">
                 Type
               </label>
               <Controller
@@ -409,7 +612,7 @@ export default function UnitBatchForm(props: Props) {
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel={""}
-                    instanceId="state"
+                    instanceId="addTextPosition"
                     isDisabled={false}
                     isMulti={false}
                     placeholder="Type"
@@ -437,13 +640,16 @@ export default function UnitBatchForm(props: Props) {
             </div>
 
             <div className="w-2/3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="addText">
                 Add Text
               </label>
               <input
                 type="text"
                 placeholder="Add Text"
                 autoFocus
+                id="addText"
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
                 {...register("addText")}
               />
@@ -462,7 +668,9 @@ export default function UnitBatchForm(props: Props) {
         <div className="w-full flex px-4 divide-x divide-gray-4 shadow-2">
           <div className="w-full lg:w-1/2 px-4 py-2 gap-2">
             <div className="w-full mb-3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitOrder">
                 Unit Order <span className="text-primary">*</span>
               </label>
               <Controller
@@ -478,7 +686,7 @@ export default function UnitBatchForm(props: Props) {
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel={""}
-                    instanceId="state"
+                    instanceId="unitOrder"
                     isDisabled={isChecked == undefined ? false : isChecked}
                     isMulti={false}
                     placeholder="Unit Order"
@@ -500,7 +708,9 @@ export default function UnitBatchForm(props: Props) {
             </div>
 
             <div className="w-full mb-3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitType">
                 Unit Type <span className="text-primary">*</span>
               </label>
               <Controller
@@ -516,11 +726,11 @@ export default function UnitBatchForm(props: Props) {
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel={""}
-                    instanceId="state"
+                    instanceId="unitType"
                     isDisabled={false}
                     isMulti={false}
                     placeholder="Unit Type"
-                    options={orderOption}
+                    options={unitTypeOpt}
                     icon=""
                   />
                 )}
@@ -538,13 +748,16 @@ export default function UnitBatchForm(props: Props) {
             </div>
 
             <div className="w-full mb-3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitName">
                 Unit Name <span className="text-primary">*</span>
               </label>
               <input
                 type="text"
                 placeholder="Unit Name"
                 autoFocus
+                id="unitName"
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-gray-3`}
                 {...register("unitName")}
                 disabled={isChecked ? true : false}
@@ -559,14 +772,37 @@ export default function UnitBatchForm(props: Props) {
               )}
             </div>
 
+            <div className="w-full mb-3">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitDescription">
+                Unit Description
+              </label>
+              <textarea
+                placeholder="Unit Description"
+                maxLength={400}
+                id="unitDescription"
+                rows={3}
+                cols={5}
+                className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-gray-3`}
+                {...register("unitDescription")}
+              />
+              <div className="text-sm text-gray-5">
+                {descriptionValue?.length}/400
+              </div>
+            </div>
+
             <div className="w-full flex flex-col mb-3">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="unitSize">
                 Unit Size <span className="text-primary">*</span>
               </label>
               <input
                 type="number"
                 placeholder="Unit Size"
                 autoFocus
+                id="unitSize"
                 className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-transparent`}
                 {...register("unitSize")}
               />
@@ -583,43 +819,28 @@ export default function UnitBatchForm(props: Props) {
 
           <div className="w-full lg:w-1/2 px-4 py-2 gap-2 divide-y divide-gray-4">
             <div className="w-full mb-5">
-              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+              <label
+                className="text-gray-500 font-semibold text-sm"
+                htmlFor="amenity">
                 Amenity <span className="text-primary">*</span>
               </label>
               <div className="w-full flex gap-1">
                 <div className="w-2/4">
-                  <Controller
-                    render={({
-                      field: { onChange, onBlur, value, name, ref },
-                      fieldState: { invalid, isTouched, isDirty, error },
-                    }) => (
-                      <DropdownSelect
-                        customStyles={stylesSelect}
-                        value={value}
-                        onChange={onChange}
-                        error=""
-                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                        classNamePrefix=""
-                        formatOptionLabel={""}
-                        instanceId="state"
-                        isDisabled={false}
-                        isMulti={false}
-                        placeholder="-Amenity-"
-                        options={orderOption}
-                        icon=""
-                      />
-                    )}
-                    name="unitType"
-                    control={control}
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={amenity}
+                    onChange={setAmenity}
+                    error=""
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel={""}
+                    instanceId="amenity"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="-Amenity-"
+                    options={amenityOpt}
+                    icon=""
                   />
-                  {errors?.unitType && (
-                    <div className="mt-1 text-xs flex items-center text-red-300">
-                      <MdWarning className="w-4 h-4 mr-1" />
-                      <span className="text-red-300">
-                        {errors.unitType.message as any}
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="w-[30%]">
@@ -629,9 +850,9 @@ export default function UnitBatchForm(props: Props) {
                       placeholder="00"
                       autoFocus
                       className={`w-full bg-white text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-transparent`}
-                      value={totalAdd || 0}
+                      value={totalAmenity || 0}
                       onChange={({ target }) =>
-                        setTotalAdd(Number(target?.value))
+                        setTotalAmenity(Number(target.value))
                       }
                     />
                   </div>
@@ -640,9 +861,10 @@ export default function UnitBatchForm(props: Props) {
                 <div className="w-[20%]">
                   <Button
                     type="button"
-                    onClick={() => console.log("add amenity")}
+                    onClick={() => onAddAmenity({ amenity, totalAmenity })}
                     variant="primary"
-                    className="w-full h-full rounded-lg py-1 px-1 border-primary">
+                    className="w-full h-full rounded-lg py-1 px-1 border-primary"
+                    disabled={!amenity?.id || !totalAmenity}>
                     <MdAdd className="w-5 h-5" />
                   </Button>
                 </div>
@@ -650,33 +872,45 @@ export default function UnitBatchForm(props: Props) {
             </div>
 
             <div className="w-full py-4 flex flex-col gap-2">
-              <div className="w-full bg-gray-2 divide-x-2 divide-gray-4 flex items-center gap-2 border-2 border-gray-4 shadow-card rounded-lg text-gray-5 font-semibold">
-                <div className="w-[15%] flex p-2">
-                  <span className="m-auto">2x</span>
+              {dataAmenity?.length > 0 ? (
+                dataAmenity?.map((item: any, index: any) => {
+                  return (
+                    <div
+                      key={index}
+                      className="w-full bg-gray-2 divide-x-2 divide-gray-4 flex items-center gap-2 border-2 border-gray-4 shadow-card rounded-lg text-gray-5 font-semibold">
+                      <div className="w-[15%] flex p-2">
+                        <span className="m-auto">{item?.totalAmenity}x</span>
+                      </div>
+                      <div className="w-[70%] p-2">
+                        <h3>{item?.amenityName}</h3>
+                      </div>
+                      <div className="w-[15%] flex h-full p-2">
+                        <button
+                          type="button"
+                          onClick={() => onDeleteAmenity(item?.id)}
+                          className="py-[0.01rem] px-0.5 bg-gray rounded-lg shadow-card border border-gray">
+                          <MdRemove className="w-5 h-5 m-auto" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="w-full ">
+                  <span className="text-gray-5 text-sm">
+                    You do not have any data amenity!
+                  </span>
                 </div>
-                <div className="w-[70%] p-2">
-                  <h3>Lorem ipsum dolor</h3>
-                </div>
-                <div className="w-[15%] flex h-full p-2">
-                  <button className="py-[0.01rem] px-0.5 bg-gray rounded-lg shadow-card border border-gray">
-                    <MdRemove className="w-5 h-5 m-auto" />
-                  </button>
-                </div>
-              </div>
+              )}
 
-              <div className="w-full bg-gray-2 divide-x-2 divide-gray-4 flex items-center gap-2 border-2 border-gray-4 shadow-card rounded-lg text-gray-5 font-semibold">
-                <div className="w-[15%] flex p-2">
-                  <span className="m-auto">2x</span>
+              {errors?.amenity && (
+                <div className="mt-1 text-xs flex items-center text-red-300">
+                  <MdWarning className="w-4 h-4 mr-1" />
+                  <span className="text-red-300">
+                    {errors.amenity.message as any}
+                  </span>
                 </div>
-                <div className="w-[70%] p-2">
-                  <h3>Lorem ipsum dolor</h3>
-                </div>
-                <div className="w-[15%] flex h-full p-2">
-                  <button className="py-[0.01rem] px-0.5 bg-gray rounded-lg shadow-card border border-gray">
-                    <MdRemove className="w-5 h-5 m-auto" />
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

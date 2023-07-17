@@ -29,6 +29,19 @@ import {
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { getAuthMe } from "../../../../redux/features/auth/authReducers";
 import TowerForm from "../../../../components/Forms/employee/TowerForm";
+import {
+  getUnitTypes,
+  selectUnitTypeManagement,
+} from "../../../../redux/features/building-management/unitType/unitTypeReducers";
+import {
+  getAmenities,
+  selectAmenityManagement,
+} from "../../../../redux/features/building-management/amenity/amenityReducers";
+
+type OptionProps = {
+  value: string | null;
+  label: React.ReactNode;
+};
 
 type Props = {
   pageProps: any;
@@ -65,6 +78,11 @@ const Towers = ({ pageProps }: Props) => {
   const { towers, pending, error, message } = useAppSelector(
     selectTowerManagement
   );
+
+  const { unitTypes } = useAppSelector(selectUnitTypeManagement);
+  const { amenities } = useAppSelector(selectAmenityManagement);
+  const [amenityOpt, setAmenityOpt] = useState<OptionProps[]>([]);
+  const [unitTypeOpt, setUnitTypeOpt] = useState<OptionProps[]>([]);
 
   // function
   useEffect(() => {
@@ -142,6 +160,72 @@ const Towers = ({ pageProps }: Props) => {
       );
     }
   }, [token]);
+
+  // amenity
+  const filterAmenity = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: "amenityName",
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(getAmenities({ token, params: filterAmenity.queryObject }));
+  }, [token, filterAmenity]);
+
+  useEffect(() => {
+    let arr: OptionProps[] = [];
+    const { data } = amenities;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.id,
+          label: item?.amenityName,
+        });
+      });
+    }
+    setAmenityOpt(arr);
+  }, [amenities]);
+  // end
+
+  // all function unitType-start
+  const filterUnitType = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: "unitTypeName",
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(getUnitTypes({ token, params: filterUnitType.queryObject }));
+  }, [token, filterUnitType]);
+
+  useEffect(() => {
+    let arr: OptionProps[] = [];
+    const { data } = unitTypes;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.id,
+          label: item?.unitTypeName,
+        });
+      });
+    }
+    setUnitTypeOpt(arr);
+  }, [unitTypes]);
+  // all function unitType-end
 
   return (
     <DefaultLayout
@@ -235,6 +319,8 @@ const Towers = ({ pageProps }: Props) => {
                         items={tower}
                         token={token}
                         filterTower={filters.queryObject}
+                        amenityOpt={amenityOpt}
+                        unitTypeOpt={unitTypeOpt}
                       />
                     </Fragment>
                   );

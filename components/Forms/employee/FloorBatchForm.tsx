@@ -28,6 +28,7 @@ type Props = {
   isCloseModal: () => void;
   isUpdate?: boolean;
   filters?: any;
+  getData: () => void;
 };
 
 type FormValues = {
@@ -127,7 +128,8 @@ const orderOption: Options[] = [
 ];
 
 export default function FloorBatchForm(props: Props) {
-  const { isOpen, isCloseModal, items, isUpdate, filters, token } = props;
+  const { isOpen, isCloseModal, items, isUpdate, filters, token, getData } =
+    props;
 
   const [watchValue, setWatchValue] = useState<FormValues | any>();
   const [watchChange, setWatchChange] = useState<any | null>(null);
@@ -213,10 +215,8 @@ export default function FloorBatchForm(props: Props) {
       tower: value?.tower?.id,
     };
     if (isUpdate) {
-      console.log("this is update");
       newData = {
         floorName: value?.floorName,
-        tower: value?.tower?.id,
       };
       dispatch(
         updateFloors({
@@ -224,7 +224,7 @@ export default function FloorBatchForm(props: Props) {
           token,
           data: newData,
           isSuccess() {
-            dispatch(getTowers({ params: filters, token: token }));
+            getData();
             isCloseModal();
           },
           isError() {
@@ -233,7 +233,6 @@ export default function FloorBatchForm(props: Props) {
         })
       );
     } else {
-      console.log("this is create", newData);
       if (!isChecked) {
         newData = {
           ...newData,
@@ -244,7 +243,7 @@ export default function FloorBatchForm(props: Props) {
             token,
             data: newData,
             isSuccess() {
-              dispatch(getTowers({ params: filters, token: token }));
+              getData();
               isCloseModal();
             },
             isError() {
@@ -266,7 +265,7 @@ export default function FloorBatchForm(props: Props) {
             token,
             data: newData,
             isSuccess() {
-              dispatch(getTowers({ params: filters, token: token }));
+              getData();
               isCloseModal();
             },
             isError() {
@@ -310,8 +309,6 @@ export default function FloorBatchForm(props: Props) {
       unregister("addText");
     }
   }, [register, unregister, isChecked]);
-
-  console.log(watchValue, "result");
 
   useEffect(() => {
     if (watchChange?.name === "isBulk" && !isUpdate) {
