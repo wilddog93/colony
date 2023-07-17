@@ -14,6 +14,7 @@ import DropdownSelect from "../../Dropdown/DropdownSelect";
 import FloorUnit from "./FloorUnit";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
+  deleteFloors,
   getFloors,
   selectFloorManagement,
 } from "../../../redux/features/building-management/floor/floorReducers";
@@ -25,6 +26,12 @@ import Modal from "../../Modal";
 import FloorBatchForm from "../../Forms/employee/FloorBatchForm";
 import Menus from "../../Layouts/Header/Menus";
 import { startAt } from "@firebase/database";
+import { ModalFooter, ModalHeader } from "../../Modal/ModalComponent";
+import {
+  getTowers,
+  selectTowerManagement,
+} from "../../../redux/features/building-management/tower/towerReducers";
+import { FaCircleNotch } from "react-icons/fa";
 
 type Props = {
   items?: any;
@@ -118,6 +125,12 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     label: "Restaurant",
   });
 
+  // redux
+  const dispatch = useAppDispatch();
+  const { towers, tower, pending, error, message } = useAppSelector(
+    selectTowerManagement
+  );
+
   const [tabFloor, setTabFloor] = useState<FloorProps>({});
   const [dataFloor, setDataFloor] = useState<any[]>([]);
 
@@ -128,6 +141,10 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   // modal floor
   const [isOpenAddFloor, setIsOpenAddFloor] = useState(false);
   const [isOpenEditFloor, setIsOpenEditFloor] = useState(false);
+  const [isOpenDeleteFloor, setIsOpenDeleteFloor] = useState(false);
+
+  // modal unit
+  const [isOpenAddUnit, setIsOpenAddUnit] = useState(false);
 
   // open edit modal
   const openEditModal = (value: FormTowerValues) => {
@@ -159,10 +176,34 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     setIsOpenEditFloor(true);
   };
 
-  // close add floor modal
+  // close edit floor modal
   const closeEditFloorModal = () => {
     setFormData({});
     setIsOpenEditFloor(false);
+  };
+
+  // open edit floor modal
+  const openDeleteFloorModal = (value: FloorProps) => {
+    setFormData(value);
+    setIsOpenDeleteFloor(true);
+  };
+
+  // close delete floor modal
+  const closeDeleteFloorModal = () => {
+    setFormData({});
+    setIsOpenDeleteFloor(false);
+  };
+
+  // open add unit modal
+  const openAddUnitModal = (value: FloorProps) => {
+    setFormData(value);
+    setIsOpenAddUnit(true);
+  };
+
+  // close edit floor modal
+  const closeAddUnitModal = () => {
+    setFormData({});
+    setIsOpenAddUnit(false);
   };
 
   const filters = useMemo(() => {
@@ -253,6 +294,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           className: "w-5 h-5",
         },
         onClick: () => {
+          openDeleteFloorModal({ id: props?.id });
           console.log(id, "item");
         },
       },
@@ -283,7 +325,26 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     );
   };
 
-  console.log(dataFloor, "data floor");
+  const onDeleteFloor = (value: any) => {
+    console.log(value, "delete id");
+    if (!value?.id) {
+      return;
+    }
+    dispatch(
+      deleteFloors({
+        token,
+        id: value?.id,
+        isSuccess() {
+          closeDeleteFloorModal();
+          dispatch(getTowers({ params: filterTower, token }));
+          console.log("berhasil");
+        },
+        isError() {
+          console.log("error");
+        },
+      })
+    );
+  };
 
   return (
     <Fragment>
@@ -446,6 +507,50 @@ const CardTower = ({ items, token, filterTower }: Props) => {
           filters={filterTower}
           items={formData}
           isUpdate
+        />
+      </Modal>
+
+      {/* modal delete floor*/}
+      <Modal
+        size="small"
+        onClose={closeDeleteFloorModal}
+        isOpen={isOpenDeleteFloor}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={closeDeleteFloorModal}>
+            <h3 className="text-lg font-semibold">Delete Floor</h3>
+          </ModalHeader>
+          <div className="w-full my-5 px-4">
+            <h3>Are you sure to delete floor data ?</h3>
+          </div>
+
+          <ModalFooter
+            className="p-4 border-t-2 border-gray"
+            isClose={true}
+            onClick={closeDeleteFloorModal}>
+            <Button
+              variant="primary"
+              className="rounded-md text-sm"
+              type="button"
+              onClick={() => onDeleteFloor(formData)}
+              disabled={pending}>
+              Yes, Delete it!
+              {pending ? <FaCircleNotch className="w-4 h-4" /> : ""}
+            </Button>
+          </ModalFooter>
+        </Fragment>
+      </Modal>
+
+      {/* modal add floor*/}
+      <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
+        <FloorBatchForm
+          isCloseModal={closeAddUnitModal}
+          isOpen={isOpenAddUnit}
+          token={token}
+          filters={filterTower}
+          items={formData}
         />
       </Modal>
     </Fragment>
