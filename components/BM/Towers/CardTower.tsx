@@ -32,6 +32,7 @@ import {
   selectTowerManagement,
 } from "../../../redux/features/building-management/tower/towerReducers";
 import { FaCircleNotch } from "react-icons/fa";
+import UnitBatchForm from "../../Forms/employee/UnitBatchForm";
 
 type Props = {
   items?: any;
@@ -56,6 +57,21 @@ type FormTowerValues = {
   towerName?: string;
   towerDescription?: string;
   gpsLocation?: string;
+};
+
+type UnitProps = {
+  floor?: FloorProps | any;
+  unitNameType?: any;
+  unitType?: any;
+  unitDescription?: string | any;
+  unitSize?: number | string | any;
+  amenity?: any | any[];
+  startAt?: number | any;
+  length?: number | any;
+  addText?: string | any;
+  addTextPosition?: any;
+  unitOrder?: any;
+  isBulk?: boolean | any;
 };
 
 const options = [
@@ -195,7 +211,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
   };
 
   // open add unit modal
-  const openAddUnitModal = (value: FloorProps) => {
+  const openAddUnitModal = (value: UnitProps) => {
     setFormData(value);
     setIsOpenAddUnit(true);
   };
@@ -346,6 +362,8 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     );
   };
 
+  console.log(formData, "check form");
+
   return (
     <Fragment>
       <Cards className="w-full py-4 border border-gray rounded-xl shadow-1 overflow-auto">
@@ -445,12 +463,17 @@ const CardTower = ({ items, token, filterTower }: Props) => {
                 variant="primary-outline-none"
                 type="button"
                 onClick={() => console.log("add unit")}>
-                <div className="flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    openAddUnitModal({ floor: tabFloor, isBulk: false })
+                  }
+                  className="flex flex-col items-center gap-2">
                   <div className="p-2 bg-primary rounded-md">
                     <MdAdd className="w-4 h-4 text-white" />
                   </div>
                   <span className="">Add Room</span>
-                </div>
+                </button>
               </Button>
               <FloorUnit id={tabFloor.id} token={token} />
             </Fragment>
@@ -543,9 +566,9 @@ const CardTower = ({ items, token, filterTower }: Props) => {
         </Fragment>
       </Modal>
 
-      {/* modal add floor*/}
+      {/* modal add unit*/}
       <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
-        <FloorBatchForm
+        <UnitBatchForm
           isCloseModal={closeAddUnitModal}
           isOpen={isOpenAddUnit}
           token={token}

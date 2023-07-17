@@ -1,6 +1,14 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { ModalFooter, ModalHeader } from "../../Modal/ModalComponent";
-import { MdCheck, MdClose, MdOutlinePlace, MdWarning } from "react-icons/md";
+import {
+  MdAdd,
+  MdCheck,
+  MdClose,
+  MdMinimize,
+  MdOutlinePlace,
+  MdRemove,
+  MdWarning,
+} from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "../../../redux/Hook";
 import {
   createTowers,
@@ -30,7 +38,7 @@ type Props = {
   filters?: any;
 };
 
-type FormValues = {
+type floorProps = {
   id?: any;
   floorName?: string | any;
   tower?: any;
@@ -40,6 +48,22 @@ type FormValues = {
   addText?: string | any;
   addTextPosition?: any;
   floorOrder?: any;
+};
+
+type FormValues = {
+  id?: any;
+  floor?: floorProps | any;
+  unitName?: string | any;
+  unitNameType?: any;
+  unitType?: any;
+  unitDescription?: string | any;
+  unitSize?: number | string | any;
+  amenity?: any | any[];
+  startAt?: number | any;
+  length?: number | any;
+  addText?: string | any;
+  addTextPosition?: any;
+  unitOrder?: any;
   isBulk?: boolean;
 };
 
@@ -85,7 +109,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const floorTypeOpt: Options[] = [
+const unitNameType: Options[] = [
   {
     value: 1,
     label: "01",
@@ -121,16 +145,19 @@ const orderOption: Options[] = [
     label: "Manual",
   },
   {
-    value: "By ID Floor",
-    label: "By ID Floor",
+    value: "By ID Unit",
+    label: "By ID Unit",
   },
 ];
 
-export default function FloorBatchForm(props: Props) {
+export default function UnitBatchForm(props: Props) {
   const { isOpen, isCloseModal, items, isUpdate, filters, token } = props;
 
   const [watchValue, setWatchValue] = useState<FormValues | any>();
   const [watchChange, setWatchChange] = useState<any | null>(null);
+
+  const [amenities, setAmenities] = useState<any>({});
+  const [totalAdd, setTotalAdd] = useState<number | string>(0);
 
   // checked
   // const [isChecked, setIsChecked] = useState(false);
@@ -160,14 +187,18 @@ export default function FloorBatchForm(props: Props) {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: items?.id,
-        tower: items?.tower,
-        floorType: items?.floorType,
+        floor: items?.floor,
+        unitName: items?.unitName,
+        unitNameType: items?.unitnameType,
+        unitType: items?.unitType,
+        unitDescription: items?.unitDescription,
+        unitSize: items?.unitSize,
+        amenity: items?.amenity,
         startAt: items?.startAt,
         length: items?.length,
         addText: items?.addText,
         addTextPosition: items?.addTextPosition,
-        floorName: items?.floorName,
-        floorOrder: { value: "Automatic", label: "Automatic" },
+        unitOrder: { value: "Automatic", label: "Automatic" },
         isBulk: false,
       }),
       [items]
@@ -178,14 +209,18 @@ export default function FloorBatchForm(props: Props) {
     if (items) {
       reset({
         id: items?.id,
-        tower: items?.tower,
-        floorType: items?.floorType,
+        floor: items?.floor,
+        unitName: items?.unitName,
+        unitNameType: items?.unitnameType,
+        unitType: items?.unitType,
+        unitDescription: items?.unitDescription,
+        unitSize: items?.unitSize,
+        amenity: items?.amenity,
         startAt: items?.startAt,
         length: items?.length,
         addText: items?.addText,
         addTextPosition: items?.addTextPosition,
-        floorName: items?.floorName,
-        floorOrder: items?.floorOrder,
+        unitOrder: items?.floorOrder,
         isBulk: items?.isBulk,
       });
     }
@@ -208,74 +243,6 @@ export default function FloorBatchForm(props: Props) {
 
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
-    let newData: FormValues = {
-      floorOrder: value?.floorOrder?.value,
-      tower: value?.tower?.id,
-    };
-    if (isUpdate) {
-      console.log("this is update");
-      newData = {
-        floorName: value?.floorName,
-        tower: value?.tower?.id,
-      };
-      dispatch(
-        updateFloors({
-          id: value?.id,
-          token,
-          data: newData,
-          isSuccess() {
-            dispatch(getTowers({ params: filters, token: token }));
-            isCloseModal();
-          },
-          isError() {
-            console.log("error");
-          },
-        })
-      );
-    } else {
-      console.log("this is create", newData);
-      if (!isChecked) {
-        newData = {
-          ...newData,
-          floorName: value?.floorName,
-        };
-        dispatch(
-          createFloors({
-            token,
-            data: newData,
-            isSuccess() {
-              dispatch(getTowers({ params: filters, token: token }));
-              isCloseModal();
-            },
-            isError() {
-              console.log("error");
-            },
-          })
-        );
-      } else {
-        newData = {
-          ...newData,
-          addTextPosition: value?.addTextPosition?.value,
-          addText: value?.addText,
-          floorType: value?.floorType?.value,
-          startAt: Number(value?.startAt),
-          length: Number(value?.length),
-        };
-        dispatch(
-          createFloorBatch({
-            token,
-            data: newData,
-            isSuccess() {
-              dispatch(getTowers({ params: filters, token: token }));
-              isCloseModal();
-            },
-            isError() {
-              console.log("error");
-            },
-          })
-        );
-      }
-    }
   };
 
   useEffect(() => {
@@ -283,7 +250,7 @@ export default function FloorBatchForm(props: Props) {
       register("length", {
         required: {
           value: true,
-          message: "Total floor is required.",
+          message: "Total unit is required.",
         },
       });
 
@@ -296,17 +263,17 @@ export default function FloorBatchForm(props: Props) {
         },
       });
 
-      register("floorType");
+      register("unitType");
 
       register("addText");
 
       // floorname unregister
-      unregister("floorName");
+      unregister("unitName");
     } else {
       unregister("length");
       unregister("addTextPosition");
       unregister("startAt");
-      unregister("floorType");
+      unregister("unitType");
       unregister("addText");
     }
   }, [register, unregister, isChecked]);
@@ -317,14 +284,18 @@ export default function FloorBatchForm(props: Props) {
     if (watchChange?.name === "isBulk" && !isUpdate) {
       reset({
         id: items?.id,
-        tower: items?.tower,
-        floorType: undefined,
-        startAt: null,
-        length: null,
+        floor: items?.floor,
+        unitName: null,
+        unitNameType: null,
+        unitType: null,
+        unitDescription: null,
+        unitSize: 0,
+        amenity: null,
+        startAt: 0,
+        length: 0,
         addText: null,
-        addTextPosition: undefined,
-        floorName: null,
-        floorOrder: { value: "Automatic", label: "Automatic" },
+        addTextPosition: null,
+        unitOrder: { value: "Automatic", label: "Automatic" },
       });
     }
   }, [watchChange, items, isUpdate]);
@@ -337,7 +308,7 @@ export default function FloorBatchForm(props: Props) {
         className="p-4 bg-white rounded-t-xl border-b-2 border-gray">
         <div className="w-full flex gap-2 items-center justify-between px-2">
           <h3 className="text-lg font-semibold">
-            {isUpdate ? "Edit" : "Add"} Floor
+            {isUpdate ? "Edit" : "Add"} Unit
           </h3>
           <div
             className={`flex items-center gap-1 ${isUpdate ? "hidden" : ""}`}>
@@ -355,8 +326,11 @@ export default function FloorBatchForm(props: Props) {
         </div>
       </ModalHeader>
       <div className="w-full">
-        <div className={`w-full p-4 bg-gray ${isChecked ? "" : "hidden"}`}>
-          <div className="w-full mb-3 flex gap-2">
+        <div
+          className={`w-full flex px-4 bg-gray divide-x divide-gray-4 shadow-2 ${
+            isChecked ? "" : "hidden"
+          }`}>
+          <div className="w-full lg:1/2 flex gap-2 py-2 px-4">
             <div className="w-2/3">
               <label className="text-gray-500 font-semibold text-sm" htmlFor="">
                 Select Format
@@ -378,18 +352,18 @@ export default function FloorBatchForm(props: Props) {
                     isDisabled={false}
                     isMulti={false}
                     placeholder="Select Format"
-                    options={floorTypeOpt}
+                    options={unitNameType}
                     icon=""
                   />
                 )}
-                name="floorType"
+                name="unitNameType"
                 control={control}
               />
-              {errors?.floorType && (
+              {errors?.unitNameType && (
                 <div className="mt-1 text-xs flex items-center text-red-300">
                   <MdWarning className="w-4 h-4 mr-1" />
                   <span className="text-red-300">
-                    {errors.floorType.message as any}
+                    {errors.unitNameType.message as any}
                   </span>
                 </div>
               )}
@@ -417,7 +391,7 @@ export default function FloorBatchForm(props: Props) {
             </div>
           </div>
 
-          <div className="w-full mb-3 flex gap-2">
+          <div className="w-full lg:1/2 flex gap-2 py-2 px-4">
             <div className="w-1/3">
               <label className="text-gray-500 font-semibold text-sm" htmlFor="">
                 Type
@@ -485,11 +459,11 @@ export default function FloorBatchForm(props: Props) {
           </div>
         </div>
 
-        <div className="w-full p-4">
-          <div className="w-full mb-3 flex gap-2">
-            <div className={`${isChecked ? "w-1/2" : "w-full"}`}>
+        <div className="w-full flex px-4 divide-x divide-gray-4 shadow-2">
+          <div className="w-full lg:w-1/2 px-4 py-2 gap-2">
+            <div className="w-full mb-3">
               <label className="text-gray-500 font-semibold text-sm" htmlFor="">
-                Floor Order <span className="text-primary">*</span>
+                Unit Order <span className="text-primary">*</span>
               </label>
               <Controller
                 render={({
@@ -507,71 +481,203 @@ export default function FloorBatchForm(props: Props) {
                     instanceId="state"
                     isDisabled={isChecked == undefined ? false : isChecked}
                     isMulti={false}
-                    placeholder="Floor Order"
+                    placeholder="Unit Order"
                     options={orderOption}
                     icon=""
                   />
                 )}
-                name="floorOrder"
+                name="unitOrder"
                 control={control}
-                // rules={{
-                //   required: {
-                //     value: true,
-                //     message: "Floor order is required.",
-                //   },
-                // }}
               />
-              {errors?.floorOrder && (
+              {errors?.unitOrder && (
                 <div className="mt-1 text-xs flex items-center text-red-300">
                   <MdWarning className="w-4 h-4 mr-1" />
                   <span className="text-red-300">
-                    {errors.floorOrder.message as any}
+                    {errors.unitOrder.message as any}
                   </span>
                 </div>
               )}
             </div>
 
-            <div className={`${isChecked ? "w-1/2" : "hidden"}`}>
+            <div className="w-full mb-3">
               <label className="text-gray-500 font-semibold text-sm" htmlFor="">
-                Total Floor <span className="text-primary">*</span>
+                Unit Type <span className="text-primary">*</span>
               </label>
-              <input
-                type="number"
-                placeholder="Total"
-                autoFocus
-                className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("length")}
+              <Controller
+                render={({
+                  field: { onChange, onBlur, value, name, ref },
+                  fieldState: { invalid, isTouched, isDirty, error },
+                }) => (
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={value}
+                    onChange={onChange}
+                    error=""
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel={""}
+                    instanceId="state"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="Unit Type"
+                    options={orderOption}
+                    icon=""
+                  />
+                )}
+                name="unitType"
+                control={control}
               />
-              {errors?.length && (
+              {errors?.unitType && (
                 <div className="mt-1 text-xs flex items-center text-red-300">
                   <MdWarning className="w-4 h-4 mr-1" />
                   <span className="text-red-300">
-                    {errors.length.message as any}
+                    {errors.unitType.message as any}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="w-full mb-3">
+              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+                Unit Name <span className="text-primary">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Unit Name"
+                autoFocus
+                className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-gray-3`}
+                {...register("unitName")}
+                disabled={isChecked ? true : false}
+              />
+              {errors?.unitName && (
+                <div className="mt-1 text-xs flex items-center text-red-300">
+                  <MdWarning className="w-4 h-4 mr-1" />
+                  <span className="text-red-300">
+                    {errors.unitName.message as any}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="w-full flex flex-col mb-3">
+              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+                Unit Size <span className="text-primary">*</span>
+              </label>
+              <input
+                type="number"
+                placeholder="Unit Size"
+                autoFocus
+                className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-transparent`}
+                {...register("unitSize")}
+              />
+              {errors?.unitSize && (
+                <div className="mt-1 text-xs flex items-center text-red-300">
+                  <MdWarning className="w-4 h-4 mr-1" />
+                  <span className="text-red-300">
+                    {errors.unitSize.message as any}
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className={`w-full mb-3 ${isChecked ? "hidden" : ""}`}>
-            <label className="text-gray-500 font-semibold text-sm" htmlFor="">
-              Floor Name <span className="text-primary">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Floor Name"
-              autoFocus
-              className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-              {...register("floorName")}
-            />
-            {errors?.floorName && (
-              <div className="mt-1 text-xs flex items-center text-red-300">
-                <MdWarning className="w-4 h-4 mr-1" />
-                <span className="text-red-300">
-                  {errors.floorName.message as any}
-                </span>
+          <div className="w-full lg:w-1/2 px-4 py-2 gap-2 divide-y divide-gray-4">
+            <div className="w-full mb-5">
+              <label className="text-gray-500 font-semibold text-sm" htmlFor="">
+                Amenity <span className="text-primary">*</span>
+              </label>
+              <div className="w-full flex gap-1">
+                <div className="w-2/4">
+                  <Controller
+                    render={({
+                      field: { onChange, onBlur, value, name, ref },
+                      fieldState: { invalid, isTouched, isDirty, error },
+                    }) => (
+                      <DropdownSelect
+                        customStyles={stylesSelect}
+                        value={value}
+                        onChange={onChange}
+                        error=""
+                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                        classNamePrefix=""
+                        formatOptionLabel={""}
+                        instanceId="state"
+                        isDisabled={false}
+                        isMulti={false}
+                        placeholder="-Amenity-"
+                        options={orderOption}
+                        icon=""
+                      />
+                    )}
+                    name="unitType"
+                    control={control}
+                  />
+                  {errors?.unitType && (
+                    <div className="mt-1 text-xs flex items-center text-red-300">
+                      <MdWarning className="w-4 h-4 mr-1" />
+                      <span className="text-red-300">
+                        {errors.unitType.message as any}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-[30%]">
+                  <div className="w-full flex">
+                    <input
+                      type="number"
+                      placeholder="00"
+                      autoFocus
+                      className={`w-full bg-white text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-transparent`}
+                      value={totalAdd || 0}
+                      onChange={({ target }) =>
+                        setTotalAdd(Number(target?.value))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="w-[20%]">
+                  <Button
+                    type="button"
+                    onClick={() => console.log("add amenity")}
+                    variant="primary"
+                    className="w-full h-full rounded-lg py-1 px-1 border-primary">
+                    <MdAdd className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
-            )}
+            </div>
+
+            <div className="w-full py-4 flex flex-col gap-2">
+              <div className="w-full bg-gray-2 divide-x-2 divide-gray-4 flex items-center gap-2 border-2 border-gray-4 shadow-card rounded-lg text-gray-5 font-semibold">
+                <div className="w-[15%] flex p-2">
+                  <span className="m-auto">2x</span>
+                </div>
+                <div className="w-[70%] p-2">
+                  <h3>Lorem ipsum dolor</h3>
+                </div>
+                <div className="w-[15%] flex h-full p-2">
+                  <button className="py-[0.01rem] px-0.5 bg-gray rounded-lg shadow-card border border-gray">
+                    <MdRemove className="w-5 h-5 m-auto" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="w-full bg-gray-2 divide-x-2 divide-gray-4 flex items-center gap-2 border-2 border-gray-4 shadow-card rounded-lg text-gray-5 font-semibold">
+                <div className="w-[15%] flex p-2">
+                  <span className="m-auto">2x</span>
+                </div>
+                <div className="w-[70%] p-2">
+                  <h3>Lorem ipsum dolor</h3>
+                </div>
+                <div className="w-[15%] flex h-full p-2">
+                  <button className="py-[0.01rem] px-0.5 bg-gray rounded-lg shadow-card border border-gray">
+                    <MdRemove className="w-5 h-5 m-auto" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
