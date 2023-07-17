@@ -218,16 +218,6 @@ const merchant = ({ pageProps }: Props) => {
               <div className="lg:w-full">
                 <Tabs menus={menuMerchant} />
               </div>
-              <div className="w-full lg:w-1/4 flex justify-start lg:justify-end">
-                <Button
-                  type="button"
-                  onClick={isOpenForm}
-                  className="rounded-lg text-sm font-semibold py-4"
-                  variant="primary">
-                  <span>New Open Hours</span>
-                  <MdAdd />
-                </Button>
-              </div>
             </div>
             {/* item details content */}
             <div className="w-full flex flex-wrap items-center justify-between p-4">
@@ -259,6 +249,16 @@ const merchant = ({ pageProps }: Props) => {
                     options={sortOpt}
                     icon=""
                   />
+                </div>
+                <div className="w-full lg:w-2/3 flex justify-end lg:justify-end">
+                  <Button
+                    type="button"
+                    onClick={isOpenForm}
+                    className="rounded-lg text-sm font-semibold py-4"
+                    variant="primary">
+                    <span>New Open Hours</span>
+                    <MdAdd />
+                  </Button>
                 </div>
               </div>
             </div>

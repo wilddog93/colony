@@ -176,15 +176,6 @@ const merchant = ({ pageProps }: Props) => {
         size: 150,
       },
       {
-        accessorKey: "description",
-        header: (props) => (
-          <div className="w-full text-left uppercase">Description</div>
-        ),
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-        size: 150,
-      },
-      {
         accessorKey: "createdAt",
         header: (props) => (
           <div className="w-full text-left uppercase">Start Time</div>
@@ -298,16 +289,6 @@ const merchant = ({ pageProps }: Props) => {
               <div className="lg:w-full">
                 <Tabs menus={menuMerchant} />
               </div>
-              <div className="w-full lg:w-1/4 flex justify-start lg:justify-end">
-                <Button
-                  type="button"
-                  onClick={isOpenForm}
-                  className="rounded-lg text-sm font-semibold py-4"
-                  variant="primary">
-                  <span>New Discount</span>
-                  <MdAdd />
-                </Button>
-              </div>
             </div>
             {/* item details content */}
             <div className="w-full flex flex-wrap items-center justify-between p-4">
@@ -339,6 +320,16 @@ const merchant = ({ pageProps }: Props) => {
                     options={sortOpt}
                     icon=""
                   />
+                </div>
+                <div className="w-full lg:w-2/3 flex justify-end lg:justify-end">
+                  <Button
+                    type="button"
+                    onClick={isOpenForm}
+                    className="rounded-lg text-sm font-semibold py-4"
+                    variant="primary">
+                    <span>New Discount</span>
+                    <MdAdd />
+                  </Button>
                 </div>
               </div>
             </div>
