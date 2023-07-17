@@ -33,6 +33,7 @@ import {
 } from "../../../redux/features/building-management/tower/towerReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import UnitBatchForm from "../../Forms/employee/UnitBatchForm";
+import Dropdown from "../../Dropdown";
 
 type Props = {
   items?: any;
@@ -293,22 +294,18 @@ const CardTower = ({ items, token, filterTower }: Props) => {
     };
     const tabDefault = [
       {
-        text: "Edit",
-        icons: {
-          icon: MdEdit,
-          className: "w-5 h-5",
-        },
+        name: "Edit",
+        icon: MdEdit,
+        classIcon: "w-5 h-5",
         onClick: () => {
           openEditFloorModal(editData);
           console.log(editData, "data item1");
         },
       },
       {
-        text: "Delete",
-        icons: {
-          icon: MdDelete,
-          className: "w-5 h-5",
-        },
+        name: "Delete",
+        icon: MdDelete,
+        classIcon: "w-5 h-5",
         onClick: () => {
           openDeleteFloorModal({ id: props?.id });
           console.log(id, "item");
@@ -316,27 +313,35 @@ const CardTower = ({ items, token, filterTower }: Props) => {
       },
     ];
     if (id == tabFloor.id) {
+      // return (
+      //   <DropdownDefault
+      //     className=""
+      //     position="left"
+      //     data={tabDefault}
+      //     title={
+      //       <div className="inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold text-sm">
+      //         {floorName || "-"}
+      //         <MdMoreHoriz className="w-4 h-4" />
+      //       </div>
+      //     }
+      //   />
+      // );
       return (
-        <DropdownDefault
-          className=""
-          position="left"
-          data={tabDefault}
-          title={
-            <div className="inline-flex gap-2 items-center px-4 py-2 border-b-4 border-primary text-primary font-semibold">
-              {floorName || "-"}
-              <MdMoreHoriz className="w-4 h-4" />
-            </div>
-          }
+        <Dropdown
+          menuName={floorName}
+          classMenuName="text-primary border-b-4 border-primary rounded-0"
+          menuIcon={MdMoreHoriz}
+          menus={tabDefault}
         />
       );
     }
     return (
       <Button
-        className="font-semibold"
+        className="font-semibold w-ful max-w-max"
         variant=""
         type="button"
         onClick={() => setTabFloor(props)}>
-        {floorName || "-"}
+        <span className="w-full max-w-max text-sm">{floorName || "-"}</span>
       </Button>
     );
   };
@@ -423,7 +428,7 @@ const CardTower = ({ items, token, filterTower }: Props) => {
 
         {/* floor */}
         <div className="w-full flex items-start lg:items-center justify-between border-t border-b border-gray mt-3 gap-2">
-          <div className="flex flex-wrap w-10/12 gap-2 items-center">
+          <div className="relative flex flex-wrap w-10/12 gap-2 items-center h-full">
             {dataFloor?.length > 0 ? (
               dataFloor?.map((floor: any) => {
                 return (
