@@ -34,13 +34,13 @@ import {
   compareItems,
 } from "@tanstack/match-sorter-utils";
 
-import { makeData, ColumnItems } from "../components/makeData";
+import { makeData, ColumnItems } from "../../components/makeData";
 import {
   DebouncedInput,
   Filter,
   fuzzyFilter,
   fuzzySort,
-} from "../components/TableComponent";
+} from "../../components/TableComponent";
 import {
   MdArrowDownward,
   MdArrowDropDown,
@@ -51,7 +51,7 @@ import {
   MdCircle,
 } from "react-icons/md";
 import { NextRouter, useRouter } from "next/router";
-import Button from "../../Button/Button";
+import Button from "../../../Button/Button";
 import { FaCircleNotch } from "react-icons/fa";
 
 declare module "@tanstack/table-core" {
@@ -63,7 +63,7 @@ declare module "@tanstack/table-core" {
   }
 }
 
-function ScrollCardTables(props: any) {
+function MerchantTables(props: any) {
   const {
     dataTable,
     divided,
@@ -295,7 +295,7 @@ function ScrollCardTables(props: any) {
             ))}
           </thead>
         </table>
-        <table className="bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-2">
+        <table className="bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-3 p-2">
           <tbody className={`text-gray-700 dark:text-gray-400 text-xs px-4`}>
             {table.getRowModel().rows.map((row) => {
               return (
@@ -431,4 +431,4 @@ function ScrollCardTables(props: any) {
   );
 }
 
-export default ScrollCardTables;
+export default MerchantTables;
