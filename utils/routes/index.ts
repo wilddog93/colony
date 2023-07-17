@@ -255,6 +255,41 @@ export const menuBM: MenuProps[] = [
   },
 ];
 
+export const menuMerchant: MenuProps[] = [
+  {
+    pathname: "Item List",
+    url: "/merchant/detail",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Category List",
+    url: "/merchant/category",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Discounts",
+    url: "/merchant/discounts",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Open Hours",
+    url: "/merchant/hours",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
 export const menuParkings: MenuProps[] = [
   {
     pathname: "Parking Lot",

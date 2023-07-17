@@ -240,22 +240,20 @@ const Home = ({ pageProps }: Props) => {
               <div className="w-full flex flex-col px-10 justify-center">
                 <div className="flex flex-col justify-center">
                   <h2 className="text-title-md2 lg:text-title-lg mb-5">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                    Welcome to Colony Manage your property as convenient living.
                   </h2>
 
                   <p className="leading-1 text-sm">
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                    Quod, minus cumque molestias voluptatibus veniam minima
-                    soluta accusamus aspernatur praesentium maiores?
+                    We are comprehensive property management solutions for
+                    commercial and residential properties.
                   </p>
                 </div>
               </div>
               <div className="w-full flex flex-col justify-end py-10 px-10 tracking-wider">
                 <div className="w-full p-6 rounded-lg bg-[#111f2c3d] text-sm">
                   <p>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. In
-                    tempore debitis beatae doloremque eveniet eos sunt
-                    repellendus accusantium ab distinctio.
+                    "Thank you for choosing our app! We're here to make your day
+                    brighter and your tasks easier. Enjoy your time with us!"
                   </p>
                 </div>
               </div>
