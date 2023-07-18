@@ -56,7 +56,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-// get all tower
+// get all amenities
 export const getAmenities = createAsyncThunk<
   any,
   DefaultGetData,

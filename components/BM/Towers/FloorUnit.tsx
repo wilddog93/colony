@@ -191,7 +191,7 @@ const FloorUnit = (props: Props) => {
       )}
 
       {/* modal add unit*/}
-      <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
+      {/* <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
         <UnitBatchForm
           isCloseModal={closeAddUnitModal}
           isOpen={isOpenAddUnit}
@@ -203,7 +203,7 @@ const FloorUnit = (props: Props) => {
           amenityOpt={amenityOpt}
           unitTypeOpt={unitTypeOpt}
         />
-      </Modal>
+      </Modal> */}
     </Fragment>
   );
 };
