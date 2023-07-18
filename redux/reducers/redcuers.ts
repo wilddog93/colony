@@ -13,6 +13,9 @@ import propertyTypeReducers from "../features/property-type/propertyType";
 import towerReducers from "../features/building-management/tower/towerReducers";
 import floorReducers from "../features/building-management/floor/floorReducers";
 import floorTypeReducers from "../features/building-management/floorType/floorReducers";
+import amenityReducers from "../features/building-management/amenity/amenityReducers";
+import unitTypeReducers from "../features/building-management/unitType/unitTypeReducers";
+import unitReducers from "../features/building-management/unit/unitReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -30,4 +33,7 @@ export const combinedReducer = combineReducers({
   towerManagement: towerReducers,
   floorManagement: floorReducers,
   floorTypeManagement: floorTypeReducers,
+  amenityManagement: amenityReducers,
+  unitTypeManagement: unitTypeReducers,
+  unitManagement: unitReducers,
 });

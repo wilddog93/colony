@@ -167,7 +167,7 @@ export const menuBM: MenuProps[] = [
     url: "/employee/building-management/towers",
     query: {
       page: 1,
-      limit: 10,
+      limit: 5,
     },
     icons: {
       icon: MdOutlineBusiness,
