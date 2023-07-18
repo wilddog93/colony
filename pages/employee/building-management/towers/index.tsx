@@ -293,7 +293,13 @@ const Towers = ({ pageProps }: Props) => {
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() =>
-                  router.push("/employee/building-management/towers/amenities")
+                  router.push({
+                    pathname: "/employee/building-management/towers/amenities",
+                    query: {
+                      page: 1,
+                      limit: 10,
+                    },
+                  })
                 }
                 variant="primary-outline"
                 key={"1"}>
@@ -301,7 +307,7 @@ const Towers = ({ pageProps }: Props) => {
                 <MdLocalHotel className="w-4 h-4" />
               </Button>
 
-              <Button
+              {/* <Button
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() => setIsOpenFacilities(true)}
@@ -309,7 +315,7 @@ const Towers = ({ pageProps }: Props) => {
                 key={"2"}>
                 <span className="hidden lg:inline-block">Facilities</span>
                 <MdCleaningServices className="w-4 h-4" />
-              </Button>
+              </Button> */}
 
               <Button
                 type="button"

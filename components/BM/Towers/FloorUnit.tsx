@@ -151,8 +151,9 @@ const FloorUnit = (props: Props) => {
   };
 
   useEffect(() => {
-    if (token && newId)
-      getUnitsData({ params: filters.queryObject, token: token });
+    if (token && newId) {
+      // getUnitsData({ params: filters.queryObject, token: token });
+    }
   }, [token, filters, newId]);
 
   console.log(id, "id floor");
