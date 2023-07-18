@@ -37,6 +37,10 @@ import {
   getAmenities,
   selectAmenityManagement,
 } from "../../../../redux/features/building-management/amenity/amenityReducers";
+import {
+  getFloors,
+  selectFloorManagement,
+} from "../../../../redux/features/building-management/floor/floorReducers";
 
 type OptionProps = {
   value: string | null;
@@ -79,6 +83,8 @@ const Towers = ({ pageProps }: Props) => {
     selectTowerManagement
   );
 
+  const { floors } = useAppSelector(selectFloorManagement);
+  const [floorData, setFloorData] = useState<any[]>([]);
   const { unitTypes } = useAppSelector(selectUnitTypeManagement);
   const { amenities } = useAppSelector(selectAmenityManagement);
   const [amenityOpt, setAmenityOpt] = useState<OptionProps[]>([]);
@@ -88,7 +94,6 @@ const Towers = ({ pageProps }: Props) => {
   useEffect(() => {
     if (query?.page) setPage(Number(query?.page) || 1);
     if (query?.limit) setLimit(Number(query?.limit) || 10);
-    if (query?.search) setSearch(query?.search);
   }, []);
 
   useEffect(() => {
@@ -96,47 +101,26 @@ const Towers = ({ pageProps }: Props) => {
       page: page,
       limit: limit,
     };
-    if (search) qr = { ...qr, search: search };
-
     router.replace({ pathname, query: qr });
   }, [search]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
-    const search = {
-      $and: [
-        {
-          $or: [
-            // { email: { $contL: query?.search } },
-            // { firstName: { $contL: query?.search } },
-            // { lastName: { $contL: query?.search } },
-            // { nickName: { $contL: query?.search } },
-            // { gender: { $contL: query?.search } },
-          ],
-        },
-      ],
-    };
-    // query?.status && search["$and"].push({ status: query?.status });
-
-    qb.search(search);
 
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    // if (query?.sort)
     qb.sortBy({
       field: "updatedAt",
       order: "DESC",
     });
     qb.query();
     return qb;
-  }, [query]);
+  }, [query?.page, query?.limit]);
 
   useEffect(() => {
     if (token) dispatch(getTowers({ params: filters.queryObject, token }));
   }, [token, filters]);
-
-  console.log(towers, "tower data");
 
   useEffect(() => {
     let arr: any[] = [];
@@ -161,6 +145,34 @@ const Towers = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  // floor start
+  const filterFloor = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: "floorName",
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token) dispatch(getFloors({ token, params: filterFloor.queryObject }));
+  }, [token, filterFloor]);
+
+  useEffect(() => {
+    let arr: any[] = [];
+    const { data } = floors;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push(item);
+      });
+    }
+    setFloorData(arr);
+  }, [floors]);
+  // floor end
+
   // amenity
   const filterAmenity = useMemo(() => {
     const qb = RequestQueryBuilder.create();
@@ -174,8 +186,9 @@ const Towers = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token)
+    if (token) {
       dispatch(getAmenities({ token, params: filterAmenity.queryObject }));
+    }
   }, [token, filterAmenity]);
 
   useEffect(() => {
@@ -207,8 +220,9 @@ const Towers = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token)
+    if (token) {
       dispatch(getUnitTypes({ token, params: filterUnitType.queryObject }));
+    }
   }, [token, filterUnitType]);
 
   useEffect(() => {
@@ -321,6 +335,7 @@ const Towers = ({ pageProps }: Props) => {
                         filterTower={filters.queryObject}
                         amenityOpt={amenityOpt}
                         unitTypeOpt={unitTypeOpt}
+                        floorData={floorData}
                       />
                     </Fragment>
                   );
