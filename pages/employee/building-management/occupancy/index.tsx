@@ -410,7 +410,13 @@ const Occupancy = ({ pageProps }: Props) => {
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() =>
-                  router.push("/employee/building-management/occupancy/tenants")
+                  router.push({
+                    pathname: "/employee/building-management/occupancy/tenants",
+                    query: {
+                      page: 1,
+                      limit: 10,
+                    },
+                  })
                 }
                 variant="primary-outline"
                 key={"1"}>
