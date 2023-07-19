@@ -17,6 +17,7 @@ import amenityReducers from "../features/building-management/amenity/amenityRedu
 import unitTypeReducers from "../features/building-management/unitType/unitTypeReducers";
 import unitReducers from "../features/building-management/unit/unitReducers";
 import userPropertyReducers from "../features/building-management/users/propertyUserReducers";
+import projectTypeReducers from "../features/task-management/settings/projectTypeReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -38,4 +39,5 @@ export const combinedReducer = combineReducers({
   unitTypeManagement: unitTypeReducers,
   unitManagement: unitReducers,
   userPropertyManagement: userPropertyReducers,
+  projectType: projectTypeReducers,
 });
