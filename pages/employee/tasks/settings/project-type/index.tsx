@@ -157,8 +157,7 @@ const ProjectType = ({ pageProps }: Props) => {
   };
 
   // modal add
-  const onOpenModalAdd = (items: any) => {
-    setFormData(items);
+  const onOpenModalAdd = () => {
     setIsOpenAdd(true);
   };
 
@@ -181,8 +180,6 @@ const ProjectType = ({ pageProps }: Props) => {
     setFormData(newObj);
     setIsOpenEdit(true);
   };
-
-  console.log(formData, "form");
 
   const onCloseModalEdit = () => {
     setFormData(null);

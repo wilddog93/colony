@@ -9,17 +9,17 @@ import { toast } from "react-toastify";
 import type { RootState } from "../../../store";
 
 // here we are typing the types for the state
-export type ProjectTypeState = {
-  projectTypes: any;
-  projectType: any;
+export type IssueTypeState = {
+  issueTypes: any;
+  issueType: any;
   pending: boolean;
   error: boolean;
   message: any;
 };
 
-const initialState: ProjectTypeState = {
-  projectTypes: {},
-  projectType: {},
+const initialState: IssueTypeState = {
+  issueTypes: {},
+  issueType: {},
   pending: false,
   error: false,
   message: "",
@@ -35,7 +35,7 @@ interface HeadersConfiguration {
   };
 }
 
-interface ProjectData {
+interface IssueData {
   id?: any;
   data?: any;
   token?: any;
@@ -59,11 +59,11 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 }
 
 // get all project-type
-export const getProjectTypes = createAsyncThunk<
+export const getIssueTypes = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/projectType", async (params, { getState }) => {
+>("/issueType", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -73,7 +73,7 @@ export const getProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("projectType", config);
+    const response = await axios.get("issueType", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -92,11 +92,11 @@ export const getProjectTypes = createAsyncThunk<
   }
 });
 
-export const getProjectTypeById = createAsyncThunk<
+export const getIssueTypeById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/projectType/id", async (params, { getState }) => {
+>("/issueType/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -106,7 +106,7 @@ export const getProjectTypeById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`projectType/${params.id}`, config);
+    const response = await axios.get(`issueType/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -125,12 +125,12 @@ export const getProjectTypeById = createAsyncThunk<
   }
 });
 
-// create unit
-export const createProjectTypes = createAsyncThunk<
+// create issue
+export const createIssueTypes = createAsyncThunk<
   any,
-  ProjectData,
+  IssueData,
   { state: RootState }
->("/projectType/create", async (params, { getState }) => {
+>("/issueType/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -139,7 +139,7 @@ export const createProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("projectType", params.data, config);
+    const response = await axios.post("issueType", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -159,11 +159,11 @@ export const createProjectTypes = createAsyncThunk<
   }
 });
 
-export const updateProjectTypes = createAsyncThunk<
+export const updateIssueTypes = createAsyncThunk<
   any,
-  ProjectData,
+  IssueData,
   { state: RootState }
->("/projectType/update", async (params, { getState }) => {
+>("/issueType/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -173,7 +173,7 @@ export const updateProjectTypes = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `projectType/${params.id}`,
+      `issueType/${params.id}`,
       params.data,
       config
     );
@@ -196,11 +196,11 @@ export const updateProjectTypes = createAsyncThunk<
   }
 });
 
-export const deleteProjectTypes = createAsyncThunk<
+export const deleteIssueTypes = createAsyncThunk<
   any,
-  ProjectData,
+  IssueData,
   { state: RootState }
->("/projectType/delete", async (params, { getState }) => {
+>("/issueType/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -209,7 +209,7 @@ export const deleteProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`projectType/${params.id}`, config);
+    const response = await axios.delete(`issueType/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -230,13 +230,13 @@ export const deleteProjectTypes = createAsyncThunk<
 });
 
 // SLICER
-export const projectTypeSlice = createSlice({
-  name: "projectTypes",
+export const issueTypeSlice = createSlice({
+  name: "issueTypes",
   initialState,
   reducers: {
     // leave this empty here
-    resetProjectType(state) {
-      state.projectType = {};
+    resetIssueType(state) {
+      state.issueType = {};
       state.pending = false;
       state.error = false;
       state.message = "";
@@ -248,102 +248,102 @@ export const projectTypeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // get-project-types
-      .addCase(getProjectTypes.pending, (state) => {
+      .addCase(getIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(getProjectTypes.fulfilled, (state, { payload }) => {
+      .addCase(getIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
-          projectTypes: payload,
+          issueTypes: payload,
         };
       })
-      .addCase(getProjectTypes.rejected, (state, { error }) => {
+      .addCase(getIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
       // get-project-type-id
-      .addCase(getProjectTypeById.pending, (state) => {
+      .addCase(getIssueTypeById.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(getProjectTypeById.fulfilled, (state, { payload }) => {
+      .addCase(getIssueTypeById.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
-          projectType: payload,
+          issueType: payload,
         };
       })
-      .addCase(getProjectTypeById.rejected, (state, { error }) => {
+      .addCase(getIssueTypeById.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
       // create-project-type
-      .addCase(createProjectTypes.pending, (state) => {
+      .addCase(createIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(createProjectTypes.fulfilled, (state, { payload }) => {
+      .addCase(createIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(createProjectTypes.rejected, (state, { error }) => {
+      .addCase(createIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
       // update-project-type
-      .addCase(updateProjectTypes.pending, (state) => {
+      .addCase(updateIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(updateProjectTypes.fulfilled, (state, { payload }) => {
+      .addCase(updateIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(updateProjectTypes.rejected, (state, { error }) => {
+      .addCase(updateIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
       // delete-unit
-      .addCase(deleteProjectTypes.pending, (state) => {
+      .addCase(deleteIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(deleteProjectTypes.fulfilled, (state, { payload }) => {
+      .addCase(deleteIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(deleteProjectTypes.rejected, (state, { error }) => {
+      .addCase(deleteIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
@@ -361,9 +361,9 @@ export const projectTypeSlice = createSlice({
 });
 // SLICER
 
-const projectTypeReducers = projectTypeSlice.reducer;
+const issueTypeReducers = issueTypeSlice.reducer;
 
-export const { resetProjectType } = projectTypeSlice.actions;
-export const selectProjectType = (state: RootState) => state.projectType;
+export const { resetIssueType } = issueTypeSlice.actions;
+export const selectIssueType = (state: RootState) => state.issueType;
 
-export default projectTypeReducers;
+export default issueTypeReducers;
