@@ -9,23 +9,24 @@ import { toast } from "react-toastify";
 import type { RootState } from "../../../store";
 
 // here we are typing the types for the state
-export type UnitState = {
-  units: any;
-  unit: any;
+export type UserState = {
+  userProperties: any;
+  userProperty: any;
   pending: boolean;
   error: boolean;
   message: any;
 };
 
-const initialState: UnitState = {
-  units: {},
-  unit: {},
+const initialState: UserState = {
+  userProperties: {},
+  userProperty: {},
   pending: false,
   error: false,
   message: "",
 };
 
 interface HeadersConfiguration {
+  data?: any;
   params?: any;
   headers: {
     "Content-Type"?: string;
@@ -34,12 +35,11 @@ interface HeadersConfiguration {
   };
 }
 
-interface UnitData {
+interface UserData {
   id?: any;
-  data?: any;
+  data: any;
   token?: any;
   isSuccess: () => void;
-  isError: () => void;
 }
 
 interface DefaultGetData {
@@ -56,12 +56,12 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-// get all unit
-export const getUnits = createAsyncThunk<
+// get all user property
+export const getUsersProperty = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/unit", async (params, { getState }) => {
+>("user/property", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -71,7 +71,7 @@ export const getUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("unit", config);
+    const response = await axios.get("user/property", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -90,46 +90,11 @@ export const getUnits = createAsyncThunk<
   }
 });
 
-// get unit with tenant
-export const getUnitsTenant = createAsyncThunk<
+export const inviteUsersProperty = createAsyncThunk<
   any,
-  DefaultGetData,
+  UserData,
   { state: RootState }
->("/unit/tenant", async (params, { getState }) => {
-  let config: HeadersConfiguration = {
-    params: params.params,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Authorization: `Bearer ${params.token}`,
-    },
-  };
-  try {
-    const response = await axios.get("unit/tenant", config);
-    const { data, status } = response;
-    if (status == 200) {
-      return data;
-    } else {
-      throw response;
-    }
-  } catch (error: any) {
-    const { data, status } = error.response;
-    let newError: any = { message: data.message[0] };
-    toast.dark(newError.message);
-    if (error.response && error.response.status === 404) {
-      throw new Error("User not found");
-    } else {
-      throw new Error(newError.message);
-    }
-  }
-});
-
-// create unit-batch
-export const createUnitBatch = createAsyncThunk<
-  any,
-  UnitData,
-  { state: RootState }
->("/unit/create/batch", async (params, { getState }) => {
+>("user/property/invite", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -138,7 +103,11 @@ export const createUnitBatch = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("unit/batch", params.data, config);
+    const response = await axios.post(
+      "user/property/invite",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -158,12 +127,11 @@ export const createUnitBatch = createAsyncThunk<
   }
 });
 
-// create unit
-export const createUnits = createAsyncThunk<
+export const registerUsersProperty = createAsyncThunk<
   any,
-  UnitData,
+  UserData,
   { state: RootState }
->("/unit/create", async (params, { getState }) => {
+>("user/property/invite/register", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -172,7 +140,11 @@ export const createUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("unit", params.data, config);
+    const response = await axios.post(
+      "user/property/invite/register",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -192,12 +164,11 @@ export const createUnits = createAsyncThunk<
   }
 });
 
-// update unit-image
-export const updateUnitsImage = createAsyncThunk<
+export const usersPropertyAddTenant = createAsyncThunk<
   any,
-  UnitData,
+  UserData,
   { state: RootState }
->("/unit/update/image", async (params, { getState }) => {
+>("user/property/addTenant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -206,13 +177,9 @@ export const updateUnitsImage = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.patch(
-      `unit/unitImage/${params.id}`,
-      params.data,
-      config
-    );
+    const response = await axios.post("user/addTenant", params?.data, config);
     const { data, status } = response;
-    if (status == 200) {
+    if (status == 201) {
       params.isSuccess();
       return data;
     } else {
@@ -230,12 +197,14 @@ export const updateUnitsImage = createAsyncThunk<
   }
 });
 
-export const updateUnits = createAsyncThunk<
+// remove tenant/owner
+export const usersPropertyDeleteTenant = createAsyncThunk<
   any,
-  UnitData,
+  UserData,
   { state: RootState }
->("/unit/update", async (params, { getState }) => {
+>("user/property/removeTenant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
+    data: params?.data,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -243,13 +212,9 @@ export const updateUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.patch(
-      `unit/${params.id}`,
-      params.data,
-      config
-    );
+    const response = await axios.delete("user/removeTenant", config);
     const { data, status } = response;
-    if (status == 200) {
+    if (status == 204) {
       params.isSuccess();
       return data;
     } else {
@@ -267,11 +232,11 @@ export const updateUnits = createAsyncThunk<
   }
 });
 
-export const deleteUnits = createAsyncThunk<
+export const usersPropertyAddOccupant = createAsyncThunk<
   any,
-  UnitData,
+  UserData,
   { state: RootState }
->("/unit/delete", async (params, { getState }) => {
+>("user/property/addOccupant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -280,7 +245,42 @@ export const deleteUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`floor/${params.id}`, config);
+    const response = await axios.post("user/addOccupant", params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// remove occupant/user
+export const usersPropertyDeleteOccupant = createAsyncThunk<
+  any,
+  UserData,
+  { state: RootState }
+>("user/property/removeOccupant", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    data: params?.data,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.delete("user/removeOccupant", config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -301,13 +301,13 @@ export const deleteUnits = createAsyncThunk<
 });
 
 // SLICER
-export const unitSlice = createSlice({
-  name: "units",
+export const userPropertySlice = createSlice({
+  name: "user-property",
   initialState,
   reducers: {
     // leave this empty here
-    resetUnit(state) {
-      state.unit = {};
+    resetUserProperty(state) {
+      state.userProperty = {};
       state.pending = false;
       state.error = false;
       state.message = "";
@@ -318,143 +318,102 @@ export const unitSlice = createSlice({
   // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
   extraReducers: (builder) => {
     builder
-      // get-access-property
-      .addCase(getUnits.pending, (state) => {
+      // get-towers
+      .addCase(getUsersProperty.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(getUnits.fulfilled, (state, { payload }) => {
+      .addCase(getUsersProperty.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
-          units: payload,
+          userProperties: payload,
         };
       })
-      .addCase(getUnits.rejected, (state, { error }) => {
+      .addCase(getUsersProperty.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // get unit-tenant
-      .addCase(getUnitsTenant.pending, (state) => {
+      // invite-user-property
+      .addCase(inviteUsersProperty.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(getUnitsTenant.fulfilled, (state, { payload }) => {
+      .addCase(inviteUsersProperty.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
-          units: payload,
         };
       })
-      .addCase(getUnitsTenant.rejected, (state, { error }) => {
+      .addCase(inviteUsersProperty.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // create-unit-batch
-      .addCase(createUnitBatch.pending, (state) => {
+      // register-user-property
+      .addCase(registerUsersProperty.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(createUnitBatch.fulfilled, (state, { payload }) => {
+      .addCase(registerUsersProperty.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(createUnitBatch.rejected, (state, { error }) => {
+      .addCase(registerUsersProperty.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // create-unit
-      .addCase(createUnits.pending, (state) => {
+      // add-tenant
+      .addCase(usersPropertyAddTenant.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(createUnits.fulfilled, (state, { payload }) => {
+      .addCase(usersPropertyAddTenant.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(createUnits.rejected, (state, { error }) => {
+      .addCase(usersPropertyAddTenant.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // update unit-image
-      .addCase(updateUnitsImage.pending, (state) => {
+      // add-occupant
+      .addCase(usersPropertyAddOccupant.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(updateUnitsImage.fulfilled, (state, { payload }) => {
+      .addCase(usersPropertyAddOccupant.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(updateUnitsImage.rejected, (state, { error }) => {
-        state.pending = false;
-        state.error = true;
-        state.message = error.message;
-      })
-
-      // update-unit
-      .addCase(updateUnits.pending, (state) => {
-        return {
-          ...state,
-          pending: true,
-        };
-      })
-      .addCase(updateUnits.fulfilled, (state, { payload }) => {
-        return {
-          ...state,
-          pending: false,
-          error: false,
-        };
-      })
-      .addCase(updateUnits.rejected, (state, { error }) => {
-        state.pending = false;
-        state.error = true;
-        state.message = error.message;
-      })
-
-      // delete-unit
-      .addCase(deleteUnits.pending, (state) => {
-        return {
-          ...state,
-          pending: true,
-        };
-      })
-      .addCase(deleteUnits.fulfilled, (state, { payload }) => {
-        return {
-          ...state,
-          pending: false,
-          error: false,
-        };
-      })
-      .addCase(deleteUnits.rejected, (state, { error }) => {
+      .addCase(usersPropertyAddOccupant.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
@@ -472,9 +431,10 @@ export const unitSlice = createSlice({
 });
 // SLICER
 
-const unitReducers = unitSlice.reducer;
+const userPropertyReducers = userPropertySlice.reducer;
 
-export const { resetUnit } = unitSlice.actions;
-export const selectUnitManagement = (state: RootState) => state.unitManagement;
+export const { resetUserProperty } = userPropertySlice.actions;
+export const selectUserPropertyManagement = (state: RootState) =>
+  state.userPropertyManagement;
 
-export default unitReducers;
+export default userPropertyReducers;

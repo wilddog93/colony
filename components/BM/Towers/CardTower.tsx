@@ -68,6 +68,7 @@ type Props = {
   amenityOpt?: OptionProps[] | any[];
   unitTypeOpt?: OptionProps[] | any[];
   floorData?: any[];
+  unitData?: any[];
 };
 
 type FormTowerValues = {
@@ -145,6 +146,7 @@ const CardTower = ({
   amenityOpt,
   unitTypeOpt,
   floorData,
+  unitData,
 }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;

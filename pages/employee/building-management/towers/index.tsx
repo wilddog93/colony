@@ -27,7 +27,10 @@ import {
   selectTowerManagement,
 } from "../../../../redux/features/building-management/tower/towerReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { getAuthMe } from "../../../../redux/features/auth/authReducers";
+import {
+  getAuthMe,
+  selectAuth,
+} from "../../../../redux/features/auth/authReducers";
 import TowerForm from "../../../../components/Forms/employee/TowerForm";
 import {
   getUnitTypes,
@@ -41,6 +44,10 @@ import {
   getFloors,
   selectFloorManagement,
 } from "../../../../redux/features/building-management/floor/floorReducers";
+import {
+  getUnits,
+  selectUnitManagement,
+} from "../../../../redux/features/building-management/unit/unitReducers";
 
 type OptionProps = {
   value: string | null;
@@ -83,8 +90,11 @@ const Towers = ({ pageProps }: Props) => {
     selectTowerManagement
   );
 
+  const { data } = useAppSelector(selectAuth);
   const { floors } = useAppSelector(selectFloorManagement);
   const [floorData, setFloorData] = useState<any[]>([]);
+  const { units } = useAppSelector(selectUnitManagement);
+  const [unitData, setUnitData] = useState<any[]>([]);
   const { unitTypes } = useAppSelector(selectUnitTypeManagement);
   const { amenities } = useAppSelector(selectAmenityManagement);
   const [amenityOpt, setAmenityOpt] = useState<OptionProps[]>([]);
@@ -93,7 +103,7 @@ const Towers = ({ pageProps }: Props) => {
   // function
   useEffect(() => {
     if (query?.page) setPage(Number(query?.page) || 1);
-    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.limit) setLimit(Number(query?.limit) || 5);
   }, []);
 
   useEffect(() => {
@@ -102,7 +112,7 @@ const Towers = ({ pageProps }: Props) => {
       limit: limit,
     };
     router.replace({ pathname, query: qr });
-  }, [search]);
+  }, [page, limit]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
@@ -145,17 +155,31 @@ const Towers = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  // tower-id
+  const towerId = useMemo(() => {
+    let arr: any[] = [];
+    dataTable?.length > 0
+      ? dataTable?.map((item: any) => {
+          arr.push(item.id);
+        })
+      : (arr = []);
+    return arr;
+  }, [dataTable]);
+
   // floor start
   const filterFloor = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
+    const search = { $and: [{ "tower.id": { $in: towerId } }] };
+
+    if (towerId?.length > 0) qb.search(search);
     qb.sortBy({
       field: "floorName",
       order: "ASC",
     });
     qb.query();
     return qb;
-  }, []);
+  }, [towerId]);
 
   useEffect(() => {
     if (token) dispatch(getFloors({ token, params: filterFloor.queryObject }));
@@ -172,6 +196,41 @@ const Towers = ({ pageProps }: Props) => {
     setFloorData(arr);
   }, [floors]);
   // floor end
+
+  // unit-data
+  const filterUnits = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = { $and: [{ "tower.id": { $in: towerId } }] };
+
+    if (towerId?.length > 0) qb.search(search);
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, [towerId]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getUnits({ token, params: filterUnits.queryObject }));
+    }
+  }, [token, filterUnits]);
+
+  useEffect(() => {
+    let arr: any[] = [];
+    const { data } = units;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push(item);
+      });
+      setUnitData(arr);
+    } else {
+      setUnitData(arr);
+    }
+  }, [units]);
+  // unit-data end
 
   // amenity
   const filterAmenity = useMemo(() => {
@@ -251,6 +310,8 @@ const Towers = ({ pageProps }: Props) => {
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
       token={token}
+      // propertyId={accessId}
+      // isSelectProperty
       icons={{
         icon: MdMuseum,
         className: "w-8 h-8 text-meta-5",
@@ -263,7 +324,7 @@ const Towers = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
           token={token}
           defaultImage="../../image/no-image.jpeg"
-          isSelectProperty
+          // isSelectProperty
           propertyId={accessId}
         />
 
@@ -342,6 +403,7 @@ const Towers = ({ pageProps }: Props) => {
                         amenityOpt={amenityOpt}
                         unitTypeOpt={unitTypeOpt}
                         floorData={floorData}
+                        unitData={unitData}
                       />
                     </Fragment>
                   );

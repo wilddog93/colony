@@ -137,13 +137,15 @@ const DekstopComponent = ({
           name: item?.property?.propertyName,
         });
       });
+      setPropertiesOptions(arr);
+    } else {
+      setPropertiesOptions([]);
     }
-    setPropertiesOptions(arr);
   }, [properties?.data]);
 
   useEffect(() => {
     console.log(propertiesSelect, "propertiesSelect", propertyId);
-    if (propertiesSelect !== undefined && propertiesSelect) {
+    if (propertiesSelect?.value) {
       dispatch(
         webPropertyAccess({
           id: propertiesSelect?.value,
@@ -155,15 +157,15 @@ const DekstopComponent = ({
   }, [propertiesSelect]);
 
   useEffect(() => {
-    let idx = Number(propertyId);
+    let idx = propertyId ? Number(propertyId) : null;
     let selected: any | any[] =
       propertiesOptions?.length > 0 && idx
         ? propertiesOptions?.find(({ id }) => id === idx)
         : null;
-    console.log(selected, "selected", idx);
     if (idx && selected?.id) {
       setPropertiesSelect(selected);
     }
+    console.log(selected, "selected", idx);
   }, [propertyId, propertiesOptions]);
 
   return (

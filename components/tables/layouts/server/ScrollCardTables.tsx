@@ -9,6 +9,8 @@ import React, {
 } from "react";
 
 import {
+  Column,
+  Table,
   useReactTable,
   ColumnFiltersState,
   getCoreRowModel,
@@ -17,21 +19,36 @@ import {
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
   getPaginationRowModel,
+  sortingFns,
   getSortedRowModel,
   FilterFn,
+  SortingFn,
+  ColumnDef,
   flexRender,
+  FilterFns,
 } from "@tanstack/react-table";
 
-import { RankingInfo } from "@tanstack/match-sorter-utils";
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from "@tanstack/match-sorter-utils";
 
 import { makeData, ColumnItems } from "../../components/makeData";
-import { Filter, fuzzyFilter } from "../../components/TableComponent";
 import {
+  DebouncedInput,
+  Filter,
+  fuzzyFilter,
+  fuzzySort,
+} from "../../components/TableComponent";
+import {
+  MdArrowDownward,
   MdArrowDropDown,
   MdArrowDropUp,
   MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
+  MdCircle,
 } from "react-icons/md";
 import { NextRouter, useRouter } from "next/router";
 import Button from "../../../Button/Button";
@@ -46,22 +63,22 @@ declare module "@tanstack/table-core" {
   }
 }
 
-function CardTables(props: any) {
+function ScrollCardTables(props: any) {
   const {
-    divided,
     dataTable,
-    columns,
+    divided,
+    setIsSelected,
     loading,
     setLoading,
-    setIsSelected,
     pageCount,
     pages,
     setPages,
     limit,
     setLimit,
     total,
+    columns,
     isInfiniteScroll,
-    classTable,
+    isHideHeader,
   } = props;
 
   const router: NextRouter = useRouter();
@@ -80,7 +97,6 @@ function CardTables(props: any) {
   const [data, setData] = React.useState<ColumnItems[]>(() => makeData(50000));
   const refreshData = () => setData((old) => makeData(50000));
 
-  // @ts-ignore
   const table = useReactTable({
     data: dataTable,
     columns,
@@ -194,7 +210,9 @@ function CardTables(props: any) {
   // scroll function
   const loadHandler = () => {
     // setLimit(limit => limit + 10);
-    if (isInfiniteScroll) {
+    if (!isInfiniteScroll) {
+      return;
+    } else {
       setLoading(true);
       setIsLoadingInfinite(true);
       if (limit >= total) {
@@ -208,7 +226,7 @@ function CardTables(props: any) {
 
   const handleScroll = useCallback(
     (containerRefElement?: HTMLDivElement | null) => {
-      if (containerRefElement) {
+      if (containerRefElement && isInfiniteScroll) {
         const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
         // console.log((scrollHeight - scrollTop - clientHeight), 'result')
         if (scrollHeight - scrollTop - clientHeight < 10) {
@@ -238,20 +256,77 @@ function CardTables(props: any) {
 
   return (
     <div className="grid grid-cols-1">
-      <div className="col-span-1 p-4 overflow-x-auto">
-        <div className="w-full overflow-hidden rounded-xl">
-          <div
-            className={`w-full grid col-span-1 gap-4 text-graydark text-xs mb-5 ${classTable}`}>
+      <div
+        ref={refTable}
+        onScroll={(e) => handleScroll(e.target as HTMLDivElement)}
+        className="relative col-span-1 p-4 overflow-auto h-[600px]">
+        <table
+          className={`sticky bg-white -top-5 z-10 w-full overflow-y-auto border-separate border-0 border-spacing-y-4 ${
+            isHideHeader ? "hidden" : ""
+          }`}>
+          <thead className="transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  // console.log(header.column.getIsSorted() as string, 'header')
+                  return (
+                    <th
+                      className="px-4 py-6"
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      style={{
+                        width: header.getSize(),
+                      }}>
+                      {header.isPlaceholder ? null : (
+                        <Fragment>
+                          <div
+                            {...{
+                              className: `${
+                                header.column.getCanSort()
+                                  ? "cursor-pointer select-none "
+                                  : ""
+                              }flex -tems-center gap-2`,
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {{
+                              asc: <MdArrowDropDown className="w-5 h-4" />,
+                              desc: <MdArrowDropUp className="w-5 h-4" />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                          {header.column.getCanFilter() ? (
+                            <div>
+                              <Filter column={header.column} table={table} />
+                            </div>
+                          ) : null}
+                        </Fragment>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            ))}
+          </thead>
+        </table>
+        <table className="bg-gray w-full overflow-y-auto rounded-lg shadow-lg border-separate border-0 border-spacing-y-4 p-2">
+          <tbody className={`text-gray-700 dark:text-gray-400 text-xs px-4`}>
             {table.getRowModel().rows.map((row) => {
               return (
-                <div
-                  key={row.id}
-                  className="w-full h-full min-h-[150px] max-h-[400px] overflow-hidden flex flex-col justify-between bg-white rounded-xl shadow-card border border-gray">
+                <tr key={row.id} className="bg-white rounded-xl shadow-1">
                   {row.getVisibleCells().map((cell) => {
+                    console.log(cell?.column?.columnDef?.size, "size-table");
                     return (
-                      <div key={cell.id} className="w-full flex flex-col gap-2">
+                      <td
+                        key={cell.id}
+                        style={{
+                          width: cell.column.columnDef.size,
+                        }}
+                        className="overflow-hidden border-y first:border-l last:border-r first:rounded-l-xl last:rounded-r-xl border-gray">
                         {loading && !isInfiniteScroll ? (
-                          <div className="px-1 py-1 animate-pulse flex items-center justify-center">
+                          <div className="px-4 py-6 animate-pulse flex items-center justify-center">
                             <div className="h-2 w-20 bg-gray rounded"></div>
                           </div>
                         ) : (
@@ -260,29 +335,31 @@ function CardTables(props: any) {
                             cell.getContext()
                           )
                         )}
-                      </div>
+                      </td>
                     );
                   })}
-                </div>
+                </tr>
               );
             })}
             {isLoadingInfinite && isInfiniteScroll ? (
-              <div className="w-full flex items-center">
-                <div className="px-4 py-4">
+              <tr className="bg-white">
+                <td
+                  colSpan={columns?.length}
+                  className="overflow-hidden py-6 px-4 border-y first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg border-gray">
                   <div className="w-full flex items-center gap-2 text-base font-semibold">
                     Loading...
                     <FaCircleNotch className="w-4 h-4 animate-spin-2" />
                   </div>
-                </div>
-              </div>
+                </td>
+              </tr>
             ) : null}
-          </div>
-          <div
+          </tbody>
+          <tfoot
             className={`border-t border-gray-4 text-gray-5 font-normal ${
               isInfiniteScroll ? "hidden" : ""
             }`}>
-            <div className="w-full">
-              <div>
+            <tr className="w-full">
+              <th colSpan={table.getVisibleLeafColumns().length}>
                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
                   <div className="flex flex-row items-center text-xs">
                     {pageCount >= 1 ? (
@@ -358,13 +435,13 @@ function CardTables(props: any) {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </th>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   );
 }
 
-export default CardTables;
+export default ScrollCardTables;
