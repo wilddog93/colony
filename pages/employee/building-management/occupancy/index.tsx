@@ -1,20 +1,16 @@
-import React, {
-  Fragment,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../../../../components/Layouts/DefaultLayouts";
 import {
+  MdAdd,
   MdArrowDropUp,
   MdArrowRightAlt,
   MdEdit,
   MdKeyboardArrowRight,
-  MdOutlineDelete,
-  MdOutlineEdit,
+  MdLayers,
+  MdLocationCity,
+  MdMail,
+  MdMap,
+  MdMuseum,
   MdOutlinePeople,
   MdOutlineVpnKey,
 } from "react-icons/md";
@@ -26,10 +22,6 @@ import {
   ModalHeader,
 } from "../../../../components/Modal/ModalComponent";
 import { useRouter } from "next/router";
-import {
-  ColumnItems,
-  makeData,
-} from "../../../../components/tables/components/makeData";
 import Cards from "../../../../components/Cards/Cards";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
@@ -37,90 +29,86 @@ import { useAppDispatch, useAppSelector } from "../../../../redux/Hook";
 import { selectAuth } from "../../../../redux/features/auth/authReducers";
 import { getAuthMe } from "../../../../redux/features/auth/authReducers";
 import { ColumnDef } from "@tanstack/react-table";
-import ScrollCardTables from "../../../../components/tables/layouts/ScrollCardTables";
+import ScrollCardTables from "../../../../components/tables/layouts/server/ScrollCardTables";
 import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuBM } from "../../../../utils/routes";
+import {
+  getUnitsTenant,
+  selectUnitManagement,
+} from "../../../../redux/features/building-management/unit/unitReducers";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import OccupantForm from "../../../../components/Forms/employee/occupant/OccupantForm";
+
+type FormValues = {
+  id?: number | string | any;
+  floor?: any;
+  occupant?: any;
+  tenant?: any;
+  totalAmenity?: number;
+  totalOngoingBill?: number;
+  totalUnreadMessageLocalshop?: number;
+  unitDescription?: string | any;
+  unitImage?: any | string;
+  unitName?: string | any;
+  unitOrder?: number;
+  unitSize?: number;
+  createdAt: string | any;
+  updatedAt?: any;
+};
 
 type Props = {
   pageProps: any;
 };
 
 const Occupancy = ({ pageProps }: Props) => {
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
-  const { token, accessToken, firebaseToken } = pageProps;
+  const { token, access, accessId } = pageProps;
 
   // redux
   const dispatch = useAppDispatch();
-  const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
+  const { data } = useAppSelector(selectAuth);
+  const { units, pending } = useAppSelector(selectUnitManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // modal
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isOpenDetail, setIsOpenDetail] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<ColumnItems>();
-  const [isSelectedRow, setIsSelectedRow] = useState({});
+  const [isOpenAddOwner, setIsOpenAddOwner] = useState(false);
+  const [isOpenAddOccupant, setIsOpenAddOccupant] = useState(false);
+  const [formData, setFormData] = useState<FormValues | any>(null);
 
   // data-table
-  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [dataTable, setDataTable] = useState<FormValues[]>([]);
   const [pages, setPages] = useState(1);
-  const [limit, setLimit] = useState<number>(10);
-  const [pageCount, setPageCount] = useState<number>(2000);
-  const [total, setTotal] = useState<number>(1000);
+  const [limit, setLimit] = useState<number>(5);
+  const [pageCount, setPageCount] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   // scroll table
-  const [scrollPosition, setScrollPosition] = useState<number>(0);
-  const [offsetHight, setOffsetHight] = useState<number>(0);
-  const [scrollHeight, setScrollHeight] = useState<number>(0);
-  let refTable = useRef<HTMLDivElement>(null);
+  const [isSelectedRow, setIsSelectedRow] = useState<any[]>([]);
 
-  // console.log(dataTable, 'data table')
-
-  const loadHandler = () => {
-    setLimit((limit) => limit + 10);
+  // add owner modal
+  const onOpenAddOwner = (items: any) => {
+    setFormData(items);
+    setIsOpenAddOwner(true);
   };
-
-  const handleScroll = useCallback(
-    (containerRefElement?: HTMLDivElement | null) => {
-      if (containerRefElement) {
-        const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
-        if (scrollHeight - scrollTop - clientHeight < 10) {
-          loadHandler();
-        }
-      }
-    },
-    [loadHandler]
-  );
-
-  useEffect(() => {
-    handleScroll(refTable.current);
-  }, [handleScroll]);
-
-  // form modal
-  const onClose = () => setIsOpenModal(false);
-  const onOpen = () => setIsOpenModal(true);
-
-  // detail modal
-  const onCloseDetail = () => {
-    setDetails(undefined);
-    setIsOpenDetail(false);
+  const onCloseAddOwner = () => {
+    setFormData(null);
+    setIsOpenAddOwner(false);
   };
-  const onOpenDetail = (items: any) => {
-    setDetails(items);
-    setIsOpenDetail(true);
-  };
+  // add owner modal end
 
-  // delete modal
-  const onCloseDelete = () => {
-    setDetails(undefined);
-    setIsOpenDelete(false);
+  // add Occupant modal
+  const onOpenAddOccupant = (items: any) => {
+    setFormData(items);
+    setIsOpenAddOccupant(true);
   };
-  const onOpenDelete = (items: any) => {
-    setDetails(items);
-    setIsOpenDelete(true);
+  const onCloseAddOccupant = () => {
+    setFormData(null);
+    setIsOpenAddOccupant(false);
   };
+  // add occupant modal end
 
   useEffect(() => {
     if (token) {
@@ -137,138 +125,174 @@ const Occupancy = ({ pageProps }: Props) => {
     if (!id) {
       return;
     }
-    router.push({ pathname: `/property/building-management/occupancy/${id}` });
+    router.push({ pathname: `/employee/building-management/occupancy/${id}` });
   };
 
-  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
+  const columns = useMemo<ColumnDef<FormValues, any>[]>(
     () => [
       {
-        accessorKey: "fullName",
-        cell: (info) => {
-          const avatar = info?.row?.original?.avatar;
+        accessorKey: "unitName",
+        cell: ({ row, getValue }) => {
+          const unit = row?.original;
           return (
-            <div
-              className="cursor-pointer"
-              onClick={() => onOpenDetail(info.row.original)}>
+            <div className="w-full pr-2">
               <div className="w-full flex items-center gap-2">
-                <img
-                  src={avatar}
-                  alt="images"
-                  className="w-1/2 object-cover object-center"
-                />
-                <div className="w-1/2">{info.getValue()}</div>
+                <div className="w-1/3">
+                  <img
+                    src={
+                      unit?.unitImage
+                        ? url + "unit/unitImage/" + unit?.unitImage
+                        : "../../image/no-image.jpeg"
+                    }
+                    alt="images"
+                    className="w-full h-20 object-cover object-center"
+                  />
+                </div>
+                <div className="w-2/3 flex flex-col gap-2 text-gray-5">
+                  <h3 className="text-base font-semibold">
+                    {getValue() || "-"}
+                  </h3>
+                  <div className="w-full max-w-max flex gap-2">
+                    <p className="w-full max-w-max flex items-center gap-1">
+                      <span>
+                        <MdLocationCity className="w-4 h-4" />
+                      </span>
+                      {unit?.floor?.tower?.towerName || "-"}
+                    </p>
+
+                    <p className="w-full max-w-max flex items-center gap-1">
+                      <span>
+                        <MdLayers className="w-4 h-4" />
+                      </span>
+                      {unit?.floor?.floorName || "-"}
+                    </p>
+
+                    <p className="w-full max-w-max flex items-center gap-1">
+                      <span>
+                        <MdMap className="w-4 h-4" />
+                      </span>
+                      {unit?.unitSize || 0}{" "}
+                      <span>
+                        m<sup>2</sup>
+                      </span>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           );
         },
-        header: () => <span>Full Name</span>,
+        header: () => <span>Unit</span>,
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
         size: 200,
-        minSize: 10,
       },
       {
-        accessorKey: "email",
-        cell: (info) => {
+        accessorKey: "tenant.user.firstName",
+        cell: ({ row, getValue }) => {
+          const user = row?.original.tenant?.user;
+          console.log(user, "owner");
+          if (user == undefined) {
+            return (
+              <button
+                type="button"
+                onClick={() => onOpenAddOwner(row?.original)}
+                className="bg-primary text-white px-4 py-2 border border-primary shadow-1 inline-flex items-center rounded-lg text-xs">
+                <span>Add Owner</span>
+                <MdAdd className="w-4 h-4" />
+              </button>
+            );
+          }
           return (
-            <div
-              className="cursor-pointer px-4 py-6"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
+            <div className="w-full">
+              <div className="w-full flex items-center gap-2">
+                <img
+                  src={user?.profileImage || "../../image/no-image.jpeg"}
+                  alt="images"
+                  className="w-[20%] object-cover object-center rounded-full"
+                />
+                <div className="w-[80%] flex flex-col gap-2 text-gray-5">
+                  <h3 className="text-sm font-semibold">
+                    {getValue() || "-"} {user?.lastName}
+                  </h3>
+                  <div className="w-full max-w-max flex gap-2">
+                    <p className="flex items-center gap-1">
+                      <span>
+                        <MdMail className="w-4 h-4" />
+                      </span>
+                      {user?.email?.length > 20
+                        ? `${user?.email?.substring(20, 0)}...`
+                        : user?.email || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           );
         },
-        header: () => <span>Email</span>,
+        header: () => <span>Owner</span>,
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
+        size: 200,
       },
       {
-        accessorKey: "phoneNumber",
-        cell: (info) => {
-          let phone = info.getValue();
+        accessorKey: "occupant.user.firstName",
+        cell: ({ row, getValue }) => {
+          const user = row?.original.occupant?.user;
+          if (user == undefined) {
+            return (
+              <button
+                type="button"
+                onClick={() => onOpenAddOccupant(row?.original)}
+                className="bg-primary text-white px-4 py-2 border border-primary shadow-1 inline-flex items-center rounded-lg text-xs">
+                <span>Add Occupant</span>
+                <MdAdd className="w-4 h-4" />
+              </button>
+            );
+          }
           return (
-            <div
-              className="cursor-pointer px-4 py-6"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {/* {phone ? formatPhone("+", info.getValue()) : ""} */}
-              {phone ? phone : ""}
+            <div className="w-full">
+              <div className="w-full flex items-center gap-2">
+                <img
+                  src={user?.profileImage || "../../image/no-image.jpeg"}
+                  alt="images"
+                  className="w-[20%] object-cover object-center rounded-full"
+                />
+                <div className="w-[80%] flex flex-col gap-2 text-gray-5">
+                  <h3 className="text-sm font-semibold">
+                    {getValue() || "-"} {user?.lastName}
+                  </h3>
+                  <div className="w-full max-w-max flex gap-2">
+                    <p className="flex items-center gap-1">
+                      <span>
+                        <MdMail className="w-4 h-4" />
+                      </span>
+                      {user?.email?.length > 20
+                        ? `${user?.email?.substring(20, 0)}...`
+                        : user?.email || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           );
         },
-        header: () => <span>Phone</span>,
+        header: () => <span>Occupant</span>,
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
-      },
-      {
-        accessorKey: "owned",
-        cell: (info) => {
-          return (
-            <div
-              className="cursor-pointer px-4 py-6"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          );
-        },
-        header: "Owned",
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "occupied",
-        cell: (info) => {
-          return (
-            <div
-              className="cursor-pointer px-4 py-6"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          );
-        },
-        header: "Occ",
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "date",
-        cell: (info) => {
-          let date = info.getValue();
-          return (
-            <div
-              className="cursor-pointer px-4 py-6"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {date}
-            </div>
-          );
-        },
-        header: "Date Added",
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
+        size: 200,
       },
       {
         accessorKey: "id",
         cell: ({ row, getValue }) => {
           // console.log(row.original, "info")
           return (
-            <div className="w-full text-center flex items-center justify-center cursor-pointer px-4 py-6">
+            <div className="w-full text-center flex items-center cursor-pointer px-4 py-6">
               <Button
-                onClick={() => onOpenDetail(row?.original)}
-                className="px-0 py-0"
-                type="button"
-                variant="primary-outline-none">
-                <MdOutlineEdit className="w-5 h-5 text-gray-5" />
-              </Button>
-              <Button
-                onClick={() => onOpenDelete(row?.original)}
-                className="px-0 py-0"
-                type="button"
-                variant="danger-outline-none">
-                <MdOutlineDelete className="w-5 h-5 text-gray-5" />
-              </Button>
-
-              <Button
-                onClick={() => goToDetails(1)}
+                onClick={() => goToDetails(getValue())}
                 className="px-0 py-0"
                 type="button"
                 variant="danger-outline-none">
@@ -278,19 +302,64 @@ const Occupancy = ({ pageProps }: Props) => {
           );
         },
         header: (props) => {
-          return <div>Actions</div>;
+          return <div></div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
+        size: 50,
       },
     ],
     []
   );
 
-  // console.log('pages :', {pages, limit})
+  // data-occupancy
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+  }, []);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, [query?.page, query?.limit]);
+
+  useEffect(() => {
+    if (token) dispatch(getUnitsTenant({ token, params: filters.queryObject }));
+  }, [token, filters]);
+
+  useEffect(() => {
+    let newArr: any[] = [];
+    const { data, pageCount, total } = units;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+    }
+    setDataTable(newArr);
+    setPageCount(pageCount);
+    setTotal(total);
+  }, [units]);
+
+  console.log(units, "data-unit");
 
   return (
     <DefaultLayout
@@ -301,7 +370,11 @@ const Occupancy = ({ pageProps }: Props) => {
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
       description=""
-      token={token}>
+      token={token}
+      icons={{
+        icon: MdMuseum,
+        className: "w-8 h-8 text-meta-5",
+      }}>
       <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
           className=""
@@ -336,7 +409,15 @@ const Occupancy = ({ pageProps }: Props) => {
               <Button
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
-                onClick={() => router.push("occupancy/tenants")}
+                onClick={() =>
+                  router.push({
+                    pathname: "/employee/building-management/occupancy/tenants",
+                    query: {
+                      page: 1,
+                      limit: 10,
+                    },
+                  })
+                }
                 variant="primary-outline"
                 key={"1"}>
                 <span className="hidden lg:inline-block text-graydark">
@@ -499,88 +580,46 @@ const Occupancy = ({ pageProps }: Props) => {
                 setLimit={setLimit}
                 pageCount={pageCount}
                 total={total}
-                isInfiniteScroll
+                setIsSelected={setIsSelectedRow}
+                // isInfiniteScroll
               />
             </div>
           </main>
         </div>
       </div>
-      {/* detail edit*/}
-      <Modal size="" onClose={onCloseDetail} isOpen={isOpenDetail}>
+
+      {/* add owner */}
+      <Modal size="small" onClose={onCloseAddOwner} isOpen={isOpenAddOwner}>
         <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onCloseDetail}>
-            <h3 className="text-lg font-semibold">Modal Header</h3>
-          </ModalHeader>
-          <div className="w-full px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam,
-            optio. Suscipit cupiditate voluptatibus et ut alias nostrum
-            architecto ex explicabo quidem harum, porro error aliquid
-            perferendis, totam iste corporis possimus nobis! Aperiam,
-            necessitatibus libero! Sunt dolores possimus explicabo ducimus
-            aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti
-            sapiente similique voluptatem, consequatur sequi dicta deserunt,
-            iure saepe quasi eius! Eveniet provident modi at perferendis
-            asperiores voluptas excepturi eius distinctio aliquam. Repellendus,
-            libero modi eligendi nisi incidunt inventore perferendis qui
-            corrupti similique id fuga sint molestias nihil expedita enim dolor
-            aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis
-            velit. Expedita, fuga.
-          </div>
-          <ModalFooter
-            className="p-4 border-t-2 border-gray mt-3"
-            isClose={true}
-            onClick={onCloseDetail}></ModalFooter>
+          <OccupantForm
+            items={formData}
+            token={token}
+            isOwner
+            isOpen={isOpenAddOwner}
+            getData={() =>
+              dispatch(getUnitsTenant({ token, params: filters.queryObject }))
+            }
+            isCloseModal={onCloseAddOwner}
+          />
         </Fragment>
       </Modal>
 
-      {/* detail delete*/}
-      <Modal size="small" onClose={onCloseDelete} isOpen={isOpenDelete}>
+      {/* add occupant */}
+      <Modal
+        size="small"
+        onClose={onCloseAddOccupant}
+        isOpen={isOpenAddOccupant}>
         <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onCloseDelete}>
-            <h3 className="text-lg font-semibold">Modal Header</h3>
-          </ModalHeader>
-          <div className="w-full px-4">delete</div>
-          <ModalFooter
-            className="p-4 border-t-2 border-gray mt-3"
-            isClose={true}
-            onClick={onCloseDelete}></ModalFooter>
-        </Fragment>
-      </Modal>
-
-      {/* example */}
-      <Modal size="" onClose={onClose} isOpen={isOpenModal}>
-        <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onClose}>
-            <h3 className="text-lg font-semibold">Modal Header</h3>
-          </ModalHeader>
-          <div className="w-full px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam,
-            optio. Suscipit cupiditate voluptatibus et ut alias nostrum
-            architecto ex explicabo quidem harum, porro error aliquid
-            perferendis, totam iste corporis possimus nobis! Aperiam,
-            necessitatibus libero! Sunt dolores possimus explicabo ducimus
-            aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti
-            sapiente similique voluptatem, consequatur sequi dicta deserunt,
-            iure saepe quasi eius! Eveniet provident modi at perferendis
-            asperiores voluptas excepturi eius distinctio aliquam. Repellendus,
-            libero modi eligendi nisi incidunt inventore perferendis qui
-            corrupti similique id fuga sint molestias nihil expedita enim dolor
-            aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis
-            velit. Expedita, fuga.
-          </div>
-          <ModalFooter
-            className="p-4 border-t-2 border-gray mt-3"
-            isClose={true}
-            onClick={onClose}></ModalFooter>
+          <OccupantForm
+            items={formData}
+            token={token}
+            isOccupant
+            isOpen={isOpenAddOccupant}
+            getData={() =>
+              dispatch(getUnitsTenant({ token, params: filters.queryObject }))
+            }
+            isCloseModal={onCloseAddOccupant}
+          />
         </Fragment>
       </Modal>
     </DefaultLayout>

@@ -49,14 +49,6 @@ type OptionProps = {
   label: React.ReactNode;
 };
 
-type Props = {
-  items?: any;
-  token?: any;
-  filterTower?: any;
-  amenityOpt?: OptionProps[] | any[];
-  unitTypeOpt?: OptionProps[] | any[];
-};
-
 type FloorProps = {
   floorName?: string;
   floorOrder?: number | any;
@@ -67,6 +59,16 @@ type FloorProps = {
   length?: number | string | any;
   addText?: number | string | any;
   addTextPosition?: number | string | any;
+};
+
+type Props = {
+  items?: any;
+  token?: any;
+  filterTower?: any;
+  amenityOpt?: OptionProps[] | any[];
+  unitTypeOpt?: OptionProps[] | any[];
+  floorData?: any[];
+  unitData?: any[];
 };
 
 type FormTowerValues = {
@@ -143,6 +145,8 @@ const CardTower = ({
   filterTower,
   amenityOpt,
   unitTypeOpt,
+  floorData,
+  unitData,
 }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
@@ -163,6 +167,8 @@ const CardTower = ({
   // modal edit tower
   const [isOpenEditTower, setIsOpenEditTower] = useState(false);
   const [formData, setFormData] = useState<any>({});
+
+  console.log(floorData, "data-floor");
 
   // modal floor
   const [isOpenAddFloor, setIsOpenAddFloor] = useState(false);
@@ -266,10 +272,10 @@ const CardTower = ({
     }
   };
 
-  useEffect(() => {
-    if (token && items?.id)
-      getFloorsData({ params: filters.queryObject, token: token });
-  }, [token, filters, items?.id]);
+  // useEffect(() => {
+  //   if (token && items?.id)
+  //     getFloorsData({ params: filters.queryObject, token: token });
+  // }, [token, filters, items?.id]);
 
   const ComponentFloorTab = (props: FloorProps) => {
     const { id, floorName, tower, floorOrder } = props;
@@ -344,7 +350,20 @@ const CardTower = ({
     );
   };
 
-  console.log(items, "check floor-tower");
+  useEffect(() => {
+    console.log(items, "items-card");
+    let tabs: FloorProps = tabFloor;
+    let floor: FloorProps[] =
+      floorData && floorData?.length > 0
+        ? floorData?.filter((x) => x?.tower?.id == items?.id)
+        : [];
+    setDataFloor(floor);
+    if (floor?.some((e: any) => e?.id == tabs?.id)) {
+      setTabFloor(tabs);
+    } else {
+      setTabFloor(floor[0]);
+    }
+  }, [items?.id, floorData]);
 
   return (
     <Fragment>

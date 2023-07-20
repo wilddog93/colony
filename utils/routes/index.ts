@@ -4,7 +4,6 @@ import {
   MdAssignment,
   MdCardMembership,
   MdCreditCard,
-  MdFileCopy,
   MdHelpOutline,
   MdLocalParking,
   MdMonetizationOn,
@@ -154,7 +153,7 @@ export const menuBM: MenuProps[] = [
     url: "/employee/building-management/occupancy",
     query: {
       page: 1,
-      limit: 10,
+      limit: 5,
     },
     icons: {
       icon: MdOutlinePeopleAlt,

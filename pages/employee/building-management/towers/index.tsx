@@ -27,7 +27,10 @@ import {
   selectTowerManagement,
 } from "../../../../redux/features/building-management/tower/towerReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { getAuthMe } from "../../../../redux/features/auth/authReducers";
+import {
+  getAuthMe,
+  selectAuth,
+} from "../../../../redux/features/auth/authReducers";
 import TowerForm from "../../../../components/Forms/employee/TowerForm";
 import {
   getUnitTypes,
@@ -37,6 +40,14 @@ import {
   getAmenities,
   selectAmenityManagement,
 } from "../../../../redux/features/building-management/amenity/amenityReducers";
+import {
+  getFloors,
+  selectFloorManagement,
+} from "../../../../redux/features/building-management/floor/floorReducers";
+import {
+  getUnits,
+  selectUnitManagement,
+} from "../../../../redux/features/building-management/unit/unitReducers";
 
 type OptionProps = {
   value: string | null;
@@ -79,6 +90,11 @@ const Towers = ({ pageProps }: Props) => {
     selectTowerManagement
   );
 
+  const { data } = useAppSelector(selectAuth);
+  const { floors } = useAppSelector(selectFloorManagement);
+  const [floorData, setFloorData] = useState<any[]>([]);
+  const { units } = useAppSelector(selectUnitManagement);
+  const [unitData, setUnitData] = useState<any[]>([]);
   const { unitTypes } = useAppSelector(selectUnitTypeManagement);
   const { amenities } = useAppSelector(selectAmenityManagement);
   const [amenityOpt, setAmenityOpt] = useState<OptionProps[]>([]);
@@ -87,8 +103,7 @@ const Towers = ({ pageProps }: Props) => {
   // function
   useEffect(() => {
     if (query?.page) setPage(Number(query?.page) || 1);
-    if (query?.limit) setLimit(Number(query?.limit) || 10);
-    if (query?.search) setSearch(query?.search);
+    if (query?.limit) setLimit(Number(query?.limit) || 5);
   }, []);
 
   useEffect(() => {
@@ -96,47 +111,26 @@ const Towers = ({ pageProps }: Props) => {
       page: page,
       limit: limit,
     };
-    if (search) qr = { ...qr, search: search };
-
     router.replace({ pathname, query: qr });
-  }, [search]);
+  }, [page, limit]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
-    const search = {
-      $and: [
-        {
-          $or: [
-            // { email: { $contL: query?.search } },
-            // { firstName: { $contL: query?.search } },
-            // { lastName: { $contL: query?.search } },
-            // { nickName: { $contL: query?.search } },
-            // { gender: { $contL: query?.search } },
-          ],
-        },
-      ],
-    };
-    // query?.status && search["$and"].push({ status: query?.status });
-
-    qb.search(search);
 
     if (query?.page) qb.setPage(Number(query?.page) || 1);
     if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
-    // if (query?.sort)
     qb.sortBy({
       field: "updatedAt",
       order: "DESC",
     });
     qb.query();
     return qb;
-  }, [query]);
+  }, [query?.page, query?.limit]);
 
   useEffect(() => {
     if (token) dispatch(getTowers({ params: filters.queryObject, token }));
   }, [token, filters]);
-
-  console.log(towers, "tower data");
 
   useEffect(() => {
     let arr: any[] = [];
@@ -161,6 +155,83 @@ const Towers = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  // tower-id
+  const towerId = useMemo(() => {
+    let arr: any[] = [];
+    dataTable?.length > 0
+      ? dataTable?.map((item: any) => {
+          arr.push(item.id);
+        })
+      : (arr = []);
+    return arr;
+  }, [dataTable]);
+
+  // floor start
+  const filterFloor = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = { $and: [{ "tower.id": { $in: towerId } }] };
+
+    if (towerId?.length > 0) qb.search(search);
+    qb.sortBy({
+      field: "floorName",
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, [towerId]);
+
+  useEffect(() => {
+    if (token) dispatch(getFloors({ token, params: filterFloor.queryObject }));
+  }, [token, filterFloor]);
+
+  useEffect(() => {
+    let arr: any[] = [];
+    const { data } = floors;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push(item);
+      });
+    }
+    setFloorData(arr);
+  }, [floors]);
+  // floor end
+
+  // unit-data
+  const filterUnits = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = { $and: [{ "tower.id": { $in: towerId } }] };
+
+    if (towerId?.length > 0) qb.search(search);
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, [towerId]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getUnits({ token, params: filterUnits.queryObject }));
+    }
+  }, [token, filterUnits]);
+
+  useEffect(() => {
+    let arr: any[] = [];
+    const { data } = units;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push(item);
+      });
+      setUnitData(arr);
+    } else {
+      setUnitData(arr);
+    }
+  }, [units]);
+  // unit-data end
+
   // amenity
   const filterAmenity = useMemo(() => {
     const qb = RequestQueryBuilder.create();
@@ -174,8 +245,9 @@ const Towers = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token)
+    if (token) {
       dispatch(getAmenities({ token, params: filterAmenity.queryObject }));
+    }
   }, [token, filterAmenity]);
 
   useEffect(() => {
@@ -207,8 +279,9 @@ const Towers = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token)
+    if (token) {
       dispatch(getUnitTypes({ token, params: filterUnitType.queryObject }));
+    }
   }, [token, filterUnitType]);
 
   useEffect(() => {
@@ -237,6 +310,8 @@ const Towers = ({ pageProps }: Props) => {
       images="../../image/logo/building-logo.svg"
       userDefault="../../image/user/user-01.png"
       token={token}
+      // propertyId={accessId}
+      // isSelectProperty
       icons={{
         icon: MdMuseum,
         className: "w-8 h-8 text-meta-5",
@@ -249,7 +324,7 @@ const Towers = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
           token={token}
           defaultImage="../../image/no-image.jpeg"
-          isSelectProperty
+          // isSelectProperty
           propertyId={accessId}
         />
 
@@ -279,7 +354,13 @@ const Towers = ({ pageProps }: Props) => {
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() =>
-                  router.push("/employee/building-management/towers/amenities")
+                  router.push({
+                    pathname: "/employee/building-management/towers/amenities",
+                    query: {
+                      page: 1,
+                      limit: 10,
+                    },
+                  })
                 }
                 variant="primary-outline"
                 key={"1"}>
@@ -287,7 +368,7 @@ const Towers = ({ pageProps }: Props) => {
                 <MdLocalHotel className="w-4 h-4" />
               </Button>
 
-              <Button
+              {/* <Button
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
                 onClick={() => setIsOpenFacilities(true)}
@@ -295,7 +376,7 @@ const Towers = ({ pageProps }: Props) => {
                 key={"2"}>
                 <span className="hidden lg:inline-block">Facilities</span>
                 <MdCleaningServices className="w-4 h-4" />
-              </Button>
+              </Button> */}
 
               <Button
                 type="button"
@@ -321,6 +402,8 @@ const Towers = ({ pageProps }: Props) => {
                         filterTower={filters.queryObject}
                         amenityOpt={amenityOpt}
                         unitTypeOpt={unitTypeOpt}
+                        floorData={floorData}
+                        unitData={unitData}
                       />
                     </Fragment>
                   );

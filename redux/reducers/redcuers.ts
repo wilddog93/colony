@@ -16,6 +16,10 @@ import floorTypeReducers from "../features/building-management/floorType/floorRe
 import amenityReducers from "../features/building-management/amenity/amenityReducers";
 import unitTypeReducers from "../features/building-management/unitType/unitTypeReducers";
 import unitReducers from "../features/building-management/unit/unitReducers";
+import userPropertyReducers from "../features/building-management/users/propertyUserReducers";
+import projectTypeReducers from "../features/task-management/settings/projectTypeReducers";
+import issueTypeReducers from "../features/task-management/settings/issueTypeReducers";
+import issueCategoryReducers from "../features/task-management/settings/issueCategoryReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -36,4 +40,8 @@ export const combinedReducer = combineReducers({
   amenityManagement: amenityReducers,
   unitTypeManagement: unitTypeReducers,
   unitManagement: unitReducers,
+  userPropertyManagement: userPropertyReducers,
+  projectType: projectTypeReducers,
+  issueType: issueTypeReducers,
+  issueCategory: issueCategoryReducers,
 });

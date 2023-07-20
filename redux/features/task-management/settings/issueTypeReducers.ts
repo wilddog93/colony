@@ -9,23 +9,24 @@ import { toast } from "react-toastify";
 import type { RootState } from "../../../store";
 
 // here we are typing the types for the state
-export type AmenityState = {
-  amenities: any;
-  amenity: any;
+export type IssueTypeState = {
+  issueTypes: any;
+  issueType: any;
   pending: boolean;
   error: boolean;
   message: any;
 };
 
-const initialState: AmenityState = {
-  amenities: {},
-  amenity: {},
+const initialState: IssueTypeState = {
+  issueTypes: {},
+  issueType: {},
   pending: false,
   error: false,
   message: "",
 };
 
 interface HeadersConfiguration {
+  data?: any;
   params?: any;
   headers: {
     "Content-Type"?: string;
@@ -34,7 +35,7 @@ interface HeadersConfiguration {
   };
 }
 
-interface AmenityData {
+interface IssueData {
   id?: any;
   data?: any;
   token?: any;
@@ -43,6 +44,7 @@ interface AmenityData {
 }
 
 interface DefaultGetData {
+  id?: any;
   token?: any;
   params?: any;
 }
@@ -56,12 +58,12 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-// get all amenities
-export const getAmenities = createAsyncThunk<
+// get all project-type
+export const getIssueTypes = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/amenity", async (params, { getState }) => {
+>("/issueType", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -71,7 +73,7 @@ export const getAmenities = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("amenity", config);
+    const response = await axios.get("issueType", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -90,12 +92,45 @@ export const getAmenities = createAsyncThunk<
   }
 });
 
-// create amenity
-export const createAmenities = createAsyncThunk<
+export const getIssueTypeById = createAsyncThunk<
   any,
-  AmenityData,
+  DefaultGetData,
   { state: RootState }
->("/amenity/create", async (params, { getState }) => {
+>("/issueType/id", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    params: params.params,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.get(`issueType/${params.id}`, config);
+    const { data, status } = response;
+    if (status == 200) {
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// create issue
+export const createIssueTypes = createAsyncThunk<
+  any,
+  IssueData,
+  { state: RootState }
+>("/issueType/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -104,7 +139,7 @@ export const createAmenities = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("amenity", params.data, config);
+    const response = await axios.post("issueType", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -124,11 +159,11 @@ export const createAmenities = createAsyncThunk<
   }
 });
 
-export const updateAmenities = createAsyncThunk<
+export const updateIssueTypes = createAsyncThunk<
   any,
-  AmenityData,
+  IssueData,
   { state: RootState }
->("/amenity/update", async (params, { getState }) => {
+>("/issueType/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -138,7 +173,7 @@ export const updateAmenities = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `amenity/${params.id}`,
+      `issueType/${params.id}`,
       params.data,
       config
     );
@@ -161,11 +196,11 @@ export const updateAmenities = createAsyncThunk<
   }
 });
 
-export const deleteAmenities = createAsyncThunk<
+export const deleteIssueTypes = createAsyncThunk<
   any,
-  AmenityData,
+  IssueData,
   { state: RootState }
->("/amenity/delete", async (params, { getState }) => {
+>("/issueType/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -174,7 +209,7 @@ export const deleteAmenities = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`amenity/${params.id}`, config);
+    const response = await axios.delete(`issueType/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -195,13 +230,13 @@ export const deleteAmenities = createAsyncThunk<
 });
 
 // SLICER
-export const amenitySlice = createSlice({
-  name: "amenities",
+export const issueTypeSlice = createSlice({
+  name: "issueTypes",
   initialState,
   reducers: {
     // leave this empty here
-    resetAmenity(state) {
-      state.amenity = {};
+    resetIssueType(state) {
+      state.issueType = {};
       state.pending = false;
       state.error = false;
       state.message = "";
@@ -212,82 +247,103 @@ export const amenitySlice = createSlice({
   // Doing this is good practice as we can tap into the status of the API call and give our users an idea of what's happening in the background.
   extraReducers: (builder) => {
     builder
-      // get-access-property
-      .addCase(getAmenities.pending, (state) => {
+      // get-project-types
+      .addCase(getIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(getAmenities.fulfilled, (state, { payload }) => {
+      .addCase(getIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
-          amenities: payload,
+          issueTypes: payload,
         };
       })
-      .addCase(getAmenities.rejected, (state, { error }) => {
+      .addCase(getIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // create-floor
-      .addCase(createAmenities.pending, (state) => {
+      // get-project-type-id
+      .addCase(getIssueTypeById.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(createAmenities.fulfilled, (state, { payload }) => {
+      .addCase(getIssueTypeById.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
+          issueType: payload,
         };
       })
-      .addCase(createAmenities.rejected, (state, { error }) => {
+      .addCase(getIssueTypeById.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // update-floor
-      .addCase(updateAmenities.pending, (state) => {
+      // create-project-type
+      .addCase(createIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(updateAmenities.fulfilled, (state, { payload }) => {
+      .addCase(createIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(updateAmenities.rejected, (state, { error }) => {
+      .addCase(createIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // delete-floor
-      .addCase(deleteAmenities.pending, (state) => {
+      // update-project-type
+      .addCase(updateIssueTypes.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(deleteAmenities.fulfilled, (state, { payload }) => {
+      .addCase(updateIssueTypes.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(deleteAmenities.rejected, (state, { error }) => {
+      .addCase(updateIssueTypes.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // delete-unit
+      .addCase(deleteIssueTypes.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(deleteIssueTypes.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(deleteIssueTypes.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
@@ -305,10 +361,9 @@ export const amenitySlice = createSlice({
 });
 // SLICER
 
-const amenityReducers = amenitySlice.reducer;
+const issueTypeReducers = issueTypeSlice.reducer;
 
-export const { resetAmenity } = amenitySlice.actions;
-export const selectAmenityManagement = (state: RootState) =>
-  state.amenityManagement;
+export const { resetIssueType } = issueTypeSlice.actions;
+export const selectIssueType = (state: RootState) => state.issueType;
 
-export default amenityReducers;
+export default issueTypeReducers;
