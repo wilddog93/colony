@@ -7,10 +7,10 @@ import Button from "../../../../Button/Button";
 import { FaCircleNotch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import {
-  createIssueTypes,
-  selectIssueType,
-  updateIssueTypes,
-} from "../../../../../redux/features/task-management/settings/issueTypeReducers";
+  createIssueCategory,
+  selectIssueCategory,
+  updateIssueCategory,
+} from "../../../../../redux/features/task-management/settings/issueCategoryReducers";
 
 type Props = {
   items?: any;
@@ -23,9 +23,9 @@ type Props = {
 
 type FormValues = {
   id?: any;
-  issueTypeCode?: string | any;
-  issueTypeName?: string | any;
-  issueTypeDescription?: string | any;
+  issueCategoryCode?: string | any;
+  issueCategoryName?: string | any;
+  issueCategoryDescription?: string | any;
 };
 
 const stylesSelect = {
@@ -65,7 +65,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-export default function IssueTypeForm(props: Props) {
+export default function IssueCategoryForm(props: Props) {
   const { isOpen, isCloseModal, items, isUpdate, token, getData } = props;
 
   const [watchValue, setWatchValue] = useState<FormValues | any>();
@@ -73,7 +73,7 @@ export default function IssueTypeForm(props: Props) {
 
   // redux
   const dispatch = useAppDispatch();
-  const { pending, error, message } = useAppSelector(selectIssueType);
+  const { pending, error, message } = useAppSelector(selectIssueCategory);
 
   // form
   const {
@@ -93,9 +93,9 @@ export default function IssueTypeForm(props: Props) {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: items?.id,
-        issueTypeCode: items?.issueTypeCode,
-        issueTypeName: items?.issueTypeName,
-        issueTypeDescription: items?.issueTypeDescription,
+        issueCategoryCode: items?.issueCategoryCode,
+        issueCategoryName: items?.issueCategoryName,
+        issueCategoryDescription: items?.issueCategoryDescription,
       }),
       [items]
     ),
@@ -105,9 +105,9 @@ export default function IssueTypeForm(props: Props) {
     if (items) {
       reset({
         id: items?.id,
-        issueTypeCode: items?.issueTypeCode,
-        issueTypeName: items?.issueTypeName,
-        issueTypeDescription: items?.issueTypeDescription,
+        issueCategoryCode: items?.issueCategoryCode,
+        issueCategoryName: items?.issueCategoryName,
+        issueCategoryDescription: items?.issueCategoryDescription,
       });
     }
   }, [items]);
@@ -123,24 +123,24 @@ export default function IssueTypeForm(props: Props) {
   }, [watch]);
 
   const descValue = useWatch({
-    name: "issueTypeDescription",
+    name: "issueCategoryDescription",
     control,
   });
 
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
     let newData: FormValues = {
-      issueTypeCode: value?.issueTypeCode,
-      issueTypeName: value?.issueTypeName,
-      issueTypeDescription: value?.issueTypeDescription,
+      issueCategoryCode: value?.issueCategoryCode,
+      issueCategoryName: value?.issueCategoryName,
+      issueCategoryDescription: value?.issueCategoryDescription,
     };
     if (!isUpdate) {
       dispatch(
-        createIssueTypes({
+        createIssueCategory({
           token,
           data: newData,
           isSuccess() {
-            toast.dark("Issue type has been created");
+            toast.dark("Issue category has been created");
             getData();
             isCloseModal();
           },
@@ -151,12 +151,12 @@ export default function IssueTypeForm(props: Props) {
       );
     } else {
       dispatch(
-        updateIssueTypes({
+        updateIssueCategory({
           id: value?.id,
           token,
           data: newData,
           isSuccess() {
-            toast.dark("Issue type has been updated");
+            toast.dark("Issue category has been updated");
             getData();
             isCloseModal();
           },
@@ -176,10 +176,10 @@ export default function IssueTypeForm(props: Props) {
         className="p-4 bg-white rounded-t-xl border-b-2 border-gray">
         <div className="w-full flex flex-col gap-1 px-2">
           <h3 className="text-lg font-semibold">
-            {isUpdate ? "Edit" : "Add"} Issue Type
+            {isUpdate ? "Edit" : "Add"} Issue Category
           </h3>
           <p className="text-gray-5 text-sm">
-            Fill your Issue type information.
+            Fill your Issue category information.
           </p>
         </div>
       </ModalHeader>
@@ -188,37 +188,37 @@ export default function IssueTypeForm(props: Props) {
           <div className="w-full mb-3">
             <label
               className="text-gray-500 font-semibold text-sm"
-              htmlFor="projectTypeName">
-              Issue Type<span className="text-primary">*</span>
+              htmlFor="issueCategoryName">
+              Issue Category<span className="text-primary">*</span>
             </label>
             <div className="w-full flex">
               <input
                 type="text"
                 placeholder="Code"
                 autoFocus
-                id="projectTypeName"
+                id="issueCategoryName"
                 className={`bg-white w-[25%] text-sm rounded-l-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("issueTypeCode")}
+                {...register("issueCategoryCode")}
               />
               <input
                 type="text"
                 placeholder="Name"
                 autoFocus
-                id="projectTypeName"
+                id="issueCategoryName"
                 className={`bg-white w-[75%] text-sm rounded-r-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("issueTypeName", {
+                {...register("issueCategoryName", {
                   required: {
                     value: true,
-                    message: "Issue type name is required.",
+                    message: "Issue category name is required.",
                   },
                 })}
               />
             </div>
-            {errors?.issueTypeName && (
+            {errors?.issueCategoryName && (
               <div className="mt-1 text-xs flex items-center text-red-300">
                 <MdWarning className="w-4 h-4 mr-1" />
                 <span className="text-red-300">
-                  {errors.issueTypeName.message as any}
+                  {errors.issueCategoryName.message as any}
                 </span>
               </div>
             )}
@@ -227,7 +227,7 @@ export default function IssueTypeForm(props: Props) {
           <div className="w-full mb-3">
             <label
               className="text-gray-500 font-semibold text-sm"
-              htmlFor="issueTypeDescription">
+              htmlFor="issueCategoryDescription">
               Description
             </label>
             <div className="w-full">
@@ -236,10 +236,10 @@ export default function IssueTypeForm(props: Props) {
                 cols={5}
                 maxLength={400}
                 placeholder="Description"
-                id="issueTypeDescription"
+                id="issueCategoryDescription"
                 autoFocus
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("issueTypeDescription")}
+                {...register("issueCategoryDescription")}
               />
             </div>
             <div className={`w-full flex text-xs text-gray-5 justify-end`}>
