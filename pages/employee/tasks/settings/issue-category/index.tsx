@@ -382,7 +382,7 @@ const IssueCategory = ({ pageProps }: Props) => {
         token,
         id: value?.id,
         isSuccess() {
-          toast.dark("Project type has been deleted");
+          toast.dark("Issue category has been deleted");
           dispatch(getIssueCategories({ token, params: filters.queryObject }));
           onCloseModalDelete();
         },
@@ -548,9 +548,9 @@ const IssueCategory = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseModalDelete}>
             <div className="w-full flex flex-col gap-1">
-              <h3 className="text-base font-semibold">Delete Issue Type</h3>
+              <h3 className="text-base font-semibold">Delete Issue Category</h3>
               <p className="text-xs text-gray-5">
-                Are you sure to delete Issue type ?
+                Are you sure to delete issue category ?
               </p>
             </div>
           </ModalHeader>

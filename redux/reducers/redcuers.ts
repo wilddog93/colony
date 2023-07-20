@@ -20,6 +20,7 @@ import userPropertyReducers from "../features/building-management/users/property
 import projectTypeReducers from "../features/task-management/settings/projectTypeReducers";
 import issueTypeReducers from "../features/task-management/settings/issueTypeReducers";
 import issueCategoryReducers from "../features/task-management/settings/issueCategoryReducers";
+import taskCategoryReducers from "../features/task-management/settings/taskCategoryReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -44,4 +45,5 @@ export const combinedReducer = combineReducers({
   projectType: projectTypeReducers,
   issueType: issueTypeReducers,
   issueCategory: issueCategoryReducers,
+  taskCategory: taskCategoryReducers,
 });
