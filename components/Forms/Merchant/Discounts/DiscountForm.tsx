@@ -10,6 +10,7 @@ import Button from "../../../Button/Button";
 import TimeInput from "../../../merchant/form/TimeInput";
 import { MdOutlineEditCalendar } from "react-icons/md";
 import DateInput from "../../../merchant/form/DateInput";
+import { MdCalendarToday } from "react-icons/md";
 
 type Props = {
   items?: any;
@@ -282,7 +283,7 @@ const DiscountForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                   <span>*</span>
                 </div>
                 <div className="w-full flex flex-row items-center gap-2 rounded-xl border border-stroke bg-transparent py-3 pl-4 pr-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                  <MdOutlineEditCalendar className="w-6 h-6" />
+                  <MdCalendarToday className="w-6 h-6" />
                   <DateInput />
                 </div>
               </label>
@@ -296,7 +297,7 @@ const DiscountForm = ({ items, isOpen, onClose, token, filters }: Props) => {
                   <span>*</span>
                 </div>
                 <div className="w-full flex flex-row items-center gap-2 rounded-xl border border-stroke bg-transparent py-3 pl-4 pr-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                  <MdOutlineEditCalendar className="w-6 h-6" />
+                  <MdCalendarToday className="w-6 h-6" />
                   <DateInput />
                 </div>
               </label>

@@ -189,7 +189,7 @@ const merchant = ({ pageProps }: Props) => {
           const price = info.getValue();
           return (
             <div>
-              <span className="font-bold">{"IDR " + price}</span>
+              <span className="font-bold">{price}</span>
             </div>
           );
         },

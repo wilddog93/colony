@@ -20,17 +20,30 @@ const range = (len: number) => {
   return arr;
 };
 
+const generateMoneyFormat = (): string => {
+  const amount = faker.datatype.number({ min: 1, max: 10000 });
+  const formattedAmount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "IDR",
+  }).format(amount);
+  return formattedAmount;
+};
+
 export const newDiscount = (): DiscountProps => {
   return {
     id: faker.datatype.uuid(),
+    discountID: faker.datatype.number(10),
+    description: faker.lorem.words(),
+    amount: generateMoneyFormat(),
     discountCode: faker.datatype.number(10000),
     discountName: faker.lorem.words(),
     createdAt: faker.date.recent().toISOString(),
     updatedAt: faker.date.recent().toISOString(),
+    type: faker.helpers.shuffle<DiscountProps["type"]>(["Amount"])[0]!,
   };
 };
 
-export function createDiscountArr(...lens: number[]) {
+export function discountData(...lens: number[]) {
   const makeTaskLevel = (depth = 0): DiscountProps[] => {
     const len = lens[depth]!;
     return range(len).map((d): DiscountProps => {
