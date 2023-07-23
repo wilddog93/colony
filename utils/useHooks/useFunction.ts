@@ -17,7 +17,7 @@ export const formatPhone = (code: any, val: any) => {
   return code + result;
 };
 
-export const colorfull = (num: any) => {
+export const useRandomColor = (num: any) => {
   if (num) return Math.floor(Math.random() * 16777215).toString(16);
   else "#fff";
 };

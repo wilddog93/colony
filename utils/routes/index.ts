@@ -116,7 +116,7 @@ export const menuPropertyMaster: MenuProps[] = [
     subMenus: [
       {
         pathname: "Settings",
-        pages: "settings",
+        pages: "employee/settings",
         url: "/settings",
         icons: {
           icon: MdOutlineSettings,

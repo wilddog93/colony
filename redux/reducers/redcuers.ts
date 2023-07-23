@@ -21,6 +21,7 @@ import projectTypeReducers from "../features/task-management/settings/projectTyp
 import issueTypeReducers from "../features/task-management/settings/issueTypeReducers";
 import issueCategoryReducers from "../features/task-management/settings/issueCategoryReducers";
 import taskCategoryReducers from "../features/task-management/settings/taskCategoryReducers";
+import projectManagementReducers from "../features/task-management/project/projectManagementReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -46,4 +47,5 @@ export const combinedReducer = combineReducers({
   issueType: issueTypeReducers,
   issueCategory: issueCategoryReducers,
   taskCategory: taskCategoryReducers,
+  projectManagement: projectManagementReducers,
 });
