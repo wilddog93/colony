@@ -85,6 +85,7 @@ const CusCalendar = ({
 }: any) => {
   const { setOpen, item, setItem } = useCalendarContext();
   const [isSelectedFilter, setIsSelectedFilter] = useState(optSelected[1]);
+  const today = Date.now();
 
   const itemRender = ({
     item,
@@ -179,10 +180,11 @@ const CusCalendar = ({
     // console.log(100, group)
     return (
       <div className="w-full h-full flex items-center py-2 px-2 my-auto">
-        {/* <span style={{
-                    height: 20,
-                    border: "solid 2px " + group.color,
-                }}></span> */}
+        {/* <span
+          style={{
+            height: 20,
+            border: "solid 2px " + group.color,
+          }}></span> */}
         <span className="text-sm ml-1">{group.title}</span>
       </div>
     );
@@ -270,7 +272,7 @@ const CusCalendar = ({
           {isSelectedFilter?.value == "month" ? (
             <CustomHeader
               height={40}
-              headerData={{ someData: "data" }}
+              headerData={{ someData: "extra" }}
               unit="month">
               {({
                 headerContext: { intervals },
@@ -412,10 +414,10 @@ const CusCalendar = ({
           </CustomHeader>
         </TimelineHeaders>
         {/* <TodayMarker>
-                    {({ date, styles }: Readonly<TodayMarkerProps>) => (
-                        <div style={{ ...styles, backgroundColor: "red", width: '4px' }} />
-                    )}
-                </TodayMarker> */}
+          {({ date, styles }: Readonly<TodayMarkerProps>) => (
+            <div style={{ ...styles, backgroundColor: "red", width: "4px" }} />
+          )}
+        </TodayMarker> */}
         {/* <TodayMarker>{todayCustomMarker}</TodayMarker> */}
 
         <CursorMarker>
