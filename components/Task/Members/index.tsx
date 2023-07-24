@@ -9,6 +9,7 @@ type TeamProps = {
 };
 
 export default function Members({ token, items, onClick }: TeamProps) {
+  let url = process.env.API_ENDPOINT;
   const index = [0, 1, 2];
 
   return (
@@ -32,7 +33,11 @@ export default function Members({ token, items, onClick }: TeamProps) {
                       className="relative inline-flex hover:text-red-500 duration-300 focus:outline-none">
                       {items[val]?.profileImage ? (
                         <img
-                          src={items[val]?.profileImage}
+                          src={
+                            url +
+                            "user/profileImage/" +
+                            items[val]?.profileImage
+                          }
                           alt="images"
                           className="border rounded-full w-10 h-10 object-cover object-center"
                         />
@@ -82,7 +87,11 @@ export default function Members({ token, items, onClick }: TeamProps) {
                         className="relative inline-flex text-blue-500 hover:text-red-500 duration-300 focus:outline-none">
                         {items[val]?.profileImage ? (
                           <img
-                            src={items[val]?.profileImage}
+                            src={
+                              url +
+                              "user/profileImage/" +
+                              items[val]?.profileImage
+                            }
                             alt="images"
                             className="border rounded-full w-10 h-10 object-cover object-center"
                           />

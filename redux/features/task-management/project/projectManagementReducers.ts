@@ -35,7 +35,7 @@ interface HeadersConfiguration {
   };
 }
 
-interface IssueData {
+interface ProjectData {
   id?: any;
   data?: any;
   token?: any;
@@ -128,7 +128,7 @@ export const getProjectById = createAsyncThunk<
 // create issue
 export const createProject = createAsyncThunk<
   any,
-  IssueData,
+  ProjectData,
   { state: RootState }
 >("/project/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
@@ -161,7 +161,7 @@ export const createProject = createAsyncThunk<
 
 export const updateProject = createAsyncThunk<
   any,
-  IssueData,
+  ProjectData,
   { state: RootState }
 >("/project/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
@@ -196,9 +196,47 @@ export const updateProject = createAsyncThunk<
   }
 });
 
+// update project member
+export const updateProjectMember = createAsyncThunk<
+  any,
+  ProjectData,
+  { state: RootState }
+>("/project/projectId/member/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.put(
+      `project/${params.id}/member`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 export const deleteProject = createAsyncThunk<
   any,
-  IssueData,
+  ProjectData,
   { state: RootState }
 >("/project/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
@@ -324,6 +362,26 @@ export const projectSlice = createSlice({
         };
       })
       .addCase(updateProject.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // update-project-member
+      .addCase(updateProjectMember.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(updateProjectMember.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(updateProjectMember.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

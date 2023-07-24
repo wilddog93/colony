@@ -26,6 +26,7 @@ import Members from "../../../../Task/Members";
 import Modal from "../../../../Modal";
 import UsersForm from "./UsersForm";
 import DropdownSelect from "../../../../Dropdown/DropdownSelect";
+import moment from "moment";
 
 type Props = {
   items?: any;
@@ -124,7 +125,14 @@ export default function ProjectForm(props: Props) {
     reset,
     setError,
     clearErrors,
-    formState: { errors, isValid },
+    formState: {
+      errors,
+      isValid,
+      isDirty,
+      dirtyFields,
+      isSubmitted,
+      isLoading,
+    },
     control,
   } = useForm({
     mode: "all",
@@ -153,6 +161,18 @@ export default function ProjectForm(props: Props) {
         scheduleEnd: items?.scheduleEnd,
         user: items?.user,
       });
+      // date-range
+      let result = [items?.scheduleStart, items?.scheduleEnd];
+      if (!result[0]) delete result[0], null;
+      else result[0] = moment(result[0]).toDate();
+
+      if (!result[1]) delete result[1], null;
+      else result[1] = moment(result[1]).toDate();
+
+      setDateRange(result);
+
+      // user
+      setUsers(items?.user);
     }
   }, [items]);
 
@@ -201,7 +221,6 @@ export default function ProjectForm(props: Props) {
       projectDescription: value?.projectDescription,
       scheduleStart: value?.scheduleStart,
       scheduleEnd: value?.scheduleEnd,
-      user: value?.user?.length > 0 ? value?.user?.map((x: any) => x.id) : [],
     };
     if (!value.scheduleStart) {
       setError("scheduleStart", {
@@ -215,6 +234,11 @@ export default function ProjectForm(props: Props) {
       });
     } else {
       if (!isUpdate) {
+        newData = {
+          ...newData,
+          user:
+            value?.user?.length > 0 ? value?.user?.map((x: any) => x.id) : [],
+        };
         dispatch(
           createProject({
             token,
@@ -252,9 +276,8 @@ export default function ProjectForm(props: Props) {
   const handleChangeSchedules = ({ start, end }: any) => {
     if (!!start || !!end) {
       setValue("scheduleStart", start);
-      clearErrors("scheduleStart");
-
       setValue("scheduleEnd", end);
+      clearErrors("scheduleStart");
       clearErrors("scheduleEnd");
     }
     if (!start) {
@@ -272,13 +295,21 @@ export default function ProjectForm(props: Props) {
     }
   };
 
+  const startValue = useWatch({
+    name: "scheduleStart",
+    control,
+  });
+
+  const endValue = useWatch({
+    name: "scheduleEnd",
+    control,
+  });
+
   useEffect(() => {
     if (users?.length > 0) {
       setValue("user", users);
     }
   }, [users]);
-
-  console.log(watchValue, "value");
 
   return (
     <Fragment>
@@ -383,8 +414,8 @@ export default function ProjectForm(props: Props) {
                   startDate={startDate}
                   endDate={endDate}
                   onChange={(update: any) => {
-                    setDateRange(update);
                     const [start, end] = update;
+                    setDateRange(update);
                     handleChangeSchedules({ start, end });
                   }}
                   isClearable={true}
@@ -441,7 +472,7 @@ export default function ProjectForm(props: Props) {
             </div>
           </div>
 
-          <div className="w-full mb-3">
+          <div className={`w-full mb-3 ${isUpdate ? "hidden" : ""}`}>
             <div className="w-full flex items-center gap-2">
               <div className="w-full max-w-max font-semibold text-sm">
                 Users :<span className="text-red-300">*</span>
@@ -497,7 +528,7 @@ export default function ProjectForm(props: Props) {
             variant="primary"
             className="rounded-md text-sm shadow-card border-primary"
             onClick={handleSubmit(onSubmit)}
-            disabled={pending || !isValid}>
+            disabled={pending}>
             <span className="font-semibold">
               {isUpdate ? "Update" : "Save"}
             </span>

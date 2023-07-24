@@ -10,17 +10,18 @@ import React, {
 import { ModalHeader } from "../../../../Modal/ModalComponent";
 import { MdAdd, MdCheck, MdClose } from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
-import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "../../../../Button/Button";
-import { FaCircleNotch } from "react-icons/fa";
 import DropdownSelect from "../../../../Dropdown/DropdownSelect";
-import { selectUnitManagement } from "../../../../../redux/features/building-management/unit/unitReducers";
 import {
   getUsersProperty,
   selectUserPropertyManagement,
 } from "../../../../../redux/features/building-management/users/propertyUserReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { SearchInput } from "../../../SearchInput";
+import {
+  selectProjectManagement,
+  updateProjectMember,
+} from "../../../../../redux/features/task-management/project/projectManagementReducers";
+import { FaCircleNotch } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 type Options = {
@@ -29,6 +30,7 @@ type Options = {
 };
 
 type Props = {
+  id?: number | any;
   items?: any;
   setItems: Dispatch<SetStateAction<any | any[]>>;
   token?: any;
@@ -87,15 +89,17 @@ const stylesSelect = {
 };
 
 export default function UsersForm({
+  id,
   isCloseModal,
   items,
   setItems,
   isUpdate,
   token,
+  getData,
 }: Props) {
   // redux
   const dispatch = useAppDispatch();
-  const { pending, error, message } = useAppSelector(selectUnitManagement);
+  const { pending, error, message } = useAppSelector(selectProjectManagement);
   const { userProperties } = useAppSelector(selectUserPropertyManagement);
 
   // user-data
@@ -188,6 +192,31 @@ export default function UsersForm({
     }
   }, [userData, userSelected]);
 
+  // onUpdate
+  const onUpdateUser = (user: any) => {
+    let newData: any = {
+      user: user?.length > 0 ? user?.map((x: any) => x.id) : [],
+    };
+
+    if (newData?.user?.length == 0) return;
+    console.log(newData, "update-user");
+    dispatch(
+      updateProjectMember({
+        token,
+        id,
+        data: newData,
+        isSuccess() {
+          toast.dark("User has been updated");
+          getData();
+          isCloseModal();
+        },
+        isError() {
+          console.log("error-update-member");
+        },
+      })
+    );
+  };
+
   const UserComponent = (props: UserProps) => {
     const { user } = props;
     return (
@@ -278,6 +307,22 @@ export default function UsersForm({
             onClick={isCloseModal}>
             <span className="font-semibold">Close</span>
           </button>
+
+          <Button
+            type="button"
+            onClick={() => onUpdateUser(userSelected)}
+            className={`rounded-lg shadow-2 ${!isUpdate ? "hidden" : ""}`}
+            variant="primary"
+            disabled={pending}>
+            {pending ? (
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-semibold">Loading...</span>
+                <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+              </div>
+            ) : (
+              <span className="text-sm font-semibold">Add User</span>
+            )}
+          </Button>
         </div>
       </div>
     </Fragment>
