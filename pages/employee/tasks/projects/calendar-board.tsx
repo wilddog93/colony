@@ -672,15 +672,17 @@ const CalendarBoard = ({ pageProps }: Props) => {
               </div>
 
               {/* Calendar timeline */}
-              <Calendar
-                groups={timelineHeader}
-                items={timelineItem}
-                onItemMove={onChangeVehicle}
-                onCanvasClick={onCanvasClick}
-                onItemContextMenu={onItemContextMenu}
-                onItemSelect={onItemSelect}
-                onItemDoubleClick={onItemDoubleClick}
-              />
+              <div className="w-full relative">
+                <Calendar
+                  groups={timelineHeader}
+                  items={timelineItem}
+                  onItemMove={onChangeVehicle}
+                  onCanvasClick={onCanvasClick}
+                  onItemContextMenu={onItemContextMenu}
+                  onItemSelect={onItemSelect}
+                  onItemDoubleClick={onItemDoubleClick}
+                />
+              </div>
             </div>
           </main>
         </div>

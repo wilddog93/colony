@@ -227,7 +227,7 @@ const CusCalendar = ({
         onItemDoubleClick={onItemDoubleClick}
         className="shadow-card">
         <TimelineHeaders
-          className="rounded-t-xl shadow-card tracking-wide"
+          className="rounded-t-xl shadow-card tracking-wide sticky"
           style={{
             backgroundColor: "#F5F9FD",
             color: "",
