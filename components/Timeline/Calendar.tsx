@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 // import { ICalendar, IItem, IGroup } from "./types";
 
 import Timeline, {
@@ -12,6 +12,9 @@ import Timeline, {
   CustomMarker,
   CustomHeader,
   TodayMarkerProps,
+  ItemContext,
+  TimelineGroupBase,
+  OnItemDragObjectMove,
 } from "react-calendar-timeline";
 // make sure you include the timeline stylesheet or the timeline will not be styled
 import moment from "moment";
@@ -19,6 +22,18 @@ import moment from "moment";
 // import _ from "lodash";
 import { useCalendarContext } from "./CalendarContext";
 import DropdownSelect from "../Dropdown/DropdownSelect";
+import { CustomTimelineItem } from "./types";
+import { GetItemsProps } from "react-calendar-timeline";
+
+interface CalendarProps {
+  groups: TimelineGroupBase[];
+  items: CustomTimelineItem[];
+  onItemMove: (x: any) => OnItemDragObjectMove;
+  onCanvasClick: (x: any) => void;
+  onItemContextMenu: (x: any) => void;
+  onItemDoubleClick: (x: any) => void;
+  onItemSelect: (x: any) => void;
+}
 
 const optSelected = [
   { value: "month", label: "Month" },
@@ -81,19 +96,23 @@ const CusCalendar = ({
   onItemContextMenu,
   onItemDoubleClick,
   onItemSelect,
-  ...props
-}: any) => {
+}: CalendarProps) => {
   const { setOpen, item, setItem } = useCalendarContext();
-  const [isSelectedFilter, setIsSelectedFilter] = useState(optSelected[1]);
+  const [isSelectedFilter, setIsSelectedFilter] = useState(optSelected[0]);
   const today = Date.now();
 
-  const itemRender = ({
-    item,
-    timelineContext,
-    itemContext,
-    getItemProps,
-  }: any) => {
-    console.log("content item :", item);
+  const dataItems = useMemo(() => items, [items]);
+
+  const defaultStart = useMemo(() => {
+    return moment().startOf("isoWeek").startOf("day").add(-1, "day").toDate();
+  }, []);
+
+  const defaultEnd = useMemo(() => {
+    return moment().endOf("isoWeek").add(20, "day").toDate();
+  }, []);
+
+  const itemRender = ({ item, itemContext, getItemProps }: any) => {
+    console.log("content item :", itemContext);
     const backgroundColor = itemContext.selected
       ? itemContext.dragging
         ? "#5F59F7"
@@ -119,7 +138,7 @@ const CusCalendar = ({
             overflow: "hidden",
           },
           onMouseDown: () => {
-            onItemSelect(itemContext.id);
+            onItemSelect(item);
           },
         })}
         className="shadow-card transition-all duration-300 ease-in-out">
@@ -144,11 +163,13 @@ const CusCalendar = ({
             }}></div>
           <div className="w-full h-full flex items-start gap-4 justify-between">
             <div className="w-full h-full max-w-max flex flex-col justify-center leading-normal">
-              <div className="font-semibold capitalize">{item.workType}</div>
-              <div>{item.workName}</div>
+              <div className="font-semibold capitalize">
+                {item?.projectType?.projectTypeName || "-"}
+              </div>
+              <div>{item?.title || "-"}</div>
             </div>
             <div className="w-full h-full max-w-max flex flex-col justify-center items-end leading-normal">
-              <div className="">Schedules</div>
+              <div className="">{item?.projectStatus}</div>
               <div className="">
                 {moment(item.start_time).format("DD/MM")} -{" "}
                 {moment(item.end_time).format("DD/MM")}
@@ -166,25 +187,20 @@ const CusCalendar = ({
   };
 
   const canvasClickHandler = (groupId: any, time: any, e: any) => {
-    onCanvasClick(groupId, time, e);
+    onCanvasClick({ groupId, time, e });
   };
 
   const moveItemHandler = (itemId: any, dragTime: any, newGroupOrder: any) => {
     // console.log(85, itemId);
     // console.log(86, newGroupOrder);
 
-    onItemMove(newGroupOrder, dragTime, itemId);
+    onItemMove({ groupId: newGroupOrder, dragTime, itemId });
   };
 
   const groupRenderer = ({ group }: any) => {
     // console.log(100, group)
     return (
       <div className="w-full h-full flex items-center py-2 px-2 my-auto">
-        {/* <span
-          style={{
-            height: 20,
-            border: "solid 2px " + group.color,
-          }}></span> */}
         <span className="text-sm ml-1">{group.title}</span>
       </div>
     );
@@ -198,179 +214,83 @@ const CusCalendar = ({
     console.log("content info :", info);
   };
 
+  useEffect(() => {
+    let date = moment().endOf("isoWeek").add(20, "day").toDate();
+
+    console.log("defaultStart : ", date);
+  }, []);
+
   return (
-    <React.Fragment>
-      <Timeline
-        groups={groups}
-        items={items}
-        itemHeightRatio={0.6}
-        itemRenderer={itemRender} //customer render Item
-        canMove={false} // item can move around
-        canResize={false} // Item can not resize
-        stackItems={true} // Item stack over each other in a group
-        defaultTimeStart={moment()
-          .startOf("isoWeek")
-          .startOf("day")
-          .add(-1, "day")
-          .toDate()} // start of calendar is start of current week
-        defaultTimeEnd={moment().endOf("isoWeek").add(20, "day").toDate()} // end of calendar is end of current week
-        dragSnap={1000 * 60 * 60 * 24} // span moved item to start to date
-        minZoom={1000 * 60 * 60 * 24 * 7} // min size of calendar is week
-        maxZoom={1000 * 60 * 60 * 24 * 7 * 4} // max size of calendar is week
-        // onCanvasClick={canvasClickHandler} // click on calendar handler
-        // onItemContextMenu={false} on item right click -> edit item
-        onItemMove={moveItemHandler} // move item handler
-        onBoundsChange={onBoundsChange} // use for render more data when time on calendar change
-        lineHeight={100} // height of each group
-        sidebarWidth={300}
-        groupRenderer={groupRenderer}
-        onItemDoubleClick={onItemDoubleClick}
-        className="shadow-card">
-        <TimelineHeaders
-          className="rounded-t-xl shadow-card tracking-wide sticky"
-          style={{
-            backgroundColor: "#F5F9FD",
-            color: "",
-          }}>
-          <SidebarHeader>
-            {({ getRootProps }) => {
-              return (
-                <div
-                  {...getRootProps({
-                    style: {
-                      display: "flex-col",
-                      placeItems: "flex-start",
-                      color: "#495057",
-                      backgroundColor: "#F5F9FD",
-                    },
-                  })}
-                  className="flex flex-col items-start tracking-wider">
-                  <div className="w-full py-1 px-2 shadow-1">
-                    <DropdownSelect
-                      customStyles={stylesSelect}
-                      value={isSelectedFilter}
-                      onChange={setIsSelectedFilter}
-                      error=""
-                      className="text-xs font-normal text-gray-5 w-full lg:w-2/10"
-                      classNamePrefix=""
-                      formatOptionLabel=""
-                      instanceId="1"
-                      isDisabled={false}
-                      isMulti={false}
-                      placeholder="Filters..."
-                      options={optSelected}
-                      icon=""
-                    />
-                  </div>
-                  <div className="flex justify-center items-center py-3 text-xs font-bold px-2">
-                    List of projects
-                  </div>
+    <Timeline
+      groups={groups}
+      items={dataItems}
+      itemHeightRatio={0.6}
+      itemRenderer={itemRender} //customer render Item
+      canMove={true} // item can move around
+      canResize={false} // Item can not resize
+      stackItems={true} // Item stack over each other in a group
+      defaultTimeStart={defaultStart} // start of calendar is start of current week
+      defaultTimeEnd={defaultEnd} // end of calendar is end of current week
+      dragSnap={1000 * 60 * 60 * 24} // span moved item to start to date
+      minZoom={1000 * 60 * 60 * 24 * 7} // min size of calendar is week
+      maxZoom={1000 * 60 * 60 * 24 * 7 * 4} // max size of calendar is week
+      // onCanvasClick={canvasClickHandler} // click on calendar handler
+      // onItemContextMenu={false} on item right click -> edit item
+      onItemMove={moveItemHandler} // move item handler
+      onBoundsChange={onBoundsChange} // use for render more data when time on calendar change
+      lineHeight={100} // height of each group
+      sidebarWidth={300}
+      groupRenderer={groupRenderer}
+      onItemDoubleClick={onItemDoubleClick}
+      className="shadow-card">
+      <TimelineHeaders
+        className="rounded-t-xl shadow-card tracking-wide sticky"
+        style={{
+          backgroundColor: "#F5F9FD",
+          color: "",
+        }}>
+        <SidebarHeader>
+          {({ getRootProps }) => {
+            return (
+              <div
+                {...getRootProps({
+                  style: {
+                    display: "flex-col",
+                    placeItems: "flex-start",
+                    color: "#495057",
+                    backgroundColor: "#F5F9FD",
+                  },
+                })}
+                className="flex flex-col items-start tracking-wider">
+                <div className="w-full py-1 px-2 shadow-1">
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={isSelectedFilter}
+                    onChange={setIsSelectedFilter}
+                    error=""
+                    className="text-xs font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId="1"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="Filters..."
+                    options={optSelected}
+                    icon=""
+                  />
                 </div>
-              );
-            }}
-          </SidebarHeader>
-          {isSelectedFilter?.value == "month" ? (
-            <CustomHeader
-              height={40}
-              headerData={{ someData: "extra" }}
-              unit="month">
-              {({
-                headerContext: { intervals },
-                getRootProps,
-                getIntervalProps,
-                showPeriod,
-                data,
-              }: any) => {
-                return (
-                  <div {...getRootProps()}>
-                    {intervals.map((interval: any) => {
-                      const intervalStyle = {
-                        lineHeight: "30px",
-                        textAlign: "center",
-                        borderLeft: "1px solid #CED4DA",
-                        borderBottom: "1px solid #CED4DA",
-                        cursor: "pointer",
-                        // backgroundColor: 'Turquoise',
-                        color: "#333",
-                        padding: "3px",
-                      };
-                      return (
-                        <div
-                          onClick={() => {
-                            showPeriod(interval.startTime, interval.endTime);
-                          }}
-                          {...getIntervalProps({
-                            interval,
-                            style: intervalStyle,
-                          })}>
-                          <div className="sticky text-xs">
-                            <div className="flex flex-col py-2">
-                              <span>
-                                {interval.startTime.format("MMMM, YYYY")}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              }}
-            </CustomHeader>
-          ) : null}
-          {isSelectedFilter?.value == "week" ? (
-            <CustomHeader
-              height={40}
-              headerData={{ someData: "data" }}
-              unit="week">
-              {({
-                headerContext: { intervals },
-                getRootProps,
-                getIntervalProps,
-                showPeriod,
-                data,
-              }: any) => {
-                return (
-                  <div {...getRootProps()}>
-                    {intervals.map((interval: any) => {
-                      const intervalStyle = {
-                        lineHeight: "30px",
-                        textAlign: "center",
-                        borderLeft: "1px solid #CED4DA",
-                        borderBottom: "1px solid #CED4DA",
-                        cursor: "pointer",
-                        // backgroundColor: 'Turquoise',
-                        color: "#333",
-                        padding: "3px",
-                      };
-                      return (
-                        <div
-                          onClick={() => {
-                            showPeriod(interval.startTime, interval.endTime);
-                          }}
-                          {...getIntervalProps({
-                            interval,
-                            style: intervalStyle,
-                          })}>
-                          <div className="sticky text-xs">
-                            <div className="flex flex-col py-2">
-                              <span>
-                                {interval.startTime.format("MMMM, Do")} Week
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              }}
-            </CustomHeader>
-          ) : null}
+                <div className="flex justify-center items-center py-3 text-xs font-bold px-2">
+                  List of projects
+                </div>
+              </div>
+            );
+          }}
+        </SidebarHeader>
+        {isSelectedFilter?.value == "month" && (
           <CustomHeader
             height={40}
-            headerData={{ someData: "data" }}
-            unit="day">
+            headerData={{ someData: "extra" }}
+            unit="month">
             {({
               headerContext: { intervals },
               getRootProps,
@@ -385,6 +305,7 @@ const CusCalendar = ({
                       lineHeight: "30px",
                       textAlign: "center",
                       borderLeft: "1px solid #CED4DA",
+                      borderBottom: "1px solid #CED4DA",
                       cursor: "pointer",
                       // backgroundColor: 'Turquoise',
                       color: "#333",
@@ -400,9 +321,10 @@ const CusCalendar = ({
                           style: intervalStyle,
                         })}>
                         <div className="sticky text-xs">
-                          <div className="flex flex-col">
-                            <span>{interval.startTime.format("ddd")}</span>
-                            <span>{interval.startTime.format("DD")}</span>
+                          <div className="flex flex-col py-2">
+                            <span>
+                              {interval.startTime.format("MMMM, YYYY")}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -412,21 +334,112 @@ const CusCalendar = ({
               );
             }}
           </CustomHeader>
-        </TimelineHeaders>
-        {/* <TodayMarker>
-          {({ date, styles }: Readonly<TodayMarkerProps>) => (
-            <div style={{ ...styles, backgroundColor: "red", width: "4px" }} />
-          )}
-        </TodayMarker> */}
-        {/* <TodayMarker>{todayCustomMarker}</TodayMarker> */}
+        )}
+        {isSelectedFilter?.value == "week" && (
+          <CustomHeader
+            height={40}
+            headerData={{ someData: "data" }}
+            unit="week">
+            {({
+              headerContext: { intervals },
+              getRootProps,
+              getIntervalProps,
+              showPeriod,
+              data,
+            }: any) => {
+              return (
+                <div {...getRootProps()}>
+                  {intervals.map((interval: any) => {
+                    const intervalStyle = {
+                      lineHeight: "30px",
+                      textAlign: "center",
+                      borderLeft: "1px solid #CED4DA",
+                      borderBottom: "1px solid #CED4DA",
+                      cursor: "pointer",
+                      // backgroundColor: 'Turquoise',
+                      color: "#333",
+                      padding: "3px",
+                    };
+                    return (
+                      <div
+                        onClick={() => {
+                          showPeriod(interval.startTime, interval.endTime);
+                        }}
+                        {...getIntervalProps({
+                          interval,
+                          style: intervalStyle,
+                        })}>
+                        <div className="sticky text-xs">
+                          <div className="flex flex-col py-2">
+                            <span>
+                              {interval.startTime.format("MMMM, Do")} Week
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          </CustomHeader>
+        )}
+        <CustomHeader height={40} headerData={{ someData: "data" }} unit="day">
+          {({
+            headerContext: { intervals },
+            getRootProps,
+            getIntervalProps,
+            showPeriod,
+            data,
+          }: any) => {
+            return (
+              <div {...getRootProps()}>
+                {intervals.map((interval: any) => {
+                  const intervalStyle = {
+                    lineHeight: "30px",
+                    textAlign: "center",
+                    borderLeft: "1px solid #CED4DA",
+                    cursor: "pointer",
+                    // backgroundColor: 'Turquoise',
+                    color: "#333",
+                    padding: "3px",
+                  };
+                  return (
+                    <div
+                      onClick={() => {
+                        showPeriod(interval.startTime, interval.endTime);
+                      }}
+                      {...getIntervalProps({
+                        interval,
+                        style: intervalStyle,
+                      })}>
+                      <div className="sticky text-xs">
+                        <div className="flex flex-col">
+                          <span>{interval.startTime.format("ddd")}</span>
+                          <span>{interval.startTime.format("DD")}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }}
+        </CustomHeader>
+      </TimelineHeaders>
+      <TodayMarker date={today}>
+        {({ date, styles }: any) => (
+          <div style={{ ...styles, backgroundColor: "red", width: "4px" }} />
+        )}
+      </TodayMarker>
+      {/* <TodayMarker date={today}>{todayCustomMarker}</TodayMarker> */}
 
-        <CursorMarker>
-          {({ styles, date }) => (
-            <div style={{ ...styles, backgroundColor: "#5F59F7" }} />
-          )}
-        </CursorMarker>
-      </Timeline>
-    </React.Fragment>
+      <CursorMarker>
+        {({ styles, date }) => (
+          <div style={{ ...styles, backgroundColor: "#5F59F7" }} />
+        )}
+      </CursorMarker>
+    </Timeline>
   );
 };
 

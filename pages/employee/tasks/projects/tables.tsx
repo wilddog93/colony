@@ -405,7 +405,7 @@ const TableView = ({ pageProps }: Props) => {
       {
         accessorKey: "projectType.projectTypePriority",
         cell: ({ row, getValue }) => {
-          let urgency = getValue();
+          let urgency = getValue() || "";
           return (
             <div
               onClick={() => onOpenModalDetail(row?.original)}

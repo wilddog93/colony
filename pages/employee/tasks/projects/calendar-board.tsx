@@ -481,14 +481,16 @@ const CalendarBoard = ({ pageProps }: Props) => {
     }
   }, [dataTable]);
 
-  const onChangeVehicle = (newGroupId: any, dragTime: any, taskId: any) => {
-    console.log("vehicles:", { newGroupId, dragTime, taskId });
+  const onItemMove = (params: any) => {
+    const { groupId, dragTime, itemId } = params;
+    console.log("project-move:", { groupId, dragTime, itemId });
   };
 
-  const onCanvasClick = (groupId: any, time: any, e: any) => {
+  const onCanvasClick = (params: any) => {
+    const { groupId, time, e } = params;
     if (groupId > 0) {
       setIsOpenDetail(true);
-      console.log("canvas click :", groupId, time);
+      console.log("project-click:", groupId, time);
     }
   };
 
@@ -499,23 +501,23 @@ const CalendarBoard = ({ pageProps }: Props) => {
     // setIsEditable(true);
   };
 
-  const onItemDoubleClick = (itemId: any, e: any, time: any) => {
-    // console.log("on double click", itemId);
+  const onItemDoubleClick = (itemId: any, event: any, time: any) => {
+    console.log("project-double-click:", { itemId, time, event });
     const items = dataTable.filter((item) => item?.id == itemId);
     setIsOpenDetail(true);
     setFormData(items[0]);
   };
 
-  const onItemSelect = (id: any) => {
-    console.log("on item select :", id);
-    // setIsEditable(true);
+  const onItemSelect = (item: any) => {
+    console.log("on item select :", { item });
+    //, event:any setIsEditable(true);
   };
 
   const onSubmitProject = (task: any) => {
     console.log("on submit", task);
   };
 
-  console.log({ timelineHeader, timelineItem }, "timeline");
+  // console.log({ timelineHeader, timelineItem }, "timeline");
 
   useEffect(() => {
     if (token) {
@@ -676,7 +678,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
                 <Calendar
                   groups={timelineHeader}
                   items={timelineItem}
-                  onItemMove={onChangeVehicle}
+                  onItemMove={onItemMove}
                   onCanvasClick={onCanvasClick}
                   onItemContextMenu={onItemContextMenu}
                   onItemSelect={onItemSelect}
