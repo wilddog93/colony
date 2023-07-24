@@ -25,10 +25,11 @@ import { formatMoney } from "../../../utils/useHooks/useFunction";
 import { BillingProps } from "../../../components/tables/components/billingData";
 import {
   DiscountProps,
-  newDiscount,
+  discountData,
 } from "../../../components/tables/components/discountData";
 import HourForm from "../../../components/Forms/Merchant/hours/HourForm";
 import DiscountForm from "../../../components/Forms/Merchant/Discounts/DiscountForm";
+import { MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
 
 type Props = {
   pageProps: any;
@@ -139,12 +140,28 @@ const merchant = ({ pageProps }: Props) => {
       {
         accessorKey: "discountID",
         header: (info) => <div className="uppercase text-left">ID</div>,
+        cell: (info) => {
+          const id = info.getValue();
+          return (
+            <div className="flex items-center mx-1 my-1">
+              <div>{id}</div>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
       },
       {
         accessorKey: "discountName",
         header: (info) => <div className="uppercase">Discount Name</div>,
+        cell: (info) => {
+          let Name = info.getValue();
+          return (
+            <div className="flex items-center mx-1 my-1 font-bold">
+              <div>{Name}</div>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
       },
@@ -153,6 +170,10 @@ const merchant = ({ pageProps }: Props) => {
         header: (props) => (
           <div className="w-full text-left uppercase">Description</div>
         ),
+        cell: (info) => {
+          let desc = info.getValue();
+          return <div className="flex flex-col">{desc}</div>;
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
@@ -162,6 +183,14 @@ const merchant = ({ pageProps }: Props) => {
         header: (props) => (
           <div className="w-full text-left uppercase">Amount / Rate</div>
         ),
+        cell: (info) => {
+          let am = info.getValue();
+          return (
+            <div className="w-full text-center">
+              <span className="w-full flex">{am}</span>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
@@ -171,15 +200,14 @@ const merchant = ({ pageProps }: Props) => {
         header: (props) => (
           <div className="w-full text-left uppercase">Type</div>
         ),
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-        size: 150,
-      },
-      {
-        accessorKey: "description",
-        header: (props) => (
-          <div className="w-full text-left uppercase">Description</div>
-        ),
+        cell: (info) => {
+          let tp = info.getValue();
+          return (
+            <div className="w-full">
+              <span>{tp}</span>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
@@ -189,6 +217,14 @@ const merchant = ({ pageProps }: Props) => {
         header: (props) => (
           <div className="w-full text-left uppercase">Start Time</div>
         ),
+        cell: (info) => {
+          let startTime = info.getValue();
+          return (
+            <div className="w-full">
+              <span>05/07/2023, 11:00</span>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
@@ -198,15 +234,44 @@ const merchant = ({ pageProps }: Props) => {
         header: (props) => (
           <div className="w-full text-left uppercase">End Time</div>
         ),
+        cell: (info) => {
+          let startTime = info.getValue();
+          return (
+            <div className="w-full">
+              <span>26/07/2023, 11:30</span>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
       },
       {
-        accessorKey: "discountID",
+        accessorKey: "id",
         header: (props) => (
-          <div className="w-full text-left uppercase">Action</div>
+          <div className="w-full text-left uppercase px-8">Action</div>
         ),
+        cell: ({ row, getValue }) => {
+          // console.log(row.original, "info")
+          return (
+            <div className="w-full gap-1 mx-2 flex flex-col lg:flex-row items-center justify-center">
+              <Button
+                onClick={() => onOpenDetail(row?.original)}
+                className="px-0 py-0"
+                type="button"
+                variant="primary-outline-none">
+                <MdOutlineEdit className="w-5 h-5 text-gray-5" />
+              </Button>
+              <Button
+                onClick={() => onOpenDelete(row?.original)}
+                className="px-0 py-0"
+                type="button"
+                variant="danger-outline-none">
+                <MdOutlineDelete className="w-5 h-5 text-gray-5" />
+              </Button>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
         size: 150,
@@ -214,6 +279,10 @@ const merchant = ({ pageProps }: Props) => {
     ],
     []
   );
+
+  useEffect(() => {
+    setDataTable(discountData(1));
+  }, [discountData]);
 
   return (
     <MerchantLayouts
@@ -298,16 +367,6 @@ const merchant = ({ pageProps }: Props) => {
               <div className="lg:w-full">
                 <Tabs menus={menuMerchant} />
               </div>
-              <div className="w-full lg:w-1/4 flex justify-start lg:justify-end">
-                <Button
-                  type="button"
-                  onClick={isOpenForm}
-                  className="rounded-lg text-sm font-semibold py-4"
-                  variant="primary">
-                  <span>New Discount</span>
-                  <MdAdd />
-                </Button>
-              </div>
             </div>
             {/* item details content */}
             <div className="w-full flex flex-wrap items-center justify-between p-4">
@@ -339,6 +398,16 @@ const merchant = ({ pageProps }: Props) => {
                     options={sortOpt}
                     icon=""
                   />
+                </div>
+                <div className="w-full lg:w-2/3 flex justify-end lg:justify-end">
+                  <Button
+                    type="button"
+                    onClick={isOpenForm}
+                    className="rounded-lg text-sm font-semibold py-4"
+                    variant="primary">
+                    <span>New Discount</span>
+                    <MdAdd />
+                  </Button>
                 </div>
               </div>
             </div>
