@@ -478,7 +478,7 @@ export default function TaskForm(props: Props) {
           <div className={`w-full mb-3 ${isUpdate ? "hidden" : ""}`}>
             <div className="w-full flex items-center gap-2">
               <div className="w-full max-w-max font-semibold text-sm">
-                Users :<span className="text-red-300">*</span>
+                Assignee :<span className="text-red-300">*</span>
               </div>
               {users?.length > 0 ? (
                 <Members

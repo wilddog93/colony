@@ -135,7 +135,7 @@ export const updateTasks = createAsyncThunk<
   any,
   TaskData,
   { state: RootState }
->("/project/projectId/task/update", async (params, { getState }) => {
+>("/project/projectId/taskId/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -145,7 +145,7 @@ export const updateTasks = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `project/${params.id}`,
+      `project/${params.id}/${params?.taskId}`,
       params.data,
       config
     );
@@ -184,6 +184,45 @@ export const updateTaskStatus = createAsyncThunk<
   try {
     const response = await axios.patch(
       `project/${params.id}/${params.taskId}/status`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    params.isError();
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// update-task-assignee
+export const updateTaskAssignee = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/taskId/assignee/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.put(
+      `project/${params.id}/${params.taskId}/assignee`,
       params.data,
       config
     );
@@ -319,7 +358,7 @@ export const taskSlice = createSlice({
         state.message = error.message;
       })
 
-      // update-task
+      // update-task-status
       .addCase(updateTaskStatus.pending, (state) => {
         return {
           ...state,
@@ -334,6 +373,26 @@ export const taskSlice = createSlice({
         };
       })
       .addCase(updateTaskStatus.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // update-task-assignee
+      .addCase(updateTaskAssignee.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(updateTaskAssignee.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(updateTaskAssignee.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

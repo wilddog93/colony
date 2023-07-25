@@ -10,9 +10,19 @@ import { Draggable } from "react-beautiful-dnd";
 import {
   MdOutlineChatBubbleOutline,
   MdOutlineDescription,
+  MdOutlineFileCopy,
+  MdOutlineFileOpen,
+  MdOutlineFileUpload,
+  MdOutlineTask,
+  MdTask,
 } from "react-icons/md";
 import Teams from "../../../Task/Teams";
 import Members from "../../../Task/Members";
+import Modal from "../../../Modal";
+import TaskFormUpdate from "../../../Forms/employee/tasks/project/TaskFormUpdate";
+import { getTasksByIdProject } from "../../../../redux/features/task-management/project/task/taskManagementReducers";
+import { useAppDispatch } from "../../../../redux/Hook";
+import { useRouter } from "next/router";
 
 type Props = {
   item: any | any[];
@@ -34,6 +44,48 @@ const ListItem = ({
   const [dataTask, setDataTask] = useState<any | any[]>([]);
   const [isReadMore, setIsReadMore] = useState(false);
 
+  const router = useRouter();
+  const { pathname, query } = router;
+  // redux
+  const dispatch = useAppDispatch();
+
+  // tabs
+  const [tabs, setTabs] = useState<string | any>("To Do");
+
+  // modal
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [formTask, setFormTask] = useState<any>(null);
+
+  const onOpenUpdate = (value: any) => {
+    if (!value) return;
+    let newObj = {
+      ...value,
+      assignee:
+        value?.taskAssignees?.length > 0
+          ? value?.taskAssignees?.map((user: any) => ({
+              ...user,
+              label: `${user?.firstName} ${user?.lastName}`,
+              value: `${user?.id}`,
+            }))
+          : [],
+      taskCategory:
+        value?.taskCategories?.length > 0
+          ? value?.taskCategories?.map((item: any) => ({
+              ...item,
+              label: `${item?.taskCategoryName}`,
+              value: `${item?.id}`,
+            }))
+          : [],
+    };
+    setFormTask(newObj);
+    setIsOpenUpdate(true);
+  };
+
+  const onCloseUpdate = () => {
+    setFormTask(null);
+    setIsOpenUpdate(false);
+  };
+
   const dateFormat = (date: any) => {
     return moment(new Date(date)).format("DD MMM YYYY");
   };
@@ -46,7 +98,7 @@ const ListItem = ({
     }
   }, [data]);
 
-  console.log(item, "items-in-task");
+  console.log(formTask, "items-in-task");
 
   return (
     <Fragment>
@@ -55,7 +107,7 @@ const ListItem = ({
           return (
             <div
               className={`w-full p-3 relative bg-white mb-4 grid gap-5 rounded-xl max-w-xs mx-auto`}
-              // onDoubleClick={(id) => isOpenModalDetail(item.id)}
+              onDoubleClick={() => onOpenUpdate(item)}
               ref={provided?.innerRef}
               // @ts-ignore
               snapshot={snapshot}
@@ -121,14 +173,14 @@ const ListItem = ({
                 <button
                   // onClick={(id) => handleAttachment(item?.id)}
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                  <MdOutlineDescription className="mr-2 w-5 h-5" />
+                  <MdOutlineFileOpen className="mr-2 w-5 h-5" />
                   <p>{item?.totalAttachment}</p>
                 </button>
 
                 <button
                   // onClick={(id) => handleSubtask(item?.id)}
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                  {/* <BsClipboardCheck className="mr-2 w-5 h-5" /> */}
+                  <MdOutlineTask className="mr-2 w-5 h-5" />
                   <p>{item?.totalSubTask}</p>
                 </button>
               </div>
@@ -150,6 +202,22 @@ const ListItem = ({
           );
         }}
       </Draggable>
+
+      {/* modal update */}
+      <Modal size="large" onClose={onCloseUpdate} isOpen={isOpenUpdate}>
+        <div className="w-full text-sm">
+          <TaskFormUpdate
+            token={token}
+            items={formTask}
+            getData={() =>
+              dispatch(getTasksByIdProject({ token, id: query?.id }))
+            }
+            id={query?.id}
+            isCloseModal={onCloseUpdate}
+            projectMembers={projectData?.projectMembers}
+          />
+        </div>
+      </Modal>
     </Fragment>
   );
 };
