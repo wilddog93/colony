@@ -32,7 +32,7 @@ const KanbanList = ({
       className={`px-5 bg-gray rounded-xl ${
         loading ? `opacity-60` : `opacity-100`
       }`}>
-      <div className="capitalize mb-5 font-bold text-[#787B80] text-sm md:text-lg py-5 min-w-[300px]">
+      <div className="capitalize mb-5 font-bold text-[#787B80] text-sm md:text-lg py-5 lg:min-w-[300px]">
         {prefix}
       </div>
       <Droppable droppableId={prefix}>

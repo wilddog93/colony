@@ -517,7 +517,7 @@ const TaskDetail = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
         />
 
-        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto overflow-hidden">
           {/* header */}
           <div className="sticky bg-white top-0 z-99 py-6">
             <div className="w-full flex flex-col gap-2 bg-gray rounded-xl shadow-card">
