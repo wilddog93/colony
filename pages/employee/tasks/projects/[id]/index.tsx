@@ -57,6 +57,11 @@ import {
   getTasksByIdProject,
   selectTaskManagement,
 } from "../../../../../redux/features/task-management/project/task/taskManagementReducers";
+import {
+  getTaskCategories,
+  selectTaskCategory,
+} from "../../../../../redux/features/task-management/settings/taskCategoryReducers";
+import TaskForm from "../../../../../components/Forms/employee/tasks/project/TaskForm";
 
 type Props = {
   pageProps: any;
@@ -169,6 +174,7 @@ const TaskDetail = ({ pageProps }: Props) => {
   const { project } = useAppSelector(selectProjectManagement);
   const { projectTypes } = useAppSelector(selectProjectType);
   const { tasks } = useAppSelector(selectTaskManagement);
+  const { taskCategories } = useAppSelector(selectTaskCategory);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
@@ -197,6 +203,12 @@ const TaskDetail = ({ pageProps }: Props) => {
     []
   );
 
+  // add-task
+  const [isOpenAddTask, setIsOpenAddTask] = useState(false);
+  const [taskCategoryOpt, setTaskCategoryOpt] = useState<OptionProps[] | any[]>(
+    []
+  );
+
   // members
   const [isOpenAddUsers, setIsOpenAddUsers] = useState(false);
   const [members, setMembers] = useState<UserProps[] | any[]>([]);
@@ -217,6 +229,17 @@ const TaskDetail = ({ pageProps }: Props) => {
   const onCloseModalEdit = () => {
     setFormData(null);
     setIsOpenEdit(false);
+  };
+
+  // modal edit project
+  const onOpenModalAddTask = (items: any) => {
+    setFormData(items);
+    setIsOpenAddTask(true);
+  };
+
+  const onCloseModalAddTask = () => {
+    setFormData(null);
+    setIsOpenAddTask(false);
   };
 
   // date format
@@ -390,6 +413,41 @@ const TaskDetail = ({ pageProps }: Props) => {
   }, [projectTypes]);
   // project type end
 
+  // get task category
+  const filterTaskCategory = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `taskCategoryName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getTaskCategories({ token, params: filterTaskCategory.queryObject })
+      );
+  }, [token, filterTaskCategory]);
+
+  useEffect(() => {
+    let arr: OptionProps[] = [{ label: "Select All", value: "all" }];
+    const { data } = taskCategories;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.taskCategoryName,
+          label: item?.taskCategoryName,
+        });
+      });
+      setTaskCategoryOpt(arr);
+    }
+  }, [taskCategories]);
+  // get task category end
+
   // date-range
   useEffect(() => {
     let result = [projectData?.scheduleStart, projectData?.scheduleEnd];
@@ -532,7 +590,7 @@ const TaskDetail = ({ pageProps }: Props) => {
                   <Button
                     type="button"
                     className="rounded-lg text-sm font-semibold py-3"
-                    onClick={onOpen}
+                    onClick={onOpenModalAddTask}
                     variant="primary">
                     <span className="hidden lg:inline-block">New Task</span>
                     <MdAdd className="w-4 h-4" />
@@ -624,6 +682,22 @@ const TaskDetail = ({ pageProps }: Props) => {
           items={formData}
           projectOption={projectTypeOpt}
           isUpdate
+        />
+      </Modal>
+
+      {/* add task modal */}
+      <Modal size="small" onClose={onCloseModalAddTask} isOpen={isOpenAddTask}>
+        <TaskForm
+          id={query?.id}
+          isCloseModal={onCloseModalAddTask}
+          isOpen={isOpenAddTask}
+          token={token}
+          getData={() =>
+            dispatch(getTasksByIdProject({ token, id: query?.id }))
+          }
+          items={formData}
+          categoryOptions={taskCategoryOpt}
+          projectMembers={projectData?.projectMembers}
         />
       </Modal>
 

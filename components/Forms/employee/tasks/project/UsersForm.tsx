@@ -38,6 +38,8 @@ type Props = {
   isCloseModal: () => void;
   isUpdate?: boolean;
   getData: () => void;
+  isTask?: boolean;
+  projectMembers?: any | any[];
 };
 
 type FormValues = {
@@ -96,6 +98,8 @@ export default function UsersForm({
   isUpdate,
   token,
   getData,
+  isTask,
+  projectMembers,
 }: Props) {
   // redux
   const dispatch = useAppDispatch();
@@ -128,14 +132,25 @@ export default function UsersForm({
   useEffect(() => {
     let arr: Options[] = [];
     let { data } = userProperties;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
+
+    if (isTask) {
+      projectMembers?.map((item: any) => {
         arr.push({
-          ...item?.user,
-          value: item?.user?.id,
-          label: `${item?.user?.firstName} ${item?.user?.lastName}`,
+          ...item,
+          value: item?.id,
+          label: `${item?.firstName} ${item?.lastName}`,
         });
       });
+    } else {
+      if (data || data?.length > 0) {
+        data?.map((item: any) => {
+          arr.push({
+            ...item?.user,
+            value: item?.user?.id,
+            label: `${item?.user?.firstName} ${item?.user?.lastName}`,
+          });
+        });
+      }
     }
     setUserData(arr);
     setUserOption(arr);
