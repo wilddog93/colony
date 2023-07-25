@@ -409,9 +409,34 @@ const TaskDetail = ({ pageProps }: Props) => {
     }
   }, [query?.id, token]);
 
+  const taskData = useMemo(() => {
+    let newArr: any[] = [];
+    const { data } = tasks;
+    if (data && data?.length > 0) {
+      data?.map((e: any) => {
+        newArr.push({
+          ...e,
+          taskAssignees:
+            e?.taskAssignees?.length > 0
+              ? e?.taskAssignees?.map((user: any) => ({
+                  ...user.user,
+                }))
+              : [],
+          taskCategories:
+            e?.taskCategories?.length > 0
+              ? e?.taskCategories?.map((category: any) => ({
+                  ...category.taskCategory,
+                }))
+              : [],
+        });
+      });
+    }
+    return newArr;
+  }, [tasks]);
+
   console.log(projectData, "detail-project");
   console.log(dataTable, "data-table");
-  console.log(tasks, "task-data");
+  console.log({ tasks: tasks?.data, dataTable }, "task-data");
 
   return (
     <DefaultLayout
@@ -577,7 +602,12 @@ const TaskDetail = ({ pageProps }: Props) => {
               </div>
 
               <div className="w-full flex flex-col">
-                <Kanban item={dataTable} loading={loading} />
+                <Kanban
+                  item={projectData}
+                  taskData={taskData}
+                  loading={loading}
+                  token={token}
+                />
               </div>
             </div>
           </main>

@@ -37,6 +37,7 @@ interface HeadersConfiguration {
 
 interface TaskData {
   id?: any;
+  taskId?: any;
   data?: any;
   token?: any;
   isSuccess: () => void;
@@ -161,6 +162,45 @@ export const updateTask = createAsyncThunk<any, TaskData, { state: RootState }>(
   }
 );
 
+// update-task-status
+export const updateTaskStatus = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/taskId/status/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.patch(
+      `project/${params.id}/${params.taskId}/status`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    params.isError();
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 export const deleteTask = createAsyncThunk<any, TaskData, { state: RootState }>(
   "/project/projectId/taskId/delete",
   async (params, { getState }) => {
@@ -267,6 +307,26 @@ export const taskSlice = createSlice({
         };
       })
       .addCase(updateTask.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // update-task
+      .addCase(updateTaskStatus.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(updateTaskStatus.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(updateTaskStatus.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
