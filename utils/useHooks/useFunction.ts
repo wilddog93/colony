@@ -17,7 +17,7 @@ export const formatPhone = (code: any, val: any) => {
   return code + result;
 };
 
-export const colorfull = (num: any) => {
+export const useRandomColor = (num: any) => {
   if (num) return Math.floor(Math.random() * 16777215).toString(16);
   else "#fff";
 };
@@ -60,6 +60,17 @@ export const formatMoney = ({
   } catch (e) {
     console.log(e);
   }
+};
+
+export const sortByArr = (fn: any, sortBy: boolean) => {
+  // console.log(sortBy, 'sort')
+  function cmp(a: any, b: any) {
+    if (sortBy) return -(a < b) || +(a > b);
+    else return -(a > b) || +(a < b);
+  }
+  return function (a: any, b: any) {
+    return cmp(fn(a), fn(b));
+  };
 };
 
 export const toBase64 = (file: any) => {

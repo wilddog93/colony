@@ -35,7 +35,7 @@ import { menuParkings, menuProjects, menuTask } from "../../../../utils/routes";
 import Tabs from "../../../../components/Layouts/Tabs";
 import { SearchInput } from "../../../../components/Forms/SearchInput";
 import DropdownSelect from "../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../components/tables/layouts/SelectTables";
+import SelectTables from "../../../../components/tables/layouts/server/SelectTables";
 import Modal from "../../../../components/Modal";
 import {
   ModalFooter,
@@ -48,14 +48,68 @@ import {
 import moment from "moment";
 import { ArrayInput, useInputArray } from "../../../../utils/useHooks/useHooks";
 import MultiArrayForm from "../../../../components/Forms/MultiArrayForm";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import {
+  deleteProject,
+  getProjects,
+  selectProjectManagement,
+} from "../../../../redux/features/task-management/project/projectManagementReducers";
+import { toast } from "react-toastify";
+import {
+  getProjectTypes,
+  selectProjectType,
+} from "../../../../redux/features/task-management/settings/projectTypeReducers";
+import TaskCategoryForm from "../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
+import ProjectForm from "../../../../components/Forms/employee/tasks/project/ProjectForm";
+
+interface ProjectTypeProps {
+  id: number | any;
+  createdAt: string | any;
+  updatedAt: string | any;
+  projectTypeName: string | any;
+  projectTypeDescription: string | any;
+  projectTypePriority: string | any;
+}
+
+interface PropsData {
+  id: 2;
+  createdAt: string | any;
+  updatedAt: string | any;
+  projectCode: null;
+  projectName: string | any;
+  projectDescription: string | any;
+  scheduleStart: string | any;
+  scheduleEnd: string | any;
+  executionStart: string | any;
+  executionEnd: string | any;
+  projectStatus: string | any;
+  totalTask: number | any;
+  totalTaskCompleted: number | any;
+  projectType: ProjectTypeProps | any;
+  issue: any | null;
+  projectMembers: any | any[];
+}
+
+interface Options {
+  value: string | any;
+  label: string | any;
+}
 
 type Props = {
   pageProps: any;
 };
 
-const sortOpt = [
-  { value: "A-Z", label: "A-Z" },
-  { value: "Z-A", label: "Z-A" },
+const sortOpt: Options[] = [
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
+];
+
+const statusOpt: Options[] = [
+  { value: "Not Started", label: "Not Started" },
+  { value: "Open", label: "Open" },
+  { value: "On Progress", label: "On Progress" },
+  { value: "Closed", label: "Closed" },
+  { value: "Overdue", label: "Overdue" },
 ];
 
 const stylesSelectSort = {
@@ -157,25 +211,31 @@ const TableView = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { projects } = useAppSelector(selectProjectManagement);
+  const { projectTypes } = useAppSelector(selectProjectType);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [search, setSearch] = useState(null);
-  const [sort, setSort] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState<string | any>(null);
+  const [sort, setSort] = useState<Options | any>(null);
+  const [status, setStatus] = useState<Options | any>(null);
+  const [types, setTypes] = useState<Options | any>(null);
+  const [typesOpt, setTypesOpt] = useState<Options | any>(null);
+  const [loading, setLoading] = useState(false);
 
   // data-table
   const [dataTable, setDataTable] = useState<WorkProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(2000);
-  const [total, setTotal] = useState(1000);
+  const [pageCount, setPageCount] = useState(0);
+  const [total, setTotal] = useState(0);
 
   // modal
-  const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenAdd, setIsOpenAdd] = useState(false);
+  const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<WorkProps>();
+  const [formData, setFormData] = useState<PropsData | any>(null);
 
   // date format
   const dateFormat = (value: string | any) => {
@@ -183,42 +243,56 @@ const TableView = ({ pageProps }: Props) => {
     return moment(new Date(value)).format("MMM DD, YYYY, HH:mm");
   };
 
-  // form modal
-  const onClose = () => setIsOpenModal(false);
-  const onOpen = () => setIsOpenModal(true);
-
-  // detail modal
-  const onCloseDetail = () => {
-    setDetails(undefined);
-    setIsOpenDetail(false);
-  };
-  const onOpenDetail = (items: any) => {
-    setDetails(items);
+  // detail
+  const onOpenModalDetail = (value: PropsData) => {
+    setFormData(value);
     setIsOpenDetail(true);
   };
 
-  // detail modal
-  const onCloseDelete = () => {
-    setDetails(undefined);
-    setIsOpenDelete(false);
-  };
-  const onOpenDelete = (items: any) => {
-    setDetails(items);
-    setIsOpenDelete(true);
+  const onCloseModalDetail = () => {
+    setFormData(null);
+    setIsOpenDetail(false);
   };
 
-  useEffect(() => {
-    setDataTable(() => createDataTask(100));
-  }, []);
+  // modal add
+  const onOpenModalAdd = () => {
+    setIsOpenAdd(true);
+  };
+
+  const onCloseModalAdd = () => {
+    setFormData(null);
+    setIsOpenAdd(false);
+  };
+
+  // modal update
+  const onOpenModalEdit = (items: any) => {
+    setFormData(items);
+    setIsOpenEdit(true);
+  };
+
+  const onCloseModalEdit = () => {
+    setFormData(null);
+    setIsOpenEdit(false);
+  };
+
+  // delete modal
+  const onCloseModalDelete = () => {
+    setFormData(null);
+    setIsOpenDelete(false);
+  };
+  const onOpenModalDelete = (items: any) => {
+    setFormData(items);
+    setIsOpenDelete(true);
+  };
 
   const goToTask = (id: any) => {
     if (!id) return;
     return router.push({ pathname: `/employee/tasks/projects/${id}` });
   };
 
-  const genWorkStatus = (value: string) => {
+  const genProjectStatus = (value: string) => {
     if (!value) return "-";
-    if (value === "Open")
+    if (value === "Open" || value === "Not Started")
       return (
         <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200">
           {value}
@@ -246,7 +320,7 @@ const TableView = ({ pageProps }: Props) => {
 
   const genColorProjectType = (value: any) => {
     // #333A48
-    let color = "";
+    let color = "#333A48";
     if (!value) return "";
     if (value == "Project") color = "#5E59CE";
     if (value == "Complaint Handling") color = "#FF8859";
@@ -255,20 +329,20 @@ const TableView = ({ pageProps }: Props) => {
     return color;
   };
 
-  const columns = useMemo<ColumnDef<WorkProps, any>[]>(
+  const columns = useMemo<ColumnDef<PropsData, any>[]>(
     () => [
       {
-        accessorKey: "workType",
+        accessorKey: "projectType",
         header: (info) => <div className="uppercase">Project Type</div>,
         cell: ({ row, getValue }) => {
-          const val = getValue();
+          const val = getValue()?.projectTypeName;
           return (
             <div
               className={`cursor-pointer p-2 rounded-md w-full max-w-max`}
-              onClick={() => onOpenDetail(row.original)}
+              onClick={() => onOpenModalDetail(row?.original)}
               style={{
-                backgroundColor: !val ? "FFFFFF" : genColorProjectType(val),
-                color: !val ? "#333A48" : "#FFFFFF",
+                backgroundColor: genColorProjectType(val),
+                color: "#FFFFFF",
               }}>
               {val}
             </div>
@@ -281,14 +355,14 @@ const TableView = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "workCode",
+        accessorKey: "projectCode",
         header: (info) => <div className="uppercase">Project ID</div>,
         cell: ({ row, getValue }) => {
           return (
             <div
-              className="cursor-pointer text-left text-primary uppercase font-semibold"
-              onClick={() => onOpenDetail(row.original)}>
-              {getValue()}
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-left text-primary uppercase font-semibold">
+              {getValue() || "-"}
             </div>
           );
         },
@@ -296,14 +370,14 @@ const TableView = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "workName",
+        accessorKey: "projectName",
         header: (info) => <div className="uppercase">Project Name</div>,
-        cell: (info) => {
+        cell: ({ row, getValue }) => {
           return (
             <div
-              className="cursor-pointer"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer">
+              {getValue() || "-"}
             </div>
           );
         },
@@ -316,8 +390,8 @@ const TableView = ({ pageProps }: Props) => {
           const completed = row.original.totalTaskCompleted;
           return (
             <div
-              className="cursor-pointer text-center"
-              onClick={() => onOpenDetail(row.original)}>
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-center">
               {completed + "/" + getValue()}
             </div>
           );
@@ -329,15 +403,18 @@ const TableView = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "workCategory.urgency",
-        cell: (info) => {
-          let urgency = info.getValue();
+        accessorKey: "projectType.projectTypePriority",
+        cell: ({ row, getValue }) => {
+          let urgency = getValue() || "";
           return (
             <div
-              className="cursor-pointer text-center"
-              onClick={() => onOpenDetail(info.row.original)}>
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-center">
               {urgency ? (
-                <MdCheckCircleOutline className="w-5 h-5 text-primary mx-auto" />
+                <div className="flex items-center gap-1">
+                  <span>{urgency}</span>
+                  <MdCheckCircleOutline className="w-5 h-5 text-primary" />
+                </div>
               ) : (
                 "-"
               )}
@@ -352,12 +429,12 @@ const TableView = ({ pageProps }: Props) => {
       },
       {
         accessorKey: "scheduleStart",
-        cell: (info) => {
+        cell: ({ row, getValue }) => {
           return (
             <div
-              className="cursor-pointer text-left"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {dateFormat(info.getValue())}
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-left">
+              {getValue() ? dateFormat(getValue()) : "-"}
             </div>
           );
         },
@@ -369,12 +446,12 @@ const TableView = ({ pageProps }: Props) => {
       },
       {
         accessorKey: "scheduleEnd",
-        cell: (info) => {
+        cell: ({ row, getValue }) => {
           return (
             <div
-              className="cursor-pointer text-left"
-              onClick={() => onOpenDetail(info.row.original)}>
-              {dateFormat(info.getValue())}
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-left">
+              {getValue() ? dateFormat(getValue()) : "-"}
             </div>
           );
         },
@@ -385,15 +462,15 @@ const TableView = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "workStatus",
+        accessorKey: "projectStatus",
         header: (info) => <div className="uppercase">Status</div>,
         cell: ({ row, getValue }) => {
           console.log("status :", getValue());
           return (
             <div
-              className="cursor-pointer text-left font-semibold"
-              onClick={() => onOpenDetail(row.original)}>
-              {genWorkStatus(getValue())}
+              onClick={() => onOpenModalDetail(row?.original)}
+              className="cursor-pointer text-left font-semibold">
+              {genProjectStatus(getValue())}
             </div>
           );
         },
@@ -438,6 +515,173 @@ const TableView = ({ pageProps }: Props) => {
       );
     }
   }, [token]);
+
+  // get Project
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch(query?.search || "");
+    if (query?.sort) {
+      if (query?.sort == "ASC") {
+        setSort({ value: query?.sort, label: "A-Z" });
+      } else {
+        setSort({ value: query?.sort, label: "Z-A" });
+      }
+    }
+    if (query?.status) {
+      setStatus({ value: query?.status, label: query?.status });
+    }
+    if (query?.types) {
+      setTypes({ value: query?.types, label: query?.types });
+    }
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.status,
+    query?.types,
+  ]);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+    if (sort) qr = { ...qr, sort: sort?.value };
+    if (status) qr = { ...qr, status: status?.value };
+    if (types) qr = { ...qr, types: types?.value };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search, sort, status, types]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        { projectStatus: { $contL: query?.status } },
+        { "projectType.projectTypeName": { $contL: query?.types } },
+        {
+          $or: [
+            { projectName: { $contL: query?.search } },
+            { projectDescription: { $contL: query?.search } },
+            { "projectType.projectTypeName": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    if (!query?.sort) {
+      qb.sortBy({
+        field: `updatedAt`,
+        order: "DESC",
+      });
+    } else {
+      qb.sortBy({
+        field: `projectName`,
+        order: !sort?.value ? "ASC" : sort.value,
+      });
+    }
+    qb.query();
+    return qb;
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.status,
+    query?.types,
+  ]);
+
+  useEffect(() => {
+    if (token) dispatch(getProjects({ token, params: filters.queryObject }));
+  }, [token, filters]);
+
+  useEffect(() => {
+    let newArr: any[] = [];
+    const { data, pageCount, total } = projects;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+    }
+    setDataTable(newArr);
+    setPageCount(pageCount);
+    setTotal(total);
+  }, [projects]);
+
+  const projectData = useMemo(() => {
+    let newArr: any[] = [];
+    if (dataTable?.length > 0) {
+      dataTable?.map((item: any) => {
+        newArr.push(item);
+      });
+    }
+    return newArr;
+  }, [dataTable]);
+
+  // delete
+  const onDelete = (value: any) => {
+    console.log(value, "form-delete");
+    if (!value?.id) return;
+    dispatch(
+      deleteProject({
+        token,
+        id: value?.id,
+        isSuccess() {
+          toast.dark("Project has been deleted");
+          dispatch(getProjects({ token, params: filters.queryObject }));
+          onCloseModalDelete();
+        },
+        isError() {
+          console.log("Error delete");
+        },
+      })
+    );
+  };
+
+  // get project type
+  const filterProjectType = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `projectTypeName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProjectTypes({ token, params: filterProjectType.queryObject })
+      );
+  }, [token, filterProjectType]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = projectTypes;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.projectTypeName,
+          label: item?.projectTypeName,
+        });
+      });
+      setTypesOpt(arr);
+    }
+  }, [projectTypes]);
+
+  console.log(formData, "form-detail");
 
   return (
     <DefaultLayout
@@ -500,7 +744,7 @@ const TableView = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpen}
+                  onClick={onOpenModalAdd}
                   variant="primary">
                   <span className="hidden lg:inline-block">New Project</span>
                   <MdAdd className="w-4 h-4" />
@@ -547,8 +791,8 @@ const TableView = ({ pageProps }: Props) => {
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
-                    value={sort}
-                    onChange={setSort}
+                    value={status}
+                    onChange={setStatus}
                     error=""
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
@@ -557,7 +801,7 @@ const TableView = ({ pageProps }: Props) => {
                     isDisabled={false}
                     isMulti={false}
                     placeholder="All Status..."
-                    options={sortOpt}
+                    options={statusOpt}
                     icon=""
                   />
                 </div>
@@ -565,8 +809,8 @@ const TableView = ({ pageProps }: Props) => {
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
-                    value={sort}
-                    onChange={setSort}
+                    value={types}
+                    onChange={setTypes}
                     error=""
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
@@ -575,7 +819,7 @@ const TableView = ({ pageProps }: Props) => {
                     isDisabled={false}
                     isMulti={false}
                     placeholder="All Type..."
-                    options={sortOpt}
+                    options={typesOpt}
                     icon=""
                   />
                 </div>
@@ -600,85 +844,82 @@ const TableView = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* modal example */}
-      <Modal size="" onClose={onClose} isOpen={isOpenModal}>
-        <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onClose}>
-            <h3 className="text-lg font-semibold">Modal Header</h3>
-          </ModalHeader>
-
-          <div className="w-full px-4">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quas a,
-            facere unde ab omnis libero atque placeat fugiat neque soluta illum
-            magni pariatur architecto vero tenetur, quo corporis corrupti
-            exercitationem, natus asperiores non saepe deserunt quidem?
-            Laboriosam molestias inventore pariatur maiores nostrum officiis
-            quam. Commodi excepturi eius accusantium modi obcaecati facilis
-            suscipit nam, sunt magni ab fuga magnam non voluptates hic
-            exercitationem eaque esse ea quis sequi rem nulla itaque mollitia!
-            Iure, velit officia aliquam, nisi dolor ipsam perspiciatis magni ex
-            excepturi animi ducimus. Voluptatum, at laudantium tempora modi
-            repudiandae beatae dignissimos tempore molestias officia vero,
-            similique facilis ab eius.
-          </div>
-
-          <ModalFooter
-            className="p-4 border-t-2 border-gray mt-3"
-            isClose={true}
-            onClick={onClose}></ModalFooter>
-        </Fragment>
-      </Modal>
-
       {/* detail modal */}
-      <Modal size="small" onClose={onCloseDetail} isOpen={isOpenDetail}>
+      <Modal size="small" onClose={onCloseModalDetail} isOpen={isOpenDetail}>
         <Fragment>
           <ModalHeader
             className="p-6 mb-3"
             isClose={true}
-            onClick={onCloseDetail}>
+            onClick={onCloseModalDetail}>
             <div className="flex-flex-col gap-2">
               <h3
                 className="text-sm font-semibold py-1 px-2 rounded-md w-full max-w-max"
                 style={{
-                  backgroundColor: !details?.workType
-                    ? "#FFFFFF"
-                    : genColorProjectType(details.workType),
-                  color: !details?.workType ? "#333A48" : "#FFFFFF",
+                  backgroundColor: genColorProjectType(
+                    formData?.projectType?.projectTypeName
+                  ),
+                  color: "#FFFFFF",
                 }}>
-                {details?.workType || ""}
+                {formData?.projectType?.projectTypeName || ""}
               </h3>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-5">{details?.workName || ""}</p>
+                <p className="text-sm text-gray-5">
+                  {formData?.projectName || ""}
+                </p>
               </div>
             </div>
           </ModalHeader>
           <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
               <div className="text-sm text-graydark">Start Date</div>
-              <p>{dateFormat(details?.scheduleStart)}</p>
+              <p>
+                {formData?.scheduleStart
+                  ? dateFormat(formData?.scheduleStart)
+                  : "-"}
+              </p>
             </div>
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
               <div className="text-sm text-graydark">End Date</div>
-              <p>{dateFormat(details?.scheduleEnd)}</p>
+              <p>
+                {formData?.scheduleEnd
+                  ? dateFormat(formData?.scheduleEnd)
+                  : "-"}
+              </p>
             </div>
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2">
               <div className="text-sm text-graydark">Total Task</div>
-              <p>{details?.totalTask}</p>
+              <p>
+                {formData?.totalTaskCompleted}/
+                <span className="font-semibold text-gray-6">
+                  {formData?.totalTask}
+                </span>
+              </p>
             </div>
           </div>
         </Fragment>
       </Modal>
 
+      {/* add modal */}
+      <Modal size="small" onClose={onCloseModalAdd} isOpen={isOpenAdd}>
+        <ProjectForm
+          isCloseModal={onCloseModalAdd}
+          isOpen={isOpenAdd}
+          token={token}
+          getData={() =>
+            dispatch(getProjects({ token, params: filters.queryObject }))
+          }
+          items={formData}
+          projectOption={typesOpt}
+        />
+      </Modal>
+
       {/* delete modal */}
-      <Modal size="small" onClose={onCloseDelete} isOpen={isOpenDelete}>
+      <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
         <Fragment>
           <ModalHeader
             className="p-4 border-b-2 border-gray mb-3"
             isClose={true}
-            onClick={onCloseDelete}>
+            onClick={onCloseModalDelete}>
             <h3 className="text-lg font-semibold">Delete Tenant</h3>
           </ModalHeader>
           <div className="w-full my-5 px-4">
@@ -688,12 +929,12 @@ const TableView = ({ pageProps }: Props) => {
           <ModalFooter
             className="p-4 border-t-2 border-gray"
             isClose={true}
-            onClick={onCloseDelete}>
+            onClick={onCloseModalDelete}>
             <Button
               variant="primary"
               className="rounded-md text-sm"
               type="button"
-              onClick={onCloseDelete}>
+              onClick={onCloseModalDelete}>
               Yes, Delete it!
             </Button>
           </ModalFooter>

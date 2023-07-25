@@ -3,11 +3,13 @@ import { useRandomColor } from "../../../utils/useHooks/useFunction";
 import Tooltip from "../../Tooltip/Tooltip";
 
 type TeamProps = {
-  items: any;
+  token?: any;
+  items?: any;
   onClick?: () => void;
 };
 
-export default function Teams({ items, onClick }: TeamProps) {
+export default function Members({ token, items, onClick }: TeamProps) {
+  let url = process.env.API_ENDPOINT;
   const index = [0, 1, 2];
 
   return (
@@ -27,10 +29,15 @@ export default function Teams({ items, onClick }: TeamProps) {
                     key={idx}>
                     <button
                       type="button"
-                      className="relative inline-flex text-blue-500 hover:text-red-500 duration-300 focus:outline-none">
+                      onClick={onClick}
+                      className="relative inline-flex hover:text-red-500 duration-300 focus:outline-none">
                       {items[val]?.profileImage ? (
                         <img
-                          src={items[val]?.profileImage}
+                          src={
+                            url +
+                            "user/profileImage/" +
+                            items[val]?.profileImage
+                          }
                           alt="images"
                           className="border rounded-full w-10 h-10 object-cover object-center"
                         />
@@ -52,15 +59,12 @@ export default function Teams({ items, onClick }: TeamProps) {
                   </Tooltip>
                 );
               })}
-              {/* <button
-                                type='button'
-                                onClick={onClick}
-                                className="group relative flex justify-center items-center w-10 h-10 text-xs font-medium text-white bg-gray-700 rounded-full border-2 border-white hover:bg-gray-600 dark:border-gray-800"
-                            >
-                                {items?.length > 3
-                                    ? `+${items?.length - 3}`
-                                    : ""}
-                            </button> */}
+              <button
+                type="button"
+                onClick={onClick}
+                className="group relative flex justify-center items-center w-11 h-11 p-4 text-xs font-medium text-white bg-gray-5 rounded-full border-2 border-white hover:bg-gray-600 dark:border-gray-6">
+                {items?.length > 3 ? `+${items?.length - 3}` : ""}
+              </button>
             </React.Fragment>
           ) : items?.length == 0 ? (
             <div className="font-bold text-gray-5">User not found</div>
@@ -79,10 +83,15 @@ export default function Teams({ items, onClick }: TeamProps) {
                       key={idx}>
                       <button
                         type="button"
+                        onClick={onClick}
                         className="relative inline-flex text-blue-500 hover:text-red-500 duration-300 focus:outline-none">
                         {items[val]?.profileImage ? (
                           <img
-                            src={items[val]?.profileImage}
+                            src={
+                              url +
+                              "user/profileImage/" +
+                              items[val]?.profileImage
+                            }
                             alt="images"
                             className="border rounded-full w-10 h-10 object-cover object-center"
                           />
@@ -105,42 +114,9 @@ export default function Teams({ items, onClick }: TeamProps) {
                   );
                 }
               })}
-              {/* <button
-                                    type='button'
-                                    onClick={onClick}
-                                    className="relative flex justify-center items-center w-10 h-10 text-xs font-medium text-white bg-gray rounded-full border-2 border-white hover:bg-gray-600 dark:border-gray-800"
-                                >
-                                    {items?.length > 3
-                                        ? `+${items?.length - 3}`
-                                        : ""}
-                                </button> */}
             </React.Fragment>
           )}
         </div>
-        {items?.length > 2 ? (
-          <div className="w-full hidden lg:flex">
-            <p>
-              <span className="font-semibold">{`${items[0].firstName}, ${items[1].firstName}`}</span>
-              <span>{`${
-                items?.length - 2 == 0
-                  ? ""
-                  : items.length - 2 == 1
-                  ? ` and +${items.length} other`
-                  : ` and +${items.length} others`
-              }`}</span>
-            </p>
-          </div>
-        ) : items?.length == 0 ? null : (
-          <div className="w-full hidden lg:flex">
-            <p className="flex gap-2">
-              {index.map((e: any, i: any) => (
-                <span key={i} className="font-semibold">
-                  {items?.[i].firstName},
-                </span>
-              ))}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
