@@ -3,6 +3,8 @@ import { ModalHeader } from "../../../../Modal/ModalComponent";
 import {
   MdAdd,
   MdCheck,
+  MdCheckCircleOutline,
+  MdChecklist,
   MdClose,
   MdDelete,
   MdEdit,
@@ -12,6 +14,7 @@ import {
   MdPeople,
   MdWarning,
 } from "react-icons/md";
+import { BsClipboardCheck } from "react-icons/bs";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
 import Button from "../../../../Button/Button";
@@ -473,8 +476,8 @@ export default function TaskFormUpdate(props: Props) {
         </div>
       </ModalHeader>
       <div className="w-full">
-        <div className="w-full flex gap-2 divide-x-2 divide-gray">
-          <div className="w-full lg:w-1/2 flex flex-col gap-2 p-4 text-gray-6">
+        <div className="w-full flex flex-col lg:flex-row gap-2 divide-x-2 divide-gray">
+          <div className="w-full lg:w-1/2 flex flex-col gap-2 p-6 text-gray-6">
             <div
               className={`inline-flex w-full max-w-max px-4 py-2 text-xl rounded-lg shadow-2 mb-3 ${
                 !items?.taskStatus ? "hidden" : ""
@@ -516,7 +519,7 @@ export default function TaskFormUpdate(props: Props) {
             </div>
 
             <div className="w-full flex flex-col lg:flex-row item-center gap-2 mb-3">
-              <div className="w-full lg:w-1/3 my-auto text-title-md">
+              <div className="w-full my-auto lg:w-1/3 text-lg font-semibold">
                 Schedule
               </div>
               <div className="w-full lg:w-2/3">
@@ -564,11 +567,11 @@ export default function TaskFormUpdate(props: Props) {
             </div>
 
             <div className="w-full">
-              <label
-                className="text-gray-500 text-title-md"
+              {/* <label
+                className="text-gray-500 text-lg font-semibold"
                 htmlFor="projectDescription">
                 Description
-              </label>
+              </label> */}
               <div className="w-full mt-2">
                 <textarea
                   rows={3}
@@ -619,7 +622,7 @@ export default function TaskFormUpdate(props: Props) {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 p-4">
+          <div className="w-full lg:w-1/2 p-6">
             <div className="w-full">
               <div className="flex gap-2 items-center">
                 <MdLabelOutline className="w-6 h-6" />
@@ -661,6 +664,52 @@ export default function TaskFormUpdate(props: Props) {
                 menus={menuTabs}
                 className="text-sm"
               />
+
+              <div
+                className={`w-full flex flex-col gap-2 py-5 ${
+                  tabs !== "To Do" ? "hidden" : ""
+                }`}>
+                <div className="w-full flex items-center gap-2 text-gray-6 mb-3">
+                  <BsClipboardCheck className="w-6 h-6" />
+                  <h3 className="text-lg font-semibold">Checklist</h3>
+                </div>
+
+                <div className="w-full bg-gray rounded-lg max-h-[250px] overflow-y-auto p-4">
+                  <div className="w-full flex flex-row justify-between bg-white py-3 px-4 rounded-lg shadow-md">
+                    <div className="flex items-center gap-3">
+                      <button>
+                        <MdCheckCircleOutline className="text-green-300 h-6 w-6 active:scale-110 " />
+                      </button>
+                      <label className="font-semibold capitalize  flex">
+                        subname
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-full">
+                  <Button
+                    type="button"
+                    onClick={() => console.log("open todo")}
+                    className="rounded-lg font-semibold text-xs border border-primary shadow-2"
+                    variant="primary">
+                    <span>New todo</span>
+                    <MdAdd className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div
+                className={`w-full py-5 ${tabs !== "Comment" ? "hidden" : ""}`}>
+                Comment
+              </div>
+
+              <div
+                className={`w-full py-5 ${
+                  tabs !== "Attachment" ? "hidden" : ""
+                }`}>
+                Attachment
+              </div>
             </div>
           </div>
         </div>

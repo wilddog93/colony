@@ -79,6 +79,7 @@ const ListItem = ({
     };
     setFormTask(newObj);
     setIsOpenUpdate(true);
+    setTabs("To Do");
   };
 
   const onCloseUpdate = () => {
@@ -98,7 +99,31 @@ const ListItem = ({
     }
   }, [data]);
 
-  console.log(formTask, "items-in-task");
+  const handleChangeModalTabs = ({ value, tab }: any) => {
+    if (!value || !tab) return;
+    let newObj = {
+      ...value,
+      assignee:
+        value?.taskAssignees?.length > 0
+          ? value?.taskAssignees?.map((user: any) => ({
+              ...user,
+              label: `${user?.firstName} ${user?.lastName}`,
+              value: `${user?.id}`,
+            }))
+          : [],
+      taskCategory:
+        value?.taskCategories?.length > 0
+          ? value?.taskCategories?.map((item: any) => ({
+              ...item,
+              label: `${item?.taskCategoryName}`,
+              value: `${item?.id}`,
+            }))
+          : [],
+    };
+    setFormTask(newObj);
+    setIsOpenUpdate(true);
+    setTabs(tab);
+  };
 
   return (
     <Fragment>
@@ -171,14 +196,18 @@ const ListItem = ({
 
               <div className="flex w-full gap-3">
                 <button
-                  // onClick={(id) => handleAttachment(item?.id)}
+                  onClick={() =>
+                    handleChangeModalTabs({ value: item, tab: "Attachment" })
+                  }
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
                   <MdOutlineFileOpen className="mr-2 w-5 h-5" />
                   <p>{item?.totalAttachment}</p>
                 </button>
 
                 <button
-                  // onClick={(id) => handleSubtask(item?.id)}
+                  onClick={() =>
+                    handleChangeModalTabs({ value: item, tab: "To Do" })
+                  }
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
                   <MdOutlineTask className="mr-2 w-5 h-5" />
                   <p>{item?.totalSubTask}</p>
@@ -190,8 +219,9 @@ const ListItem = ({
                   <Members items={item?.taskAssignees} />
                 </div>
                 <button
-                // onClick={() => handleComment(item?.id)}
-                >
+                  onClick={() =>
+                    handleChangeModalTabs({ value: item, tab: "Comment" })
+                  }>
                   <div className="flex flex-row text-[#C4C4C4] hover:text-green-300">
                     <MdOutlineChatBubbleOutline className="mr-2 w-6 h-6" />
                     <p>{item?.totalComment}</p>

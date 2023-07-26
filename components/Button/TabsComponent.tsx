@@ -19,9 +19,9 @@ const TabsComponent = ({
   className,
 }: Props) => {
   const primary =
-    "flex flex-col md:flex-row overflow-x-auto scrollbar-none bg-white shadow-card rounded gap-2 transform transition-all duration-300";
+    "flex flex-col md:flex-row overflow-x-auto scrollbar-none bg-white shadow-card rounded gap-4 transform transition-all duration-300";
   const underline =
-    "flex flex-col md:flex-row overflow-x-auto scrollbar-none shadow ronded gap-2 transform transition-all duration-300";
+    "flex flex-col md:flex-row overflow-x-auto scrollbar-none shadow ronded gap-4 transform transition-all duration-300";
   const [isMobile, setIsMobile] = useState(false);
   const [variants, setVariants] = useState<any>(null);
 
