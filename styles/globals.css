@@ -114,6 +114,7 @@ td,
 @import url("react-phone.css");
 @import url("tooltip.css");
 @import url("checkbox.css");
+@import url("comment.css");
 
 @tailwind base;
 @tailwind components;

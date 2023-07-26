@@ -4,36 +4,27 @@ import {
   MdAdd,
   MdCheck,
   MdCheckCircleOutline,
-  MdChecklist,
   MdClose,
   MdDelete,
   MdEdit,
   MdLabelOutline,
   MdOutlineCalendarToday,
-  MdOutlineCancel,
   MdPeople,
   MdWarning,
 } from "react-icons/md";
 import { BsClipboardCheck } from "react-icons/bs";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
-import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import Button from "../../../../Button/Button";
 import { FaCircleNotch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { selectTaskCategory } from "../../../../../redux/features/task-management/settings/taskCategoryReducers";
-import {
-  createProject,
-  selectProjectManagement,
-  updateProject,
-} from "../../../../../redux/features/task-management/project/projectManagementReducers";
 import DatePicker from "react-datepicker";
 import Members from "../../../../Task/Members";
 import Modal from "../../../../Modal";
 import UsersForm from "./UsersForm";
-import DropdownSelect from "../../../../Dropdown/DropdownSelect";
 import moment from "moment";
 import {
-  createTasks,
   getTasksByIdProject,
   selectTaskManagement,
   updateTasks,
@@ -43,7 +34,10 @@ import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import axios from "axios";
 import TaskCategoryForm from "./TaskCategoryForm";
 import { useRouter } from "next/router";
+import { selectAuth } from "../../../../../redux/features/auth/authReducers";
+import TaskComment from "./TaskComment";
 import TabsComponent from "../../../../Button/TabsComponent";
+import TextEditor from "../../../Comments/TextEditor";
 
 type Props = {
   id: number | any;
@@ -119,6 +113,8 @@ export default function TaskFormUpdate(props: Props) {
     tabsMenu,
   } = props;
 
+  const { data } = useAppSelector(selectAuth);
+
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -156,6 +152,8 @@ export default function TaskFormUpdate(props: Props) {
   // redux
   const dispatch = useAppDispatch();
   const { pending, error, message } = useAppSelector(selectTaskManagement);
+
+  const [loading, setLoading] = useState(false);
 
   // modal task-category
   const [isOpenModalCategory, setIsOpenModalCategory] = useState(false);
@@ -441,6 +439,8 @@ export default function TaskFormUpdate(props: Props) {
     { pathname: "Attachment" },
   ];
 
+  //
+
   console.log(taskCategoryData, "items-task");
 
   return (
@@ -701,7 +701,15 @@ export default function TaskFormUpdate(props: Props) {
 
               <div
                 className={`w-full py-5 ${tabs !== "Comment" ? "hidden" : ""}`}>
-                Comment
+                <div>
+                  <TaskComment
+                    id={id}
+                    member={projectMembers}
+                    user={data.user}
+                    item={items}
+                    token={token}
+                  />
+                </div>
               </div>
 
               <div
