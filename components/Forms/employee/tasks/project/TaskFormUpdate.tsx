@@ -40,6 +40,7 @@ import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import axios from "axios";
 import TaskCategoryForm from "./TaskCategoryForm";
 import { useRouter } from "next/router";
+import TabsComponent from "../../../../Button/TabsComponent";
 
 type Props = {
   id: number | any;
@@ -51,6 +52,7 @@ type Props = {
   getData: () => void;
   categoryOptions?: any | any[];
   projectMembers?: any | any[];
+  tabsMenu: string | any;
 };
 
 type FormValues = {
@@ -111,6 +113,7 @@ export default function TaskFormUpdate(props: Props) {
     getData,
     categoryOptions,
     projectMembers,
+    tabsMenu,
   } = props;
 
   const router = useRouter();
@@ -129,6 +132,14 @@ export default function TaskFormUpdate(props: Props) {
   // teams
   const [isOpenAddUsers, setIsOpenAddUsers] = useState(false);
   const [users, setUsers] = useState<any | any[]>([]);
+
+  // tabs
+  const [tabs, setTabs] = useState<string | any>("To Do");
+  useEffect(() => {
+    if (tabsMenu) {
+      setTabs(tabsMenu);
+    }
+  }, [tabsMenu]);
 
   // data-item-task
   const [subTasks, setSubTasks] = useState<any | any>([]);
@@ -421,6 +432,12 @@ export default function TaskFormUpdate(props: Props) {
     }
   }, [taskCategoryData]);
 
+  const menuTabs = [
+    { pathname: "To Do" },
+    { pathname: "Comment" },
+    { pathname: "Attachment" },
+  ];
+
   console.log(taskCategoryData, "items-task");
 
   return (
@@ -635,6 +652,15 @@ export default function TaskFormUpdate(props: Props) {
                   <MdAdd className="w-6 h-6 text-white" />
                 </button>
               </div>
+            </div>
+
+            <div className="w-full">
+              <TabsComponent
+                value={tabs}
+                setValue={setTabs}
+                menus={menuTabs}
+                className="text-sm"
+              />
             </div>
           </div>
         </div>

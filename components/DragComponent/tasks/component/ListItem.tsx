@@ -215,6 +215,7 @@ const ListItem = ({
             id={query?.id}
             isCloseModal={onCloseUpdate}
             projectMembers={projectData?.projectMembers}
+            tabsMenu={tabs}
           />
         </div>
       </Modal>
