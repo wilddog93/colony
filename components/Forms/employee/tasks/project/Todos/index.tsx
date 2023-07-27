@@ -51,7 +51,7 @@ export default function Todos({ id, item, member, user, token }: Props) {
 
   // get task todos
   useEffect(() => {
-    if (token && item) {
+    if (token) {
       dispatch(
         getTaskTodos({
           token,
@@ -82,7 +82,7 @@ export default function Todos({ id, item, member, user, token }: Props) {
     setSubTasks(arr);
   }, [taskTodos]);
 
-  console.log(subTasks, "refresh-value");
+  // console.log(user, "refresh-value");
 
   const onChangeStatus = (value: any) => {
     console.log(value, "change-status");
@@ -291,7 +291,7 @@ export default function Todos({ id, item, member, user, token }: Props) {
                 })
               )
             }
-            taskAssignees={item?.taskAssignees}
+            taskAssignees={user}
           />
         </div>
       </Modal>
@@ -316,7 +316,7 @@ export default function Todos({ id, item, member, user, token }: Props) {
               )
             }
             items={formData}
-            taskAssignees={item?.taskAssignees}
+            taskAssignees={user}
             isUpdate
           />
         </div>

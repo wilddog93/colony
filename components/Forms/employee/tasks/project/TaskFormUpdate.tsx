@@ -227,7 +227,7 @@ export default function TaskFormUpdate(props: Props) {
     }
   }, [items]);
 
-  console.log(users, "data-user");
+  // console.log(users, "data-user");
 
   useEffect(() => {
     const subscription = watch((value, { name, type }): any => {
@@ -670,7 +670,7 @@ export default function TaskFormUpdate(props: Props) {
                 <Todos
                   id={id}
                   member={projectMembers}
-                  user={data?.user}
+                  user={users}
                   item={items}
                   token={token}
                 />
@@ -707,9 +707,9 @@ export default function TaskFormUpdate(props: Props) {
             id={id}
             taskId={items?.id}
             token={token}
-            getData={() =>
-              dispatch(getTasksByIdProject({ token, id: query?.id }))
-            }
+            getData={() => (
+              getData(), dispatch(getTasksByIdProject({ token, id: query?.id }))
+            )}
             isOpen={isOpenAddUsers}
             isCloseModal={onCloseAddUsers}
             items={users}
