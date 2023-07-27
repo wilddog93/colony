@@ -94,73 +94,79 @@ export const getTasksByIdProject = createAsyncThunk<
 });
 
 // create issue
-export const createTask = createAsyncThunk<any, TaskData, { state: RootState }>(
-  "/project/projectId/task/create",
-  async (params, { getState }) => {
-    let config: HeadersConfiguration = {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${params.token}`,
-      },
-    };
-    try {
-      const response = await axios.post("project", params.data, config);
-      const { data, status } = response;
-      if (status == 201) {
-        params.isSuccess();
-        return data;
-      } else {
-        throw response;
-      }
-    } catch (error: any) {
-      const { data, status } = error.response;
-      let newError: any = { message: data.message[0] };
-      toast.dark(newError.message);
-      if (error.response && error.response.status === 404) {
-        throw new Error("User not found");
-      } else {
-        throw new Error(newError.message);
-      }
+export const createTasks = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/task/create", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post(
+      `project/${params.id}/task`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
     }
   }
-);
+});
 
-export const updateTask = createAsyncThunk<any, TaskData, { state: RootState }>(
-  "/project/projectId/task/update",
-  async (params, { getState }) => {
-    let config: HeadersConfiguration = {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${params.token}`,
-      },
-    };
-    try {
-      const response = await axios.patch(
-        `project/${params.id}`,
-        params.data,
-        config
-      );
-      const { data, status } = response;
-      if (status == 200) {
-        params.isSuccess();
-        return data;
-      } else {
-        throw response;
-      }
-    } catch (error: any) {
-      const { data, status } = error.response;
-      let newError: any = { message: data.message[0] };
-      toast.dark(newError.message);
-      if (error.response && error.response.status === 404) {
-        throw new Error("User not found");
-      } else {
-        throw new Error(newError.message);
-      }
+export const updateTasks = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/taskId/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.patch(
+      `project/${params.id}/${params?.taskId}`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
     }
   }
-);
+});
 
 // update-task-status
 export const updateTaskStatus = createAsyncThunk<
@@ -201,37 +207,77 @@ export const updateTaskStatus = createAsyncThunk<
   }
 });
 
-export const deleteTask = createAsyncThunk<any, TaskData, { state: RootState }>(
-  "/project/projectId/taskId/delete",
-  async (params, { getState }) => {
-    let config: HeadersConfiguration = {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${params.token}`,
-      },
-    };
-    try {
-      const response = await axios.delete(`project/${params.id}`, config);
-      const { data, status } = response;
-      if (status == 204) {
-        params.isSuccess();
-        return data;
-      } else {
-        throw response;
-      }
-    } catch (error: any) {
-      const { data, status } = error.response;
-      let newError: any = { message: data.message[0] };
-      toast.dark(newError.message);
-      if (error.response && error.response.status === 404) {
-        throw new Error("User not found");
-      } else {
-        throw new Error(newError.message);
-      }
+// update-task-assignee
+export const updateTaskAssignee = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/taskId/assignee/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.put(
+      `project/${params.id}/${params.taskId}/assignee`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    params.isError();
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
     }
   }
-);
+});
+
+export const deleteTasks = createAsyncThunk<
+  any,
+  TaskData,
+  { state: RootState }
+>("/project/projectId/taskId/delete", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.delete(`project/${params.id}`, config);
+    const { data, status } = response;
+    if (status == 204) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
 
 // SLICER
 export const taskSlice = createSlice({
@@ -273,46 +319,46 @@ export const taskSlice = createSlice({
       })
 
       // create-task
-      .addCase(createTask.pending, (state) => {
+      .addCase(createTasks.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(createTask.fulfilled, (state, { payload }) => {
+      .addCase(createTasks.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(createTask.rejected, (state, { error }) => {
+      .addCase(createTasks.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
       // update-task
-      .addCase(updateTask.pending, (state) => {
+      .addCase(updateTasks.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(updateTask.fulfilled, (state, { payload }) => {
+      .addCase(updateTasks.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(updateTask.rejected, (state, { error }) => {
+      .addCase(updateTasks.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
       })
 
-      // update-task
+      // update-task-status
       .addCase(updateTaskStatus.pending, (state) => {
         return {
           ...state,
@@ -332,21 +378,41 @@ export const taskSlice = createSlice({
         state.message = error.message;
       })
 
-      // delete-task
-      .addCase(deleteTask.pending, (state) => {
+      // update-task-assignee
+      .addCase(updateTaskAssignee.pending, (state) => {
         return {
           ...state,
           pending: true,
         };
       })
-      .addCase(deleteTask.fulfilled, (state, { payload }) => {
+      .addCase(updateTaskAssignee.fulfilled, (state, { payload }) => {
         return {
           ...state,
           pending: false,
           error: false,
         };
       })
-      .addCase(deleteTask.rejected, (state, { error }) => {
+      .addCase(updateTaskAssignee.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // delete-task
+      .addCase(deleteTasks.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(deleteTasks.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(deleteTasks.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

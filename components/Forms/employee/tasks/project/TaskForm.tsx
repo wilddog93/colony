@@ -12,10 +12,7 @@ import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
 import Button from "../../../../Button/Button";
 import { FaCircleNotch } from "react-icons/fa";
 import { toast } from "react-toastify";
-import {
-  selectTaskCategory,
-  updateTaskCategory,
-} from "../../../../../redux/features/task-management/settings/taskCategoryReducers";
+import { selectTaskCategory } from "../../../../../redux/features/task-management/settings/taskCategoryReducers";
 import {
   createProject,
   selectProjectManagement,
@@ -27,25 +24,32 @@ import Modal from "../../../../Modal";
 import UsersForm from "./UsersForm";
 import DropdownSelect from "../../../../Dropdown/DropdownSelect";
 import moment from "moment";
+import {
+  createTasks,
+  selectTaskManagement,
+  updateTasks,
+} from "../../../../../redux/features/task-management/project/task/taskManagementReducers";
 
 type Props = {
+  id: number | any;
   items?: any;
   token?: any;
   isOpen?: boolean;
   isCloseModal: () => void;
   isUpdate?: boolean;
   getData: () => void;
-  projectOption?: any | any[];
+  categoryOptions?: any | any[];
+  projectMembers: any | any[];
 };
 
 type FormValues = {
   id?: any;
-  projectName?: string | any;
-  projectDescription?: string | any;
-  projectType?: any;
+  taskName?: string | any;
+  taskDescription?: string | any;
+  taskCategory?: any | any[];
+  assignee?: any | any[];
   scheduleStart?: string | any;
   scheduleEnd?: string | any;
-  user?: any | any[];
 };
 
 const stylesSelect = {
@@ -85,15 +89,17 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-export default function ProjectForm(props: Props) {
+export default function TaskForm(props: Props) {
   const {
+    id,
     isOpen,
     isCloseModal,
     items,
     isUpdate,
     token,
     getData,
-    projectOption,
+    categoryOptions,
+    projectMembers,
   } = props;
 
   const [watchValue, setWatchValue] = useState<FormValues | any>();
@@ -112,7 +118,7 @@ export default function ProjectForm(props: Props) {
 
   // redux
   const dispatch = useAppDispatch();
-  const { pending, error, message } = useAppSelector(selectProjectManagement);
+  const { pending, error, message } = useAppSelector(selectTaskManagement);
 
   // form
   const {
@@ -139,12 +145,12 @@ export default function ProjectForm(props: Props) {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: items?.id,
-        projectName: items?.projectName,
-        projectDescription: items?.projectDescription,
-        projectType: items?.projectType,
+        taskName: items?.taskName,
+        taskDescription: items?.taskDescription,
+        taskCategory: items?.taskCategory,
+        assignee: items?.assignee,
         scheduleStart: items?.scheduleStart,
         scheduleEnd: items?.scheduleEnd,
-        user: items?.user,
       }),
       [items]
     ),
@@ -154,12 +160,12 @@ export default function ProjectForm(props: Props) {
     if (items) {
       reset({
         id: items?.id,
-        projectName: items?.projectName,
-        projectDescription: items?.projectDescription,
-        projectType: items?.projectType,
+        taskName: items?.taskName,
+        taskDescription: items?.taskDescription,
+        taskCategory: items?.taskCategory,
+        assignee: items?.assignee,
         scheduleStart: items?.scheduleStart,
         scheduleEnd: items?.scheduleEnd,
-        user: items?.user,
       });
       // date-range
       let result = [items?.scheduleStart, items?.scheduleEnd];
@@ -172,7 +178,7 @@ export default function ProjectForm(props: Props) {
       setDateRange(result);
 
       // user
-      setUsers(items?.user);
+      setUsers(items?.assignee);
     }
   }, [items]);
 
@@ -187,21 +193,14 @@ export default function ProjectForm(props: Props) {
   }, [watch]);
 
   const descValue = useWatch({
-    name: "projectDescription",
+    name: "taskDescription",
     control,
   });
 
   const userValue = useWatch({
-    name: "user",
+    name: "assignee",
     control,
   });
-
-  // getUser
-  const getMembers = useMemo(() => {
-    let arr: any[] = userValue || [];
-
-    return arr;
-  }, []);
 
   // modal add member
   const onOpenAddUsers = (user: any) => {
@@ -216,11 +215,18 @@ export default function ProjectForm(props: Props) {
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
     let newData: FormValues = {
-      projectName: value?.projectName,
-      projectType: value?.projectType?.id,
-      projectDescription: value?.projectDescription,
+      taskName: value?.taskName,
+      taskCategory:
+        value?.taskCategory?.length > 0
+          ? value?.taskCategory?.map((item: any) => item?.id)
+          : [],
+      taskDescription: value?.taskDescription,
       scheduleStart: value?.scheduleStart,
       scheduleEnd: value?.scheduleEnd,
+      assignee:
+        value?.assignee?.length > 0
+          ? value?.assignee?.map((x: any) => x.id)
+          : [],
     };
     if (!value.scheduleStart) {
       setError("scheduleStart", {
@@ -234,17 +240,13 @@ export default function ProjectForm(props: Props) {
       });
     } else {
       if (!isUpdate) {
-        newData = {
-          ...newData,
-          user:
-            value?.user?.length > 0 ? value?.user?.map((x: any) => x.id) : [],
-        };
         dispatch(
-          createProject({
+          createTasks({
+            id: id,
             token,
             data: newData,
             isSuccess() {
-              toast.dark("New Project has been created");
+              toast.dark("New Task has been created");
               getData();
               isCloseModal();
             },
@@ -255,12 +257,13 @@ export default function ProjectForm(props: Props) {
         );
       } else {
         dispatch(
-          updateProject({
-            id: value?.id,
+          updateTasks({
+            id: id,
+            taskId: value?.id,
             token,
             data: newData,
             isSuccess() {
-              toast.dark("Project has been updated");
+              toast.dark("Task has been updated");
               getData();
               isCloseModal();
             },
@@ -307,7 +310,7 @@ export default function ProjectForm(props: Props) {
 
   useEffect(() => {
     if (users?.length > 0) {
-      setValue("user", users);
+      setValue("assignee", users);
     }
   }, [users]);
 
@@ -319,9 +322,9 @@ export default function ProjectForm(props: Props) {
         className="p-4 bg-white rounded-t-xl border-b-2 border-gray">
         <div className="w-full flex flex-col gap-1 px-2">
           <h3 className="text-lg font-semibold">
-            {isUpdate ? "Edit" : "Add"} Project
+            {isUpdate ? "Edit" : "New"} Task
           </h3>
-          <p className="text-gray-5 text-sm">Fill your project information.</p>
+          <p className="text-gray-5 text-sm">Fill your task information.</p>
         </div>
       </ModalHeader>
       <div className="w-full">
@@ -329,8 +332,8 @@ export default function ProjectForm(props: Props) {
           <div className="w-full mb-3">
             <label
               className="text-gray-500 font-semibold text-sm"
-              htmlFor="projectType">
-              Project Type<span className="text-primary">*</span>
+              htmlFor="taskCategory">
+              Task Category<span className="text-primary">*</span>
             </label>
             <div className="w-full flex">
               <Controller
@@ -346,29 +349,29 @@ export default function ProjectForm(props: Props) {
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel={""}
-                    instanceId="projectType"
+                    instanceId="taskCategory"
                     isDisabled={false}
-                    isMulti={false}
+                    isMulti={true}
                     placeholder="Type"
-                    options={projectOption}
+                    options={categoryOptions}
                     icon=""
                   />
                 )}
-                name="projectType"
+                name="taskCategory"
                 control={control}
                 rules={{
                   required: {
                     value: true,
-                    message: "Project type is required.",
+                    message: "Task Category is required.",
                   },
                 }}
               />
             </div>
-            {errors?.projectType && (
+            {errors?.taskCategory && (
               <div className="mt-1 text-xs flex items-center text-red-300">
                 <MdWarning className="w-4 h-4 mr-1" />
                 <span className="text-red-300">
-                  {errors.projectType.message as any}
+                  {errors.taskCategory.message as any}
                 </span>
               </div>
             )}
@@ -377,29 +380,29 @@ export default function ProjectForm(props: Props) {
           <div className="w-full mb-3">
             <label
               className="text-gray-500 font-semibold text-sm"
-              htmlFor="projectName">
-              Project Name<span className="text-primary">*</span>
+              htmlFor="taskName">
+              Task Name<span className="text-primary">*</span>
             </label>
             <div className="w-full flex">
               <input
                 type="text"
                 placeholder="Name"
                 autoFocus
-                id="projectName"
+                id="taskName"
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("projectName", {
+                {...register("taskName", {
                   required: {
                     value: true,
-                    message: "Project name is required.",
+                    message: "Task name is required.",
                   },
                 })}
               />
             </div>
-            {errors?.projectName && (
+            {errors?.taskName && (
               <div className="mt-1 text-xs flex items-center text-red-300">
                 <MdWarning className="w-4 h-4 mr-1" />
                 <span className="text-red-300">
-                  {errors.projectName.message as any}
+                  {errors.taskName.message as any}
                 </span>
               </div>
             )}
@@ -464,7 +467,7 @@ export default function ProjectForm(props: Props) {
                 id="projectDescription"
                 autoFocus
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                {...register("projectDescription")}
+                {...register("taskDescription")}
               />
             </div>
             <div className={`w-full flex text-xs text-gray-5 justify-end`}>
@@ -475,7 +478,7 @@ export default function ProjectForm(props: Props) {
           <div className={`w-full mb-3 ${isUpdate ? "hidden" : ""}`}>
             <div className="w-full flex items-center gap-2">
               <div className="w-full max-w-max font-semibold text-sm">
-                Users :<span className="text-red-300">*</span>
+                Assignee :<span className="text-red-300">*</span>
               </div>
               {users?.length > 0 ? (
                 <Members
@@ -493,11 +496,11 @@ export default function ProjectForm(props: Props) {
                 </button>
               )}
             </div>
-            {errors?.user && (
+            {errors?.assignee && (
               <div className="mt-1 text-xs flex items-center text-red-300">
                 <MdWarning className="w-4 h-4 mr-1" />
                 <span className="text-red-300">
-                  {errors?.user?.message as string}
+                  {errors?.assignee?.message as string}
                 </span>
               </div>
             )}
@@ -541,6 +544,8 @@ export default function ProjectForm(props: Props) {
             items={users}
             setItems={setUsers}
             isUpdate={false}
+            isTask
+            projectMembers={projectMembers}
           />
         </div>
       </Modal>

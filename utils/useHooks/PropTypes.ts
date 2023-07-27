@@ -1,3 +1,20 @@
+// user
+export type UserProps = {
+  id?: number | any;
+  email?: string | any;
+  firstName?: string | any;
+  lastName?: string | any;
+  nickName?: string | any;
+  documentNumber?: string | any;
+  documentSource?: string | any;
+  profileImage?: string | any;
+  phoneNumber?: string | any;
+  birthday?: string | any;
+  gender?: string | any;
+  userAddress?: string | any;
+};
+// user end
+
 // projects
 export type ProjectTypeProps = {
   id?: number | any;
@@ -39,21 +56,6 @@ export type TaskCategoryProps = {
   taskCategoryTextColor?: string | any;
 };
 
-export type TaskAssigneeProps = {
-  id?: number | any;
-  email?: string | any;
-  firstName?: string | any;
-  lastName?: string | any;
-  nickName?: string | any;
-  documentNumber?: string | any;
-  documentSource?: string | any;
-  profileImage?: string | any;
-  phoneNumber?: string | any;
-  birthday?: string | any;
-  gender?: string | any;
-  userAddress?: string | any;
-};
-
 export type TaskProps = {
   id?: number | any;
   createdAt?: string | any;
@@ -72,9 +74,21 @@ export type TaskProps = {
   totalComment?: number | any;
   project?: ProjectProps | any;
   taskCategories: TaskCategoryProps[] | any[];
-  taskAssignees: TaskAssigneeProps[] | any[];
+  taskAssignees: UserProps[] | any[];
 };
 // end task
+
+// subtask
+export type SubTaskProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  subTaskName?: string | any;
+  subTaskDescription?: string | any;
+  subTaskStatus?: boolean;
+  subTaskAssignees?: UserProps[] | any[];
+};
+// subtask end
 
 // options
 export interface OptionProps {

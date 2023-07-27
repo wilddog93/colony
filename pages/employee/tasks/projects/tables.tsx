@@ -392,12 +392,13 @@ const TableView = ({ pageProps }: Props) => {
             <div
               onClick={() => onOpenModalDetail(row?.original)}
               className="cursor-pointer text-center">
-              {completed + "/" + getValue()}
+              {completed + "/"}{" "}
+              <span className="font-semibold">{getValue()}</span>
             </div>
           );
         },
         header: (props) => (
-          <div className="w-full text-center uppercase">Total Task</div>
+          <div className="w-full text-center uppercase">Progress</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -409,9 +410,9 @@ const TableView = ({ pageProps }: Props) => {
           return (
             <div
               onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-center">
+              className="w-full cursor-pointer text-center">
               {urgency ? (
-                <div className="flex items-center gap-1">
+                <div className="w-full flex justify-center items-center gap-1">
                   <span>{urgency}</span>
                   <MdCheckCircleOutline className="w-5 h-5 text-primary" />
                 </div>

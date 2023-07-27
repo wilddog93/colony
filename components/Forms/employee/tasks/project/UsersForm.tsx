@@ -23,6 +23,7 @@ import {
 } from "../../../../../redux/features/task-management/project/projectManagementReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { updateTaskAssignee } from "../../../../../redux/features/task-management/project/task/taskManagementReducers";
 
 type Options = {
   value?: any;
@@ -31,6 +32,7 @@ type Options = {
 
 type Props = {
   id?: number | any;
+  taskId?: number | any;
   items?: any;
   setItems: Dispatch<SetStateAction<any | any[]>>;
   token?: any;
@@ -38,6 +40,9 @@ type Props = {
   isCloseModal: () => void;
   isUpdate?: boolean;
   getData: () => void;
+  isTask?: boolean;
+  isSubTask?: boolean;
+  projectMembers?: any | any[];
 };
 
 type FormValues = {
@@ -90,12 +95,16 @@ const stylesSelect = {
 
 export default function UsersForm({
   id,
+  taskId,
   isCloseModal,
   items,
   setItems,
   isUpdate,
   token,
   getData,
+  isTask,
+  isSubTask,
+  projectMembers,
 }: Props) {
   // redux
   const dispatch = useAppDispatch();
@@ -128,18 +137,29 @@ export default function UsersForm({
   useEffect(() => {
     let arr: Options[] = [];
     let { data } = userProperties;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
+
+    if (isTask || isSubTask) {
+      projectMembers?.map((item: any) => {
         arr.push({
-          ...item?.user,
-          value: item?.user?.id,
-          label: `${item?.user?.firstName} ${item?.user?.lastName}`,
+          ...item,
+          value: item?.id,
+          label: `${item?.firstName} ${item?.lastName}`,
         });
       });
+    } else {
+      if (data || data?.length > 0) {
+        data?.map((item: any) => {
+          arr.push({
+            ...item?.user,
+            value: item?.user?.id,
+            label: `${item?.user?.firstName} ${item?.user?.lastName}`,
+          });
+        });
+      }
     }
     setUserData(arr);
     setUserOption(arr);
-  }, [userProperties]);
+  }, [userProperties, isTask, isSubTask]);
 
   const onAddUser = (user: any) => {
     if (!user) return;
@@ -199,22 +219,44 @@ export default function UsersForm({
     };
 
     if (newData?.user?.length == 0) return;
-    console.log(newData, "update-user");
-    dispatch(
-      updateProjectMember({
-        token,
-        id,
-        data: newData,
-        isSuccess() {
-          toast.dark("User has been updated");
-          getData();
-          isCloseModal();
-        },
-        isError() {
-          console.log("error-update-member");
-        },
-      })
-    );
+    if (isTask) {
+      newData = {
+        assignee: user?.length > 0 ? user?.map((x: any) => x.id) : [],
+      };
+      dispatch(
+        updateTaskAssignee({
+          token,
+          id,
+          taskId: taskId,
+          data: newData,
+          isSuccess() {
+            toast.dark("Assignee has been updated");
+            getData();
+            isCloseModal();
+          },
+          isError() {
+            console.log("error-update-member");
+          },
+        })
+      );
+    } else {
+      console.log(newData, "update-user");
+      dispatch(
+        updateProjectMember({
+          token,
+          id,
+          data: newData,
+          isSuccess() {
+            toast.dark("User has been updated");
+            getData();
+            isCloseModal();
+          },
+          isError() {
+            console.log("error-update-member");
+          },
+        })
+      );
+    }
   };
 
   const UserComponent = (props: UserProps) => {
@@ -235,6 +277,8 @@ export default function UsersForm({
     );
   };
 
+  console.log(items, "items-user");
+
   return (
     <Fragment>
       <ModalHeader
@@ -247,7 +291,7 @@ export default function UsersForm({
               userSelected?.id ? "" : ""
             }`}>
             <h3 className="text-lg font-semibold">
-              {isUpdate ? "Edit" : "Add"} User
+              {isUpdate ? "Edit" : "New"} {isTask ? "Assignee" : "User"}
             </h3>
             <p className="text-gray-5 text-sm">Fill your user information.</p>
           </div>
@@ -320,7 +364,9 @@ export default function UsersForm({
                 <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
               </div>
             ) : (
-              <span className="text-sm font-semibold">Add User</span>
+              <span className="text-sm font-semibold">
+                {isTask ? "Add Assignee" : "Add User"}
+              </span>
             )}
           </Button>
         </div>
