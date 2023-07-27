@@ -119,6 +119,12 @@ export const isBase64 = (str: any) => {
   return res;
 };
 
+export const isPDFFiles = (value: any) => {
+  const pdfRegex = /^.+\.(([pP][dD][fF]))$/;
+  let result = pdfRegex.test(value);
+  return result;
+};
+
 export const exportDataToJSON = (data: any) => {
   const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
     JSON.stringify(data)

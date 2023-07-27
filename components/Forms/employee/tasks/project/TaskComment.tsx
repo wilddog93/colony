@@ -1,7 +1,17 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { MdDeleteOutline, MdDone, MdEdit, MdPeople } from "react-icons/md";
+import {
+  MdDeleteOutline,
+  MdDone,
+  MdEdit,
+  MdPeople,
+  MdTask,
+} from "react-icons/md";
 import { useRouter } from "next/router";
-import { isBase64, sortByArr } from "../../../../../utils/useHooks/useFunction";
+import {
+  isBase64,
+  isPDFFiles,
+  sortByArr,
+} from "../../../../../utils/useHooks/useFunction";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import {
   createTaskComment,
@@ -50,6 +60,9 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
   const [commentEdit, setCommentEdit] = useState<any>(null);
   const [attachmentEdit, setAttachmentEdit] = useState(null);
 
+  // pdf status
+  const [isPdfStatus, setisPdfStatus] = useState(false);
+
   // edit base status
   const [isBaseStatus, setIsBaseStatus] = useState(false);
 
@@ -84,11 +97,16 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
     const { data } = taskComments;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
-        arr.push(item);
+        arr.push({
+          ...item,
+          taskAttachmentStatus: isPDFFiles(item?.taskCommentAttachment),
+        });
       });
-      setCommentData(arr);
     }
+    setCommentData(arr);
   }, [taskComments]);
+
+  console.log(commentData, "status-update");
 
   // create-comment
   const onCreateComment = async (value: any) => {
@@ -138,6 +156,7 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
       id: value?.id,
       taskCommentContent: value?.taskCommentContent,
       taskCommentAttachment: value?.taskCommentAttachment,
+      taskAttacthmenStatus: isPDFFiles(value?.taskCommentAttachment),
     };
     setCommentEdit(value?.taskCommentContent);
     setAttachmentEdit(value?.taskCommentAttachment);
@@ -267,6 +286,7 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
       <div className="overflow-y-scroll my-5 max-h-60">
         {disPlayComment?.length > 0
           ? disPlayComment?.map((element: any, idx: any) => {
+              console.log(element, "status-edit");
               return (
                 <React.Fragment key={idx}>
                   <div className="w-full p-4 pb-0">
@@ -391,7 +411,13 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
                               .fromNow()}`}
                           </p>
 
-                          {element?.taskCommentAttachment ? (
+                          {element?.taskCommentAttachment &&
+                          element?.taskAttachmentStatus ? (
+                            <MdTask className="w-16 h-auto" />
+                          ) : null}
+
+                          {element?.taskCommentAttachment &&
+                          !element?.taskAttachmentStatus ? (
                             <div className="w-full flex flex-wrap mb-2">
                               <img
                                 src={`${url}project/task/attachment/${element?.taskCommentAttachment}`}
