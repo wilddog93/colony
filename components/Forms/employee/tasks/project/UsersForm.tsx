@@ -41,6 +41,7 @@ type Props = {
   isUpdate?: boolean;
   getData: () => void;
   isTask?: boolean;
+  isSubTask?: boolean;
   projectMembers?: any | any[];
 };
 
@@ -102,6 +103,7 @@ export default function UsersForm({
   token,
   getData,
   isTask,
+  isSubTask,
   projectMembers,
 }: Props) {
   // redux
@@ -136,7 +138,7 @@ export default function UsersForm({
     let arr: Options[] = [];
     let { data } = userProperties;
 
-    if (isTask) {
+    if (isTask || isSubTask) {
       projectMembers?.map((item: any) => {
         arr.push({
           ...item,
@@ -157,7 +159,7 @@ export default function UsersForm({
     }
     setUserData(arr);
     setUserOption(arr);
-  }, [userProperties]);
+  }, [userProperties, isTask, isSubTask]);
 
   const onAddUser = (user: any) => {
     if (!user) return;

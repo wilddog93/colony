@@ -409,7 +409,7 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
           : null}
       </div>
 
-      {/* delete occupant*/}
+      {/* delete comment*/}
       <Modal
         size="small"
         onClose={onCloseDeleteComment}

@@ -37,7 +37,7 @@ import { useRouter } from "next/router";
 import { selectAuth } from "../../../../../redux/features/auth/authReducers";
 import TaskComment from "./TaskComment";
 import TabsComponent from "../../../../Button/TabsComponent";
-import TextEditor from "../../../Comments/TextEditor";
+import Todos from "./Todos";
 
 type Props = {
   id: number | any;
@@ -666,37 +666,14 @@ export default function TaskFormUpdate(props: Props) {
               />
 
               <div
-                className={`w-full flex flex-col gap-2 py-5 ${
-                  tabs !== "To Do" ? "hidden" : ""
-                }`}>
-                <div className="w-full flex items-center gap-2 text-gray-6 mb-3">
-                  <BsClipboardCheck className="w-6 h-6" />
-                  <h3 className="text-lg font-semibold">Checklist</h3>
-                </div>
-
-                <div className="w-full bg-gray rounded-lg max-h-[250px] overflow-y-auto p-4">
-                  <div className="w-full flex flex-row justify-between bg-white py-3 px-4 rounded-lg shadow-md">
-                    <div className="flex items-center gap-3">
-                      <button>
-                        <MdCheckCircleOutline className="text-green-300 h-6 w-6 active:scale-110 " />
-                      </button>
-                      <label className="font-semibold capitalize  flex">
-                        subname
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full">
-                  <Button
-                    type="button"
-                    onClick={() => console.log("open todo")}
-                    className="rounded-lg font-semibold text-xs border border-primary shadow-2"
-                    variant="primary">
-                    <span>New todo</span>
-                    <MdAdd className="w-4 h-4" />
-                  </Button>
-                </div>
+                className={`w-full py-5 ${tabs !== "To Do" ? "hidden" : ""}`}>
+                <Todos
+                  id={id}
+                  member={projectMembers}
+                  user={data?.user}
+                  item={items}
+                  token={token}
+                />
               </div>
 
               <div

@@ -6,9 +6,15 @@ type TeamProps = {
   token?: any;
   items?: any;
   onClick?: () => void;
+  position?: string | "bottom-left";
 };
 
-export default function Members({ token, items, onClick }: TeamProps) {
+export default function Members({
+  token,
+  items,
+  onClick,
+  position,
+}: TeamProps) {
   let url = process.env.API_ENDPOINT;
   const index = [0, 1, 2];
 
@@ -25,7 +31,7 @@ export default function Members({ token, items, onClick }: TeamProps) {
                     classTooltip="p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max"
                     tooltip={`${items?.[val]?.firstName} ${items?.[val]?.lastName}`}
                     color="light"
-                    position={"top-left"}
+                    position={position ? position : "bottom-left"}
                     key={idx}>
                     <button
                       type="button"
@@ -79,7 +85,7 @@ export default function Members({ token, items, onClick }: TeamProps) {
                       classTooltip="p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max"
                       tooltip={`${items?.[val]?.firstName} ${items?.[val]?.lastName}`}
                       color="light"
-                      position={"bottom-left"}
+                      position={position ? position : "bottom-left"}
                       key={idx}>
                       <button
                         type="button"

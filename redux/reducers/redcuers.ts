@@ -24,6 +24,7 @@ import taskCategoryReducers from "../features/task-management/settings/taskCateg
 import projectManagementReducers from "../features/task-management/project/projectManagementReducers";
 import taskManagementReducers from "../features/task-management/project/task/taskManagementReducers";
 import taskCommentReducers from "../features/task-management/project/taskComment/taskCommentReducers";
+import taskTodoReducers from "../features/task-management/project/taskTodo/taskTodoReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -52,4 +53,5 @@ export const combinedReducer = combineReducers({
   projectManagement: projectManagementReducers,
   taskManagement: taskManagementReducers,
   taskComment: taskCommentReducers,
+  taskTodos: taskTodoReducers,
 });
