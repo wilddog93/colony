@@ -18,6 +18,20 @@ export default function Members({
   let url = process.env.API_ENDPOINT;
   const index = [0, 1, 2];
 
+  const genColorUser = (value: number) => {
+    let color = "#333A48";
+    if (value == 1) {
+      color = "#5E59CE";
+    }
+    if (value == 2) {
+      color = "#FF8859";
+    }
+    if (value == 3) {
+      color = "#38B7E3";
+    }
+    return color;
+  };
+
   return (
     <div className="w-full text-sm text-gray-500">
       <div className="w-full flex gap-2 items-center">
@@ -50,9 +64,7 @@ export default function Members({
                       ) : (
                         <div
                           style={{
-                            backgroundColor: `#${useRandomColor(
-                              items?.[val]?.id
-                            )}`,
+                            backgroundColor: genColorUser(Number(idx) + 1),
                           }}
                           className="border rounded-full flex items-center justify-center w-10 h-10 text-[10px] uppercase font-bold text-white">
                           {items[val]?.firstName || items[val]?.lastName
@@ -104,9 +116,7 @@ export default function Members({
                         ) : (
                           <div
                             style={{
-                              backgroundColor: `#${useRandomColor(
-                                items[val]?.id
-                              )}`,
+                              backgroundColor: genColorUser(Number(idx) + 1),
                             }}
                             className="border rounded-full flex items-center justify-center w-10 h-10 text-[10px] uppercase font-bold text-white">
                             {items[val]?.firstName || items[val]?.lastName

@@ -3,6 +3,11 @@ import {
   MdDelete,
   MdDocumentScanner,
   MdOutlineAddPhotoAlternate,
+  MdOutlineAttachment,
+  MdOutlineFileCopy,
+  MdOutlineFileDownload,
+  MdOutlineFileOpen,
+  MdOutlineFileUpload,
   MdOutlineFormatBold,
   MdOutlineFormatItalic,
   MdOutlineFormatUnderlined,
@@ -251,7 +256,7 @@ export default function Comments({
             {!isEdit ? (
               <Fragment>
                 <label htmlFor="image">
-                  <MdOutlineAddPhotoAlternate className="h-6 w-6 text-gray-6 cursor-pointer hover:text-primary" />
+                  <MdOutlineAttachment className="h-5 w-5 text-gray-6 cursor-pointer hover:text-primary rotate-90" />
                 </label>
                 <input
                   id="image"
@@ -265,7 +270,7 @@ export default function Comments({
             ) : (
               <Fragment>
                 <label htmlFor="imageEdit">
-                  <MdOutlineAddPhotoAlternate className="h-6 w-6 text-gray-6 cursor-pointer hover:text-primary" />
+                  <MdOutlineAttachment className="h-5 w-5 text-gray-6 cursor-pointer hover:text-primary rotate-90" />
                 </label>
                 <input
                   id="imageEdit"

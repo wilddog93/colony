@@ -106,9 +106,8 @@ const sortOpt: Options[] = [
 
 const statusOpt: Options[] = [
   { value: "Not Started", label: "Not Started" },
-  { value: "Open", label: "Open" },
-  { value: "On Progress", label: "On Progress" },
-  { value: "Closed", label: "Closed" },
+  { value: "Ongoing", label: "Ongoing" },
+  { value: "Completed", label: "Completed" },
   { value: "Overdue", label: "Overdue" },
 ];
 
@@ -294,25 +293,25 @@ const TableView = ({ pageProps }: Props) => {
     if (!value) return "-";
     if (value === "Open" || value === "Not Started")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-7 text-meta-8 bg-orange-200">
           {value}
         </div>
       );
-    if (value === "On Progress")
+    if (value === "On Progress" || value === "Ongoing")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-5 text-meta-5 bg-blue-200">
           {value}
         </div>
       );
-    if (value === "Closed")
+    if (value === "Closed" || value === "Done" || value === "Completed")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
           {value}
         </div>
       );
     if (value === "Overdue")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
           {value}
         </div>
       );

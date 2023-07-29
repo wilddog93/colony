@@ -436,7 +436,7 @@ export default function TaskFormUpdate(props: Props) {
   const menuTabs = [
     { pathname: "To Do" },
     { pathname: "Comment" },
-    { pathname: "Attachment" },
+    // { pathname: "Attachment" },
   ];
 
   //

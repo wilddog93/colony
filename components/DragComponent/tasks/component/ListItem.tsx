@@ -23,6 +23,7 @@ import TaskFormUpdate from "../../../Forms/employee/tasks/project/TaskFormUpdate
 import { getTasksByIdProject } from "../../../../redux/features/task-management/project/task/taskManagementReducers";
 import { useAppDispatch } from "../../../../redux/Hook";
 import { useRouter } from "next/router";
+import { BsClipboardCheck } from "react-icons/bs";
 
 type Props = {
   item: any | any[];
@@ -195,21 +196,21 @@ const ListItem = ({
                 : null}
 
               <div className="flex w-full gap-3">
-                <button
+                {/* <button
                   onClick={() =>
                     handleChangeModalTabs({ value: item, tab: "Attachment" })
                   }
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
                   <MdOutlineFileOpen className="mr-2 w-5 h-5" />
                   <p>{item?.totalAttachment}</p>
-                </button>
+                </button> */}
 
                 <button
                   onClick={() =>
                     handleChangeModalTabs({ value: item, tab: "To Do" })
                   }
                   className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                  <MdOutlineTask className="mr-2 w-5 h-5" />
+                  <BsClipboardCheck className="mr-2 w-5 h-5" />
                   <p>{item?.totalSubTask}</p>
                 </button>
               </div>

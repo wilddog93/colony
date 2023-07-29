@@ -148,9 +148,11 @@ const Kanban = ({ item, taskData, token, loading }: Props) => {
         isSuccess() {
           toast.dark("Task remove to " + newMove?.status);
           dispatch(getTasksByIdProject({ token, id: query?.id }));
+          dispatch(getProjectById({ token, id: query?.id }));
         },
         isError() {
           dispatch(getTasksByIdProject({ token, id: query?.id }));
+          dispatch(getProjectById({ token, id: query?.id }));
           console.log("error-move-task");
         },
       })
