@@ -8,6 +8,8 @@ import React, {
 } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import {
+  MdChatBubbleOutline,
+  MdListAlt,
   MdOutlineChatBubbleOutline,
   MdOutlineDescription,
   MdOutlineFileCopy,
@@ -24,6 +26,7 @@ import { getTasksByIdProject } from "../../../../redux/features/task-management/
 import { useAppDispatch } from "../../../../redux/Hook";
 import { useRouter } from "next/router";
 import { BsClipboardCheck } from "react-icons/bs";
+import Tooltip from "../../../Tooltip/Tooltip";
 
 type Props = {
   item: any | any[];
@@ -43,6 +46,7 @@ const ListItem = ({
   projectData,
 }: Props) => {
   const [dataTask, setDataTask] = useState<any | any[]>([]);
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any | any[]>([]);
   const [isReadMore, setIsReadMore] = useState(false);
 
   const router = useRouter();
@@ -126,6 +130,74 @@ const ListItem = ({
     setTabs(tab);
   };
 
+  console.log(item, "data");
+
+  // description
+  useEffect(() => {
+    let data = [];
+    if (dataTask?.length > 0) {
+      data = dataTask?.map(({ id, taskDescription }: any) => ({
+        id,
+        text: taskDescription,
+        hide: taskDescription?.length >= 70 ? true : false,
+      }));
+      setIsHiddenDesc(data);
+    } else {
+      setIsHiddenDesc([]);
+    }
+  }, [dataTask]);
+
+  const showDesc = ({ id, text }: any) => {
+    let filter = isHiddenDesc?.some((e: any) => e?.id == id && e?.hide);
+    if (filter) {
+      return `${text?.substring(70, 0)}...`;
+    } else {
+      return text;
+    }
+  };
+
+  const readMore = ({ id }: any) => {
+    let data: any[] = [];
+    let filter = isHiddenDesc?.some((e: any) => e?.id == id && e?.hide == true);
+    if (filter) {
+      isHiddenDesc.map((items: any) => {
+        if (items?.id == id)
+          data.push({
+            ...items,
+            id: items?.id,
+            hide: false,
+          });
+        else data.push({ ...items });
+      });
+    } else {
+      data = isHiddenDesc;
+    }
+    setIsHiddenDesc(data);
+  };
+
+  const readLess = ({ id }: any) => {
+    let data = [];
+    let filter = isHiddenDesc?.some(
+      (e: any) => e?.id == id && e?.hide == false
+    );
+    if (filter) {
+      isHiddenDesc.map((items: any) => {
+        if (items?.id == id)
+          data.push({
+            ...items,
+            id: items?.id,
+            hide: true,
+          });
+        else data.push({ ...items });
+      });
+    } else {
+      data = isHiddenDesc;
+    }
+    setIsHiddenDesc(data);
+  };
+
+  let indexCat = [0];
+
   return (
     <Fragment>
       <Draggable draggableId={"draggable-" + item.id.toString()} index={index}>
@@ -149,85 +221,113 @@ const ListItem = ({
 
                           <div> Due : {dateFormat(e?.scheduleEnd)} </div>
                         </div>
-                        <div className="grid grid-cols-2  gap-1">
-                          {e?.detail?.tags?.length > 0
-                            ? e?.detail?.tags?.map((i: any, idx: any) => (
+                        {/* task category */}
+                        <div className="flex flex-wrap items-center gap-1">
+                          {e?.taskCategories?.length == 0
+                            ? null
+                            : e?.taskCategories?.length > 1
+                            ? indexCat.map((val: any, idx: any) => (
+                                <Fragment>
+                                  <div className="w-full flex flex-wrap gap-1">
+                                    <div
+                                      className="flex items-center rounded-xl py-1 px-3 font-semibold text-xs gap-1"
+                                      style={{
+                                        backgroundColor:
+                                          e?.taskCategories[val]
+                                            ?.taskCategoryFillColor,
+                                        color:
+                                          e?.taskCategories[val]
+                                            ?.taskCategoryTextColor,
+                                      }}
+                                      key={idx}>
+                                      <span className="flex mx-auto">
+                                        {
+                                          e?.taskCategories[val]
+                                            ?.taskCategoryName
+                                        }
+                                      </span>
+                                    </div>
+
+                                    {indexCat?.length - 1 == idx ? (
+                                      <div className="px-2 py-1 bg-gray text-gray-6 text-xs rounded-full font-semibold">
+                                        <span>
+                                          +
+                                          {e?.taskCategories?.length -
+                                            indexCat?.length}
+                                        </span>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                </Fragment>
+                              ))
+                            : e?.taskCategories?.map((val: any, idx: any) => (
                                 <div
-                                  className="flex rounded-xl py-1 px-3 font-bold text-sm"
+                                  className="flex rounded-xl py-1 px-3 font-semibold text-xs"
                                   style={{
-                                    backgroundColor: i?.taskTagColor,
-                                    color: i?.taskTagTextColor,
+                                    backgroundColor: val?.taskCategoryFillColor,
+                                    color: val?.taskCategoryTextColor,
                                   }}
                                   key={idx}>
                                   <span className="flex mx-auto">
-                                    {i?.taskTagName}
+                                    {val?.taskCategoryName}
                                   </span>
                                 </div>
-                              ))
-                            : null}
+                              ))}
                         </div>
                         <p className="font-bold"> {item?.content} </p>
                         <p className="text-[#555555] text-sm flex flex-col">
                           {/* {item?.TaskDescription} */}
-                          {isReadMore
-                            ? e?.taskDescription?.slice(0, 100)
-                            : e?.taskDescription}
-                          {e?.taskDescription?.length > 100 && (
-                            <>
-                              {isReadMore ? "..." : ""}
-                              {isReadMore ? (
-                                <span
-                                  className="text-green-300 font-medium py-1 cursor-pointer"
-                                  onClick={toggleReadMore}>
-                                  Read more
-                                </span>
-                              ) : (
-                                <span
-                                  className="text-green-300 font-medium py-1 cursor-pointer"
-                                  onClick={toggleReadMore}>
-                                  Read less
-                                </span>
-                              )}
-                            </>
-                          )}
+                          {!e?.taskDescription
+                            ? "-"
+                            : showDesc({
+                                id: e?.id,
+                                text: e?.taskDescription,
+                              })}
                         </p>
                       </React.Fragment>
                     ))
                 : null}
 
-              <div className="flex w-full gap-3">
-                {/* <button
-                  onClick={() =>
-                    handleChangeModalTabs({ value: item, tab: "Attachment" })
-                  }
-                  className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                  <MdOutlineFileOpen className="mr-2 w-5 h-5" />
-                  <p>{item?.totalAttachment}</p>
-                </button> */}
-
-                <button
-                  onClick={() =>
-                    handleChangeModalTabs({ value: item, tab: "To Do" })
-                  }
-                  className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                  <BsClipboardCheck className="mr-2 w-5 h-5" />
-                  <p>{item?.totalSubTask}</p>
-                </button>
-              </div>
-
-              <div className="w-full flex justify-between ">
-                <div className="flex flex-row">
+              <div className="w-full flex justify-between items-center">
+                <div className="w-1/2 flex items-center">
                   <Members items={item?.taskAssignees} />
                 </div>
-                <button
-                  onClick={() =>
-                    handleChangeModalTabs({ value: item, tab: "Comment" })
-                  }>
-                  <div className="flex flex-row text-[#C4C4C4] hover:text-green-300">
-                    <MdOutlineChatBubbleOutline className="mr-2 w-6 h-6" />
-                    <p>{item?.totalComment}</p>
-                  </div>
-                </button>
+
+                <div className="w-1/2 flex justify-end gap-2">
+                  <Tooltip
+                    className={`tooltip text-sm focus:outline-none`}
+                    classTooltip="p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max"
+                    tooltip={`Todos`}
+                    color="light"
+                    position={"top-right"}>
+                    <button
+                      onClick={() =>
+                        handleChangeModalTabs({ value: item, tab: "To Do" })
+                      }
+                      className="flex items-center text-gray-5 hover:text-primary gap-2">
+                      {/* <BsClipboardCheck className="w-5 h-5" /> */}
+                      <MdListAlt className="w-6 h-6" />
+                      <p className="inline-flex">{item?.totalSubTask}</p>
+                    </button>
+                  </Tooltip>
+
+                  <Tooltip
+                    className={`tooltip text-sm focus:outline-none`}
+                    classTooltip="p-5 rounded-xl shadow-lg z-1 font-bold w-full min-w-max"
+                    tooltip={`Comments`}
+                    color="light"
+                    position={"top-right"}>
+                    <button
+                      onClick={() =>
+                        handleChangeModalTabs({ value: item, tab: "Comment" })
+                      }>
+                      <div className="flex items-center text-gray-5 hover:text-primary gap-2">
+                        <MdChatBubbleOutline className="w-6 h-6" />
+                        <p className="inline-flex">{item?.totalComment}</p>
+                      </div>
+                    </button>
+                  </Tooltip>
+                </div>
               </div>
             </div>
           );
