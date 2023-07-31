@@ -26,6 +26,8 @@ import taskManagementReducers from "../features/task-management/project/task/tas
 import taskCommentReducers from "../features/task-management/project/taskComment/taskCommentReducers";
 import taskTodoReducers from "../features/task-management/project/taskTodo/taskTodoReducers";
 import issueManagementReducers from "../features/task-management/issue/issueManagementReducers";
+import productManagementReducers from "../features/assets/products/productManagementReducers";
+import productCategoryReducers from "../features/assets/products/category/productCategoryReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -47,6 +49,7 @@ export const combinedReducer = combineReducers({
   unitTypeManagement: unitTypeReducers,
   unitManagement: unitReducers,
   userPropertyManagement: userPropertyReducers,
+  // task-management
   projectType: projectTypeReducers,
   issueType: issueTypeReducers,
   issueCategory: issueCategoryReducers,
@@ -56,4 +59,7 @@ export const combinedReducer = combineReducers({
   taskComment: taskCommentReducers,
   taskTodos: taskTodoReducers,
   issueManagement: issueManagementReducers,
+  // asset-management
+  productManagement: productManagementReducers,
+  productCategoryManagement: productCategoryReducers,
 });
