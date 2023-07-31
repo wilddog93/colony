@@ -20,6 +20,7 @@ import {
   MdPermDeviceInformation,
   MdPhotoSizeSelectActual,
   MdReceipt,
+  MdShoppingCart,
   MdStore,
   MdUnarchive,
   MdWarningAmber,
@@ -81,7 +82,7 @@ export const menuPropertyMaster: MenuProps[] = [
       {
         pathname: "Assets & Inventories",
         pages: "assets-inventories",
-        url: "/employee/assets-inventories",
+        url: "/employee/assets-inventories/products",
         icons: {
           icon: MdUnarchive,
           className: "w-8 h-8 text-meta-6",
@@ -490,6 +491,45 @@ export const menuProjects: MenuProps[] = [
       page: 1,
       limit: 10,
     },
+  },
+];
+
+// assets & inventories
+export const menuAssets: MenuProps[] = [
+  {
+    pathname: "Products",
+    pages: "products",
+    url: "/employee/assets-inventories/products",
+    icons: {
+      icon: MdShoppingCart,
+      className: "w-5 h-5",
+    },
+  },
+  {
+    pathname: "Assets & Inventories",
+    pages: "asset-inventory",
+    icons: {
+      icon: MdUnarchive,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Assets",
+        url: "/employee/assets-inventories/assets",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Inventories",
+        url: "/employee/assets-inventories/inventories",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
   },
 ];
 

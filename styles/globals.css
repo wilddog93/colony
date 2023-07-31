@@ -115,6 +115,7 @@ td,
 @import url("tooltip.css");
 @import url("checkbox.css");
 @import url("comment.css");
+@import url("calculator.css");
 
 @tailwind base;
 @tailwind components;

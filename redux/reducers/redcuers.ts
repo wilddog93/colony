@@ -28,6 +28,8 @@ import taskTodoReducers from "../features/task-management/project/taskTodo/taskT
 import issueManagementReducers from "../features/task-management/issue/issueManagementReducers";
 import productManagementReducers from "../features/assets/products/productManagementReducers";
 import productCategoryReducers from "../features/assets/products/category/productCategoryReducers";
+import productUnitReducers from "../features/assets/products/unit-measurement/productUnitReducers";
+import productBrandReducers from "../features/assets/products/brand/productBrandReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -62,4 +64,6 @@ export const combinedReducer = combineReducers({
   // asset-management
   productManagement: productManagementReducers,
   productCategoryManagement: productCategoryReducers,
+  productUnitManagement: productUnitReducers,
+  productBrandManagement: productBrandReducers,
 });
