@@ -246,7 +246,7 @@ function CardTables(props: any) {
               return (
                 <div
                   key={row.id}
-                  className="w-full h-full min-h-[150px] max-h-[400px] overflow-hidden flex flex-col justify-between bg-white rounded-xl shadow-card border border-gray">
+                  className="w-full h-full min-h-[120px] max-h-[400px] overflow-hidden flex flex-col justify-between bg-white rounded-xl shadow-card border border-gray">
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <div key={cell.id} className="w-full flex flex-col gap-2">

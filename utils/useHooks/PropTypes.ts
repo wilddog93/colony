@@ -95,3 +95,51 @@ export interface OptionProps {
   value: string | any;
   label: string | any;
 }
+
+// issues
+export interface IssueCategoryProps {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  issueCategoryCode: string | any;
+  issueCategoryName: string | any;
+  issueCategoryDescription: string | any;
+}
+
+export interface IssueTypeProps {
+  id: 1;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  issueTypeCode: string | any;
+  issueTypeName: string | any;
+  issueTypeDescription: string | any;
+}
+
+export interface OccupantProps {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  startTime?: string | any;
+  endTime?: string | any;
+  isMobileDefault?: boolean;
+  user?: UserProps;
+}
+
+export interface IssueProps {
+  id: number | any;
+  createdAt: string | any;
+  updatedAt: string | any;
+  issueCode: string | any;
+  issueName: string | any;
+  issueDescription: string | any;
+  complaintSource: string | any;
+  complainantName: string | any;
+  phoneNumber: string | any;
+  issueResponse: string | any;
+  issueStatus: string | any;
+  issueCategory: IssueCategoryProps;
+  issueType: IssueTypeProps;
+  occupant: OccupantProps;
+  project: ProjectProps | any;
+  issueCreator: UserProps;
+}

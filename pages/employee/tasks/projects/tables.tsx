@@ -222,7 +222,7 @@ const TableView = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<WorkProps[]>([]);
+  const [dataTable, setDataTable] = useState<PropsData[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
