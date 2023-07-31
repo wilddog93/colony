@@ -912,34 +912,6 @@ const TableView = ({ pageProps }: Props) => {
           projectOption={typesOpt}
         />
       </Modal>
-
-      {/* delete modal */}
-      <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
-        <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onCloseModalDelete}>
-            <h3 className="text-lg font-semibold">Delete Tenant</h3>
-          </ModalHeader>
-          <div className="w-full my-5 px-4">
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
-
-          <ModalFooter
-            className="p-4 border-t-2 border-gray"
-            isClose={true}
-            onClick={onCloseModalDelete}>
-            <Button
-              variant="primary"
-              className="rounded-md text-sm"
-              type="button"
-              onClick={onCloseModalDelete}>
-              Yes, Delete it!
-            </Button>
-          </ModalFooter>
-        </Fragment>
-      </Modal>
     </DefaultLayout>
   );
 };

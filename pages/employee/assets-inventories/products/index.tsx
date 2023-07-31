@@ -73,6 +73,7 @@ import {
   selectProductCategoryManagement,
 } from "../../../../redux/features/assets/products/category/productCategoryReducers";
 import {
+  deleteProduct,
   getProducts,
   selectProductManagement,
 } from "../../../../redux/features/assets/products/productManagementReducers";
@@ -85,33 +86,20 @@ import {
   getProductBrands,
   selectProductBrandManagement,
 } from "../../../../redux/features/assets/products/brand/productBrandReducers";
-
-interface ProjectTypeProps {
-  id: number | any;
-  createdAt: string | any;
-  updatedAt: string | any;
-  projectTypeName: string | any;
-  projectTypeDescription: string | any;
-  projectTypePriority: string | any;
-}
+import { FaCircleNotch } from "react-icons/fa";
 
 interface PropsData {
   id: 2;
   createdAt: string | any;
   updatedAt: string | any;
-  projectCode: null;
-  projectName: string | any;
-  projectDescription: string | any;
-  scheduleStart: string | any;
-  scheduleEnd: string | any;
-  executionStart: string | any;
-  executionEnd: string | any;
-  projectStatus: string | any;
-  totalTask: number | any;
-  totalTaskCompleted: number | any;
-  projectType: ProjectTypeProps | any;
-  issue: any | null;
-  projectMembers: any | any[];
+  productImage?: string | any;
+  productName?: string | any;
+  productDescription?: string | any;
+  productType?: any;
+  productCategory?: any;
+  unitMeasurement?: any;
+  brand?: any;
+  productMinimumStock?: number | any;
 }
 
 interface Options {
@@ -234,7 +222,7 @@ const Products = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { projects } = useAppSelector(selectProjectManagement);
-  const { products } = useAppSelector(selectProductManagement);
+  const { products, pending } = useAppSelector(selectProductManagement);
   const { productCategories } = useAppSelector(selectProductCategoryManagement);
   const { productUnits } = useAppSelector(selectProductUnitManagement);
   const { productBrands } = useAppSelector(selectProductBrandManagement);
@@ -293,7 +281,34 @@ const Products = ({ pageProps }: Props) => {
 
   // modal update
   const onOpenModalEdit = (items: any) => {
-    setFormData(items);
+    let newData: PropsData = {
+      ...items,
+      productType: items?.productType
+        ? { value: items?.productType, label: items?.productType }
+        : null,
+      productCategory: !items?.productCategory
+        ? null
+        : {
+            ...items?.productCategory,
+            value: items?.productCategory?.productCategoryName,
+            label: items?.productCategory?.productCategoryName,
+          },
+      unitMeasurement: !items?.unitMeasurement
+        ? null
+        : {
+            ...items?.unitMeasurement,
+            value: items?.unitMeasurement?.unitMeasurementName,
+            label: items?.unitMeasurement?.unitMeasurementName,
+          },
+      brand: !items?.brand
+        ? null
+        : {
+            ...items?.brand,
+            value: items?.brand?.brandName,
+            label: items?.brand?.brandName,
+          },
+    };
+    setFormData(newData);
     setIsOpenEdit(true);
   };
 
@@ -314,7 +329,9 @@ const Products = ({ pageProps }: Props) => {
 
   const goToTask = (id: any) => {
     if (!id) return;
-    return router.push({ pathname: `/employee/tasks/projects/${id}` });
+    return router.push({
+      pathname: `/employee/assets-inventories/products/${id}`,
+    });
   };
 
   const genProjectStatus = (value: string) => {
@@ -363,8 +380,8 @@ const Products = ({ pageProps }: Props) => {
         header: (info) => <div className="uppercase">Brand</div>,
         cell: ({ row, getValue }) => {
           const name = getValue()?.brandName || "-";
-          const image = getValue()?.brandImage
-            ? `${url}product/brand/${getValue()?.brandImage}`
+          const image = row?.original?.productImage
+            ? `${url}product/productImage/${row?.original?.productImage}`
             : "../../image/no-image.jpeg";
           return (
             <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
@@ -436,14 +453,14 @@ const Products = ({ pageProps }: Props) => {
           return (
             <div className="w-full text-center flex items-center justify-center">
               <button
-                onClick={() => console.log(row?.original)}
+                onClick={() => onOpenModalEdit(row?.original)}
                 className="px-1 py-1"
                 type="button">
                 <MdEdit className="text-gray-5 w-4 h-4" />
               </button>
 
               <button
-                onClick={() => console.log(row?.original)}
+                onClick={() => onOpenModalDelete(row?.original)}
                 className="px-1 py-1"
                 type="button">
                 <MdDelete className="text-danger w-4 h-4" />
@@ -582,12 +599,12 @@ const Products = ({ pageProps }: Props) => {
     console.log(value, "form-delete");
     if (!value?.id) return;
     dispatch(
-      deleteProject({
+      deleteProduct({
         token,
         id: value?.id,
         isSuccess() {
-          toast.dark("Project has been deleted");
-          dispatch(getProjects({ token, params: filters.queryObject }));
+          toast.dark("Product has been deleted");
+          dispatch(getProducts({ token, params: filters.queryObject }));
           onCloseModalDelete();
         },
         isError() {
@@ -924,7 +941,6 @@ const Products = ({ pageProps }: Props) => {
       </Modal>
 
       {/* add modal */}
-
       <ProductForm
         isCloseModal={onCloseModalAdd}
         isOpen={isOpenAdd}
@@ -939,6 +955,22 @@ const Products = ({ pageProps }: Props) => {
         brandOpt={brandOpt}
       />
 
+      {/* edit modal */}
+      <ProductForm
+        isCloseModal={onCloseModalEdit}
+        isOpen={isOpenEdit}
+        token={token}
+        getData={() =>
+          dispatch(getProducts({ token, params: filters.queryObject }))
+        }
+        items={formData}
+        typesOpt={typesOpt}
+        categoryOpt={categoryOpt}
+        unitOpt={unitOpt}
+        brandOpt={brandOpt}
+        isUpdate
+      />
+
       {/* delete modal */}
       <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
         <Fragment>
@@ -946,24 +978,36 @@ const Products = ({ pageProps }: Props) => {
             className="p-4 border-b-2 border-gray mb-3"
             isClose={true}
             onClick={onCloseModalDelete}>
-            <h3 className="text-lg font-semibold">Delete Tenant</h3>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-semibold">Delete Product</h3>
+              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+            </div>
           </ModalHeader>
-          <div className="w-full my-5 px-4">
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
-
-          <ModalFooter
-            className="p-4 border-t-2 border-gray"
-            isClose={true}
-            onClick={onCloseModalDelete}>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
             <Button
-              variant="primary"
-              className="rounded-md text-sm"
               type="button"
+              variant="secondary-outline"
+              className="rounded-lg border-2 border-gray-2 shadow-2"
               onClick={onCloseModalDelete}>
-              Yes, Delete it!
+              <span className="text-xs font-semibold">Discard</span>
             </Button>
-          </ModalFooter>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary"
+              onClick={() => onDelete(formData)}
+              disabled={pending}>
+              {pending ? (
+                <Fragment>
+                  <span className="text-xs">Deleting...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <span className="text-xs">Yes, Delete it!</span>
+              )}
+            </Button>
+          </div>
         </Fragment>
       </Modal>
     </DefaultLayout>

@@ -182,6 +182,8 @@ export default function ProductForm(props: Props) {
         brand: items?.brand,
         productMinimumStock: items?.productMinimumStock,
       });
+      setFiles(items?.productImage);
+      setCalculator(items?.productMinimumStock);
     }
   }, [items]);
 
@@ -213,7 +215,7 @@ export default function ProductForm(props: Props) {
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
     let newData: FormValues = {
-      productImage: value?.productImage,
+      productImage: imageStatus ? value?.productImage : null,
       productName: value?.productName,
       productDescription: value?.productDescription,
       productType: value?.productType?.value,
@@ -323,6 +325,7 @@ export default function ProductForm(props: Props) {
         productMinimumStock: null,
       });
       onDeleteImage();
+      setCalculator("");
     }
   }, [!isOpen]);
 
