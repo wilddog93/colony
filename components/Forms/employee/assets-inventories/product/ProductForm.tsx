@@ -215,7 +215,7 @@ export default function ProductForm(props: Props) {
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
     let newData: FormValues = {
-      productImage: imageStatus ? value?.productImage : null,
+      productImage: imageStatus ? value?.productImage : undefined,
       productName: value?.productName,
       productDescription: value?.productDescription,
       productType: value?.productType?.value,
