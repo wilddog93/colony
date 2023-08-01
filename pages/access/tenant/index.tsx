@@ -333,7 +333,7 @@ const Home = ({ pageProps }: Props) => {
 
                   <button
                     type="button"
-                    className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
+                    className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row lg:items-center bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
                     onClick={() => router.push("/tenant/menu")}>
                     <img
                       src={"../../.../../image/logo/logo-icon.svg"}
@@ -342,10 +342,24 @@ const Home = ({ pageProps }: Props) => {
                     />
                     <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
                       <div className="w-full text-left p-2">
-                        <h3 className="font-semibold text-lg">
-                          {"Tenant Name"}
-                        </h3>
-                        <p className="text-sm">{"lorem"}</p>
+                        <h3 className="font-semibold text-lg">{"Colony05B"}</h3>
+                        <p className="text-sm divide-y-2 divide-gray">
+                          {"Fauzi"}
+                        </p>
+                      </div>
+                      <div className="w-full flex items-center text-left p-2 gap-2">
+                        <div className="font-semibold text-gray-5 flex items-center gap-2">
+                          <MdOutlineHome className="w-4 h-4" />
+                          <span>Colony</span>
+                        </div>
+                        <div className="font-semibold text-gray-5 flex items-center gap-2">
+                          <MdOutlineHome className="w-4 h-4" />
+                          <span>F1</span>
+                        </div>
+                        <div className="font-semibold text-gray-5 flex items-center gap-2">
+                          <MdOutlineHome className="w-4 h-4" />
+                          <span>Zone 1</span>
+                        </div>
                       </div>
                     </div>
                     <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">

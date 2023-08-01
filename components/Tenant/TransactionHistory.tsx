@@ -44,7 +44,7 @@ const TransactionHistory = () => {
       {
         accessorKey: "totalPaidBill",
         header: (info) => (
-          <div className="uppercase text-left">Localshop Code</div>
+          <div className="uppercase text-left">Local shop Code</div>
         ),
         cell: ({ getValue, row }) => {
           let bill = row?.original?.totalPaidBill;
@@ -63,7 +63,7 @@ const TransactionHistory = () => {
       {
         accessorKey: "totalPaidBill",
         header: (info) => (
-          <div className="uppercase text-left">LocalShopName</div>
+          <div className="uppercase text-left">Local shop Name</div>
         ),
         cell: ({ getValue, row }) => {
           let end = row?.original?.periodEnd;
@@ -81,7 +81,9 @@ const TransactionHistory = () => {
       },
       {
         accessorKey: "totalPaidBill",
-        header: (info) => <div className="uppercase text-left">TotalPrice</div>,
+        header: (info) => (
+          <div className="uppercase text-left">Total Price</div>
+        ),
         cell: ({ getValue, row }) => {
           let end = row?.original?.periodEnd;
           return (
