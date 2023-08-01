@@ -21,6 +21,7 @@ import {
   MdPhotoSizeSelectActual,
   MdReceipt,
   MdShoppingCart,
+  MdStorage,
   MdStore,
   MdUnarchive,
   MdWarningAmber,
@@ -531,6 +532,32 @@ export const menuAssets: MenuProps[] = [
       },
     ],
   },
+  {
+    pathname: "Locations",
+    pages: "locations",
+    icons: {
+      icon: MdStorage,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Storage",
+        url: "/employee/assets-management/locations/storages",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Other",
+        url: "/employee/assets-management/locations/others",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
+  },
 ];
 
 export const menuTabAssets: MenuProps[] = [
@@ -545,6 +572,25 @@ export const menuTabAssets: MenuProps[] = [
   {
     pathname: "Inventory",
     url: "/employee/assets-management/assets-inventories/inventories",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+export const menuTabLocations: MenuProps[] = [
+  {
+    pathname: "Storage",
+    url: "/employee/assets-management/locations/storages",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Other",
+    url: "/employee/assets-management/locations/others",
     query: {
       page: 1,
       limit: 10,

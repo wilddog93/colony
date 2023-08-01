@@ -30,6 +30,7 @@ import productManagementReducers from "../features/assets/products/productManage
 import productCategoryReducers from "../features/assets/products/category/productCategoryReducers";
 import productUnitReducers from "../features/assets/products/unit-measurement/productUnitReducers";
 import productBrandReducers from "../features/assets/products/brand/productBrandReducers";
+import locationManagementReducers from "../features/assets/locations/locationManagementReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -66,4 +67,5 @@ export const combinedReducer = combineReducers({
   productCategoryManagement: productCategoryReducers,
   productUnitManagement: productUnitReducers,
   productBrandManagement: productBrandReducers,
+  locationManagement: locationManagementReducers,
 });
