@@ -81,8 +81,8 @@ export const menuPropertyMaster: MenuProps[] = [
       },
       {
         pathname: "Assets & Inventories",
-        pages: "assets-inventories",
-        url: "/employee/assets-inventories/products",
+        pages: "assets-management",
+        url: "/employee/assets-management/products",
         icons: {
           icon: MdUnarchive,
           className: "w-8 h-8 text-meta-6",
@@ -499,7 +499,7 @@ export const menuAssets: MenuProps[] = [
   {
     pathname: "Products",
     pages: "products",
-    url: "/employee/assets-inventories/products",
+    url: "/employee/assets-management/products",
     icons: {
       icon: MdShoppingCart,
       className: "w-5 h-5",
@@ -507,7 +507,7 @@ export const menuAssets: MenuProps[] = [
   },
   {
     pathname: "Assets & Inventories",
-    pages: "asset-inventory",
+    pages: "assets-inventories",
     icons: {
       icon: MdUnarchive,
       className: "w-5 h-5",
@@ -515,7 +515,7 @@ export const menuAssets: MenuProps[] = [
     routes: [
       {
         pathname: "Assets",
-        url: "/employee/assets-inventories/assets",
+        url: "/employee/assets-management/assets-inventories/assets",
         query: {
           page: 1,
           limit: 10,
@@ -523,13 +523,32 @@ export const menuAssets: MenuProps[] = [
       },
       {
         pathname: "Inventories",
-        url: "/employee/assets-inventories/inventories",
+        url: "/employee/assets-management/assets-inventories/inventories",
         query: {
           page: 1,
           limit: 10,
         },
       },
     ],
+  },
+];
+
+export const menuTabAssets: MenuProps[] = [
+  {
+    pathname: "Asset",
+    url: "/employee/assets-management/assets-inventories/assets",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Inventory",
+    url: "/employee/assets-management/assets-inventories/inventories",
+    query: {
+      page: 1,
+      limit: 10,
+    },
   },
 ];
 

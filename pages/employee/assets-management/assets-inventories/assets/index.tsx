@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import DefaultLayout from "../../../../components/Layouts/DefaultLayouts";
+import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
 import { useRouter } from "next/router";
-import { useAppDispatch, useAppSelector } from "../../../../redux/Hook";
+import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import {
   getAuthMe,
   selectAuth,
-} from "../../../../redux/features/auth/authReducers";
-import { ColumnItems } from "../../../../components/tables/components/makeData";
-import { makeData } from "../../../../components/tables/components/makeData";
+} from "../../../../../redux/features/auth/authReducers";
+import { ColumnItems } from "../../../../../components/tables/components/makeData";
+import { makeData } from "../../../../../components/tables/components/makeData";
 import { ColumnDef } from "@tanstack/react-table";
-import Button from "../../../../components/Button/Button";
+import Button from "../../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
@@ -31,62 +31,67 @@ import {
   MdUpload,
   MdWork,
 } from "react-icons/md";
-import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
+import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
 import {
   menuAssets,
   menuParkings,
   menuProjects,
+  menuTabAssets,
   menuTask,
-} from "../../../../utils/routes";
-import Tabs from "../../../../components/Layouts/Tabs";
-import { SearchInput } from "../../../../components/Forms/SearchInput";
-import DropdownSelect from "../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../components/tables/layouts/server/SelectTables";
-import Modal from "../../../../components/Modal";
+} from "../../../../../utils/routes";
+import Tabs from "../../../../../components/Layouts/Tabs";
+import { SearchInput } from "../../../../../components/Forms/SearchInput";
+import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
+import SelectTables from "../../../../../components/tables/layouts/server/SelectTables";
+import Modal from "../../../../../components/Modal";
 import {
   ModalFooter,
   ModalHeader,
-} from "../../../../components/Modal/ModalComponent";
+} from "../../../../../components/Modal/ModalComponent";
 import {
   WorkProps,
   createDataTask,
-} from "../../../../components/tables/components/taskData";
+} from "../../../../../components/tables/components/taskData";
 import moment from "moment";
-import { ArrayInput, useInputArray } from "../../../../utils/useHooks/useHooks";
-import MultiArrayForm from "../../../../components/Forms/MultiArrayForm";
+import {
+  ArrayInput,
+  useInputArray,
+} from "../../../../../utils/useHooks/useHooks";
+import MultiArrayForm from "../../../../../components/Forms/MultiArrayForm";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
   deleteProject,
   getProjects,
   selectProjectManagement,
-} from "../../../../redux/features/task-management/project/projectManagementReducers";
+} from "../../../../../redux/features/task-management/project/projectManagementReducers";
 import { toast } from "react-toastify";
 import {
   getProjectTypes,
   selectProjectType,
-} from "../../../../redux/features/task-management/settings/projectTypeReducers";
-import TaskCategoryForm from "../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
-import ProjectForm from "../../../../components/Forms/employee/tasks/project/ProjectForm";
-import { OptionProps } from "../../../../utils/useHooks/PropTypes";
+} from "../../../../../redux/features/task-management/settings/projectTypeReducers";
+import TaskCategoryForm from "../../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
+import ProjectForm from "../../../../../components/Forms/employee/tasks/project/ProjectForm";
+import { OptionProps } from "../../../../../utils/useHooks/PropTypes";
 import {
   getProductCategories,
   selectProductCategoryManagement,
-} from "../../../../redux/features/assets/products/category/productCategoryReducers";
+} from "../../../../../redux/features/assets/products/category/productCategoryReducers";
 import {
   deleteProduct,
   getProducts,
   selectProductManagement,
-} from "../../../../redux/features/assets/products/productManagementReducers";
-import ProductForm from "../../../../components/Forms/employee/assets-inventories/product/ProductForm";
+} from "../../../../../redux/features/assets/products/productManagementReducers";
+import ProductForm from "../../../../../components/Forms/employee/assets-inventories/product/ProductForm";
 import {
   getProductUnits,
   selectProductUnitManagement,
-} from "../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
+} from "../../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
 import {
   getProductBrands,
   selectProductBrandManagement,
-} from "../../../../redux/features/assets/products/brand/productBrandReducers";
+} from "../../../../../redux/features/assets/products/brand/productBrandReducers";
 import { FaCircleNotch } from "react-icons/fa";
+import CardTablesRow from "../../../../../components/tables/layouts/server/CardTablesRow";
 
 interface PropsData {
   id: 2;
@@ -152,7 +157,7 @@ const stylesSelectSort = {
     return {
       ...provided,
       background: "",
-      padding: ".6rem",
+      padding: ".5rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -165,6 +170,12 @@ const stylesSelectSort = {
     };
   },
   menuList: (provided: any) => provided,
+  menu: (provide: any) => {
+    return {
+      ...provide,
+      zIndex: 99,
+    };
+  },
 };
 
 const stylesSelect = {
@@ -195,7 +206,7 @@ const stylesSelect = {
     return {
       ...provided,
       background: "",
-      padding: ".6rem",
+      padding: ".5rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -203,14 +214,20 @@ const stylesSelect = {
         color: state.isFocused ? "#E2E8F0" : "#5F59F7",
         borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
       },
-      minHeight: 40,
+      minHeight: 38,
       // flexDirection: "row-reverse"
     };
   },
   menuList: (provided: any) => provided,
+  menu: (provide: any) => {
+    return {
+      ...provide,
+      zIndex: 99,
+    };
+  },
 };
 
-const Products = ({ pageProps }: Props) => {
+const Assets = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -271,6 +288,7 @@ const Products = ({ pageProps }: Props) => {
 
   // modal add
   const onOpenModalAdd = () => {
+    setFormData({ productType: { value: "Asset", label: "Asset" } });
     setIsOpenAdd(true);
   };
 
@@ -330,36 +348,8 @@ const Products = ({ pageProps }: Props) => {
   const goToTask = (id: any) => {
     if (!id) return;
     return router.push({
-      pathname: `/employee/assets-inventories/products/${id}`,
+      pathname: `/employee/assets-inventories/assets/${id}`,
     });
-  };
-
-  const genProjectStatus = (value: string) => {
-    if (!value) return "-";
-    if (value === "Open" || value === "Not Started")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-7 text-meta-8 bg-orange-200">
-          {value}
-        </div>
-      );
-    if (value === "On Progress" || value === "Ongoing")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-5 text-meta-5 bg-blue-200">
-          {value}
-        </div>
-      );
-    if (value === "Closed" || value === "Done" || value === "Completed")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
-          {value}
-        </div>
-      );
-    if (value === "Overdue")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
-          {value}
-        </div>
-      );
   };
 
   const genColorProjectType = (value: any) => {
@@ -376,13 +366,13 @@ const Products = ({ pageProps }: Props) => {
   const columns = useMemo<ColumnDef<PropsData, any>[]>(
     () => [
       {
-        accessorKey: "brand",
-        header: (info) => <div className="uppercase">Brand</div>,
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
         cell: ({ row, getValue }) => {
-          const name = getValue()?.brandName || "-";
+          const name = getValue() || "-";
           const image = row?.original?.productImage
             ? `${url}product/productImage/${row?.original?.productImage}`
-            : "../../image/no-image.jpeg";
+            : "../../../image/no-image.jpeg";
           return (
             <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
               <img
@@ -398,28 +388,6 @@ const Products = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "productName",
-        header: (info) => <div className="uppercase">Product Name</div>,
-        cell: ({ row, getValue }) => {
-          return <div className="w-full">{getValue() || "-"}</div>;
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "productType",
-        header: (info) => <div className="uppercase">Type</div>,
-        cell: ({ row, getValue }) => {
-          const value = getValue();
-          return <div className="w-full">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
         accessorKey: "productCategory.productCategoryName",
         header: (info) => <div className="uppercase">Category</div>,
         cell: ({ row, getValue }) => {
@@ -433,13 +401,58 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "productQty",
+        accessorKey: "productOrderQty",
         header: (info) => (
-          <div className="uppercase w-full text-center">Product Quantity</div>
+          <div className="uppercase w-full text-center">Ordered</div>
         ),
         cell: ({ row, getValue }) => {
           const value = getValue();
           return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "productQty",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Quantity</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "productMinimumStock",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Stock</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value || 0}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "unitMeasurement",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Unit</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue()?.unitMeasurementName || "-";
+          return <div className="w-full text-center">{value || 0}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
@@ -538,7 +551,7 @@ const Products = ({ pageProps }: Props) => {
 
     const search = {
       $and: [
-        { productType: { $contL: query?.types } },
+        { productType: { $contL: "Asset" } },
         { "productCategory.productCategoryName": { $contL: query?.category } },
         {
           $or: [
@@ -732,7 +745,7 @@ const Products = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Tables"
+      head="Assets"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -779,7 +792,7 @@ const Products = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Products
+                      Assets & Inventories
                     </h3>
                   </div>
                 </Button>
@@ -796,12 +809,17 @@ const Products = ({ pageProps }: Props) => {
                 </Button>
               </div>
             </div>
+
+            {/* tabs */}
+            <div className="w-full px-4">
+              <Tabs menus={menuTabAssets} />
+            </div>
           </div>
 
           <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4">
+              <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4 items-center">
                 <div className="w-full lg:col-span-2">
                   <SearchInput
                     className="w-full text-sm rounded-xl"
@@ -832,24 +850,6 @@ const Products = ({ pageProps }: Props) => {
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
-                    value={types}
-                    onChange={setTypes}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="2"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Type..."
-                    options={typesOpt}
-                    icon=""
-                  />
-                </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
                     value={category}
                     onChange={setCategory}
                     error=""
@@ -867,7 +867,7 @@ const Products = ({ pageProps }: Props) => {
               </div>
 
               {/* table */}
-              <SelectTables
+              <CardTablesRow
                 loading={loading}
                 setLoading={setLoading}
                 pages={pages}
@@ -879,6 +879,7 @@ const Products = ({ pageProps }: Props) => {
                 dataTable={dataTable}
                 total={total}
                 setIsSelected={setIsSelectedRow}
+                isInfiniteScroll={false}
               />
             </div>
           </main>
@@ -953,6 +954,8 @@ const Products = ({ pageProps }: Props) => {
         categoryOpt={categoryOpt}
         unitOpt={unitOpt}
         brandOpt={brandOpt}
+        defaultImage="../../../image/no-image.jpeg"
+        isDisableType
       />
 
       {/* edit modal */}
@@ -968,6 +971,8 @@ const Products = ({ pageProps }: Props) => {
         categoryOpt={categoryOpt}
         unitOpt={unitOpt}
         brandOpt={brandOpt}
+        defaultImage="../../../image/no-image.jpeg"
+        isDisableType
         isUpdate
       />
 
@@ -1037,4 +1042,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Products;
+export default Assets;

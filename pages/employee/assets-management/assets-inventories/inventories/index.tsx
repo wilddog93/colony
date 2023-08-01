@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import DefaultLayout from "../../../../components/Layouts/DefaultLayouts";
+import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
 import { useRouter } from "next/router";
-import { useAppDispatch, useAppSelector } from "../../../../redux/Hook";
+import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import {
   getAuthMe,
   selectAuth,
-} from "../../../../redux/features/auth/authReducers";
-import { ColumnItems } from "../../../../components/tables/components/makeData";
-import { makeData } from "../../../../components/tables/components/makeData";
+} from "../../../../../redux/features/auth/authReducers";
+import { ColumnItems } from "../../../../../components/tables/components/makeData";
+import { makeData } from "../../../../../components/tables/components/makeData";
 import { ColumnDef } from "@tanstack/react-table";
-import Button from "../../../../components/Button/Button";
+import Button from "../../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
@@ -27,67 +27,84 @@ import {
   MdMale,
   MdOutlinePerson,
   MdPhone,
+  MdUnarchive,
   MdUpload,
   MdWork,
 } from "react-icons/md";
-import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
-import { menuParkings, menuProjects, menuTask } from "../../../../utils/routes";
-import Tabs from "../../../../components/Layouts/Tabs";
-import { SearchInput } from "../../../../components/Forms/SearchInput";
-import DropdownSelect from "../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../components/tables/layouts/server/SelectTables";
-import Modal from "../../../../components/Modal";
+import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
+import {
+  menuAssets,
+  menuParkings,
+  menuProjects,
+  menuTabAssets,
+  menuTask,
+} from "../../../../../utils/routes";
+import Tabs from "../../../../../components/Layouts/Tabs";
+import { SearchInput } from "../../../../../components/Forms/SearchInput";
+import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
+import SelectTables from "../../../../../components/tables/layouts/server/SelectTables";
+import Modal from "../../../../../components/Modal";
 import {
   ModalFooter,
   ModalHeader,
-} from "../../../../components/Modal/ModalComponent";
+} from "../../../../../components/Modal/ModalComponent";
 import {
   WorkProps,
   createDataTask,
-} from "../../../../components/tables/components/taskData";
+} from "../../../../../components/tables/components/taskData";
 import moment from "moment";
-import { ArrayInput, useInputArray } from "../../../../utils/useHooks/useHooks";
-import MultiArrayForm from "../../../../components/Forms/MultiArrayForm";
+import {
+  ArrayInput,
+  useInputArray,
+} from "../../../../../utils/useHooks/useHooks";
+import MultiArrayForm from "../../../../../components/Forms/MultiArrayForm";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
   deleteProject,
   getProjects,
   selectProjectManagement,
-} from "../../../../redux/features/task-management/project/projectManagementReducers";
+} from "../../../../../redux/features/task-management/project/projectManagementReducers";
 import { toast } from "react-toastify";
 import {
   getProjectTypes,
   selectProjectType,
-} from "../../../../redux/features/task-management/settings/projectTypeReducers";
-import TaskCategoryForm from "../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
-import ProjectForm from "../../../../components/Forms/employee/tasks/project/ProjectForm";
-
-interface ProjectTypeProps {
-  id: number | any;
-  createdAt: string | any;
-  updatedAt: string | any;
-  projectTypeName: string | any;
-  projectTypeDescription: string | any;
-  projectTypePriority: string | any;
-}
+} from "../../../../../redux/features/task-management/settings/projectTypeReducers";
+import TaskCategoryForm from "../../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
+import ProjectForm from "../../../../../components/Forms/employee/tasks/project/ProjectForm";
+import { OptionProps } from "../../../../../utils/useHooks/PropTypes";
+import {
+  getProductCategories,
+  selectProductCategoryManagement,
+} from "../../../../../redux/features/assets/products/category/productCategoryReducers";
+import {
+  deleteProduct,
+  getProducts,
+  selectProductManagement,
+} from "../../../../../redux/features/assets/products/productManagementReducers";
+import ProductForm from "../../../../../components/Forms/employee/assets-inventories/product/ProductForm";
+import {
+  getProductUnits,
+  selectProductUnitManagement,
+} from "../../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
+import {
+  getProductBrands,
+  selectProductBrandManagement,
+} from "../../../../../redux/features/assets/products/brand/productBrandReducers";
+import { FaCircleNotch } from "react-icons/fa";
+import CardTablesRow from "../../../../../components/tables/layouts/server/CardTablesRow";
 
 interface PropsData {
   id: 2;
   createdAt: string | any;
   updatedAt: string | any;
-  projectCode: null;
-  projectName: string | any;
-  projectDescription: string | any;
-  scheduleStart: string | any;
-  scheduleEnd: string | any;
-  executionStart: string | any;
-  executionEnd: string | any;
-  projectStatus: string | any;
-  totalTask: number | any;
-  totalTaskCompleted: number | any;
-  projectType: ProjectTypeProps | any;
-  issue: any | null;
-  projectMembers: any | any[];
+  productImage?: string | any;
+  productName?: string | any;
+  productDescription?: string | any;
+  productType?: any;
+  productCategory?: any;
+  unitMeasurement?: any;
+  brand?: any;
+  productMinimumStock?: number | any;
 }
 
 interface Options {
@@ -104,11 +121,9 @@ const sortOpt: Options[] = [
   { value: "DESC", label: "Z-A" },
 ];
 
-const statusOpt: Options[] = [
-  { value: "Not Started", label: "Not Started" },
-  { value: "Ongoing", label: "Ongoing" },
-  { value: "Completed", label: "Completed" },
-  { value: "Overdue", label: "Overdue" },
+const typesOpt: Options[] = [
+  { value: "Asset", label: "Asset" },
+  { value: "Inventory", label: "Inventory" },
 ];
 
 const stylesSelectSort = {
@@ -142,7 +157,7 @@ const stylesSelectSort = {
     return {
       ...provided,
       background: "",
-      padding: ".6rem",
+      padding: ".5rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -155,6 +170,12 @@ const stylesSelectSort = {
     };
   },
   menuList: (provided: any) => provided,
+  menu: (provide: any) => {
+    return {
+      ...provide,
+      zIndex: 99,
+    };
+  },
 };
 
 const stylesSelect = {
@@ -185,7 +206,7 @@ const stylesSelect = {
     return {
       ...provided,
       background: "",
-      padding: ".6rem",
+      padding: ".5rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -193,15 +214,22 @@ const stylesSelect = {
         color: state.isFocused ? "#E2E8F0" : "#5F59F7",
         borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
       },
-      minHeight: 40,
+      minHeight: 38,
       // flexDirection: "row-reverse"
     };
   },
   menuList: (provided: any) => provided,
+  menu: (provide: any) => {
+    return {
+      ...provide,
+      zIndex: 99,
+    };
+  },
 };
 
-const TableView = ({ pageProps }: Props) => {
+const Assets = ({ pageProps }: Props) => {
   moment.locale("id");
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -211,14 +239,19 @@ const TableView = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { projects } = useAppSelector(selectProjectManagement);
-  const { projectTypes } = useAppSelector(selectProjectType);
+  const { products, pending } = useAppSelector(selectProductManagement);
+  const { productCategories } = useAppSelector(selectProductCategoryManagement);
+  const { productUnits } = useAppSelector(selectProductUnitManagement);
+  const { productBrands } = useAppSelector(selectProductBrandManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
   const [sort, setSort] = useState<Options | any>(null);
-  const [status, setStatus] = useState<Options | any>(null);
   const [types, setTypes] = useState<Options | any>(null);
-  const [typesOpt, setTypesOpt] = useState<Options | any>(null);
+  const [category, setCategory] = useState<OptionProps | any>(null);
+  const [categoryOpt, setCategoryOpt] = useState<OptionProps[] | any[]>([]);
+  const [unitOpt, setUnitOpt] = useState<OptionProps[] | any[]>([]);
+  const [brandOpt, setBrandOpt] = useState<OptionProps[] | any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // data-table
@@ -226,8 +259,8 @@ const TableView = ({ pageProps }: Props) => {
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(1);
 
   // modal
   const [isOpenDetail, setIsOpenDetail] = useState(false);
@@ -255,6 +288,7 @@ const TableView = ({ pageProps }: Props) => {
 
   // modal add
   const onOpenModalAdd = () => {
+    setFormData({ productType: { value: "Inventory", label: "Inventory" } });
     setIsOpenAdd(true);
   };
 
@@ -265,7 +299,34 @@ const TableView = ({ pageProps }: Props) => {
 
   // modal update
   const onOpenModalEdit = (items: any) => {
-    setFormData(items);
+    let newData: PropsData = {
+      ...items,
+      productType: items?.productType
+        ? { value: items?.productType, label: items?.productType }
+        : null,
+      productCategory: !items?.productCategory
+        ? null
+        : {
+            ...items?.productCategory,
+            value: items?.productCategory?.productCategoryName,
+            label: items?.productCategory?.productCategoryName,
+          },
+      unitMeasurement: !items?.unitMeasurement
+        ? null
+        : {
+            ...items?.unitMeasurement,
+            value: items?.unitMeasurement?.unitMeasurementName,
+            label: items?.unitMeasurement?.unitMeasurementName,
+          },
+      brand: !items?.brand
+        ? null
+        : {
+            ...items?.brand,
+            value: items?.brand?.brandName,
+            label: items?.brand?.brandName,
+          },
+    };
+    setFormData(newData);
     setIsOpenEdit(true);
   };
 
@@ -286,35 +347,9 @@ const TableView = ({ pageProps }: Props) => {
 
   const goToTask = (id: any) => {
     if (!id) return;
-    return router.push({ pathname: `/employee/tasks/projects/${id}` });
-  };
-
-  const genProjectStatus = (value: string) => {
-    if (!value) return "-";
-    if (value === "Open" || value === "Not Started")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-7 text-meta-8 bg-orange-200">
-          {value}
-        </div>
-      );
-    if (value === "On Progress" || value === "Ongoing")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-5 text-meta-5 bg-blue-200">
-          {value}
-        </div>
-      );
-    if (value === "Closed" || value === "Done" || value === "Completed")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
-          {value}
-        </div>
-      );
-    if (value === "Overdue")
-      return (
-        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
-          {value}
-        </div>
-      );
+    return router.push({
+      pathname: `/employee/assets-inventories/assets/${id}`,
+    });
   };
 
   const genColorProjectType = (value: any) => {
@@ -331,21 +366,33 @@ const TableView = ({ pageProps }: Props) => {
   const columns = useMemo<ColumnDef<PropsData, any>[]>(
     () => [
       {
-        accessorKey: "projectType",
-        header: (info) => <div className="uppercase">Project Type</div>,
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
         cell: ({ row, getValue }) => {
-          const val = getValue()?.projectTypeName;
+          const name = getValue() || "-";
+          const image = row?.original?.productImage
+            ? `${url}product/productImage/${row?.original?.productImage}`
+            : "../../../image/no-image.jpeg";
           return (
-            <div
-              className={`cursor-pointer p-2 rounded-md w-full max-w-max`}
-              onClick={() => onOpenModalDetail(row?.original)}
-              style={{
-                backgroundColor: genColorProjectType(val),
-                color: "#FFFFFF",
-              }}>
-              {val}
+            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
+              <img
+                src={image}
+                alt="brand-logo"
+                className="w-8 h-8 rounded-full object-cover object-center"
+              />
+              <span>{name}</span>
             </div>
           );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "productCategory.productCategoryName",
+        header: (info) => <div className="uppercase">Category</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue() || "-";
+          return <div className="w-full">{value}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
@@ -354,141 +401,83 @@ const TableView = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "projectCode",
-        header: (info) => <div className="uppercase">Project ID</div>,
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-left text-primary uppercase font-semibold">
-              {getValue() || "-"}
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "projectName",
-        header: (info) => <div className="uppercase">Project Name</div>,
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer">
-              {getValue() || "-"}
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "totalTask",
-        cell: ({ row, getValue }) => {
-          const completed = row.original.totalTaskCompleted;
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-center">
-              {completed + "/"}{" "}
-              <span className="font-semibold">{getValue()}</span>
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-center uppercase">Progress</div>
+        accessorKey: "productOrderQty",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Ordered</div>
         ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
       {
-        accessorKey: "projectType.projectTypePriority",
-        cell: ({ row, getValue }) => {
-          let urgency = getValue() || "";
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="w-full cursor-pointer text-center">
-              {urgency ? (
-                <div className="w-full flex justify-center items-center gap-1">
-                  <span>{urgency}</span>
-                  <MdCheckCircleOutline className="w-5 h-5 text-primary" />
-                </div>
-              ) : (
-                "-"
-              )}
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-center uppercase">Urgency</div>
+        accessorKey: "productQty",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Quantity</div>
         ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
       {
-        accessorKey: "scheduleStart",
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-left">
-              {getValue() ? dateFormat(getValue()) : "-"}
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-left uppercase">Start Date</div>
+        accessorKey: "productMinimumStock",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Stock</div>
         ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value || 0}</div>;
+        },
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
       {
-        accessorKey: "scheduleEnd",
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-left">
-              {getValue() ? dateFormat(getValue()) : "-"}
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-left uppercase">Due Date</div>
+        accessorKey: "unitMeasurement",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Unit</div>
         ),
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "projectStatus",
-        header: (info) => <div className="uppercase">Status</div>,
         cell: ({ row, getValue }) => {
-          console.log("status :", getValue());
-          return (
-            <div
-              onClick={() => onOpenModalDetail(row?.original)}
-              className="cursor-pointer text-left font-semibold">
-              {genProjectStatus(getValue())}
-            </div>
-          );
+          const value = getValue()?.unitMeasurementName || "-";
+          return <div className="w-full text-center">{value || 0}</div>;
         },
         footer: (props) => props.column.id,
+        // enableSorting: false,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
       {
         accessorKey: "id",
         cell: ({ row, getValue }) => {
           return (
-            <div className="w-full text-center flex items-center justify-center cursor-pointer">
-              <Button
-                onClick={() => goToTask(getValue())}
-                variant="secondary-outline-none"
+            <div className="w-full text-center flex items-center justify-center">
+              <button
+                onClick={() => onOpenModalEdit(row?.original)}
                 className="px-1 py-1"
                 type="button">
-                <MdChevronRight className="text-gray-5 w-4 h-4" />
-              </Button>
+                <MdEdit className="text-gray-5 w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => onOpenModalDelete(row?.original)}
+                className="px-1 py-1"
+                type="button">
+                <MdDelete className="text-danger w-4 h-4" />
+              </button>
             </div>
           );
         },
@@ -516,7 +505,7 @@ const TableView = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  // get Project
+  // get Products
   useEffect(() => {
     if (query?.page) setPages(Number(query?.page) || 1);
     if (query?.limit) setLimit(Number(query?.limit) || 10);
@@ -528,19 +517,19 @@ const TableView = ({ pageProps }: Props) => {
         setSort({ value: query?.sort, label: "Z-A" });
       }
     }
-    if (query?.status) {
-      setStatus({ value: query?.status, label: query?.status });
-    }
     if (query?.types) {
       setTypes({ value: query?.types, label: query?.types });
+    }
+    if (query?.category) {
+      setCategory({ value: query?.category, label: query?.category });
     }
   }, [
     query?.page,
     query?.limit,
     query?.search,
     query?.sort,
-    query?.status,
     query?.types,
+    query?.category,
   ]);
 
   useEffect(() => {
@@ -551,24 +540,25 @@ const TableView = ({ pageProps }: Props) => {
 
     if (search) qr = { ...qr, search: search };
     if (sort) qr = { ...qr, sort: sort?.value };
-    if (status) qr = { ...qr, status: status?.value };
     if (types) qr = { ...qr, types: types?.value };
+    if (category) qr = { ...qr, category: category?.value };
 
     router.replace({ pathname, query: qr });
-  }, [pages, limit, search, sort, status, types]);
+  }, [pages, limit, search, sort, types, category]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     const search = {
       $and: [
-        { projectStatus: { $contL: query?.status } },
-        { "projectType.projectTypeName": { $contL: query?.types } },
+        { productType: { $contL: "Inventory" } },
+        { "productCategory.productCategoryName": { $contL: query?.category } },
         {
           $or: [
-            { projectName: { $contL: query?.search } },
-            { projectDescription: { $contL: query?.search } },
-            { "projectType.projectTypeName": { $contL: query?.search } },
+            { "brand.brandName": { $contL: query?.search } },
+            { productName: { $contL: query?.search } },
+            { productDescription: { $contL: query?.search } },
+            { productType: { $contL: query?.search } },
           ],
         },
       ],
@@ -585,7 +575,7 @@ const TableView = ({ pageProps }: Props) => {
       });
     } else {
       qb.sortBy({
-        field: `projectName`,
+        field: `productName`,
         order: !sort?.value ? "ASC" : sort.value,
       });
     }
@@ -596,17 +586,17 @@ const TableView = ({ pageProps }: Props) => {
     query?.limit,
     query?.search,
     query?.sort,
-    query?.status,
     query?.types,
+    query?.category,
   ]);
 
   useEffect(() => {
-    if (token) dispatch(getProjects({ token, params: filters.queryObject }));
+    if (token) dispatch(getProducts({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = projects;
+    const { data, pageCount, total } = products;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
@@ -615,29 +605,19 @@ const TableView = ({ pageProps }: Props) => {
     setDataTable(newArr);
     setPageCount(pageCount);
     setTotal(total);
-  }, [projects]);
-
-  const projectData = useMemo(() => {
-    let newArr: any[] = [];
-    if (dataTable?.length > 0) {
-      dataTable?.map((item: any) => {
-        newArr.push(item);
-      });
-    }
-    return newArr;
-  }, [dataTable]);
+  }, [products]);
 
   // delete
   const onDelete = (value: any) => {
     console.log(value, "form-delete");
     if (!value?.id) return;
     dispatch(
-      deleteProject({
+      deleteProduct({
         token,
         id: value?.id,
         isSuccess() {
-          toast.dark("Project has been deleted");
-          dispatch(getProjects({ token, params: filters.queryObject }));
+          toast.dark("Product has been deleted");
+          dispatch(getProducts({ token, params: filters.queryObject }));
           onCloseModalDelete();
         },
         isError() {
@@ -647,12 +627,12 @@ const TableView = ({ pageProps }: Props) => {
     );
   };
 
-  // get project type
-  const filterProjectType = useMemo(() => {
+  // get product-category
+  const filterProductCategory = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     qb.sortBy({
-      field: `projectTypeName`,
+      field: `productCategoryName`,
       order: "ASC",
     });
     qb.query();
@@ -662,44 +642,122 @@ const TableView = ({ pageProps }: Props) => {
   useEffect(() => {
     if (token)
       dispatch(
-        getProjectTypes({ token, params: filterProjectType.queryObject })
+        getProductCategories({
+          token,
+          params: filterProductCategory.queryObject,
+        })
       );
-  }, [token, filterProjectType]);
+  }, [token, filterProductCategory]);
 
   useEffect(() => {
     let arr: Options[] = [];
-    const { data } = projectTypes;
+    const { data } = productCategories;
     if (data || data?.length > 0) {
       data?.map((item: any) => {
         arr.push({
           ...item,
-          value: item?.projectTypeName,
-          label: item?.projectTypeName,
+          value: item?.productCategoryName,
+          label: item?.productCategoryName,
         });
       });
-      setTypesOpt(arr);
+      setCategoryOpt(arr);
     }
-  }, [projectTypes]);
+  }, [productCategories]);
+  // product-category end
 
-  console.log(formData, "form-detail");
+  // get product-unit-measurement
+  const filterProductUnit = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `unitMeasurementName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProductUnits({
+          token,
+          params: filterProductUnit.queryObject,
+        })
+      );
+  }, [token, filterProductUnit]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = productUnits;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.unitMeasurementName,
+          label: item?.unitMeasurementName,
+        });
+      });
+      setUnitOpt(arr);
+    }
+  }, [productUnits]);
+  // product-unit-measurement end
+
+  // get product-brand
+  const filterProductBrand = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `brandName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProductBrands({
+          token,
+          params: filterProductBrand.queryObject,
+        })
+      );
+  }, [token, filterProductBrand]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = productBrands;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.brandName,
+          label: item?.brandName,
+        });
+      });
+      setBrandOpt(arr);
+    }
+  }, [productBrands]);
+  // product-brand end
 
   return (
     <DefaultLayout
       title="Colony"
-      header="Task Management"
-      head="Tables"
+      header="Assets & Inventories"
+      head="Assets"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
       description=""
       token={token}
       icons={{
-        icon: MdWork,
-        className: "w-8 h-8 text-meta-7",
+        icon: MdUnarchive,
+        className: "w-8 h-8 text-meta-6",
       }}>
       <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
-          menus={menuTask}
+          menus={menuAssets}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
         />
@@ -734,7 +792,7 @@ const TableView = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Projects
+                      Assets & Inventories
                     </h3>
                   </div>
                 </Button>
@@ -746,21 +804,22 @@ const TableView = ({ pageProps }: Props) => {
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={onOpenModalAdd}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Project</span>
+                  <span className="hidden lg:inline-block">New Product</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
             </div>
+
             {/* tabs */}
             <div className="w-full px-4">
-              <Tabs menus={menuProjects} />
+              <Tabs menus={menuTabAssets} />
             </div>
           </div>
 
           <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4">
+              <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4 items-center">
                 <div className="w-full lg:col-span-2">
                   <SearchInput
                     className="w-full text-sm rounded-xl"
@@ -791,42 +850,24 @@ const TableView = ({ pageProps }: Props) => {
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
-                    value={status}
-                    onChange={setStatus}
+                    value={category}
+                    onChange={setCategory}
                     error=""
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel=""
-                    instanceId="1"
+                    instanceId="3"
                     isDisabled={false}
                     isMulti={false}
-                    placeholder="All Status..."
-                    options={statusOpt}
-                    icon=""
-                  />
-                </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={types}
-                    onChange={setTypes}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="1"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Type..."
-                    options={typesOpt}
+                    placeholder="All Category..."
+                    options={categoryOpt}
                     icon=""
                   />
                 </div>
               </div>
 
               {/* table */}
-              <SelectTables
+              <CardTablesRow
                 loading={loading}
                 setLoading={setLoading}
                 pages={pages}
@@ -838,6 +879,7 @@ const TableView = ({ pageProps }: Props) => {
                 dataTable={dataTable}
                 total={total}
                 setIsSelected={setIsSelectedRow}
+                isInfiniteScroll={false}
               />
             </div>
           </main>
@@ -900,17 +942,78 @@ const TableView = ({ pageProps }: Props) => {
       </Modal>
 
       {/* add modal */}
-      <Modal size="small" onClose={onCloseModalAdd} isOpen={isOpenAdd}>
-        <ProjectForm
-          isCloseModal={onCloseModalAdd}
-          isOpen={isOpenAdd}
-          token={token}
-          getData={() =>
-            dispatch(getProjects({ token, params: filters.queryObject }))
-          }
-          items={formData}
-          projectOption={typesOpt}
-        />
+      <ProductForm
+        isCloseModal={onCloseModalAdd}
+        isOpen={isOpenAdd}
+        token={token}
+        getData={() =>
+          dispatch(getProducts({ token, params: filters.queryObject }))
+        }
+        items={formData}
+        typesOpt={typesOpt}
+        categoryOpt={categoryOpt}
+        unitOpt={unitOpt}
+        brandOpt={brandOpt}
+        isDisableType
+        defaultImage="../../../image/no-image.jpeg"
+      />
+
+      {/* edit modal */}
+      <ProductForm
+        isCloseModal={onCloseModalEdit}
+        isOpen={isOpenEdit}
+        token={token}
+        getData={() =>
+          dispatch(getProducts({ token, params: filters.queryObject }))
+        }
+        items={formData}
+        typesOpt={typesOpt}
+        categoryOpt={categoryOpt}
+        unitOpt={unitOpt}
+        brandOpt={brandOpt}
+        defaultImage="../../../image/no-image.jpeg"
+        isDisableType
+        isUpdate
+      />
+
+      {/* delete modal */}
+      <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseModalDelete}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-semibold">Delete Product</h3>
+              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+            </div>
+          </ModalHeader>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
+            <Button
+              type="button"
+              variant="secondary-outline"
+              className="rounded-lg border-2 border-gray-2 shadow-2"
+              onClick={onCloseModalDelete}>
+              <span className="text-xs font-semibold">Discard</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary"
+              onClick={() => onDelete(formData)}
+              disabled={pending}>
+              {pending ? (
+                <Fragment>
+                  <span className="text-xs">Deleting...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <span className="text-xs">Yes, Delete it!</span>
+              )}
+            </Button>
+          </div>
+        </Fragment>
       </Modal>
     </DefaultLayout>
   );
@@ -939,4 +1042,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default TableView;
+export default Assets;

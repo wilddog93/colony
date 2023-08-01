@@ -1,11 +1,4 @@
-import React, {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
@@ -18,76 +11,95 @@ import {
 import { ColumnItems } from "../../../../components/tables/components/makeData";
 import { makeData } from "../../../../components/tables/components/makeData";
 import { ColumnDef } from "@tanstack/react-table";
-import { IndeterminateCheckbox } from "../../../../components/tables/components/TableComponent";
 import Button from "../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
   MdCalendarToday,
+  MdCheck,
+  MdCheckCircleOutline,
   MdChevronLeft,
+  MdChevronRight,
   MdDelete,
   MdEdit,
   MdEmail,
   MdFemale,
   MdMale,
+  MdOutlinePerson,
   MdPhone,
+  MdUnarchive,
   MdUpload,
   MdWork,
 } from "react-icons/md";
 import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
-import { menuParkings, menuProjects, menuTask } from "../../../../utils/routes";
+import {
+  menuAssets,
+  menuParkings,
+  menuProjects,
+  menuTask,
+} from "../../../../utils/routes";
 import Tabs from "../../../../components/Layouts/Tabs";
 import { SearchInput } from "../../../../components/Forms/SearchInput";
 import DropdownSelect from "../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../components/tables/layouts/SelectTables";
+import SelectTables from "../../../../components/tables/layouts/server/SelectTables";
 import Modal from "../../../../components/Modal";
 import {
   ModalFooter,
   ModalHeader,
 } from "../../../../components/Modal/ModalComponent";
-import moment from "moment";
-import { Calendar } from "../../../../components/Timeline";
 import {
   WorkProps,
   createDataTask,
 } from "../../../../components/tables/components/taskData";
+import moment from "moment";
+import { ArrayInput, useInputArray } from "../../../../utils/useHooks/useHooks";
+import MultiArrayForm from "../../../../components/Forms/MultiArrayForm";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
+  deleteProject,
   getProjects,
   selectProjectManagement,
 } from "../../../../redux/features/task-management/project/projectManagementReducers";
+import { toast } from "react-toastify";
 import {
   getProjectTypes,
   selectProjectType,
 } from "../../../../redux/features/task-management/settings/projectTypeReducers";
-import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import TaskCategoryForm from "../../../../components/Forms/employee/tasks/settings/taskCategoryForm";
 import ProjectForm from "../../../../components/Forms/employee/tasks/project/ProjectForm";
-
-interface ProjectTypeProps {
-  id: number | any;
-  createdAt: string | any;
-  updatedAt: string | any;
-  projectTypeName: string | any;
-  projectTypeDescription: string | any;
-  projectTypePriority: string | any;
-}
+import { OptionProps } from "../../../../utils/useHooks/PropTypes";
+import {
+  getProductCategories,
+  selectProductCategoryManagement,
+} from "../../../../redux/features/assets/products/category/productCategoryReducers";
+import {
+  deleteProduct,
+  getProducts,
+  selectProductManagement,
+} from "../../../../redux/features/assets/products/productManagementReducers";
+import ProductForm from "../../../../components/Forms/employee/assets-inventories/product/ProductForm";
+import {
+  getProductUnits,
+  selectProductUnitManagement,
+} from "../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
+import {
+  getProductBrands,
+  selectProductBrandManagement,
+} from "../../../../redux/features/assets/products/brand/productBrandReducers";
+import { FaCircleNotch } from "react-icons/fa";
 
 interface PropsData {
   id: 2;
   createdAt: string | any;
   updatedAt: string | any;
-  projectCode: null;
-  projectName: string | any;
-  projectDescription: string | any;
-  scheduleStart: string | any;
-  scheduleEnd: string | any;
-  executionStart: string | any;
-  executionEnd: string | any;
-  projectStatus: string | any;
-  totalTask: number | any;
-  totalTaskCompleted: number | any;
-  projectType: ProjectTypeProps | any;
-  issue: any | null;
-  projectMembers: any | any[];
+  productImage?: string | any;
+  productName?: string | any;
+  productDescription?: string | any;
+  productType?: any;
+  productCategory?: any;
+  unitMeasurement?: any;
+  brand?: any;
+  productMinimumStock?: number | any;
 }
 
 interface Options {
@@ -104,12 +116,9 @@ const sortOpt: Options[] = [
   { value: "DESC", label: "Z-A" },
 ];
 
-const statusOpt: Options[] = [
-  { value: "Not Started", label: "Not Started" },
-  { value: "Open", label: "Open" },
-  { value: "On Progress", label: "On Progress" },
-  { value: "Closed", label: "Closed" },
-  { value: "Overdue", label: "Overdue" },
+const typesOpt: Options[] = [
+  { value: "Asset", label: "Asset" },
+  { value: "Inventory", label: "Inventory" },
 ];
 
 const stylesSelectSort = {
@@ -156,12 +165,6 @@ const stylesSelectSort = {
     };
   },
   menuList: (provided: any) => provided,
-  menu: (provided: any) => {
-    return {
-      ...provided,
-      zIndex: 999,
-    };
-  },
 };
 
 const stylesSelect = {
@@ -185,7 +188,6 @@ const stylesSelect = {
     return {
       ...provided,
       color: "#5F59F7",
-      zIndex: 99999,
     };
   },
   control: (provided: any, state: any) => {
@@ -205,16 +207,12 @@ const stylesSelect = {
       // flexDirection: "row-reverse"
     };
   },
-  menu: (provided: any) => {
-    return {
-      ...provided,
-      zIndex: 999,
-    };
-  },
+  menuList: (provided: any) => provided,
 };
 
-const CalendarBoard = ({ pageProps }: Props) => {
+const Products = ({ pageProps }: Props) => {
   moment.locale("id");
+  const url = process.env.API_ENDPOINT;
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -224,14 +222,19 @@ const CalendarBoard = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { projects } = useAppSelector(selectProjectManagement);
-  const { projectTypes } = useAppSelector(selectProjectType);
+  const { products, pending } = useAppSelector(selectProductManagement);
+  const { productCategories } = useAppSelector(selectProductCategoryManagement);
+  const { productUnits } = useAppSelector(selectProductUnitManagement);
+  const { productBrands } = useAppSelector(selectProductBrandManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
   const [sort, setSort] = useState<Options | any>(null);
-  const [status, setStatus] = useState<Options | any>(null);
   const [types, setTypes] = useState<Options | any>(null);
-  const [typesOpt, setTypesOpt] = useState<Options | any>(null);
+  const [category, setCategory] = useState<OptionProps | any>(null);
+  const [categoryOpt, setCategoryOpt] = useState<OptionProps[] | any[]>([]);
+  const [unitOpt, setUnitOpt] = useState<OptionProps[] | any[]>([]);
+  const [brandOpt, setBrandOpt] = useState<OptionProps[] | any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // data-table
@@ -239,12 +242,8 @@ const CalendarBoard = ({ pageProps }: Props) => {
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
-  const [total, setTotal] = useState(0);
-
-  // timeline
-  const [timelineHeader, setTimelineHeader] = useState<any | any[]>([]);
-  const [timelineItem, setTimelineItem] = useState<any | any[]>([]);
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(1);
 
   // modal
   const [isOpenDetail, setIsOpenDetail] = useState(false);
@@ -282,7 +281,34 @@ const CalendarBoard = ({ pageProps }: Props) => {
 
   // modal update
   const onOpenModalEdit = (items: any) => {
-    setFormData(items);
+    let newData: PropsData = {
+      ...items,
+      productType: items?.productType
+        ? { value: items?.productType, label: items?.productType }
+        : null,
+      productCategory: !items?.productCategory
+        ? null
+        : {
+            ...items?.productCategory,
+            value: items?.productCategory?.productCategoryName,
+            label: items?.productCategory?.productCategoryName,
+          },
+      unitMeasurement: !items?.unitMeasurement
+        ? null
+        : {
+            ...items?.unitMeasurement,
+            value: items?.unitMeasurement?.unitMeasurementName,
+            label: items?.unitMeasurement?.unitMeasurementName,
+          },
+      brand: !items?.brand
+        ? null
+        : {
+            ...items?.brand,
+            value: items?.brand?.brandName,
+            label: items?.brand?.brandName,
+          },
+    };
+    setFormData(newData);
     setIsOpenEdit(true);
   };
 
@@ -303,10 +329,39 @@ const CalendarBoard = ({ pageProps }: Props) => {
 
   const goToTask = (id: any) => {
     if (!id) return;
-    return router.push({ pathname: `/employee/tasks/projects/${id}` });
+    return router.push({
+      pathname: `/employee/assets-inventories/products/${id}`,
+    });
   };
 
-  // color
+  const genProjectStatus = (value: string) => {
+    if (!value) return "-";
+    if (value === "Open" || value === "Not Started")
+      return (
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-7 text-meta-8 bg-orange-200">
+          {value}
+        </div>
+      );
+    if (value === "On Progress" || value === "Ongoing")
+      return (
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-5 text-meta-5 bg-blue-200">
+          {value}
+        </div>
+      );
+    if (value === "Closed" || value === "Done" || value === "Completed")
+      return (
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
+          {value}
+        </div>
+      );
+    if (value === "Overdue")
+      return (
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
+          {value}
+        </div>
+      );
+  };
+
   const genColorProjectType = (value: any) => {
     // #333A48
     let color = "#333A48";
@@ -318,206 +373,113 @@ const CalendarBoard = ({ pageProps }: Props) => {
     return color;
   };
 
-  // get Project
-  useEffect(() => {
-    if (query?.search) setSearch(query?.search || "");
-    if (query?.sort) {
-      if (query?.sort == "ASC") {
-        setSort({ value: query?.sort, label: "A-Z" });
-      } else {
-        setSort({ value: query?.sort, label: "Z-A" });
-      }
-    }
-    if (query?.status) {
-      setStatus({ value: query?.status, label: query?.status });
-    }
-    if (query?.types) {
-      setTypes({ value: query?.types, label: query?.types });
-    }
-  }, [query?.search, query?.sort, query?.status, query?.types]);
-
-  useEffect(() => {
-    let qr: any = {};
-
-    if (search) qr = { ...qr, search: search };
-    if (sort) qr = { ...qr, sort: sort?.value };
-    if (status) qr = { ...qr, status: status?.value };
-    if (types) qr = { ...qr, types: types?.value };
-
-    router.replace({ pathname, query: qr });
-  }, [search, sort, status, types]);
-
-  const filters = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    const search = {
-      $and: [
-        { projectStatus: { $contL: query?.status } },
-        { "projectType.projectTypeName": { $contL: query?.types } },
-        {
-          $or: [
-            { projectName: { $contL: query?.search } },
-            { projectDescription: { $contL: query?.search } },
-            { "projectType.projectTypeName": { $contL: query?.search } },
-          ],
+  const columns = useMemo<ColumnDef<PropsData, any>[]>(
+    () => [
+      {
+        accessorKey: "brand",
+        header: (info) => <div className="uppercase">Brand</div>,
+        cell: ({ row, getValue }) => {
+          const name = getValue()?.brandName || "-";
+          const image = row?.original?.productImage
+            ? `${url}product/productImage/${row?.original?.productImage}`
+            : "../../image/no-image.jpeg";
+          return (
+            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
+              <img
+                src={image}
+                alt="brand-logo"
+                className="w-8 h-8 rounded-full object-cover object-center"
+              />
+              <span>{name}</span>
+            </div>
+          );
         },
-      ],
-    };
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "productType",
+        header: (info) => <div className="uppercase">Type</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "productCategory.productCategoryName",
+        header: (info) => <div className="uppercase">Category</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue() || "-";
+          return <div className="w-full">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "productQty",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Product Quantity</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "id",
+        cell: ({ row, getValue }) => {
+          return (
+            <div className="w-full text-center flex items-center justify-center">
+              <button
+                onClick={() => onOpenModalEdit(row?.original)}
+                className="px-1 py-1"
+                type="button">
+                <MdEdit className="text-gray-5 w-4 h-4" />
+              </button>
 
-    qb.search(search);
-    if (!query?.sort) {
-      qb.sortBy({
-        field: `updatedAt`,
-        order: "DESC",
-      });
-    } else {
-      qb.sortBy({
-        field: `projectName`,
-        order: !sort?.value ? "ASC" : sort.value,
-      });
-    }
-    qb.query();
-    return qb;
-  }, [query?.search, query?.sort, query?.status, query?.types]);
-
-  useEffect(() => {
-    if (token) dispatch(getProjects({ token, params: filters.queryObject }));
-  }, [token, filters]);
-
-  useEffect(() => {
-    let newArr: any[] = [];
-    const { data, pageCount, total } = projects;
-    if (data && data?.length > 0) {
-      data?.map((item: any) => {
-        newArr.push(item);
-      });
-    }
-    setDataTable(newArr);
-    setPageCount(pageCount);
-    setTotal(total);
-  }, [projects]);
-  // get project end
-
-  // get project type
-  const filterProjectType = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `projectTypeName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProjectTypes({ token, params: filterProjectType.queryObject })
-      );
-  }, [token, filterProjectType]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = projectTypes;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.projectTypeName,
-          label: item?.projectTypeName,
-        });
-      });
-      setTypesOpt(arr);
-    }
-  }, [projectTypes]);
-  // get project type end
-
-  // timeline function
-  useEffect(() => {
-    let header: any[] = [];
-    if (dataTable?.length > 0) {
-      dataTable?.map((val) =>
-        header?.push({
-          id: val?.id,
-          title: val?.projectName,
-          color: genColorProjectType(val?.projectType?.projectTypeName),
-        })
-      );
-      setTimelineHeader(header);
-    } else {
-      setTimelineHeader([]);
-    }
-  }, [dataTable]);
-
-  useEffect(() => {
-    let item: any[] = [];
-    if (dataTable?.length > 0) {
-      dataTable?.map((val) =>
-        item?.push({
-          ...val,
-          id: val?.id,
-          title: val?.projectName,
-          color: genColorProjectType(val?.projectType?.projectTypeName),
-          start_time: moment(val?.scheduleStart).toDate(),
-          end_time: moment(val?.scheduleEnd).toDate(),
-          group: val?.id,
-          itemProps: {
-            "data-custom-attribute": "Random content",
-            "aria-hidden": true,
-            onDoubleClick: () => {
-              console.log("You clicked double!");
-            },
-            className: "weekend",
-            style: {
-              background: "fuchsia",
-            },
-          },
-        })
-      );
-      setTimelineItem(item);
-    } else {
-      setTimelineItem([]);
-    }
-  }, [dataTable]);
-
-  const onItemMove = (params: any) => {
-    const { groupId, dragTime, itemId } = params;
-    console.log("project-move:", { groupId, dragTime, itemId });
-  };
-
-  const onCanvasClick = (params: any) => {
-    const { groupId, time, e } = params;
-    if (groupId > 0) {
-      setIsOpenDetail(true);
-      console.log("project-click:", groupId, time);
-    }
-  };
-
-  const onItemContextMenu = (itemId: any, e: any, time: any) => {
-    console.log("onItem", itemId);
-
-    setIsOpenDetail(true);
-    // setIsEditable(true);
-  };
-
-  const onItemDoubleClick = (itemId: any, event: any, time: any) => {
-    console.log("project-double-click:", { itemId, time, event });
-    const items = dataTable.filter((item) => item?.id == itemId);
-    setIsOpenDetail(true);
-    setFormData(items[0]);
-  };
-
-  const onItemSelect = (item: any) => {
-    console.log("on item select :", { item });
-    //, event:any setIsEditable(true);
-  };
-
-  const onSubmitProject = (task: any) => {
-    console.log("on submit", task);
-  };
-
-  // console.log({ timelineHeader, timelineItem }, "timeline");
+              <button
+                onClick={() => onOpenModalDelete(row?.original)}
+                className="px-1 py-1"
+                type="button">
+                <MdDelete className="text-danger w-4 h-4" />
+              </button>
+            </div>
+          );
+        },
+        header: (props) => (
+          <div className="w-full text-center uppercase">Actions</div>
+        ),
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     if (token) {
@@ -530,23 +492,259 @@ const CalendarBoard = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  // get Products
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch(query?.search || "");
+    if (query?.sort) {
+      if (query?.sort == "ASC") {
+        setSort({ value: query?.sort, label: "A-Z" });
+      } else {
+        setSort({ value: query?.sort, label: "Z-A" });
+      }
+    }
+    if (query?.types) {
+      setTypes({ value: query?.types, label: query?.types });
+    }
+    if (query?.category) {
+      setCategory({ value: query?.category, label: query?.category });
+    }
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.types,
+    query?.category,
+  ]);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+    if (sort) qr = { ...qr, sort: sort?.value };
+    if (types) qr = { ...qr, types: types?.value };
+    if (category) qr = { ...qr, category: category?.value };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search, sort, types, category]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        { productType: { $contL: query?.types } },
+        { "productCategory.productCategoryName": { $contL: query?.category } },
+        {
+          $or: [
+            { "brand.brandName": { $contL: query?.search } },
+            { productName: { $contL: query?.search } },
+            { productDescription: { $contL: query?.search } },
+            { productType: { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    if (!query?.sort) {
+      qb.sortBy({
+        field: `updatedAt`,
+        order: "DESC",
+      });
+    } else {
+      qb.sortBy({
+        field: `productName`,
+        order: !sort?.value ? "ASC" : sort.value,
+      });
+    }
+    qb.query();
+    return qb;
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.types,
+    query?.category,
+  ]);
+
+  useEffect(() => {
+    if (token) dispatch(getProducts({ token, params: filters.queryObject }));
+  }, [token, filters]);
+
+  useEffect(() => {
+    let newArr: any[] = [];
+    const { data, pageCount, total } = products;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+    }
+    setDataTable(newArr);
+    setPageCount(pageCount);
+    setTotal(total);
+  }, [products]);
+
+  // delete
+  const onDelete = (value: any) => {
+    console.log(value, "form-delete");
+    if (!value?.id) return;
+    dispatch(
+      deleteProduct({
+        token,
+        id: value?.id,
+        isSuccess() {
+          toast.dark("Product has been deleted");
+          dispatch(getProducts({ token, params: filters.queryObject }));
+          onCloseModalDelete();
+        },
+        isError() {
+          console.log("Error delete");
+        },
+      })
+    );
+  };
+
+  // get product-category
+  const filterProductCategory = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `productCategoryName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProductCategories({
+          token,
+          params: filterProductCategory.queryObject,
+        })
+      );
+  }, [token, filterProductCategory]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = productCategories;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.productCategoryName,
+          label: item?.productCategoryName,
+        });
+      });
+      setCategoryOpt(arr);
+    }
+  }, [productCategories]);
+  // product-category end
+
+  // get product-unit-measurement
+  const filterProductUnit = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `unitMeasurementName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProductUnits({
+          token,
+          params: filterProductUnit.queryObject,
+        })
+      );
+  }, [token, filterProductUnit]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = productUnits;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.unitMeasurementName,
+          label: item?.unitMeasurementName,
+        });
+      });
+      setUnitOpt(arr);
+    }
+  }, [productUnits]);
+  // product-unit-measurement end
+
+  // get product-brand
+  const filterProductBrand = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    qb.sortBy({
+      field: `brandName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getProductBrands({
+          token,
+          params: filterProductBrand.queryObject,
+        })
+      );
+  }, [token, filterProductBrand]);
+
+  useEffect(() => {
+    let arr: Options[] = [];
+    const { data } = productBrands;
+    if (data || data?.length > 0) {
+      data?.map((item: any) => {
+        arr.push({
+          ...item,
+          value: item?.brandName,
+          label: item?.brandName,
+        });
+      });
+      setBrandOpt(arr);
+    }
+  }, [productBrands]);
+  // product-brand end
+
   return (
     <DefaultLayout
       title="Colony"
-      header="Task Management"
-      head="Tables"
+      header="Assets & Inventories"
+      head="Products"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
       description=""
       token={token}
       icons={{
-        icon: MdWork,
-        className: "w-8 h-8 text-meta-7",
+        icon: MdUnarchive,
+        className: "w-8 h-8 text-meta-6",
       }}>
       <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
-          menus={menuTask}
+          menus={menuAssets}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
         />
@@ -581,7 +779,7 @@ const CalendarBoard = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Projects
+                      Products
                     </h3>
                   </div>
                 </Button>
@@ -593,20 +791,15 @@ const CalendarBoard = ({ pageProps }: Props) => {
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={onOpenModalAdd}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Project</span>
+                  <span className="hidden lg:inline-block">New Product</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-            {/* tabs */}
-            <div className="w-full px-4">
-              <Tabs menus={menuProjects} />
             </div>
           </div>
 
           <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
-              {/* content */}
               {/* content */}
               <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4">
                 <div className="w-full lg:col-span-2">
@@ -639,31 +832,13 @@ const CalendarBoard = ({ pageProps }: Props) => {
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
-                    value={status}
-                    onChange={setStatus}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="1"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Status..."
-                    options={statusOpt}
-                    icon=""
-                  />
-                </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
                     value={types}
                     onChange={setTypes}
                     error=""
                     className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel=""
-                    instanceId="1"
+                    instanceId="2"
                     isDisabled={false}
                     isMulti={false}
                     placeholder="All Type..."
@@ -671,20 +846,40 @@ const CalendarBoard = ({ pageProps }: Props) => {
                     icon=""
                   />
                 </div>
+
+                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={category}
+                    onChange={setCategory}
+                    error=""
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId="3"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="All Category..."
+                    options={categoryOpt}
+                    icon=""
+                  />
+                </div>
               </div>
 
-              {/* Calendar timeline */}
-              <div className="w-full relative">
-                <Calendar
-                  groups={timelineHeader}
-                  items={timelineItem}
-                  onItemMove={onItemMove}
-                  onCanvasClick={onCanvasClick}
-                  onItemContextMenu={onItemContextMenu}
-                  onItemSelect={onItemSelect}
-                  onItemDoubleClick={onItemDoubleClick}
-                />
-              </div>
+              {/* table */}
+              <SelectTables
+                loading={loading}
+                setLoading={setLoading}
+                pages={pages}
+                setPages={setPages}
+                limit={limit}
+                setLimit={setLimit}
+                pageCount={pageCount}
+                columns={columns}
+                dataTable={dataTable}
+                total={total}
+                setIsSelected={setIsSelectedRow}
+              />
             </div>
           </main>
         </div>
@@ -718,33 +913,65 @@ const CalendarBoard = ({ pageProps }: Props) => {
           <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3 text-sm text-gray-5">
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
               <div className="text-sm text-graydark">Start Date</div>
-              <p>{dateFormat(formData?.scheduleStart)}</p>
+              <p>
+                {formData?.scheduleStart
+                  ? dateFormat(formData?.scheduleStart)
+                  : "-"}
+              </p>
             </div>
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
               <div className="text-sm text-graydark">End Date</div>
-              <p>{dateFormat(formData?.scheduleEnd)}</p>
+              <p>
+                {formData?.scheduleEnd
+                  ? dateFormat(formData?.scheduleEnd)
+                  : "-"}
+              </p>
             </div>
             <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2 mb-2">
               <div className="text-sm text-graydark">Total Task</div>
-              <div>{formData?.totalTask}</div>
+              <p>
+                {formData?.totalTaskCompleted}/
+                <span className="font-semibold text-gray-6">
+                  {formData?.totalTask}
+                </span>
+              </p>
             </div>
           </div>
         </Fragment>
       </Modal>
 
       {/* add modal */}
-      <Modal size="small" onClose={onCloseModalAdd} isOpen={isOpenAdd}>
-        <ProjectForm
-          isCloseModal={onCloseModalAdd}
-          isOpen={isOpenAdd}
-          token={token}
-          getData={() =>
-            dispatch(getProjects({ token, params: filters.queryObject }))
-          }
-          items={formData}
-          projectOption={typesOpt}
-        />
-      </Modal>
+      <ProductForm
+        isCloseModal={onCloseModalAdd}
+        isOpen={isOpenAdd}
+        token={token}
+        getData={() =>
+          dispatch(getProducts({ token, params: filters.queryObject }))
+        }
+        items={formData}
+        typesOpt={typesOpt}
+        categoryOpt={categoryOpt}
+        unitOpt={unitOpt}
+        brandOpt={brandOpt}
+        defaultImage="../../image/no-image.jpeg"
+      />
+
+      {/* edit modal */}
+      <ProductForm
+        isCloseModal={onCloseModalEdit}
+        isOpen={isOpenEdit}
+        token={token}
+        getData={() =>
+          dispatch(getProducts({ token, params: filters.queryObject }))
+        }
+        items={formData}
+        typesOpt={typesOpt}
+        categoryOpt={categoryOpt}
+        unitOpt={unitOpt}
+        brandOpt={brandOpt}
+        defaultImage="../../image/no-image.jpeg"
+        isUpdate
+      />
 
       {/* delete modal */}
       <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
@@ -753,24 +980,36 @@ const CalendarBoard = ({ pageProps }: Props) => {
             className="p-4 border-b-2 border-gray mb-3"
             isClose={true}
             onClick={onCloseModalDelete}>
-            <h3 className="text-lg font-semibold">Delete Tenant</h3>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-semibold">Delete Product</h3>
+              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+            </div>
           </ModalHeader>
-          <div className="w-full my-5 px-4">
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
-
-          <ModalFooter
-            className="p-4 border-t-2 border-gray"
-            isClose={true}
-            onClick={onCloseModalDelete}>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
             <Button
-              variant="primary"
-              className="rounded-md text-sm"
               type="button"
+              variant="secondary-outline"
+              className="rounded-lg border-2 border-gray-2 shadow-2"
               onClick={onCloseModalDelete}>
-              Yes, Delete it!
+              <span className="text-xs font-semibold">Discard</span>
             </Button>
-          </ModalFooter>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary"
+              onClick={() => onDelete(formData)}
+              disabled={pending}>
+              {pending ? (
+                <Fragment>
+                  <span className="text-xs">Deleting...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <span className="text-xs">Yes, Delete it!</span>
+              )}
+            </Button>
+          </div>
         </Fragment>
       </Modal>
     </DefaultLayout>
@@ -800,4 +1039,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default CalendarBoard;
+export default Products;
