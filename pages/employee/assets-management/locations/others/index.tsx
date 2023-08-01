@@ -536,7 +536,7 @@ const Storages = ({ pageProps }: Props) => {
   return (
     <DefaultLayout
       title="Colony"
-      header="Locations"
+      header="Assets & Inventories"
       head="Storages"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
