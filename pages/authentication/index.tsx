@@ -102,6 +102,15 @@ const Authentication: NextPage<Props> = ({ pageProps }) => {
     }
   }, [error, message]);
 
+  useEffect(() => {
+    let notif = message === "firebaseToken should not be empty";
+    if (error && notif) {
+      setTimeout(() => {
+        router.replace({ pathname, query });
+      }, 1000);
+    }
+  }, [error, message]);
+
   return (
     <AuthLayout
       title="Authentication"
