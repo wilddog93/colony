@@ -62,7 +62,7 @@ export default function Comments({
   setContentEdit,
   imagesEdit,
   setImagesEdit,
-}: any): JSX.Element | undefined {
+}: any) {
   const url = process.env.API_ENDPOINT;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputRefEdit = useRef<HTMLInputElement>(null);
