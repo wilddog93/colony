@@ -203,7 +203,7 @@ export default function Comments({
   console.log({ isPdfStatus, isBaseStatus }, "images-format", images);
 
   if (!editor) {
-    return;
+    return null;
   }
   return (
     <Fragment>
