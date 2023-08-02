@@ -17,6 +17,7 @@ import {
   MdOutlineNextWeek,
   MdOutlinePeopleAlt,
   MdOutlineSettings,
+  MdPeople,
   MdPermDeviceInformation,
   MdPhotoSizeSelectActual,
   MdReceipt,
@@ -557,6 +558,15 @@ export const menuAssets: MenuProps[] = [
         },
       },
     ],
+  },
+  {
+    pathname: "Vendor",
+    pages: "vendor",
+    url: "/employee/assets-management/vendor",
+    icons: {
+      icon: MdPeople,
+      className: "w-5 h-5",
+    },
   },
 ];
 

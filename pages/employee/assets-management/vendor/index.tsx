@@ -13,8 +13,10 @@ import Button from "../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
+  MdClose,
   MdDelete,
   MdEdit,
+  MdRemoveRedEye,
   MdUnarchive,
 } from "react-icons/md";
 import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
@@ -51,6 +53,20 @@ import {
   selectProductBrandManagement,
 } from "../../../../redux/features/assets/products/brand/productBrandReducers";
 import { FaCircleNotch } from "react-icons/fa";
+
+// interface PropsData {
+//   id?: number | any;
+//   createdAt?: string | any;
+//   updatedAt?: string | any;
+//   vendorName?: string | any;
+//   vendorDescription?: string | any;
+//   vendorLogo?: string | any;
+//   vendorWebsite?: any;
+//   vendorPhone?: string | any;
+//   vendorEmail?: string | any;
+//   vendorLegalName?: string | any;
+//   vendorLegalAddress?: string | any;
+// }
 
 interface PropsData {
   id?: number | any;
@@ -209,6 +225,8 @@ const Products = ({ pageProps }: Props) => {
   const [total, setTotal] = useState(1);
 
   // modal
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [detailData, setDetailData] = useState<PropsData | any>(null);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
   const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
@@ -218,6 +236,17 @@ const Products = ({ pageProps }: Props) => {
   const dateFormat = (value: string | any) => {
     if (!value) return "-";
     return moment(new Date(value)).format("MMM DD, YYYY, HH:mm");
+  };
+
+  // modal detail
+  const onOpenModalDetail = (value: PropsData) => {
+    setDetailData(value);
+    setIsOpenDetail(true);
+  };
+
+  const onCloseModalDetail = () => {
+    setDetailData(null);
+    setIsOpenDetail(false);
   };
 
   // modal add
@@ -369,6 +398,13 @@ const Products = ({ pageProps }: Props) => {
                 className="px-1 py-1"
                 type="button">
                 <MdEdit className="text-gray-5 w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => onOpenModalDetail(row?.original)}
+                className="px-1 py-1"
+                type="button">
+                <MdRemoveRedEye className="text-gray-5 w-4 h-4" />
               </button>
 
               <button
@@ -644,7 +680,7 @@ const Products = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Products"
+      head="Vendor"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -661,8 +697,8 @@ const Products = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
         />
 
-        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2">
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] overflow-y-auto">
+          <div className="lg:sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2 p-8 2xl:p-10 shadow-card">
             {/* headers */}
             <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div className="w-full flex items-center justify-between py-3 lg:hidden">
@@ -691,7 +727,7 @@ const Products = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Products
+                      Vendor
                     </h3>
                   </div>
                 </Button>
@@ -703,97 +739,256 @@ const Products = ({ pageProps }: Props) => {
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={onOpenModalAdd}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Product</span>
+                  <span className="hidden lg:inline-block">New Vendor</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           </div>
 
-          <main className="relative tracking-wide text-left text-boxdark-2">
-            <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
-              {/* content */}
-              <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4 items-center">
-                <div className="w-full lg:col-span-2">
-                  <SearchInput
-                    className="w-full text-sm rounded-xl"
-                    classNamePrefix=""
-                    filter={search}
-                    setFilter={setSearch}
-                    placeholder="Search..."
-                  />
-                </div>
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelectSort}
-                    value={sort}
-                    onChange={setSort}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="1"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="Sorts..."
-                    options={sortOpt}
-                    icon="MdSort"
-                  />
+          <div className="relative w-full h-full flex overflow-x-hidden">
+            <main className="w-full relative tracking-wide text-left text-boxdark-2 p-6 transform duration-300 ease-in-out">
+              <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
+                {/* content */}
+                <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4 items-center">
+                  <div className="w-full lg:col-span-2">
+                    <SearchInput
+                      className="w-full text-sm rounded-xl"
+                      classNamePrefix=""
+                      filter={search}
+                      setFilter={setSearch}
+                      placeholder="Search..."
+                    />
+                  </div>
+                  <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                    <DropdownSelect
+                      customStyles={stylesSelectSort}
+                      value={sort}
+                      onChange={setSort}
+                      error=""
+                      className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                      classNamePrefix=""
+                      formatOptionLabel=""
+                      instanceId="1"
+                      isDisabled={false}
+                      isMulti={false}
+                      placeholder="Sorts..."
+                      options={sortOpt}
+                      icon="MdSort"
+                    />
+                  </div>
+
+                  <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                    <DropdownSelect
+                      customStyles={stylesSelect}
+                      value={types}
+                      onChange={setTypes}
+                      error=""
+                      className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                      classNamePrefix=""
+                      formatOptionLabel=""
+                      instanceId="2"
+                      isDisabled={false}
+                      isMulti={false}
+                      placeholder="All Type..."
+                      options={typesOpt}
+                      icon=""
+                    />
+                  </div>
+
+                  <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                    <DropdownSelect
+                      customStyles={stylesSelect}
+                      value={category}
+                      onChange={setCategory}
+                      error=""
+                      className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                      classNamePrefix=""
+                      formatOptionLabel=""
+                      instanceId="3"
+                      isDisabled={false}
+                      isMulti={false}
+                      placeholder="All Category..."
+                      options={categoryOpt}
+                      icon=""
+                    />
+                  </div>
                 </div>
 
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={types}
-                    onChange={setTypes}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="2"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Type..."
-                    options={typesOpt}
-                    icon=""
-                  />
-                </div>
+                {/* table */}
+                <SelectTables
+                  loading={loading}
+                  setLoading={setLoading}
+                  pages={pages}
+                  setPages={setPages}
+                  limit={limit}
+                  setLimit={setLimit}
+                  pageCount={pageCount}
+                  columns={columns}
+                  dataTable={dataTable}
+                  total={total}
+                  setIsSelected={setIsSelectedRow}
+                />
+              </div>
+            </main>
 
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={category}
-                    onChange={setCategory}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="3"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Category..."
-                    options={categoryOpt}
-                    icon=""
-                  />
+            {/* side detail */}
+            <aside
+              className={`w-full max-w-sm fixed top-20 lg:top-0.5 bottom-0 right-0 z-9999 lg:z-9 overflow-y-auto transform duration-300 ease-in-out bg-white shadow-card p-6 ${
+                isOpenDetail ? "lg:sticky translate-x-0" : "translate-x-full"
+              }`}>
+              <div className="w-full text-gray-6">
+                <div className="w-full flex">
+                  <button
+                    type="button"
+                    onClick={onCloseModalDetail}
+                    className="p-1 bg-white rounded-lg border-2 border-gray shadow-card">
+                    <MdClose className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="w-full px-4">
+                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ad
+                  dolore quaerat earum laborum similique corporis quia ab
+                  facere, sint, aut quod in suscipit fugiat cupiditate ipsam
+                  deserunt iusto saepe assumenda dolorum voluptate! Quam,
+                  asperiores excepturi non facilis nulla incidunt consequuntur
+                  commodi consequatur id ex enim voluptatem exercitationem atque
+                  omnis saepe laborum vero officiis debitis totam perferendis
+                  nobis explicabo eligendi tempora! Corporis eligendi rerum vero
+                  delectus at! Iusto, nesciunt officiis. Debitis, ipsum
+                  laboriosam quas dignissimos nobis hic atque qui. Deleniti
+                  quasi nesciunt laboriosam ipsam! Similique officia impedit
+                  asperiores exercitationem nam beatae quae porro iusto sunt
+                  enim, unde expedita, accusamus quia. Nulla ipsa repellat, aut,
+                  quasi earum unde, optio quia ea quas beatae quod ab modi
+                  quaerat tempore ipsum commodi incidunt voluptatem delectus
+                  facilis quibusdam voluptatum dolore qui facere. Fugiat magnam
+                  tempore, nesciunt corporis eum id. Ducimus, quos aut
+                  laboriosam quis veniam deserunt molestiae iusto culpa. Est
+                  pariatur explicabo quas vero velit nihil alias maiores magnam,
+                  animi autem deserunt fugit unde quaerat, doloribus id nisi
+                  sint exercitationem cum repellendus. Nihil odit sapiente
+                  provident libero itaque exercitationem inventore accusamus,
+                  aliquam molestias, reiciendis, beatae placeat enim ad. Hic
+                  magnam sed tenetur reiciendis! Eligendi facilis dignissimos
+                  asperiores, praesentium accusamus blanditiis neque.
+                  Repellendus quas impedit libero commodi eius quibusdam, quo
+                  odio corporis eum dignissimos laborum sunt labore ab quisquam
+                  velit? Voluptatum, facere explicabo quibusdam animi culpa
+                  deleniti ratione fugit voluptatibus ab possimus quae
+                  dignissimos dolorum consequatur libero veniam magnam quia
+                  esse. Quidem cum illo corporis adipisci, minus dolorem a sed,
+                  earum sint animi in eius deserunt veritatis. Laudantium unde
+                  laborum reprehenderit blanditiis, accusamus molestiae fuga
+                  architecto modi aliquid dignissimos sit dolor, culpa quo
+                  aperiam dicta corporis sapiente illum exercitationem sint,
+                  nesciunt nisi nobis doloribus! Debitis possimus aliquam
+                  aspernatur maxime cum dolore. Dolorem necessitatibus, aperiam
+                  perferendis aliquam itaque veniam nam aut illo eius inventore
+                  ipsa quis quisquam sit corporis consequatur, et culpa quos?
+                  Illum omnis debitis obcaecati commodi repellendus accusamus
+                  veniam vero recusandae expedita laboriosam maiores suscipit,
+                  repellat quas quidem cupiditate inventore aut alias sint
+                  aliquam nesciunt sequi ex animi enim? Dolor, distinctio
+                  accusamus dolores commodi laborum nostrum quibusdam
+                  repellendus deleniti amet maxime debitis quod laboriosam
+                  corrupti, dignissimos impedit sapiente fugiat fugit? Ducimus
+                  sunt omnis, optio veniam dolorem voluptates provident,
+                  aspernatur animi minus reprehenderit quaerat. Ex possimus
+                  libero odio, provident expedita praesentium hic suscipit
+                  eaque! Debitis et aliquid vero incidunt rem eligendi
+                  similique, ad, voluptatum obcaecati dolore voluptatem iste
+                  nobis dignissimos laudantium eveniet? Velit, inventore quas
+                  iure minima laboriosam tempore molestias culpa minus excepturi
+                  tenetur ut quae quaerat rerum harum molestiae. Beatae, a alias
+                  id facilis adipisci hic, eum iusto modi, cum natus quod
+                  delectus sapiente totam quia. Deleniti nesciunt non voluptatem
+                  eaque asperiores neque? Eveniet esse beatae soluta laudantium?
+                  Sapiente veritatis quos architecto, ratione consequatur earum
+                  minima autem sit maiores neque est amet dignissimos ex
+                  reprehenderit doloribus aliquam enim. Quaerat soluta itaque,
+                  ad illo sint laborum pariatur impedit, distinctio, neque quod
+                  ipsum. Eum praesentium explicabo modi, atque fuga, reiciendis
+                  cum repellendus distinctio laborum, aliquam unde consequuntur
+                  dolor adipisci non nisi blanditiis omnis quasi velit ipsum
+                  maiores iste et laudantium nesciunt. Itaque reiciendis
+                  cupiditate perferendis doloremque rerum cumque eveniet
+                  laboriosam ea, ipsam, maxime quae dolorum at cum laborum
+                  quidem blanditiis totam beatae ut quis explicabo ab amet eius
+                  expedita! Enim unde magni possimus, distinctio, quae quia
+                  autem laborum veritatis, corrupti earum ad dicta tenetur
+                  pariatur cumque voluptas doloribus quisquam necessitatibus
+                  quaerat facilis culpa officiis assumenda porro! Odio
+                  reprehenderit laudantium cupiditate hic velit veniam
+                  repellendus aliquid quas explicabo accusamus odit, error
+                  itaque enim dolore deserunt minus amet dolorum modi recusandae
+                  placeat necessitatibus blanditiis, dolores voluptates. Rerum
+                  adipisci sed, vero aperiam eius aspernatur, est obcaecati,
+                  enim quaerat vitae ducimus exercitationem tenetur. Quisquam
+                  maiores voluptatum incidunt minus eligendi inventore similique
+                  cumque perferendis, repudiandae suscipit id placeat error
+                  velit? Voluptatem deleniti harum quos blanditiis, amet sunt
+                  enim vitae consequuntur consectetur tenetur, quisquam ratione.
+                  Neque, omnis. Dolore tempore ullam dolores eligendi dicta
+                  numquam voluptatem iusto corporis rerum culpa facere in ad
+                  ipsam, tempora eius odit minima ducimus obcaecati omnis
+                  nostrum perspiciatis. Porro possimus temporibus in quo,
+                  beatae, veniam eius voluptatem, id molestias architecto nisi
+                  ex. Iure error esse laudantium pariatur nam maxime autem
+                  corrupti nihil facere ab accusamus laborum, dolores eaque
+                  exercitationem ea consequuntur ipsum quod sunt incidunt nisi
+                  fugit vero! In ducimus corrupti earum, neque nemo quisquam
+                  delectus blanditiis accusamus, perspiciatis nisi temporibus
+                  veniam culpa consequuntur quas nesciunt amet tempore optio
+                  quia deleniti illum repellendus iusto eveniet voluptatum.
+                  Corporis magnam ratione dicta esse ad repellendus,
+                  necessitatibus voluptate dolores minima eius dolorem accusamus
+                  repudiandae totam amet cumque quasi saepe, consequuntur
+                  molestias labore at temporibus, dolor eum nulla. Accusamus,
+                  similique odit sunt laborum repellat facere nemo tempora
+                  obcaecati rerum, voluptatem, unde hic! Odit nesciunt vitae
+                  rerum inventore laudantium fuga quis unde. Voluptate
+                  voluptatum cumque impedit maiores sequi architecto quisquam
+                  voluptas animi veniam omnis tempora dolorem illo, voluptates
+                  aliquam expedita eos? A ipsum excepturi similique tenetur
+                  nulla alias reprehenderit. Qui impedit similique recusandae
+                  error? Adipisci, aliquam. Cumque autem nostrum magnam iure
+                  culpa! Rem necessitatibus, corporis earum, in repudiandae nam
+                  ducimus consequuntur ut illo quas, exercitationem eos unde
+                  eligendi ratione quibusdam suscipit minus illum reprehenderit.
+                  Iusto fuga placeat, itaque, minima fugit perferendis
+                  voluptatibus cumque repellendus corporis tempora quisquam
+                  esse, suscipit perspiciatis error quis quos accusantium! Illum
+                  vero dicta ipsum deserunt. Debitis, veniam porro est ab
+                  adipisci dolor deleniti, atque minus excepturi aspernatur
+                  nihil odit quam. Reiciendis dolorem perspiciatis minus neque
+                  hic, amet quaerat incidunt dicta numquam nobis assumenda
+                  commodi asperiores aspernatur cupiditate velit alias facere.
+                  Id, architecto veritatis incidunt quas excepturi eius porro
+                  qui cum. Rerum laudantium saepe asperiores quaerat. Asperiores
+                  eos nemo impedit nesciunt officia, voluptatum nam fugiat
+                  minima accusantium. Qui maxime quis deleniti perferendis
+                  voluptatum doloremque optio, ipsam neque doloribus voluptates.
+                  Eos doloremque dolorem sed reiciendis rerum quaerat illo
+                  deleniti illum! Nisi possimus nulla et ratione quisquam,
+                  soluta facilis, at molestias consequatur hic id voluptates eos
+                  ipsam qui animi laudantium. Ducimus, voluptatibus ex eligendi
+                  quis culpa sapiente aut eius, quas doloremque molestias illo
+                  incidunt! Expedita ratione blanditiis voluptatibus dicta
+                  accusamus officiis tempore ipsam hic culpa non quo, delectus
+                  ducimus maxime nesciunt dolorum dolores?
                 </div>
               </div>
-
-              {/* table */}
-              <SelectTables
-                loading={loading}
-                setLoading={setLoading}
-                pages={pages}
-                setPages={setPages}
-                limit={limit}
-                setLimit={setLimit}
-                pageCount={pageCount}
-                columns={columns}
-                dataTable={dataTable}
-                total={total}
-                setIsSelected={setIsSelectedRow}
-              />
-            </div>
-          </main>
+            </aside>
+            <button
+              onClick={() => onCloseModalDetail()}
+              aria-controls="sidebar-component"
+              aria-expanded={isOpenDetail}
+              className={`lg:static ${
+                isOpenDetail &&
+                "fixed z-999 inset-0 bg-black bg-opacity-40 transition-opacity duration-100 transform opacity-100"
+              }`}></button>
+          </div>
         </div>
       </div>
 
