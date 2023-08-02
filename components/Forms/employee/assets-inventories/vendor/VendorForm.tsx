@@ -27,6 +27,12 @@ import {
   selectProductManagement,
   updateProduct,
 } from "../../../../../redux/features/assets/products/productManagementReducers";
+import {
+  createVendor,
+  selectVendorManagement,
+  updateVendor,
+} from "../../../../../redux/features/assets/vendor/vendorManagementReducers";
+import PhoneInput from "react-phone-input-2";
 
 type Props = {
   items?: any;
@@ -35,24 +41,20 @@ type Props = {
   isCloseModal: () => void;
   isUpdate?: boolean;
   getData: () => void;
-  typesOpt?: OptionProps[] | any[];
-  categoryOpt?: OptionProps[] | any[];
-  unitOpt?: OptionProps[] | any[];
-  brandOpt?: OptionProps[] | any[];
   defaultImage?: string;
-  isDisableType?: boolean;
 };
 
 type FormValues = {
-  id?: any;
-  productImage?: string | any;
-  productName?: string | any;
-  productDescription?: string | any;
-  productType?: any;
-  productCategory?: any;
-  unitMeasurement?: any;
-  brand?: any;
-  productMinimumStock?: number | any;
+  id?: number | any;
+  vendorLogo?: string | any;
+  vendorName?: string | any;
+  vendorDescription?: string | any;
+  vendorWebsite?: string | any;
+  vendorPhone?: string | any;
+  vendorEmail?: string | any;
+  vendorLegalName?: string | any;
+  vendorLegalAddress?: string | any;
+  webUrl?: any;
 };
 
 const stylesSelect = {
@@ -92,7 +94,12 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-export default function ProductForm(props: Props) {
+const urlOpt: OptionProps[] = [
+  { value: "http://", label: "http://" },
+  { value: "https://", label: "https://" },
+];
+
+export default function VendorForm(props: Props) {
   const {
     isOpen,
     isCloseModal,
@@ -100,11 +107,6 @@ export default function ProductForm(props: Props) {
     isUpdate,
     token,
     getData,
-    typesOpt,
-    categoryOpt,
-    unitOpt,
-    brandOpt,
-    isDisableType,
     defaultImage,
   } = props;
 
@@ -114,18 +116,6 @@ export default function ProductForm(props: Props) {
   const [files, setFiles] = useState<any>(null);
   const imageRef = useRef<HTMLInputElement>(null);
 
-  // calculator
-  const [isOpenCalculator, setIsOpenCalculator] = useState(false);
-  const [calculator, setCalculator] = useState<string | any>("0");
-
-  const onOpenCalculator = () => {
-    setIsOpenCalculator(true);
-  };
-
-  const onCloseCalculator = () => {
-    setIsOpenCalculator(false);
-  };
-
   // status images
   const imageStatus = useMemo(() => {
     return isBase64(files);
@@ -133,7 +123,7 @@ export default function ProductForm(props: Props) {
 
   // redux
   const dispatch = useAppDispatch();
-  const { pending, error, message } = useAppSelector(selectProductManagement);
+  const { pending, error, message } = useAppSelector(selectVendorManagement);
 
   // form
   const {
@@ -160,14 +150,15 @@ export default function ProductForm(props: Props) {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: items?.id,
-        productImage: items?.productImage,
-        productName: items?.productName,
-        productDescription: items?.productDescription,
-        productType: items?.productType,
-        productCategory: items?.productCategory,
-        unitMeasurement: items?.unitMeasurement,
-        brand: items?.brand,
-        productMinimumStock: items?.productMinimumStock || 0,
+        vendorLogo: items?.vendorLogo,
+        vendorName: items?.vendorName,
+        vendorDescription: items?.vendorDescription,
+        vendorWebsite: items?.vendorWebsite,
+        vendorPhone: items?.vendorPhone,
+        vendorEmail: items?.vendorEmail,
+        vendorLegalName: items?.vendorLegalName,
+        vendorLegalAddress: items?.vendorLegalAddress,
+        webUrl: items?.webUrl,
       }),
       [items]
     ),
@@ -177,17 +168,17 @@ export default function ProductForm(props: Props) {
     if (isOpen && items) {
       reset({
         id: items?.id,
-        productImage: items?.productImage,
-        productName: items?.productName,
-        productDescription: items?.productDescription,
-        productType: items?.productType,
-        productCategory: items?.productCategory,
-        unitMeasurement: items?.unitMeasurement,
-        brand: items?.brand,
-        productMinimumStock: items?.productMinimumStock,
+        vendorLogo: items?.vendorLogo,
+        vendorName: items?.vendorName,
+        vendorDescription: items?.vendorDescription,
+        vendorWebsite: items?.vendorWebsite,
+        vendorPhone: items?.vendorPhone,
+        vendorEmail: items?.vendorEmail,
+        vendorLegalName: items?.vendorLegalName,
+        vendorLegalAddress: items?.vendorLegalAddress,
+        webUrl: items?.webUrl,
       });
-      setFiles(items?.productImage);
-      setCalculator(items?.productMinimumStock);
+      setFiles(items?.vendorLogo);
     }
   }, [items]);
 
@@ -202,63 +193,62 @@ export default function ProductForm(props: Props) {
   }, [watch]);
 
   const descValue = useWatch({
-    name: "productDescription",
+    name: "vendorDescription",
     control,
   });
 
-  const stockValue = useWatch({
-    name: "productMinimumStock",
+  const legalAddressValue = useWatch({
+    name: "vendorLegalAddress",
     control,
   });
 
-  const typeValue = useWatch({
-    name: "productType",
+  const urlValue = useWatch({
+    name: "webUrl",
     control,
   });
 
   const onSubmit: SubmitHandler<FormValues> = async (value) => {
     console.log(value, "form");
     let newData: FormValues = {
-      productImage: imageStatus ? value?.productImage : undefined,
-      productName: value?.productName,
-      productDescription: value?.productDescription,
-      productType: value?.productType?.value,
-      productCategory: value?.productCategory?.id,
-      unitMeasurement: value?.unitMeasurement?.id,
-      brand: value?.brand?.id,
-      productMinimumStock:
-        !value?.productType || value?.productType?.value !== "Inventory"
-          ? 0
-          : Number(value?.productMinimumStock),
+      vendorLogo: imageStatus ? value?.vendorLogo : undefined,
+      vendorName: value?.vendorName,
+      vendorDescription: value?.vendorDescription,
+      vendorWebsite: value?.vendorWebsite
+        ? value?.webUrl?.value + value?.vendorWebsite
+        : "",
+      vendorPhone: value?.vendorPhone,
+      vendorEmail: value?.vendorEmail,
+      vendorLegalName: value?.vendorLegalName,
+      vendorLegalAddress: value?.vendorLegalAddress,
     };
     if (!isUpdate) {
       dispatch(
-        createProduct({
+        createVendor({
           token,
           data: newData,
           isSuccess: async () => {
             await getData();
-            await toast.dark("Product has been created");
+            await toast.dark("Vendor has been created");
             await isCloseModal();
           },
           isError: () => {
-            console.log("error-create-product");
+            console.log("error-create-vendor");
           },
         })
       );
     } else {
       dispatch(
-        updateProduct({
+        updateVendor({
           token,
           id: value?.id,
           data: newData,
           isSuccess: () => {
-            toast.dark("Product has been updated");
+            toast.dark("Vendor has been updated");
             getData();
             isCloseModal();
           },
           isError: () => {
-            console.log("error-update-product");
+            console.log("error-update-vendor");
           },
         })
       );
@@ -269,7 +259,7 @@ export default function ProductForm(props: Props) {
   const onSelectImage = (e: any) => {
     console.log(e?.target?.files[0]);
     if (e?.target?.files[0]?.size > 3000000) {
-      setError("productImage", {
+      setError("vendorLogo", {
         type: "onChange",
         message: "File can not more than 3MB",
       });
@@ -280,7 +270,7 @@ export default function ProductForm(props: Props) {
 
         if (!e.target.files || e.target.files.length == 0) {
           setFiles(undefined);
-          setError("productImage", {
+          setError("vendorLogo", {
             type: "required",
             message: "File is required",
           });
@@ -290,8 +280,8 @@ export default function ProductForm(props: Props) {
         reader.onload = function () {
           let val = reader.result;
           setFiles(val);
-          setValue("productImage", val as string);
-          clearErrors("productImage");
+          setValue("vendorLogo", val as string);
+          clearErrors("vendorLogo");
         };
       };
       preview();
@@ -302,42 +292,31 @@ export default function ProductForm(props: Props) {
     if (imageRef.current) {
       imageRef.current.value = "";
       setFiles(undefined);
-      setValue("productImage", null);
-      clearErrors("productImage");
+      setValue("vendorLogo", null);
+      clearErrors("vendorLogo");
     }
   };
-
-  useEffect(() => {
-    if (!calculator) {
-      setValue("productMinimumStock", null);
-    } else {
-      setValue("productMinimumStock", calculator);
-    }
-  }, [calculator]);
 
   useEffect(() => {
     if (!isOpen) {
       reset({
         id: null,
-        productImage: null,
-        productName: null,
-        productDescription: null,
-        productType: null,
-        productCategory: null,
-        unitMeasurement: null,
-        brand: null,
-        productMinimumStock: null,
+        vendorLogo: null,
+        vendorName: null,
+        vendorDescription: null,
+        vendorWebsite: null,
+        vendorPhone: null,
+        vendorEmail: null,
+        vendorLegalName: null,
+        vendorLegalAddress: null,
+        webUrl: null,
       });
       onDeleteImage();
-      setCalculator("");
     }
   }, [!isOpen]);
 
   return (
-    <Modal
-      size={!typeValue ? "small" : "medium"}
-      onClose={isCloseModal}
-      isOpen={isOpen}>
+    <Modal size={"medium"} onClose={isCloseModal} isOpen={isOpen}>
       <Fragment>
         <ModalHeader
           onClick={isCloseModal}
@@ -345,31 +324,21 @@ export default function ProductForm(props: Props) {
           className="p-4 bg-white rounded-t-xl border-b-2 border-gray">
           <div className="w-full flex flex-col gap-1 px-2">
             <h3 className="text-lg font-semibold">
-              {isUpdate ? "Edit" : "Add"} Product
+              {isUpdate ? "Edit" : "Add"} Vendor
             </h3>
-            <p className="text-gray-5 text-sm">
-              Fill your product information.
-            </p>
+            <p className="text-gray-5 text-sm">Fill your vendor information.</p>
           </div>
         </ModalHeader>
         <div className="w-full">
           <div className={`w-full flex gap-2 divide-x-2 divide-gray`}>
             <div
-              className={`w-full duration-300 ease-in-out flex flex-col gap-2 py-2 ${
-                typeValue ? "lg:w-1/2" : ""
-              }`}>
+              className={`w-full lg:w-1/2 duration-300 ease-in-out flex flex-col gap-2 py-2`}>
               <div className="w-full px-4">
-                {/* image logo */}
-                {/* <label
-                className="col-span-1 my-auto font-semibold"
-                htmlFor="productImage">
-                Product Image
-              </label> */}
                 <div className="w-full col-span-4">
                   <div className="w-full flex flex-col gap-4">
                     <div className="w-[120px] h-[120px] relative flex gap-2 group hover:cursor-pointer">
                       <label
-                        htmlFor="productImage"
+                        htmlFor="vendorLogo"
                         className="w-full h-full hover:cursor-pointer">
                         {!files ? (
                           <img
@@ -378,7 +347,7 @@ export default function ProductForm(props: Props) {
                                 ? defaultImage
                                 : "../../image/no-image.jpeg"
                             }
-                            alt="productImage"
+                            alt="vendorLogo"
                             className="w-full max-w-[200px] h-full min-h-[120px] object-cover object-center border border-gray shadow-card rounded-lg p-1"
                           />
                         ) : (
@@ -386,9 +355,9 @@ export default function ProductForm(props: Props) {
                             src={
                               imageStatus
                                 ? files
-                                : `${url}product/productImage/${files}`
+                                : `${url}vendor/vendorLogo/${files}`
                             }
-                            alt="productImage"
+                            alt="vendorLogo"
                             className="w-full max-w-[200px] h-full min-h-[120px] object-cover object-center border border-gray shadow-card rounded-lg p-1"
                           />
                         )}
@@ -412,7 +381,7 @@ export default function ProductForm(props: Props) {
                       <input
                         type="file"
                         id="logo"
-                        placeholder="Domain Logo..."
+                        placeholder="Vendor Logo..."
                         autoFocus
                         className={`w-full focus:outline-none max-w-max text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100 ${
                           files ? "hidden" : ""
@@ -421,11 +390,11 @@ export default function ProductForm(props: Props) {
                         ref={imageRef}
                         accept="image/*"
                       />
-                      {errors?.productImage && (
+                      {errors?.vendorLogo && (
                         <div className="mt-1 text-xs flex items-center text-red-300">
                           <MdWarning className="w-4 h-4 mr-1" />
                           <span className="text-red-300">
-                            {errors.productImage.message as any}
+                            {errors.vendorLogo.message as any}
                           </span>
                         </div>
                       )}
@@ -434,10 +403,11 @@ export default function ProductForm(props: Props) {
                 </div>
               </div>
 
+              {/* name */}
               <div className="w-full px-4">
                 <label
                   className="text-gray-500 font-semibold text-sm"
-                  htmlFor="productName">
+                  htmlFor="vendorName">
                   Name<span className="text-primary">*</span>
                 </label>
                 <div className="w-full flex">
@@ -445,30 +415,31 @@ export default function ProductForm(props: Props) {
                     type="text"
                     placeholder="Name"
                     autoFocus
-                    id="productName"
+                    id="vendorName"
                     className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                    {...register("productName", {
+                    {...register("vendorName", {
                       required: {
                         value: true,
-                        message: "Product name is required.",
+                        message: "Vendor name is required.",
                       },
                     })}
                   />
                 </div>
-                {errors?.productName && (
+                {errors?.vendorName && (
                   <div className="mt-1 text-xs flex items-center text-red-300">
                     <MdWarning className="w-4 h-4 mr-1" />
                     <span className="text-red-300">
-                      {errors.productName.message as any}
+                      {errors.vendorName.message as any}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* description */}
               <div className="w-full px-4">
                 <label
                   className="text-gray-500 font-semibold text-sm"
-                  htmlFor="productDescription">
+                  htmlFor="vendorDescription">
                   Description
                 </label>
                 <div className="w-full">
@@ -477,258 +448,245 @@ export default function ProductForm(props: Props) {
                     cols={5}
                     maxLength={400}
                     placeholder="Description"
-                    id="productDescription"
+                    id="vendorDescription"
                     autoFocus
                     className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
-                    {...register("productDescription")}
+                    {...register("vendorDescription")}
                   />
                 </div>
                 <div className={`w-full flex text-xs text-gray-5 justify-end`}>
                   {descValue?.length || 0}/400 Characters
                 </div>
               </div>
-
-              <div className="w-full px-4">
-                <label
-                  className="text-gray-500 font-semibold text-sm"
-                  htmlFor="productType">
-                  Type<span className="text-primary">*</span>
-                </label>
-                <div className="w-full flex">
-                  <Controller
-                    render={({
-                      field: { onChange, onBlur, value, name, ref },
-                      fieldState: { invalid, isTouched, isDirty, error },
-                    }) => (
-                      <DropdownSelect
-                        customStyles={stylesSelect}
-                        value={value}
-                        onChange={onChange}
-                        error=""
-                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                        classNamePrefix=""
-                        formatOptionLabel={""}
-                        instanceId="productType"
-                        isDisabled={
-                          isDisableType ? (isDisableType as boolean) : false
-                        }
-                        isMulti={false}
-                        placeholder="Type"
-                        options={typesOpt}
-                        icon=""
-                      />
-                    )}
-                    name="productType"
-                    control={control}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: "Product type is required.",
-                      },
-                    }}
-                  />
-                </div>
-                {errors?.productType && (
-                  <div className="mt-1 text-xs flex items-center text-red-300">
-                    <MdWarning className="w-4 h-4 mr-1" />
-                    <span className="text-red-300">
-                      {errors.productType.message as any}
-                    </span>
-                  </div>
-                )}
-              </div>
             </div>
 
             <div
-              className={`duration-300 ease-in-out ${
-                !typeValue
-                  ? "w-0 scale-0 -translate-x-full"
-                  : "w-full lg:w-1/2 flex flex-col gap-2 py-2"
-              }`}>
+              className={`duration-300 ease-in-out w-full lg:w-1/2 flex flex-col gap-2 py-2 text-sm`}>
+              {/* email */}
               <div className="w-full px-4">
                 <label
-                  className="text-gray-500 font-semibold text-sm"
-                  htmlFor="productCategory">
-                  Category<span className="text-primary">*</span>
+                  className="col-span-1 my-auto font-semibold"
+                  htmlFor="vendorEmail">
+                  Email
                 </label>
-                <div className="w-full flex">
+                <div className="w-full col-span-4">
+                  <input
+                    type="vendorEmail"
+                    placeholder="Email..."
+                    autoFocus
+                    className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                    {...register("vendorEmail", {
+                      required: {
+                        value: true,
+                        message: "Email is required.",
+                      },
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Email is invalid.",
+                      },
+                    })}
+                  />
+                  {errors?.vendorEmail && (
+                    <div className="mt-1 text-xs flex items-center text-red-300">
+                      <MdWarning className="w-4 h-4 mr-1" />
+                      <span className="text-red-300">
+                        {errors.vendorEmail.message as any}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* phone */}
+              <div className="w-full px-4">
+                <label className="my-auto font-semibold" htmlFor="vendorPhone">
+                  Phone No.
+                </label>
+                <div className="relative">
                   <Controller
                     render={({
                       field: { onChange, onBlur, value, name, ref },
                       fieldState: { invalid, isTouched, isDirty, error },
                     }) => (
-                      <DropdownSelect
-                        customStyles={stylesSelect}
+                      <PhoneInput
+                        specialLabel=""
+                        country={"id"}
                         value={value}
                         onChange={onChange}
-                        error=""
-                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                        classNamePrefix=""
-                        formatOptionLabel={""}
-                        instanceId="productCategory"
-                        isDisabled={false}
-                        isMulti={false}
-                        placeholder="Choose Category"
-                        options={categoryOpt}
-                        icon=""
+                        buttonClass="shadow-default"
+                        placeholder="1 123 4567 8910"
+                        inputClass="form-control w-full py-3 px-6 pl-14 border border-stroke focus:border-primary rounded-lg text-sm lg:text-md"
+                        dropdownClass="left-0 text-sm lg:text-md"
+                        searchClass="w-full p-2 outline-none sticky z-10 bg-white top-0 shadow-2"
+                        autocompleteSearch
+                        containerClass="w-full flex"
+                        enableSearch
+                        disableSearchIcon
                       />
                     )}
-                    name="productCategory"
+                    name={`vendorPhone`}
                     control={control}
                     rules={{
                       required: {
                         value: true,
-                        message: "Product category is required.",
+                        message: "Phone No. is required.",
                       },
                     }}
                   />
                 </div>
-                {errors?.productCategory && (
+                {errors?.vendorPhone && (
                   <div className="mt-1 text-xs flex items-center text-red-300">
                     <MdWarning className="w-4 h-4 mr-1" />
                     <span className="text-red-300">
-                      {errors.productCategory.message as any}
+                      {errors.vendorPhone.message as any}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* website */}
+              <div className="w-full px-4">
+                <label
+                  className="col-span-1 my-auto font-semibold"
+                  htmlFor="vendorWebsite">
+                  Website
+                </label>
+                <div className="w-full col-span-4">
+                  <div className="relative flex gap-2">
+                    <div className="w-full max-w-max">
+                      <Controller
+                        render={({
+                          field: { onChange, onBlur, value, name, ref },
+                          fieldState: { invalid, isTouched, isDirty, error },
+                        }) => (
+                          <DropdownSelect
+                            customStyles={stylesSelect}
+                            value={value}
+                            onChange={onChange}
+                            error=""
+                            className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                            classNamePrefix=""
+                            formatOptionLabel={""}
+                            instanceId="url"
+                            isDisabled={false}
+                            isMulti={false}
+                            placeholder="URL..."
+                            options={urlOpt}
+                            icon=""
+                          />
+                        )}
+                        name="webUrl"
+                        control={control}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: "URL is required.",
+                          },
+                        }}
+                      />
+                      {errors?.webUrl && (
+                        <div className="mt-1 text-xs flex items-center text-red-300">
+                          <MdWarning className="w-4 h-4 mr-1" />
+                          <span className="text-red-300">
+                            {errors.webUrl.message as any}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="w-full">
+                      <input
+                        type="text"
+                        placeholder="Website..."
+                        autoFocus
+                        className={`w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                        {...register("vendorWebsite", {
+                          required: {
+                            value: true,
+                            message: "Website is required.",
+                          },
+                        })}
+                      />
+                      {errors?.vendorWebsite && (
+                        <div className="mt-1 text-xs flex items-center text-red-300">
+                          <MdWarning className="w-4 h-4 mr-1" />
+                          <span className="text-red-300">
+                            {errors.vendorWebsite.message as any}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* legal name */}
               <div className="w-full px-4">
                 <label
                   className="text-gray-500 font-semibold text-sm"
-                  htmlFor="unitMeasurement">
-                  Unit Measurement<span className="text-primary">*</span>
+                  htmlFor="vendorLegalName">
+                  Legal Name<span className="text-primary">*</span>
                 </label>
                 <div className="w-full flex">
-                  <Controller
-                    render={({
-                      field: { onChange, onBlur, value, name, ref },
-                      fieldState: { invalid, isTouched, isDirty, error },
-                    }) => (
-                      <DropdownSelect
-                        customStyles={stylesSelect}
-                        value={value}
-                        onChange={onChange}
-                        error=""
-                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                        classNamePrefix=""
-                        formatOptionLabel={""}
-                        instanceId="unitMeasurement"
-                        isDisabled={false}
-                        isMulti={false}
-                        placeholder="Choose Unit"
-                        options={unitOpt}
-                        icon=""
-                      />
-                    )}
-                    name="unitMeasurement"
-                    control={control}
-                    rules={{
+                  <input
+                    type="text"
+                    placeholder="Legal Name"
+                    autoFocus
+                    id="vendorLegalName"
+                    className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                    {...register("vendorLegalName", {
                       required: {
                         value: true,
-                        message: "Unit measurement is required.",
+                        message: "Vendor legal name is required.",
                       },
-                    }}
+                    })}
                   />
                 </div>
-                {errors?.unitMeasurement && (
+                {errors?.vendorLegalName && (
                   <div className="mt-1 text-xs flex items-center text-red-300">
                     <MdWarning className="w-4 h-4 mr-1" />
                     <span className="text-red-300">
-                      {errors.unitMeasurement.message as any}
+                      {errors.vendorLegalName.message as any}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* legal address */}
               <div className="w-full px-4">
                 <label
                   className="text-gray-500 font-semibold text-sm"
-                  htmlFor="brand">
-                  Brands<span className="text-primary">*</span>
+                  htmlFor="vendorLegalAddress">
+                  Legal Address<span className="text-primary">*</span>
                 </label>
-                <div className="w-full flex">
-                  <Controller
-                    render={({
-                      field: { onChange, onBlur, value, name, ref },
-                      fieldState: { invalid, isTouched, isDirty, error },
-                    }) => (
-                      <DropdownSelect
-                        customStyles={stylesSelect}
-                        value={value}
-                        onChange={onChange}
-                        error=""
-                        className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                        classNamePrefix=""
-                        formatOptionLabel={""}
-                        instanceId="brand"
-                        isDisabled={false}
-                        isMulti={false}
-                        placeholder="Choose Brand"
-                        options={brandOpt}
-                        icon=""
-                      />
-                    )}
-                    name="brand"
-                    control={control}
-                    rules={{
+                <div className="w-full">
+                  <textarea
+                    rows={3}
+                    cols={5}
+                    maxLength={400}
+                    placeholder="Legal Address"
+                    id="vendorLegalAddress"
+                    autoFocus
+                    className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                    {...register("vendorLegalAddress", {
                       required: {
                         value: true,
-                        message: "Brand is required.",
+                        message: "Legal address is reqiured",
                       },
-                    }}
+                    })}
                   />
                 </div>
-                {errors?.brand && (
+                <div className={`w-full flex text-xs text-gray-5 justify-end`}>
+                  {legalAddressValue?.length || 0}/400 Characters
+                </div>
+                {errors?.vendorLegalAddress && (
                   <div className="mt-1 text-xs flex items-center text-red-300">
                     <MdWarning className="w-4 h-4 mr-1" />
                     <span className="text-red-300">
-                      {errors.brand.message as any}
+                      {errors.vendorLegalAddress.message as any}
                     </span>
                   </div>
                 )}
-              </div>
-
-              <div
-                className={`w-full px-4 ${
-                  typeValue?.value !== "Inventory" ? "hidden" : ""
-                }`}>
-                <label
-                  className="text-gray-500 font-semibold text-sm"
-                  htmlFor="productMinimumStock">
-                  Minimum Stock
-                </label>
-                <div className="w-full flex items-center gap-2 my-2">
-                  <button
-                    onClick={() => {
-                      console.log(Number.isInteger(+calculator), "value");
-                      if (Number.isInteger(+calculator)) {
-                        if (Number(calculator) == 0) return;
-                        setCalculator(Number(calculator) - 1);
-                      }
-                    }}
-                    type="button"
-                    className="inline-flex items-center justify-center hover:bg-gray active:scale-90 p-1 rounded-lg shadow-3 border-2 border-primary">
-                    <MdHorizontalRule className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={onOpenCalculator}
-                    className="w-full min-w-[70px] h-[40px] max-w-max hover:bg-gray active:scale-90 p-1 rounded-lg shadow-3 border-2 border-primary">
-                    {calculator}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (Number.isInteger(+calculator)) {
-                        setCalculator(Number(calculator) + 1);
-                      }
-                    }}
-                    type="button"
-                    className="inline-flex items-center justify-center hover:bg-gray active:scale-90 p-1 rounded-lg shadow-3 border-2 border-primary">
-                    <MdAdd className="w-4 h-4" />
-                  </button>
-                </div>
-                <div
-                  className={`w-full flex text-xs text-gray-5 justify-end`}></div>
               </div>
             </div>
           </div>
@@ -758,35 +716,6 @@ export default function ProductForm(props: Props) {
             </Button>
           </div>
         </div>
-
-        <Modal
-          isOpen={isOpenCalculator}
-          onClose={onCloseCalculator}
-          size="small">
-          <Fragment>
-            <ModalHeader
-              onClick={onCloseCalculator}
-              isClose={true}
-              className="p-4 bg-white rounded-t-xl border-b-2 border-gray">
-              <div className="w-full flex flex-col gap-1 px-2">
-                <h3 className="text-lg font-semibold">Calculator</h3>
-                {/* <p className="text-gray-5 text-sm">
-                Fill your product information.
-              </p> */}
-              </div>
-            </ModalHeader>
-            <Calculator result={calculator} setResult={setCalculator} />
-            <div className="w-full flex justify-end p-4 border-t-2 border-gray">
-              <Button
-                type="button"
-                variant="primary"
-                className="rounded-md text-sm shadow-card border-primary"
-                onClick={onCloseCalculator}>
-                <span className="font-semibold">Save</span>
-              </Button>
-            </div>
-          </Fragment>
-        </Modal>
       </Fragment>
     </Modal>
   );

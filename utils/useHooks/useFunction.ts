@@ -135,3 +135,25 @@ export const exportDataToJSON = (data: any) => {
 
   link.click();
 };
+
+export const getWebString = (value: any) => {
+  let condition = value?.slice(0, 8) === "https://";
+  if (!value) {
+    return {
+      website: null,
+      url: null,
+    };
+  } else {
+    if (condition) {
+      return {
+        website: value?.slice(8),
+        url: { value: value?.slice(0, 8), label: value?.slice(0, 8) },
+      };
+    } else {
+      return {
+        website: value?.slice(7),
+        url: { value: value?.slice(0, 7), label: value?.slice(0, 7) },
+      };
+    }
+  }
+};

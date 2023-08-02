@@ -118,8 +118,8 @@ function CardTablesRow(props: any) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    debugTable: true,
-    debugHeaders: true,
+    debugTable: false,
+    debugHeaders: false,
     debugColumns: false,
     enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
@@ -260,9 +260,9 @@ function CardTablesRow(props: any) {
         ref={refTable}
         onScroll={(e) => handleScroll(e.target as HTMLDivElement)}
         className="relative col-span-1 p-4 overflow-auto h-[600px]">
-        <table className="relative bg-gray w-full overflow-auto border-separate border-0 border-spacing-y-4 rounded-lg shadow-lg px-2">
+        <table className="relative w-full overflow-auto border-separate border-0 border-spacing-y-4 rounded-lg px-2">
           <thead
-            className={`w-full sticky overflow-hidden -top-5 z-10 bg-white transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700 ${
+            className={`w-full sticky overflow-hidden -top-5 z-10 bg-gray transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700 ${
               isHideHeader ? "hidden" : ""
             }`}>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -316,7 +316,7 @@ function CardTablesRow(props: any) {
               return (
                 <tr key={row.id} className="bg-white rounded-xl shadow-1">
                   {row.getVisibleCells().map((cell) => {
-                    console.log(cell?.column?.columnDef?.size, "size-table");
+                    // console.log(cell?.column?.columnDef?.size, "size-table");
                     return (
                       <td
                         key={cell.id}
@@ -354,11 +354,13 @@ function CardTablesRow(props: any) {
             ) : null}
           </tbody>
           <tfoot
-            className={`border-t border-gray-4 text-gray-5 font-normal ${
+            className={`w-full overflow-hidden bg-gray border-t border-gray-4 text-gray-5 font-normal ${
               isInfiniteScroll ? "hidden" : ""
             }`}>
             <tr className="w-full">
-              <th colSpan={table.getVisibleLeafColumns().length}>
+              <th
+                className="rounded-bl-xl rounded-br-xl"
+                colSpan={table.getVisibleLeafColumns().length}>
                 <div className="py-4 px-4 my-4 w-full flex flex-col lg:flex-row lg:justify-between items-center leading-relaxed">
                   <div className="flex flex-row items-center text-xs">
                     {pageCount >= 1 ? (
