@@ -25,17 +25,18 @@ const range = (len: number) => {
 };
 
 const generateMoneyFormat = (): string => {
-  const amount = faker.datatype.number({ min: 1, max: 10000 });
+  const amount = faker.datatype.number({ min: 1000, max: 100000 });
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "IDR",
+    minimumFractionDigits: 0,
   }).format(amount);
   return formattedAmount;
 };
 
 const newItem = (): Items => {
   return {
-    images: faker.image.dataUri(),
+    images: faker.image.imageUrl(400, 400, "product", true),
     id: faker.datatype.uuid(),
     productName: faker.commerce.productName(),
     code: faker.datatype.number(10),
