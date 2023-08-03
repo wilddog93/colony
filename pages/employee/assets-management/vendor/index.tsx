@@ -720,7 +720,7 @@ const Products = ({ pageProps }: Props) => {
                           : "../../../image/no-image.jpeg"
                       }
                       alt="vendor-logo-detail"
-                      className="w-full max-w-[100px] h-full max-h-[100px] object-center object-cover rounded"
+                      className="w-full max-w-[100px] h-[100px] max-h-[100px] object-center object-cover rounded"
                     />
 
                     <div className="flex flex-col gap-2 text-gray-6 leading-relaxed text-sm">
