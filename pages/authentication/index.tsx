@@ -29,7 +29,6 @@ import {
   ModalHeader,
 } from "../../components/Modal/ModalComponent";
 import LoadingPage from "../../components/LoadingPage";
-import axios from "axios";
 
 interface PageProps {
   page?: string;
