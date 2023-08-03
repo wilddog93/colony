@@ -403,7 +403,7 @@ const merchant = ({ pageProps }: Props) => {
                   <Button
                     type="button"
                     onClick={isOpenForm}
-                    className="rounded-lg text-sm font-semibold py-4"
+                    className="rounded-lg text-sm font-semibold py-2"
                     variant="primary">
                     <span>New Discount</span>
                     <MdAdd />

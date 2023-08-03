@@ -43,7 +43,7 @@ const TenantSideBar = () => {
           <span className="text-white font-bold text-xl">4</span>
           <div className="flex flex-row space-x-2 items-center text-white">
             <FaBuilding className=" w-7 h-7" />
-            <span className="text-xl font-bold">Unit D</span>
+            <span className="text-xl font-bold">Colony 05B</span>
           </div>
         </div>
         <div className="flex flex-col text-white space-y-2 mt-8">
