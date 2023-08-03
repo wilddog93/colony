@@ -218,20 +218,37 @@ const Products = ({ pageProps }: Props) => {
 
   // hidden-desc-table
   const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
 
   const onReadDescription = (val: any) => {
     const idx = isArrayHidden.indexOf(val);
 
     if (idx > -1) {
-      console.log("pus nihss");
+      // console.log("pus nihss");
       const _selected = [...isArrayHidden];
       _selected.splice(idx, 1);
       setIsArrayHidden(_selected);
     } else {
-      console.log("push ini");
+      // console.log("push ini");
       const _selected = [...isArrayHidden];
       _selected.push(val);
       setIsArrayHidden(_selected);
+    }
+  };
+
+  const onReadDescriptionDetail = (val: any) => {
+    const idx = isHiddenDesc.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isHiddenDesc];
+      _selected.splice(idx, 1);
+      setIsHiddenDesc(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isHiddenDesc];
+      _selected.push(val);
+      setIsHiddenDesc(_selected);
     }
   };
 
@@ -709,7 +726,26 @@ const Products = ({ pageProps }: Props) => {
                     <div className="flex flex-col gap-2 text-gray-6 leading-relaxed text-sm">
                       <h3 className="font-semibold">{formData?.vendorName}</h3>
                       <p>{formData?.vendorLegalName}</p>
-                      <p className="text-xs">{formData?.vendorDescription}</p>
+                      <div className="w-full flex flex-col gap-1 text-xs">
+                        {formData?.vendorDescription?.length > 70 &&
+                        !isHiddenDesc.includes(formData?.id)
+                          ? `${formData?.vendorDescription?.substring(
+                              70,
+                              0
+                            )} ...`
+                          : formData?.vendorDescription}
+                        <button
+                          onClick={() => onReadDescriptionDetail(formData?.id)}
+                          className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                            formData?.vendorDescription?.length > 70
+                              ? ""
+                              : "hidden"
+                          }`}>
+                          {isHiddenDesc.includes(formData?.id)
+                            ? "Hide"
+                            : "Show"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
