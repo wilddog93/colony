@@ -3,10 +3,22 @@ import Cards from "../../Cards/Cards";
 import DropdownSelect from "../../Dropdown/DropdownSelect";
 import Button from "../../Button/Button";
 import { MdEdit } from "react-icons/md";
+import { useAppDispatch, useAppSelector } from "../../../redux/Hook";
+import {
+  getUnitTypes,
+  selectUnitTypeManagement,
+} from "../../../redux/features/building-management/unitType/unitTypeReducers";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import { OptionProps } from "../../../utils/useHooks/PropTypes";
+import Modal from "../../Modal";
+import UnitBatchForm from "../../Forms/employee/UnitBatchForm";
 
 type Props = {
   units?: any;
   token?: any;
+  getData: () => void;
+  unitTypeOpt?: any[];
+  amenityOpt?: any[];
 };
 
 const options = [
@@ -71,13 +83,35 @@ const customStylesSelect = {
 };
 
 const Units = (props: Props) => {
-  const { units, token } = props;
-  const [unitType, setUnitType] = useState({
-    value: "restaurant",
-    label: "Restaurant",
-  });
+  // redux
+  const dispatch = useAppDispatch();
 
-  console.log(units, "data unit");
+  const { units, token, unitTypeOpt, amenityOpt, getData } = props;
+  const [unitType, setUnitType] = useState<OptionProps | any>(null);
+
+  const [isOpenEditUnit, setIsOpenEditUnit] = useState(false);
+  const [formData, setFormData] = useState<any>(null);
+
+  const openEditUnit = (value: any) => {
+    let newObj = {
+      ...value,
+      amenity:
+        value?.unitAmenities?.length > 0
+          ? value?.unitAmenities?.map((item: any) => ({
+              ...item?.amenity,
+              totalAmenity: item?.totalAmenity,
+            }))
+          : [],
+    };
+    // console.log(newObj, "edit");
+    setFormData(newObj);
+    setIsOpenEditUnit(true);
+  };
+
+  const closeEditUnit = () => {
+    setFormData(null);
+    setIsOpenEditUnit(false);
+  };
 
   useEffect(() => {
     let newObj: any = {};
@@ -89,44 +123,72 @@ const Units = (props: Props) => {
   }, [units]);
 
   return (
-    <Cards className="relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between">
-      <div>
-        <DropdownSelect
-          customStyles={customStylesSelect}
-          value={unitType}
-          onChange={setUnitType}
-          error=""
-          className="text-xs"
-          classNamePrefix=""
-          formatOptionLabel=""
-          instanceId="1"
-          isDisabled={false}
-          isMulti={false}
-          placeholder="Unit"
-          options={options}
-          icon=""
-        />
+    <Fragment>
+      <Cards className="relative rounded-lg border border-gray shadow-1 bg-white p-2 text-sm flex flex-col justify-between">
+        <div>
+          <DropdownSelect
+            customStyles={customStylesSelect}
+            value={unitType}
+            onChange={setUnitType}
+            error=""
+            className="text-xs"
+            classNamePrefix=""
+            formatOptionLabel=""
+            instanceId="unitType"
+            isDisabled={true}
+            isMulti={false}
+            placeholder="Unit"
+            options={unitTypeOpt}
+            icon=""
+          />
 
-        <div className="border border-t w-full border-gray mt-3"></div>
+          <div className="border border-t w-full border-gray mt-3"></div>
 
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold">101</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold">
+              {units?.unitName ? units?.unitName : "-"}
+            </h3>
 
-          <Button
-            type="button"
-            className="py-1 px-1"
-            variant="primary-outline-none"
-            onClick={() => console.log("edit")}>
-            <MdEdit className="w-4 h-4" />
-          </Button>
+            <Button
+              type="button"
+              className="py-1 px-1"
+              variant="primary-outline-none"
+              onClick={() => openEditUnit(units)}>
+              <MdEdit className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between gap-2 text-gray-4 text-xs">
-        <h3 className="">5 amenities</h3>
-        <p>123m2</p>
-      </div>
-    </Cards>
+        <div className="flex items-center justify-between gap-2 text-gray-4 text-xs">
+          <h3 className="">
+            {units?.totalAmenity > 1
+              ? `${units?.totalAmenity} Amenities`
+              : units?.totalAmenity == 0
+              ? "0 Amenity"
+              : `${units?.totalAmenity} Amenity`}
+          </h3>
+          <div>
+            <p>
+              {units?.unitSize ? units?.unitSize : 0} m<sup>2</sup>
+            </p>
+          </div>
+        </div>
+      </Cards>
+
+      {/* modal edit unit*/}
+      <Modal isOpen={isOpenEditUnit} onClose={closeEditUnit} size="">
+        <UnitBatchForm
+          isCloseModal={closeEditUnit}
+          isOpen={isOpenEditUnit}
+          token={token}
+          items={formData}
+          getData={() => getData()}
+          amenityOpt={amenityOpt}
+          unitTypeOpt={unitTypeOpt}
+          isUpdate
+        />
+      </Modal>
+    </Fragment>
   );
 };
 

@@ -152,7 +152,7 @@ const FloorUnit = (props: Props) => {
 
   useEffect(() => {
     if (token && newId) {
-      // getUnitsData({ params: filters.queryObject, token: token });
+      getUnitsData({ params: filters.queryObject, token: token });
     }
   }, [token, filters, newId]);
 
@@ -180,7 +180,15 @@ const FloorUnit = (props: Props) => {
         unitData?.map((unit: any) => {
           return (
             <Fragment key={unit.id}>
-              <Units units={unit} token={token} />
+              <Units
+                units={unit}
+                token={token}
+                getData={() =>
+                  getUnitsData({ params: filters.queryObject, token: token })
+                }
+                amenityOpt={amenityOpt}
+                unitTypeOpt={unitTypeOpt}
+              />
             </Fragment>
           );
         })
@@ -191,7 +199,7 @@ const FloorUnit = (props: Props) => {
       )}
 
       {/* modal add unit*/}
-      {/* <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
+      <Modal isOpen={isOpenAddUnit} onClose={closeAddUnitModal} size="">
         <UnitBatchForm
           isCloseModal={closeAddUnitModal}
           isOpen={isOpenAddUnit}
@@ -203,7 +211,7 @@ const FloorUnit = (props: Props) => {
           amenityOpt={amenityOpt}
           unitTypeOpt={unitTypeOpt}
         />
-      </Modal> */}
+      </Modal>
     </Fragment>
   );
 };
