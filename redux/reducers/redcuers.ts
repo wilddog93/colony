@@ -32,6 +32,7 @@ import productUnitReducers from "../features/assets/products/unit-measurement/pr
 import productBrandReducers from "../features/assets/products/brand/productBrandReducers";
 import locationManagementReducers from "../features/assets/locations/locationManagementReducers";
 import vendorManagementReducers from "../features/assets/vendor/vendorManagementReducers";
+import parkingLotReducers from "../features/building-management/parking/parkingLotReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -46,6 +47,7 @@ export const combinedReducer = combineReducers({
   domainAccessGroup: domainAccessGroupReducers,
   domainAccess: domainAccessReducers,
   domainStructures: domainStructureReducers,
+  // bm
   towerManagement: towerReducers,
   floorManagement: floorReducers,
   floorTypeManagement: floorTypeReducers,
@@ -53,6 +55,7 @@ export const combinedReducer = combineReducers({
   unitTypeManagement: unitTypeReducers,
   unitManagement: unitReducers,
   userPropertyManagement: userPropertyReducers,
+  parkingLotManagement: parkingLotReducers,
   // task-management
   projectType: projectTypeReducers,
   issueType: issueTypeReducers,

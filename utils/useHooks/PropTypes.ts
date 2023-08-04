@@ -126,20 +126,49 @@ export interface OccupantProps {
 }
 
 export interface IssueProps {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  issueCode?: string | any;
+  issueName?: string | any;
+  issueDescription?: string | any;
+  complaintSource?: string | any;
+  complainantName?: string | any;
+  phoneNumber?: string | any;
+  issueResponse?: string | any;
+  issueStatus?: string | any;
+  issueCategory?: IssueCategoryProps;
+  issueType?: IssueTypeProps;
+  occupant?: OccupantProps;
+  project?: ProjectProps | any;
+  issueCreator?: UserProps;
+}
+
+// bm
+// unit
+export type UnitProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  unitName?: string | any;
+  unitDescription?: null;
+  unitImage?: string | any;
+  unitSize?: string | any;
+  unitOrder?: number | any;
+  totalOngoingBill?: number | string | any;
+  totalUnreadMessageLocalshop?: number | any;
+  totalAmenity?: number | any;
+};
+// parking
+
+export type ParkingProps = {
   id: number | any;
   createdAt: string | any;
   updatedAt: string | any;
-  issueCode: string | any;
-  issueName: string | any;
-  issueDescription: string | any;
-  complaintSource: string | any;
-  complainantName: string | any;
-  phoneNumber: string | any;
-  issueResponse: string | any;
-  issueStatus: string | any;
-  issueCategory: IssueCategoryProps;
-  issueType: IssueTypeProps;
-  occupant: OccupantProps;
-  project: ProjectProps | any;
-  issueCreator: UserProps;
-}
+  lotCode: string | any;
+  lotType: string | any;
+  parkingStatus: string | any | "Occupied";
+  vehicleNumber: string | any;
+  unitOwned: UnitProps | any;
+  unitLent: any;
+};
