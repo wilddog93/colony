@@ -265,7 +265,7 @@ export default function UnitBatchForm({
         unitOrder: items?.floorOrder,
         isBulk: items?.isBulk,
       });
-      setDataAmenity(items?.amenity);
+      setDataAmenity(items?.amenity ? items?.amenity : []);
     }
   }, [items]);
 

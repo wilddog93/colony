@@ -118,7 +118,7 @@ const FloorUnit = (props: Props) => {
         Authorization: `Bearer ${params.token}`,
       },
     };
-
+    setLoading(true);
     try {
       const response = await axios.get("unit", config);
       const { data, status } = response;
@@ -139,10 +139,12 @@ const FloorUnit = (props: Props) => {
 
           console.log("data unit ini running...");
         }
+        setLoading(false);
       } else {
         throw response;
       }
     } catch (error: any) {
+      setLoading(false);
       const { data, status } = error.response;
       let newError: any = { message: data.message[0] };
       console.log(newError, "errors");
@@ -161,9 +163,6 @@ const FloorUnit = (props: Props) => {
   return (
     <Fragment>
       {/* unit */}
-      {loading ? (
-        <FaCircleNotch className="text-gray-5 w-10 h-10 animate-spin-1.5 m-auto" />
-      ) : null}
       <Button
         className="text-sm py-6 px-8 font-semibold rounded-md mr-4"
         variant="primary-outline-none"
@@ -176,6 +175,11 @@ const FloorUnit = (props: Props) => {
           <span className="">Add Room</span>
         </div>
       </Button>
+
+      {loading ? (
+        <FaCircleNotch className="text-gray-5 w-10 h-10 animate-spin-1.5 m-auto" />
+      ) : null}
+
       {unitData?.length > 0 ? (
         unitData?.map((unit: any) => {
           return (
