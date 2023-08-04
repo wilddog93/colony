@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
@@ -19,8 +20,10 @@ import {
   MdEdit,
   MdEmail,
   MdFemale,
+  MdFileUpload,
   MdLocalHotel,
   MdMale,
+  MdOutlineFileCopy,
   MdPhone,
   MdUpload,
 } from "react-icons/md";
@@ -57,7 +60,15 @@ import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
   getParkingLots,
   selectParkingLotManagement,
+  uploadParkingLot,
 } from "../../../../../redux/features/building-management/parking/parkingLotReducers";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { FaCircleNotch } from "react-icons/fa";
+import {
+  convertBytes,
+  toBase64,
+} from "../../../../../utils/useHooks/useFunction";
 
 type Props = {
   pageProps: any;
@@ -175,7 +186,7 @@ const ParkingLot = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { parkingLots } = useAppSelector(selectParkingLotManagement);
+  const { parkingLots, pending } = useAppSelector(selectParkingLotManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<any>(null);
@@ -191,46 +202,23 @@ const ParkingLot = ({ pageProps }: Props) => {
   const [pageCount, setPageCount] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // modal
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isOpenDetail, setIsOpenDetail] = useState(false);
-  const [isOpenEdit, setIsOpenEdit] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<ParkingProps | any>(null);
+  // file-upload
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [isOpenUpload, setIsOpenUpload] = useState(false);
+  const [files, setFiles] = useState<any | any[]>([]);
   const [formData, setFormData] = useState<any>(null);
 
-  // form modal
-  const onClose = () => setIsOpenModal(false);
-  const onOpen = () => setIsOpenModal(true);
+  // template & data
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
 
-  // edit modal
-  const onOpenEdit = (items: any) => {
-    setFormData(items);
-    setIsOpenEdit(true);
+  // upload modal
+  const onOpenUpload = () => {
+    setIsOpenUpload(true);
   };
-  const onCloseEdit = () => {
-    setFormData(null);
-    setIsOpenEdit(false);
-  };
-
-  // detail modal
-  const onOpenDetail = (items: any) => {
-    setDetails(items);
-    setIsOpenDetail(true);
-  };
-  const onCloseDetail = () => {
-    setDetails(undefined);
-    setIsOpenDetail(false);
-  };
-
-  // edit modal
-  const onCloseDelete = () => {
-    setDetails(undefined);
-    setIsOpenDelete(false);
-  };
-  const onOpenDelete = (items: any) => {
-    setDetails(items);
-    setIsOpenDelete(true);
+  const onCloseUpload = () => {
+    setFiles([]);
+    setIsOpenUpload(false);
   };
 
   useEffect(() => {
@@ -384,13 +372,7 @@ const ParkingLot = ({ pageProps }: Props) => {
         accessorKey: "lotType",
         header: (info) => <div className="uppercase">LOT Type</div>,
         cell: ({ row, getValue }) => {
-          return (
-            <div
-              className="cursor-pointer"
-              onClick={() => onOpenDetail(row.original)}>
-              {getValue() || "-"}
-            </div>
-          );
+          return <div className="">{getValue() || "-"}</div>;
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -400,13 +382,7 @@ const ParkingLot = ({ pageProps }: Props) => {
         header: (info) => <div className="uppercase">Unit Code</div>,
         cell: ({ getValue, row }) => {
           const value = getValue()?.unitCode || "-";
-          return (
-            <div
-              className="cursor-pointer"
-              onClick={() => onOpenDetail(row.original)}>
-              {value}
-            </div>
-          );
+          return <div className="">{value}</div>;
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -414,13 +390,7 @@ const ParkingLot = ({ pageProps }: Props) => {
       {
         accessorKey: "parkingStatus",
         cell: ({ row, getValue }) => {
-          return (
-            <div
-              className="cursor-pointer"
-              onClick={() => onOpenDetail(row.original)}>
-              {getValue() || "-"}
-            </div>
-          );
+          return <div className="">{getValue() || "-"}</div>;
         },
         header: (props) => <div className="w-full uppercase">Status</div>,
         footer: (props) => props.column.id,
@@ -430,13 +400,7 @@ const ParkingLot = ({ pageProps }: Props) => {
         accessorKey: "unitLent",
         cell: ({ row, getValue }) => {
           const user = getValue()?.user?.nickName || "-";
-          return (
-            <div
-              className="cursor-pointer text-center"
-              onClick={() => onOpenDetail(row.original)}>
-              {user || "-"}
-            </div>
-          );
+          return <div>{user || "-"}</div>;
         },
         header: (props) => (
           <div className="w-full text-center uppercase">Lent To</div>
@@ -476,6 +440,105 @@ const ParkingLot = ({ pageProps }: Props) => {
     ],
     []
   );
+
+  // download data-format
+  const onDownloadTemplate = async () => {
+    setLoadingTemplate(true);
+    await axios({
+      url: `parkingLot/template`,
+      method: "GET",
+      responseType: "blob",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `ParkingLot-Template.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        console.log(response, 111);
+        setLoadingTemplate(false);
+      })
+      .catch((err) => {
+        toast.dark(err?.message);
+      });
+  };
+
+  // download data
+  const onDownload = async () => {
+    setLoadingData(true);
+
+    let date = new Date();
+    await axios({
+      url: `parkingLot/download`,
+      method: "GET",
+      responseType: "blob",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${date}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        console.log(response, 111);
+        setLoadingData(false);
+      })
+      .catch((err) => {
+        toast.error(err?.message);
+      });
+  };
+
+  // upload-handler
+  const onHandlerUpload = async (event: any) => {
+    let data = [];
+    // console.log(100, event.target.files.length);
+    for (let index = 0; index < event.target.files.length; index++) {
+      data.push(toBase64(event.target.files[index]));
+    }
+    let imgData = await Promise.all(data);
+    setFiles(imgData);
+  };
+
+  const onDeleteImage = () => {
+    if (fileRef.current) {
+      fileRef.current.value = "";
+      setFiles(undefined);
+    }
+  };
+
+  // upload
+  const onUpload = (files: any) => {
+    let newData = {
+      excelFile:
+        !files || files?.length == 0
+          ? []
+          : files.map((img: any) => img.images)?.toString(),
+    };
+    dispatch(
+      uploadParkingLot({
+        token,
+        data: newData,
+        isSuccess: () => {
+          toast.dark("File has been uploaded");
+          onCloseUpload();
+          dispatch(getParkingLots({ token, params: filters.queryObject }));
+        },
+        isError: () => {
+          console.log("error-upload-file");
+        },
+      })
+    );
+    // console.log(newData);
+  };
 
   return (
     <DefaultLayout
@@ -536,23 +599,41 @@ const ParkingLot = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpen}
+                  onClick={() => onDownloadTemplate()}
                   variant="primary-outline">
-                  <span className="hidden lg:inline-block">Format</span>
-                  <MdDownload className="w-4 h-4" />
+                  {loadingTemplate ? (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Format</span>
+                      <MdDownload className="w-4 h-4" />
+                    </div>
+                  )}
                 </Button>
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpen}
+                  onClick={() => onDownload()}
                   variant="primary-outline">
-                  <span className="hidden lg:inline-block">Data</span>
-                  <MdDownload className="w-4 h-4" />
+                  {loadingData ? (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Data</span>
+                      <MdDownload className="w-4 h-4" />
+                    </div>
+                  )}
                 </Button>
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpen}
+                  onClick={onOpenUpload}
                   variant="primary">
                   <span className="hidden lg:inline-block">Upload</span>
                   <MdUpload className="w-4 h-4" />
@@ -634,134 +715,93 @@ const ParkingLot = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* modal example */}
-      <Modal size="" onClose={onClose} isOpen={isOpenModal}>
+      {/* modal upload */}
+      <Modal size="small" onClose={onCloseUpload} isOpen={isOpenUpload}>
         <Fragment>
           <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
+            className="p-4 border-b-2 border-gray"
             isClose={true}
-            onClick={onClose}>
-            <h3 className="text-lg font-semibold">Modal Header</h3>
+            onClick={onCloseUpload}>
+            <h3 className="text-lg font-semibold">Upload files</h3>
           </ModalHeader>
-          <div className="w-full px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam,
-            optio. Suscipit cupiditate voluptatibus et ut alias nostrum
-            architecto ex explicabo quidem harum, porro error aliquid
-            perferendis, totam iste corporis possimus nobis! Aperiam,
-            necessitatibus libero! Sunt dolores possimus explicabo ducimus
-            aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti
-            sapiente similique voluptatem, consequatur sequi dicta deserunt,
-            iure saepe quasi eius! Eveniet provident modi at perferendis
-            asperiores voluptas excepturi eius distinctio aliquam. Repellendus,
-            libero modi eligendi nisi incidunt inventore perferendis qui
-            corrupti similique id fuga sint molestias nihil expedita enim dolor
-            aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis
-            velit. Expedita, fuga.
-          </div>
-          <ModalFooter
-            className="p-4 border-t-2 border-gray mt-3"
-            isClose={true}
-            onClick={onClose}></ModalFooter>
-        </Fragment>
-      </Modal>
-
-      {/* detail modal */}
-      <Modal size="small" onClose={onCloseDetail} isOpen={isOpenDetail}>
-        <Fragment>
-          <ModalHeader
-            className="p-6 mb-3"
-            isClose={true}
-            onClick={onCloseDetail}>
-            <div className="flex-flex-col gap-2">
-              <h3 className="text-lg font-semibold">
-                {details?.firstName || ""}
-              </h3>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-5">
-                  {details?.firstName || ""} {details?.lastName || ""}
-                </p>
-                <p className="text-sm text-gray-5 capitalize flex items-center">
-                  <span>
-                    {details?.gender === "female" ? (
-                      <MdFemale className="w-4 h-4 text-danger" />
-                    ) : details?.gender === "male" ? (
-                      <MdMale className="w-4 h-4 text-primary" />
-                    ) : null}
-                  </span>
-                  {details?.gender || ""}
-                </p>
-              </div>
-            </div>
-          </ModalHeader>
-          <div className="w-full px-6 mb-5">
-            <div className="w-full flex gap-2.5">
-              <img
-                src={details?.images ?? "../../../image/user/user-02.png"}
-                alt="profile-images"
-                className="w-32 h-32 rounded-full shadow-2 object-cover object-center"
+          <div className="w-full p-4">
+            <div className="w-full flex items-center justify-between gap-2">
+              <input
+                type="file"
+                id="upload-file"
+                placeholder="Upload files excel..."
+                autoFocus
+                className={`w-full focus:outline-none max-w-max text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100 ${
+                  !files || files?.length == 0 ? "" : "hidden"
+                }`}
+                onChange={onHandlerUpload}
+                ref={fileRef}
+                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
               />
 
-              <div className="w-full flex flex-col gap-2 text-gray-5">
-                <h3 className="font-bold text-lg">{details?.fullName}</h3>
-                <div className="flex items-center gap-2">
-                  <MdEmail />
-                  {details?.email}
-                </div>
-                <div className="flex items-center gap-2">
-                  <MdPhone />
-                  {/* {formatPhone("+", details?.phoneNumber)} */}
-                  {details?.phoneNumber}
-                </div>
-                <div className="flex items-center gap-2">
-                  <MdCalendarToday />
-                  {details?.date}
-                </div>
+              {!files && files?.length == 0
+                ? null
+                : files?.map((img: any) => {
+                    return (
+                      <div
+                        className="flex flex-col w-full text-gray-6"
+                        key={img.size}>
+                        <div className="flex w-full items-center">
+                          <div className="">
+                            <MdOutlineFileCopy className="h-16 w-16 text-gray-500" />
+                          </div>
+                          <div className="flex flex-col text-sm text-gray-500">
+                            <p className="font-bold overflow-hidden">
+                              {img.name}
+                            </p>
+                            <p>
+                              {img?.size
+                                ? convertBytes({ bytes: img?.size })
+                                : "-"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+              <div
+                className={`${
+                  !files || files?.length == 0 ? "hidden " : ""
+                }flex`}>
+                <button
+                  type="button"
+                  className={`rounded-full bg-danger text-white text-sm p-2 shadow-card hover:opacity-90 active:scale-90`}
+                  onClick={onDeleteImage}>
+                  <MdDelete className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
-
-          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
-            <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
-              <div className="text-lg text-primary">Unit_05</div>
-              <p>Occupant</p>
-            </div>
-            <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
-              <div className="text-lg text-primary">Unit_12</div>
-              <p>Occupant & Owner</p>
-            </div>
-            <div className="w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2">
-              <div className="text-lg text-primary">Unit_55</div>
-              <p>Owner</p>
-            </div>
-          </div>
-        </Fragment>
-      </Modal>
-
-      {/* delete modal */}
-      <Modal size="small" onClose={onCloseDelete} isOpen={isOpenDelete}>
-        <Fragment>
-          <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
-            isClose={true}
-            onClick={onCloseDelete}>
-            <h3 className="text-lg font-semibold">Delete Tenant</h3>
-          </ModalHeader>
-          <div className="w-full my-5 px-4">
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
-
-          <ModalFooter
-            className="p-4 border-t-2 border-gray"
-            isClose={true}
-            onClick={onCloseDelete}>
-            <Button
-              variant="primary"
-              className="rounded-md text-sm"
+          <div className="w-full flex border-t-2 border-gray p-4 justify-end gap-2">
+            <button
               type="button"
-              onClick={onCloseDelete}>
-              Yes, Delete it!
+              onClick={onCloseUpload}
+              className="inline-flex gap-1 px-4 py-2 rounded-lg border-2 border-gray shadow-2 focus:outline-none hover:opacity-90 active:scale-90">
+              <span className="text-xs font-semibold">Discard</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => onUpload(files)}
+              disabled={pending}
+              className="rounded-lg border-2 border-primary active:scale-90 shadow-2">
+              {pending ? (
+                <div className="flex items-center gap-1 text-xs">
+                  <span>loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              ) : (
+                <span className="text-xs">Upload</span>
+              )}
             </Button>
-          </ModalFooter>
+          </div>
         </Fragment>
       </Modal>
     </DefaultLayout>
