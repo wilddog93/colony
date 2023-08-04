@@ -197,6 +197,40 @@ export const updateParkingLot = createAsyncThunk<
   }
 });
 
+// uploud
+export const uploadParkingLot = createAsyncThunk<
+  any,
+  ParkingData,
+  { state: RootState }
+>("/parkingLot/upload", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post(`parkingLot/upload`, params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 export const deleteParkingLot = createAsyncThunk<
   any,
   ParkingData,
@@ -324,6 +358,26 @@ export const parkingLotSlice = createSlice({
         };
       })
       .addCase(updateParkingLot.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // upload-parkingLot
+      .addCase(uploadParkingLot.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(uploadParkingLot.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(uploadParkingLot.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
