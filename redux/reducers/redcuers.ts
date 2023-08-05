@@ -33,6 +33,8 @@ import productBrandReducers from "../features/assets/products/brand/productBrand
 import locationManagementReducers from "../features/assets/locations/locationManagementReducers";
 import vendorManagementReducers from "../features/assets/vendor/vendorManagementReducers";
 import parkingLotReducers from "../features/building-management/parking/parkingLotReducers";
+import parkingVehicleReducers from "../features/building-management/parking/parkingVehicleReducers";
+import parkingTransactionReducers from "../features/building-management/parking/parkingTransactionReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -56,6 +58,8 @@ export const combinedReducer = combineReducers({
   unitManagement: unitReducers,
   userPropertyManagement: userPropertyReducers,
   parkingLotManagement: parkingLotReducers,
+  parkingVehicleManagement: parkingVehicleReducers,
+  parkingTransactionManagement: parkingTransactionReducers,
   // task-management
   projectType: projectTypeReducers,
   issueType: issueTypeReducers,

@@ -23,6 +23,7 @@ import {
   MdFileUpload,
   MdLocalHotel,
   MdMale,
+  MdMuseum,
   MdOutlineFileCopy,
   MdPhone,
   MdUpload,
@@ -549,7 +550,11 @@ const ParkingLot = ({ pageProps }: Props) => {
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
       description=""
-      token={token}>
+      token={token}
+      icons={{
+        icon: MdMuseum,
+        className: "w-8 h-8 text-meta-5",
+      }}>
       <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
           className=""

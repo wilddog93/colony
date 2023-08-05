@@ -159,16 +159,50 @@ export type UnitProps = {
   totalUnreadMessageLocalshop?: number | any;
   totalAmenity?: number | any;
 };
-// parking
 
+// parking
 export type ParkingProps = {
-  id: number | any;
-  createdAt: string | any;
-  updatedAt: string | any;
-  lotCode: string | any;
-  lotType: string | any;
-  parkingStatus: string | any | "Occupied";
-  vehicleNumber: string | any;
-  unitOwned: UnitProps | any;
-  unitLent: any;
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  lotCode?: string | any;
+  lotType?: string | any;
+  parkingStatus?: string | any | "Occupied";
+  vehicleNumber?: string | any;
+  unitOwned?: UnitProps | any;
+  unitLent?: any;
+};
+
+// vehicle-registered
+export type ParkingVehicleProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  vehicleNumber?: string | any;
+  ownerName?: string | any;
+  passNumber?: string | any;
+  start?: string | any;
+  end?: string | any;
+  totalEntry?: string | number | any;
+  entryBy?: string | any;
+  entryTime?: string | any;
+  unit?: UnitProps;
+};
+
+// vehicle-transaction
+export type ParkingTransactionProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  vehicleNumber?: string | any;
+  inTime?: string | any;
+  inPost?: string | any;
+  inCashier?: string | any;
+  outTime?: string | any;
+  outPost?: string | any;
+  outCashier?: string | any;
+  type?: string | any;
+  duration?: string | any;
+  income?: string | any;
+  passNumber?: string | any;
 };
