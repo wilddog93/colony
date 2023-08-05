@@ -9,38 +9,22 @@ import React, {
 import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
 import SidebarBM from "../../../../../components/Layouts/Sidebar/Building-Management";
 import {
-  MdAdd,
   MdArrowRightAlt,
-  MdCalendarToday,
   MdChevronLeft,
-  MdCleaningServices,
-  MdClose,
   MdDelete,
   MdDownload,
-  MdEdit,
-  MdEmail,
-  MdFemale,
-  MdFileUpload,
-  MdLocalHotel,
-  MdMale,
   MdMuseum,
   MdOutlineFileCopy,
-  MdPhone,
   MdUpload,
 } from "react-icons/md";
 import Button from "../../../../../components/Button/Button";
 import { SearchInput } from "../../../../../components/Forms/SearchInput";
 import Modal from "../../../../../components/Modal";
 
-import {
-  ModalFooter,
-  ModalHeader,
-} from "../../../../../components/Modal/ModalComponent";
+import { ModalHeader } from "../../../../../components/Modal/ModalComponent";
 import { useRouter } from "next/router";
 import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
 import { ColumnDef } from "@tanstack/react-table";
-import { ColumnItems } from "../../../../../components/tables/components/makeData";
-import { makeData } from "../../../../../components/tables/components/makeData";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
@@ -55,7 +39,6 @@ import { menuBM, menuParkings } from "../../../../../utils/routes";
 import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
 import {
   OptionProps,
-  ParkingProps,
   ParkingTransactionProps,
 } from "../../../../../utils/useHooks/PropTypes";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
