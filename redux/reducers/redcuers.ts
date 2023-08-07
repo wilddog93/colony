@@ -37,6 +37,10 @@ import parkingVehicleReducers from "../features/building-management/parking/park
 import parkingTransactionReducers from "../features/building-management/parking/parkingTransactionReducers";
 import accessCardReducers from "../features/building-management/access/accessCardReducers";
 import accessCardTransactionReducers from "../features/building-management/access/accessCardTransactionReducers";
+import requestManagementReducers from "../features/assets/stocks/requestReducers";
+import orderManagementReducers from "../features/assets/stocks/orderReducers";
+import transactionManagementReducers from "../features/assets/stocks/transactionReducers";
+import stockBalanceManagementReducers from "../features/assets/stocks/stockBalanceReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -81,4 +85,8 @@ export const combinedReducer = combineReducers({
   productBrandManagement: productBrandReducers,
   locationManagement: locationManagementReducers,
   vendorManagement: vendorManagementReducers,
+  requestManagement: requestManagementReducers,
+  orderManagement: orderManagementReducers,
+  transactionManagement: transactionManagementReducers,
+  stockBalanceManagement: stockBalanceManagementReducers,
 });

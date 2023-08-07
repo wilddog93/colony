@@ -230,3 +230,52 @@ export type AccessCardTransactionProps = {
   officer?: string | any;
   accessCard?: AccessCardProps;
 };
+// end BM
+
+// asset-management
+// product
+export type ProductProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  productName?: string | any;
+  productDescription?: string | any;
+  productImage?: string | any;
+  productType?: string | any;
+  productMinimumStock?: number | string | any;
+  productQty?: number | string | any;
+  productOrderQty?: number | string | any;
+};
+
+export type RequestProductProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  requestQty?: number | string | any;
+  requestQtyCompleted?: number | string | any;
+  product?: ProductProps;
+  location?: any;
+};
+
+export type RequestAssetProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  requestQty?: number | string | any;
+  requestQtyCompleted?: number | string | any;
+  asset?: ProductProps;
+  location?: any;
+};
+
+export type RequestOrderProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  requestNumber?: string | any;
+  requestDescription?: string | any;
+  requestType?: string | any;
+  requestStatus?: string | any;
+  documents?: any | any[];
+  requestProducts?: RequestProductProps[];
+  requestAssets?: RequestAssetProps[];
+};
