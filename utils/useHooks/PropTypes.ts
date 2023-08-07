@@ -206,3 +206,16 @@ export type ParkingTransactionProps = {
   income?: string | any;
   passNumber?: string | any;
 };
+
+// access-card
+export type AccessCardProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  cardNumber?: string | any;
+  cardHolder?: string | any;
+  activeDate?: string | any;
+  expiryDate?: string | any;
+  cardType?: string | any;
+  unit?: UnitProps;
+};
