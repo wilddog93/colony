@@ -73,7 +73,7 @@ export const getAccessCardTransactions = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("accessCard/transaction", config);
+    const response = await axios.get("accessCard/history", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,10 +107,7 @@ export const getAccessCardTransactionById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(
-      `accessCard/transaction/${params.id}`,
-      config
-    );
+    const response = await axios.get(`accessCard/history/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -144,7 +141,7 @@ export const createAccessCardTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      "accessCard/transaction",
+      "accessCard/history",
       params.data,
       config
     );
@@ -181,7 +178,7 @@ export const updateAccessCardTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `accessCard/transaction/${params.id}`,
+      `accessCard/history/${params.id}`,
       params.data,
       config
     );
@@ -219,7 +216,7 @@ export const uploadAccessCardTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `accessCard/transaction/upload`,
+      `accessCard/history/upload`,
       params.data,
       config
     );
@@ -256,7 +253,7 @@ export const deleteAccessCardTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `accessCard/transaction/${params.id}`,
+      `accessCard/history/${params.id}`,
       config
     );
     const { data, status } = response;

@@ -27,11 +27,7 @@ import {
 import SelectTables from "../../../../../components/tables/layouts/server/SelectTables";
 import { IndeterminateCheckbox } from "../../../../../components/tables/components/TableComponent";
 import Tabs from "../../../../../components/Layouts/Tabs";
-import {
-  menuAccessCard,
-  menuBM,
-  menuParkings,
-} from "../../../../../utils/routes";
+import { menuAccessCard, menuBM } from "../../../../../utils/routes";
 import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
 import {
   AccessCardProps,
@@ -302,34 +298,34 @@ const AccessCard = ({ pageProps }: Props) => {
   // column
   const columns = useMemo<ColumnDef<AccessCardProps, any>[]>(
     () => [
-      {
-        id: "select",
-        header: ({ table }) => {
-          return (
-            <IndeterminateCheckbox
-              {...{
-                checked: table?.getIsAllRowsSelected(),
-                indeterminate: table?.getIsSomeRowsSelected(),
-                onChange: table?.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          );
-        },
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-        size: 10,
-        minSize: 10,
-      },
+      // {
+      //   id: "select",
+      //   header: ({ table }) => {
+      //     return (
+      //       <IndeterminateCheckbox
+      //         {...{
+      //           checked: table?.getIsAllRowsSelected(),
+      //           indeterminate: table?.getIsSomeRowsSelected(),
+      //           onChange: table?.getToggleAllRowsSelectedHandler(),
+      //         }}
+      //       />
+      //     );
+      //   },
+      //   cell: ({ row }) => (
+      //     <div className="px-1">
+      //       <IndeterminateCheckbox
+      //         {...{
+      //           checked: row.getIsSelected(),
+      //           disabled: !row.getCanSelect(),
+      //           indeterminate: row.getIsSomeSelected(),
+      //           onChange: row.getToggleSelectedHandler(),
+      //         }}
+      //       />
+      //     </div>
+      //   ),
+      //   size: 10,
+      //   minSize: 10,
+      // },
       {
         accessorKey: "cardNumber",
         header: (info) => <div className="uppercase">Card No.</div>,

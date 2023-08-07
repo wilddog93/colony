@@ -219,3 +219,14 @@ export type AccessCardProps = {
   cardType?: string | any;
   unit?: UnitProps;
 };
+
+// access-card transaction
+export type AccessCardTransactionProps = {
+  id?: number | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  activeDate?: string | any;
+  accessed?: string | any;
+  officer?: string | any;
+  accessCard?: AccessCardProps;
+};
