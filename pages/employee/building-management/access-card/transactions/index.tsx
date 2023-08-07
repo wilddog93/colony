@@ -250,6 +250,8 @@ const AccessCardTransaction = ({ pageProps }: Props) => {
                   : new Date(now.getFullYear(), now.getMonth() + 1, 0)
               ).format("YYYY-MM-DD") + "T23:59:59.000Z",
           },
+        },
+        {
           $or: [
             { accessed: { $contL: query?.search } },
             { officer: { $contL: query?.search } },

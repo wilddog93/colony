@@ -15,6 +15,7 @@ import {
   MdArrowRightAlt,
   MdDelete,
   MdEdit,
+  MdOutlineCalendarToday,
   MdUnarchive,
 } from "react-icons/md";
 import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
@@ -51,6 +52,11 @@ import {
   selectProductBrandManagement,
 } from "../../../../../redux/features/assets/products/brand/productBrandReducers";
 import { FaCircleNotch } from "react-icons/fa";
+import {
+  getRequests,
+  selectRequestManagement,
+} from "../../../../../redux/features/assets/stocks/requestReducers";
+import DatePicker from "react-datepicker";
 
 interface PropsData {
   id?: number | any;
@@ -81,9 +87,11 @@ const typesOpt: OptionProps[] = [
 ];
 
 const statusOpt: OptionProps[] = [
-  { value: "Completed", label: "Completed" },
-  { value: "Done", label: "Done" },
-  { value: "On Progress", label: "On Progress" },
+  { value: "Approved", label: "Approved" },
+  { value: "Complete", label: "Complete" },
+  { value: "Declined", label: "Declined" },
+  { value: "Mark As Done", label: "Mark As Done" },
+  { value: "On-Progress", label: "On-Progress" },
   { value: "Waiting", label: "Waiting" },
 ];
 
@@ -187,20 +195,13 @@ const Products = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { products, pending } = useAppSelector(selectProductManagement);
-  const { productCategories } = useAppSelector(selectProductCategoryManagement);
-  const { productUnits } = useAppSelector(selectProductUnitManagement);
-  const { productBrands } = useAppSelector(selectProductBrandManagement);
+  const { requests, pending } = useAppSelector(selectRequestManagement);
+  const { products } = useAppSelector(selectProductManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
   const [sort, setSort] = useState<OptionProps | any>(null);
-  const [types, setTypes] = useState<OptionProps | any>(null);
   const [status, setStatus] = useState<OptionProps | any>(null);
-  const [category, setCategory] = useState<OptionProps | any>(null);
-  const [categoryOpt, setCategoryOpt] = useState<OptionProps[] | any[]>([]);
-  const [unitOpt, setUnitOpt] = useState<OptionProps[] | any[]>([]);
-  const [brandOpt, setBrandOpt] = useState<OptionProps[] | any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // data-table
@@ -212,63 +213,43 @@ const Products = ({ pageProps }: Props) => {
   const [total, setTotal] = useState(1);
 
   // modal
-  const [isOpenAdd, setIsOpenAdd] = useState(false);
-  const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [formData, setFormData] = useState<PropsData | any>(null);
 
-  // date format
-  const dateFormat = (value: string | any) => {
+  // description-read
+  const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isArrayHidden.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isArrayHidden];
+      _selected.splice(idx, 1);
+      setIsArrayHidden(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isArrayHidden];
+      _selected.push(val);
+      setIsArrayHidden(_selected);
+    }
+  };
+
+  // date
+  const now = new Date();
+  const [start, setStart] = useState(
+    new Date(now.getFullYear(), now.getMonth(), 1)
+  );
+  const [end, setEnd] = useState(
+    new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  );
+  const [dateRange, setDateRange] = useState<Date[]>([start, end]);
+  const [startDate, endDate] = dateRange;
+
+  // date
+  const dateTimeFormat = (value: any) => {
     if (!value) return "-";
-    return moment(new Date(value)).format("MMM DD, YYYY, HH:mm");
-  };
-
-  // modal add
-  const onOpenModalAdd = () => {
-    setIsOpenAdd(true);
-  };
-
-  const onCloseModalAdd = () => {
-    setFormData(null);
-    setIsOpenAdd(false);
-  };
-
-  // modal update
-  const onOpenModalEdit = (items: any) => {
-    let newData: PropsData = {
-      ...items,
-      productType: items?.productType
-        ? { value: items?.productType, label: items?.productType }
-        : null,
-      productCategory: !items?.productCategory
-        ? null
-        : {
-            ...items?.productCategory,
-            value: items?.productCategory?.productCategoryName,
-            label: items?.productCategory?.productCategoryName,
-          },
-      unitMeasurement: !items?.unitMeasurement
-        ? null
-        : {
-            ...items?.unitMeasurement,
-            value: items?.unitMeasurement?.unitMeasurementName,
-            label: items?.unitMeasurement?.unitMeasurementName,
-          },
-      brand: !items?.brand
-        ? null
-        : {
-            ...items?.brand,
-            value: items?.brand?.brandName,
-            label: items?.brand?.brandName,
-          },
-    };
-    setFormData(newData);
-    setIsOpenEdit(true);
-  };
-
-  const onCloseModalEdit = () => {
-    setFormData(null);
-    setIsOpenEdit(false);
+    const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
+    return date;
   };
 
   // delete modal
@@ -281,51 +262,87 @@ const Products = ({ pageProps }: Props) => {
     setIsOpenDelete(true);
   };
 
-  const goToTask = (id: any) => {
+  const goToDetail = (id: any) => {
     if (!id) return;
     return router.push({
-      pathname: `/employee/assets-inventories/products/${id}`,
+      pathname: `/employee/assets-inventories/stock/request-order/${id}`,
     });
+  };
+
+  const generateColorStatus = (value: any) => {
+    let color = "#333";
+    switch (value) {
+      case "Approved":
+        color = "#3CCF4E";
+        break;
+      case "Declined":
+        color = "#FF1E00";
+        break;
+      case "Done":
+        color = "#8758FF";
+        break;
+      case "Waiting":
+        color = "#FFDE00";
+        break;
+      case "On-Progress":
+        color = "#31E1F7";
+        break;
+      case "Complete":
+        color = "#3CCF4E";
+        break;
+      default:
+        return color;
+    }
+    return color;
   };
 
   const columns = useMemo<ColumnDef<PropsData, any>[]>(
     () => [
       {
-        accessorKey: "brand",
-        header: (info) => <div className="uppercase">Brand</div>,
+        accessorKey: "requestNumber",
+        header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
-          const name = getValue()?.brandName || "-";
-          const image = row?.original?.productImage
-            ? `${url}product/productImage/${row?.original?.productImage}`
-            : "../../image/no-image.jpeg";
-          return (
-            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
-              <img
-                src={image}
-                alt="brand-logo"
-                className="w-8 h-8 rounded-full object-cover object-center"
-              />
-              <span>{name}</span>
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "productName",
-        header: (info) => <div className="uppercase">Product Name</div>,
-        cell: ({ row, getValue }) => {
+          const { id } = row?.original;
           return <div className="w-full">{getValue() || "-"}</div>;
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
       {
-        accessorKey: "productType",
-        header: (info) => <div className="uppercase">Type</div>,
+        accessorKey: "requestDescription",
+        header: (info) => <div className="uppercase">Notes</div>,
         cell: ({ row, getValue }) => {
-          const value = getValue();
+          const { id } = row.original;
+          let value =
+            getValue()?.length > 70 && !isArrayHidden.includes(id)
+              ? `${getValue().substring(70, 0)} ...`
+              : getValue();
+          return (
+            <div className="flex flex-col">
+              <p>{value}</p>
+              <button
+                onClick={() => onReadDescription(id)}
+                className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                  getValue()?.length > 70 ? "" : "hidden"
+                }`}>
+                {isArrayHidden.includes(id) ? "Hide" : "Show"}
+              </button>
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 250,
+        minSize: 250,
+      },
+      {
+        accessorKey: "requestProducts",
+        header: (info) => <div className="uppercase">Items</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue()?.length || 0;
           return <div className="w-full">{value}</div>;
         },
         footer: (props) => props.column.id,
@@ -335,62 +352,51 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "productCategory.productCategoryName",
-        header: (info) => <div className="uppercase">Category</div>,
-        cell: ({ row, getValue }) => {
-          const value = getValue() || "-";
-          return <div className="w-full">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
-        accessorKey: "productQty",
+        accessorKey: "createdAt",
         header: (info) => (
-          <div className="uppercase w-full text-center">Product Quantity</div>
+          <div className="uppercase w-full text-center">Request Date</div>
         ),
         cell: ({ row, getValue }) => {
-          const value = getValue();
+          const value = dateTimeFormat(getValue());
           return <div className="w-full text-center">{value}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
       },
       {
-        accessorKey: "id",
+        accessorKey: "requestStatus",
         cell: ({ row, getValue }) => {
+          const value = getValue();
           return (
             <div className="w-full text-center flex items-center justify-center">
-              <button
-                onClick={() => onOpenModalEdit(row?.original)}
-                className="px-1 py-1"
-                type="button">
-                <MdEdit className="text-gray-5 w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => onOpenModalDelete(row?.original)}
-                className="px-1 py-1"
-                type="button">
-                <MdDelete className="text-danger w-4 h-4" />
-              </button>
+              <span
+                style={{ backgroundColor: generateColorStatus(value) }}
+                className="text-white p-1 text-xs text-center rounded-lg">
+                {value}
+              </span>
             </div>
           );
         },
         header: (props) => (
-          <div className="w-full text-center uppercase">Actions</div>
+          <div className="w-full text-center uppercase">Status</div>
         ),
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
+      },
+      {
+        accessorKey: "updatedAt",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Recent Date</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = dateTimeFormat(getValue());
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
       },
     ],
     []
@@ -419,19 +425,23 @@ const Products = ({ pageProps }: Props) => {
         setSort({ value: query?.sort, label: "Z-A" });
       }
     }
-    if (query?.types) {
-      setTypes({ value: query?.types, label: query?.types });
+    if (query?.status) {
+      setStatus({ value: query?.status, label: query?.status });
     }
-    if (query?.category) {
-      setCategory({ value: query?.category, label: query?.category });
+    if (query?.startDate) {
+      setStart(new Date(query?.startDate as any));
+    }
+    if (query?.endDate) {
+      setEnd(new Date(query?.endDate as any));
     }
   }, [
     query?.page,
     query?.limit,
     query?.search,
     query?.sort,
-    query?.types,
-    query?.category,
+    query?.status,
+    query?.startDate,
+    query?.endDate,
   ]);
 
   useEffect(() => {
@@ -442,25 +452,57 @@ const Products = ({ pageProps }: Props) => {
 
     if (search) qr = { ...qr, search: search };
     if (sort) qr = { ...qr, sort: sort?.value };
-    if (types) qr = { ...qr, types: types?.value };
-    if (category) qr = { ...qr, category: category?.value };
+    if (status) qr = { ...qr, status: status?.value };
+    if (startDate)
+      qr = {
+        ...qr,
+        startDate: moment(startDate).format("YYYY-MM-DD"),
+      };
+    if (endDate)
+      qr = {
+        ...qr,
+        endDate: moment(endDate).format("YYYY-MM-DD"),
+      };
 
     router.replace({ pathname, query: qr });
-  }, [pages, limit, search, sort, types, category]);
+  }, [pages, limit, search, sort, status, startDate, endDate]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     const search = {
       $and: [
-        { productType: { $contL: query?.types } },
-        { "productCategory.productCategoryName": { $contL: query?.category } },
+        {
+          createdAt: {
+            $gte:
+              moment(
+                query?.startDate
+                  ? query?.startDate
+                  : new Date(now.getFullYear(), now.getMonth(), 1)
+              ).format("YYYY-MM-DD") + "T00:00:00.000Z",
+            $lte:
+              moment(
+                query?.endDate
+                  ? query?.endDate
+                  : new Date(now.getFullYear(), now.getMonth() + 1, 0)
+              ).format("YYYY-MM-DD") + "T23:59:59.000Z",
+          },
+        },
+        { requestType: { $contL: "Order" } },
+        { requestStatus: { $contL: query?.status } },
         {
           $or: [
-            { "brand.brandName": { $contL: query?.search } },
-            { productName: { $contL: query?.search } },
-            { productDescription: { $contL: query?.search } },
-            { productType: { $contL: query?.search } },
+            { requestNumber: { $contL: query?.search } },
+            { requestDescription: { $contL: query?.search } },
+            { requestStatus: { $contL: query?.search } },
+            {
+              "requestProducts.product.productName": { $contL: query?.search },
+            },
+            {
+              "requestProducts.location.locationName": {
+                $contL: query?.search,
+              },
+            },
           ],
         },
       ],
@@ -477,7 +519,7 @@ const Products = ({ pageProps }: Props) => {
       });
     } else {
       qb.sortBy({
-        field: `productName`,
+        field: `requestNumber`,
         order: !sort?.value ? "ASC" : sort.value,
       });
     }
@@ -488,17 +530,18 @@ const Products = ({ pageProps }: Props) => {
     query?.limit,
     query?.search,
     query?.sort,
-    query?.types,
-    query?.category,
+    query?.status,
+    query?.startDate,
+    query?.endDate,
   ]);
 
   useEffect(() => {
-    if (token) dispatch(getProducts({ token, params: filters.queryObject }));
+    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = products;
+    const { data, pageCount, total } = requests;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
@@ -507,7 +550,7 @@ const Products = ({ pageProps }: Props) => {
     setDataTable(newArr);
     setPageCount(pageCount);
     setTotal(total);
-  }, [products]);
+  }, [requests]);
 
   // delete
   const onDelete = (value: any) => {
@@ -529,125 +572,11 @@ const Products = ({ pageProps }: Props) => {
     );
   };
 
-  // get product-category
-  const filterProductCategory = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `productCategoryName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductCategories({
-          token,
-          params: filterProductCategory.queryObject,
-        })
-      );
-  }, [token, filterProductCategory]);
-
-  useEffect(() => {
-    let arr: OptionProps[] = [];
-    const { data } = productCategories;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.productCategoryName,
-          label: item?.productCategoryName,
-        });
-      });
-      setCategoryOpt(arr);
-    }
-  }, [productCategories]);
-  // product-category end
-
-  // get product-unit-measurement
-  const filterProductUnit = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `unitMeasurementName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductUnits({
-          token,
-          params: filterProductUnit.queryObject,
-        })
-      );
-  }, [token, filterProductUnit]);
-
-  useEffect(() => {
-    let arr: OptionProps[] = [];
-    const { data } = productUnits;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.unitMeasurementName,
-          label: item?.unitMeasurementName,
-        });
-      });
-      setUnitOpt(arr);
-    }
-  }, [productUnits]);
-  // product-unit-measurement end
-
-  // get product-brand
-  const filterProductBrand = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `brandName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductBrands({
-          token,
-          params: filterProductBrand.queryObject,
-        })
-      );
-  }, [token, filterProductBrand]);
-
-  useEffect(() => {
-    let arr: OptionProps[] = [];
-    const { data } = productBrands;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.brandName,
-          label: item?.brandName,
-        });
-      });
-      setBrandOpt(arr);
-    }
-  }, [productBrands]);
-  // product-brand end
-
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Products"
+      head="Request Order"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -694,7 +623,7 @@ const Products = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Products
+                      Request Order
                     </h3>
                   </div>
                 </Button>
@@ -704,17 +633,17 @@ const Products = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpenModalAdd}
+                  onClick={() => console.log("new request")}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Product</span>
+                  <span className="hidden lg:inline-block">New Request</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           </div>
 
-          <main className="relative tracking-wide text-left text-boxdark-2">
-            <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
+          <main className="relative h-full tracking-wide text-left text-boxdark-2">
+            <div className="w-full flex flex-col gap-2.5 lg:gap-6">
               {/* content */}
               <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-2.5 p-4 items-center">
                 <div className="w-full lg:col-span-2">
@@ -726,6 +655,35 @@ const Products = ({ pageProps }: Props) => {
                     placeholder="Search..."
                   />
                 </div>
+
+                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                  <div className="w-full">
+                    <label className="w-full text-gray-5 overflow-hidden">
+                      <div className="relative">
+                        <DatePicker
+                          selectsRange={true}
+                          startDate={startDate}
+                          endDate={endDate}
+                          onChange={(update: any) => {
+                            setDateRange(update);
+                          }}
+                          isClearable={false}
+                          placeholderText={"Select date"}
+                          todayButton
+                          dropdownMode="select"
+                          peekNextMonth
+                          showMonthDropdown
+                          showYearDropdown
+                          disabled={false}
+                          clearButtonClassName="after:w-10 after:h-10 h-10 w-10"
+                          className="text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        />
+                        <MdOutlineCalendarToday className="absolute left-4 top-4 h-6 w-6 text-gray-5" />
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelectSort}
@@ -761,24 +719,6 @@ const Products = ({ pageProps }: Props) => {
                     icon=""
                   />
                 </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={category}
-                    onChange={setCategory}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="3"
-                    isDisabled={false}
-                    isMulti={false}
-                    placeholder="All Category..."
-                    options={categoryOpt}
-                    icon=""
-                  />
-                </div>
               </div>
 
               {/* table */}
@@ -799,39 +739,6 @@ const Products = ({ pageProps }: Props) => {
           </main>
         </div>
       </div>
-
-      {/* add modal */}
-      <ProductForm
-        isCloseModal={onCloseModalAdd}
-        isOpen={isOpenAdd}
-        token={token}
-        getData={() =>
-          dispatch(getProducts({ token, params: filters.queryObject }))
-        }
-        items={formData}
-        typesOpt={typesOpt}
-        categoryOpt={categoryOpt}
-        unitOpt={unitOpt}
-        brandOpt={brandOpt}
-        defaultImage="../../image/no-image.jpeg"
-      />
-
-      {/* edit modal */}
-      <ProductForm
-        isCloseModal={onCloseModalEdit}
-        isOpen={isOpenEdit}
-        token={token}
-        getData={() =>
-          dispatch(getProducts({ token, params: filters.queryObject }))
-        }
-        items={formData}
-        typesOpt={typesOpt}
-        categoryOpt={categoryOpt}
-        unitOpt={unitOpt}
-        brandOpt={brandOpt}
-        defaultImage="../../image/no-image.jpeg"
-        isUpdate
-      />
 
       {/* delete modal */}
       <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>

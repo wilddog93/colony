@@ -470,7 +470,6 @@ const Products = ({ pageProps }: Props) => {
         accessorKey: "vendorDescription",
         header: (info) => <div className="uppercase">Description</div>,
         cell: ({ row, getValue }) => {
-          let isRead = getValue()?.length > 70 ? true : false;
           let value =
             getValue()?.length > 70 &&
             !isArrayHidden.includes(row?.original?.id)
