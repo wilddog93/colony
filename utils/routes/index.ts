@@ -24,6 +24,7 @@ import {
   MdShoppingCart,
   MdStorage,
   MdStore,
+  MdTrendingUp,
   MdUnarchive,
   MdWarningAmber,
   MdWork,
@@ -552,6 +553,64 @@ export const menuAssets: MenuProps[] = [
       {
         pathname: "Other",
         url: "/employee/assets-management/locations/others",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
+  },
+  {
+    pathname: "Stocks",
+    pages: "stocks",
+    icons: {
+      icon: MdTrendingUp,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Request Order",
+        url: "/employee/assets-management/stocks/request-order",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Purchase Order",
+        url: "/employee/assets-management/stocks/purchase-order",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Transactions",
+        url: "/employee/assets-management/stocks/transactions",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Move & Usage",
+        url: "/employee/assets-management/stocks/move-usage",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Asset Out",
+        url: "/employee/assets-management/stocks/asset-out",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Stock Taking",
+        url: "/employee/assets-management/stocks/stock-taking",
         query: {
           page: 1,
           limit: 10,
