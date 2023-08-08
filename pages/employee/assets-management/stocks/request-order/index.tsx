@@ -318,7 +318,7 @@ const Products = ({ pageProps }: Props) => {
           let value =
             getValue()?.length > 70 && !isArrayHidden.includes(id)
               ? `${getValue().substring(70, 0)} ...`
-              : getValue();
+              : getValue() || "-";
           return (
             <div className="flex flex-col">
               <p>{value}</p>
@@ -633,7 +633,12 @@ const Products = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={() => console.log("new request")}
+                  onClick={() =>
+                    router.push({
+                      pathname:
+                        "/employee/assets-management/stocks/request-order/form",
+                    })
+                  }
                   variant="primary">
                   <span className="hidden lg:inline-block">New Request</span>
                   <MdAdd className="w-4 h-4" />
@@ -735,6 +740,9 @@ const Products = ({ pageProps }: Props) => {
                 total={total}
                 setIsSelected={setIsSelectedRow}
               />
+              <div className="text-xs text-gray-5 px-6">
+                {dataTable?.length == 0 && "Data not found..."}
+              </div>
             </div>
           </main>
         </div>

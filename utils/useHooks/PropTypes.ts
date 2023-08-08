@@ -245,6 +245,7 @@ export type ProductProps = {
   productMinimumStock?: number | string | any;
   productQty?: number | string | any;
   productOrderQty?: number | string | any;
+  qty?: number | string | any;
 };
 
 export type RequestProductProps = {
