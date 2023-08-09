@@ -153,28 +153,28 @@ export default function FormProductOrder({
   };
 
   const ProductComponent = (props: any) => {
-    const { product } = props;
+    const { item } = props;
     return (
       <div className="w-full flex gap-2 border-2 border-gray rounded-lg px-4 py-2 text-xs">
         <div className="w-full flex items-center gap-1">
           <img
             src={
-              product?.productImage
-                ? `${url}product/productImage/${product?.productImage}`
+              item?.product?.productImage
+                ? `${url}product/productImage/${item?.product?.productImage}`
                 : defaultImage
             }
             alt=""
             className="w-6 h-6 object-cover object-center"
           />
           <div className="w-full flex items-center justify-between">
-            <span>{product?.productName}</span>
-            <span>{product?.productType}</span>
+            <span>{item?.product?.productName}</span>
+            <span>{item?.currentQty}</span>
           </div>
         </div>
         <div className="ml-auto">
           <button
             type="button"
-            onClick={() => onDeleteHandler(product)}
+            onClick={() => onDeleteHandler(item)}
             className="inline-flex items-center ml-auto text-gray-5 focus:outline-none focus:ring-1 focus:ring-primary rounded-lg p-1 border border-gray">
             <MdClose className="w-4 h-4" />
           </button>
@@ -187,7 +187,7 @@ export default function FormProductOrder({
     return (
       <div className="w-full flex items-center justify-between">
         <div>{props?.label}</div>
-        <div>{props?.productType}</div>
+        <div className="uppercase text-sm">{props?.requestNumber}</div>
       </div>
     );
   };
@@ -246,7 +246,7 @@ export default function FormProductOrder({
           <div className="w-full max-h-[250px] flex flex-col gap-2 overflow-x-hidden overflow-y-auto">
             {productSelected?.length > 0 ? (
               productSelected?.map((item: any, idx: any) => {
-                return <ProductComponent key={idx} product={item} />;
+                return <ProductComponent key={idx} item={item} />;
               })
             ) : (
               <div className="px-4 text-xs text-gray-5">

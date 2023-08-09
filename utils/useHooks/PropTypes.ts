@@ -246,6 +246,7 @@ export type ProductProps = {
   productQty?: number | string | any;
   productOrderQty?: number | string | any;
   qty?: number | string | any;
+  price?: number | string | any;
 };
 
 export type RequestProductProps = {

@@ -589,8 +589,9 @@ const Products = ({ pageProps }: Props) => {
       toast.dark("Please, fill your purchase date");
     } else {
       return router.push({
-        pathname: `/employee/assets-management/stocks/purchase-order/${value?.id}`,
+        pathname: `/employee/assets-management/stocks/purchase-order/form`,
         query: {
+          id: value?.id,
           date: value?.date?.toISOString(),
         },
       });

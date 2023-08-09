@@ -176,7 +176,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const NewRequestOrder = ({ pageProps }: Props) => {
+const RequestOrderDetail = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -844,4 +844,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default NewRequestOrder;
+export default RequestOrderDetail;

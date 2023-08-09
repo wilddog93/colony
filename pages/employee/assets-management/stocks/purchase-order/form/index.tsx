@@ -50,6 +50,7 @@ import {
 } from "../../../../../../redux/features/assets/stocks/requestReducers";
 import DatePicker from "react-datepicker";
 import {
+  Controller,
   SubmitHandler,
   useFieldArray,
   useForm,
@@ -61,6 +62,11 @@ import {
   selectVendorManagement,
 } from "../../../../../../redux/features/assets/vendor/vendorManagementReducers";
 import FormProductOrder from "../../../../../../components/Forms/assets/FormProductOrder";
+import CurrencyFormat from "react-currency-format";
+import {
+  createOrder,
+  selectOrderManagement,
+} from "../../../../../../redux/features/assets/stocks/orderReducers";
 
 interface PropsData {
   id?: number | any;
@@ -78,8 +84,9 @@ interface PropsData {
 
 type FormValues = {
   id?: number | string;
-  requestNumber?: number | string;
-  requestDescription?: string;
+  orderNumber?: number | string;
+  orderDescription?: string;
+  vendor?: number;
   products?: ProductProps[];
 };
 
@@ -187,10 +194,9 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { products, product } = useAppSelector(selectProductManagement);
-  const { requests } = useAppSelector(selectRequestManagement);
+  const { requests, request } = useAppSelector(selectRequestManagement);
   const { vendor } = useAppSelector(selectVendorManagement);
-  const { pending } = useAppSelector(selectRequestManagement);
+  const { pending } = useAppSelector(selectOrderManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -250,25 +256,27 @@ const NewRequestOrder = ({ pageProps }: Props) => {
     mode: "all",
     defaultValues: useMemo<FormValues>(
       () => ({
-        id: product?.id,
-        requestNumber: product?.requestNumber,
-        requestDescription: product?.requestDescription,
-        products: product?.products,
+        id: request?.id,
+        orderNumber: request?.orderNumber,
+        orderDescription: request?.orderDescription,
+        vendor: request?.vendor,
+        products: request?.products,
       }),
-      [product]
+      [request]
     ),
   });
 
   useEffect(() => {
-    if (product) {
+    if (request) {
       reset({
-        id: product?.id,
-        requestNumber: product?.requestNumber,
-        requestDescription: product?.requestDescription,
-        products: product?.products,
+        id: request?.id,
+        orderNumber: request?.orderNumber,
+        orderDescription: request?.orderDescription,
+        vendor: request?.vendor,
+        products: request?.products,
       });
     }
-  }, [product]);
+  }, [request]);
 
   useEffect(() => {
     const subscription = watch((value, { name, type }): any => {
@@ -287,7 +295,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
 
   // description
   const descValue = useWatch({
-    name: "requestDescription",
+    name: "orderDescription",
     control,
   });
 
@@ -343,7 +351,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
             ...x,
             requestNumber: item?.requestNumber,
             currentQty: (x?.requestQty || 0) - (x?.requestQtyCompleted || 0),
-            value: x?.id,
+            value: item?.requestNumber,
             label: x?.product?.productName,
           });
         });
@@ -359,7 +367,6 @@ const NewRequestOrder = ({ pageProps }: Props) => {
       delete requestOrderData[index]?.qty;
     }
     let items = [...requestOrderData];
-    // items[index].productOrderQty = parseInt(`${value}`);
     items[index].qty = parseInt(`${value}`);
     setRequestOrderData([...items]);
   };
@@ -373,29 +380,36 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   // on-submit
   const onSubmit: SubmitHandler<FormValues> = (value) => {
     let newObj: FormValues = {
-      requestNumber: value.requestNumber,
-      requestDescription: value.requestDescription,
+      orderNumber: value.orderNumber,
+      orderDescription: value.orderDescription,
+      vendor: vendor?.id,
       products:
         value?.products && value?.products?.length > 0
-          ? value?.products?.map(({ id, qty }) => ({
-              id,
-              qty,
+          ? value?.products?.map((item: any) => ({
+              id: item?.product?.id,
+              price: Number(item?.price) || 0,
+              requests: [
+                {
+                  id: item?.id,
+                  qty: item?.qty,
+                },
+              ],
             }))
           : [],
     };
     if (value?.products && value?.products?.length > 0) {
       dispatch(
-        createRequestOrder({
+        createOrder({
           token,
           data: newObj,
           isSuccess: () => {
-            toast.dark("Create Request Order Success");
+            toast.dark("Create Purchase Order Success");
             setTimeout(() => {
               router.back();
-            }, 2500);
+            }, 500);
           },
           isError: () => {
-            toast.dark("Create Request Order Failed");
+            toast.dark("Create Purchase Order Failed");
           },
         })
       );
@@ -429,6 +443,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
     if (requestOrderData?.length > 0) {
       requestOrderData.map((item, idx) => {
         const qty = item["qty"];
+        const price = item["price"];
         if (!qty || qty == 0) {
           setError(`products.${idx}.qty`, {
             type: "required",
@@ -436,6 +451,15 @@ const NewRequestOrder = ({ pageProps }: Props) => {
           });
         } else {
           clearErrors(`products.${idx}.qty`);
+        }
+
+        if (!price) {
+          setError(`products.${idx}.price`, {
+            type: "required",
+            message: "Price is required",
+          });
+        } else {
+          clearErrors(`products.${idx}.price`);
         }
       });
     }
@@ -452,7 +476,8 @@ const NewRequestOrder = ({ pageProps }: Props) => {
     }
   }, [query?.id, token]);
 
-  console.log(vendor, "vendor-data");
+  console.log(requestOrderData, "request-data");
+  console.log(errors, "error-data");
 
   return (
     <DefaultLayout
@@ -516,22 +541,22 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                     <input
                       type="text"
                       className={`w-full border-2 border-gray-5 px-2 py-1 focus:outline-none focus:border-primary text-lg rounded-lg ${
-                        errors?.requestNumber
+                        errors?.orderNumber
                           ? "border-danger focus:ring-danger"
                           : ""
                       }`}
-                      {...register("requestNumber", {
+                      {...register("orderNumber", {
                         required: {
                           value: true,
                           message: "Request No. is required",
                         },
                       })}
                     />
-                    {errors?.requestNumber && (
+                    {errors?.orderNumber && (
                       <div className="mt-1 text-xs flex items-center text-red-300">
                         <MdWarning className="w-4 h-4 mr-1" />
                         <span className="text-red-300">
-                          {errors.requestNumber.message as any}
+                          {errors.orderNumber.message as any}
                         </span>
                       </div>
                     )}
@@ -563,7 +588,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          New Request
+                          New Order
                         </span>
                         <MdAdd className="w-4 h-4" />
                       </Fragment>
@@ -605,11 +630,28 @@ const NewRequestOrder = ({ pageProps }: Props) => {
           </div>
 
           <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+            <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
+              <h3 className="font-semibold">Order Cart</h3>
+              <Button
+                type="button"
+                variant="primary"
+                className="rounded-lg border border-primary active:scale-90"
+                onClick={() => onOpenProduct(requestOrderData)}>
+                <span className="text-xs">Add Product</span>
+                <MdAdd className="w-4 h-4" />
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 text-gray-6">
               <div className="col-span-1 rounded-lg">
                 <table className="w-full rounded-lg">
                   <thead className="text-lefttext-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
                     <tr>
+                      <th
+                        scope="col"
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                        Request No.
+                      </th>
                       <th
                         scope="col"
                         className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
@@ -618,22 +660,17 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                       <th
                         scope="col"
                         className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Product Type
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Current Stock
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Min Stock
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Request Qty
+                      </th>
+                      <th
+                        scope="col"
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                        Order Qty
+                      </th>
+                      <th
+                        scope="col"
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                        Price
                       </th>
                     </tr>
                   </thead>
@@ -644,32 +681,30 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                           <tr
                             key={idx}
                             className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                            <td className="p-4">
+                              <div>{e?.requestNumber}</div>
+                            </td>
                             <td className="w-[250px]">
                               <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
                                 <img
                                   src={
-                                    e?.productImages
-                                      ? `${url}product/files/${e?.productImages}`
+                                    e?.productproductImages
+                                      ? `${url}product/files/${e?.productproductImages}`
                                       : "../../../../image/no-image.jpeg"
                                   }
                                   alt="img-product"
                                   className="object cover object-center w-6 h-6 rounded mr-1"
                                 />
-                                <div>{e.productName}</div>
+                                <div>{e?.product?.productName}</div>
                               </div>
                             </td>
                             <td className="p-4">
-                              <div>{e?.productType}</div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.productQty}</div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.productMinimumStock || 0}</div>
+                              <div>{e?.currentQty || 0}</div>
                             </td>
                             <td className="p-4">
                               <input
                                 min={0}
+                                max={e?.currentQty}
                                 onChange={({ target }) => {
                                   if (!!!target?.value) {
                                     setError(`products.${idx}.qty`, {
@@ -692,17 +727,53 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                                     : "border-gray focus:ring-primary"
                                 }`}
                               />
-
-                              {/* {errors?.products?.[idx]?.qty && (
-                                <div className="mt-1 text-xs flex items-center text-red-300">
-                                  <span className="text-red-300">
-                                    {
-                                      errors?.products?.[idx]?.qty
-                                        ?.message as any
-                                    }
-                                  </span>
-                                </div>
-                              )} */}
+                            </td>
+                            <td className="p-4">
+                              <Controller
+                                render={({
+                                  field: { onChange, onBlur, value, name, ref },
+                                  fieldState: {
+                                    invalid,
+                                    isTouched,
+                                    isDirty,
+                                    error,
+                                  },
+                                }) => (
+                                  <CurrencyFormat
+                                    onValueChange={(values) => {
+                                      const { value } = values;
+                                      if (!!!value) {
+                                        setError(`products.${idx}.price`, {
+                                          type: "required",
+                                          message: "Price is required",
+                                        });
+                                      } else {
+                                        clearErrors(`products.${idx}.price`);
+                                      }
+                                      requestOrderData[idx].price = value;
+                                      setValue(`products.${idx}.price`, value);
+                                    }}
+                                    id="price"
+                                    value={requestOrderData[idx].price || ""}
+                                    thousandSeparator={true}
+                                    // placeholder="Price"
+                                    prefix={"Rp. "}
+                                    className={`bg-gray py-1 px-2 border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 w-[100px] ${
+                                      error?.message
+                                        ? "border-danger focus:ring-danger"
+                                        : "border-gray focus:ring-primary"
+                                    }`}
+                                  />
+                                )}
+                                name={`products.${idx}.price`}
+                                control={control}
+                                rules={{
+                                  required: {
+                                    value: true,
+                                    message: "Price is required.",
+                                  },
+                                }}
+                              />
                             </td>
                             <td className="p-4">
                               <button
@@ -729,21 +800,10 @@ const NewRequestOrder = ({ pageProps }: Props) => {
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="primary"
-              className="rounded-lg border border-primary active:scale-90"
-              onClick={() => onOpenProduct(requestOrderData)}>
-              <span className="text-xs">Add Product</span>
-              <MdAdd className="w-4 h-4" />
-            </Button>
-
-            <div className="border-b-2 border-gray w-full h-2 my-3"></div>
-
             <div className="w-full mb-3">
               <label
                 className="col-span-1 font-semibold"
-                htmlFor="requestDescription">
+                htmlFor="orderDescription">
                 Notes
               </label>
               <div className="w-full col-span-4">
@@ -754,7 +814,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                     maxLength={400}
                     placeholder="Notes..."
                     className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    {...register("requestDescription")}
+                    {...register("orderDescription")}
                   />
                   <div className="mt-1 text-xs flex items-center justify-end">
                     <span className="text-graydark">
