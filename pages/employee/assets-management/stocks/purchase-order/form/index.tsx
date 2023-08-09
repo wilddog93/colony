@@ -16,7 +16,10 @@ import {
   MdChevronLeft,
   MdDelete,
   MdEdit,
+  MdEmail,
   MdOutlineCalendarToday,
+  MdPhone,
+  MdPlace,
   MdUnarchive,
   MdWarning,
 } from "react-icons/md";
@@ -67,6 +70,8 @@ import {
   createOrder,
   selectOrderManagement,
 } from "../../../../../../redux/features/assets/stocks/orderReducers";
+import { BsGlobe } from "react-icons/bs";
+import { formatPhone } from "../../../../../../utils/useHooks/useFunction";
 
 interface PropsData {
   id?: number | any;
@@ -629,197 +634,250 @@ const NewRequestOrder = ({ pageProps }: Props) => {
             </div>
           </div>
 
-          <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-            <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
-              <h3 className="font-semibold">Order Cart</h3>
-              <Button
-                type="button"
-                variant="primary"
-                className="rounded-lg border border-primary active:scale-90"
-                onClick={() => onOpenProduct(requestOrderData)}>
-                <span className="text-xs">Add Product</span>
-                <MdAdd className="w-4 h-4" />
-              </Button>
-            </div>
+          <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4">
+            <div className="w-full lg:col-span-2 p-4 border border-gray rounded-xl shadow-card text-gray-6">
+              <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
+                <h3 className="font-semibold">Order Cart</h3>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="rounded-lg border border-primary active:scale-90"
+                  onClick={() => onOpenProduct(requestOrderData)}>
+                  <span className="text-xs">Add Product</span>
+                  <MdAdd className="w-4 h-4" />
+                </Button>
+              </div>
 
-            <div className="grid grid-cols-1 text-gray-6">
-              <div className="col-span-1 rounded-lg">
-                <table className="w-full rounded-lg">
-                  <thead className="text-lefttext-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Request No.
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Product Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Request Qty
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Order Qty
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Price
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                    {requestOrderData?.length > 0 ? (
-                      requestOrderData?.map((e: any, idx: any) => {
-                        return (
-                          <tr
-                            key={idx}
-                            className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                            <td className="p-4">
-                              <div>{e?.requestNumber}</div>
-                            </td>
-                            <td className="w-[250px]">
-                              <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                <img
-                                  src={
-                                    e?.productproductImages
-                                      ? `${url}product/files/${e?.productproductImages}`
-                                      : "../../../../image/no-image.jpeg"
-                                  }
-                                  alt="img-product"
-                                  className="object cover object-center w-6 h-6 rounded mr-1"
-                                />
-                                <div>{e?.product?.productName}</div>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.currentQty || 0}</div>
-                            </td>
-                            <td className="p-4">
-                              <input
-                                min={0}
-                                max={e?.currentQty}
-                                onChange={({ target }) => {
-                                  if (!!!target?.value) {
-                                    setError(`products.${idx}.qty`, {
-                                      type: "required",
-                                      message: "Qty is required",
-                                    });
-                                  } else {
-                                    clearErrors(`products.${idx}.qty`);
-                                  }
-                                  qtyHandler({
-                                    value: target.value,
-                                    index: idx,
-                                  });
-                                }}
-                                value={requestOrderData[idx]?.qty}
-                                type="number"
-                                className={`w-14 max-w-max py-1 px-2 bg-gray border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 ${
-                                  errors?.products?.[idx]?.qty
-                                    ? "border-danger focus:ring-danger"
-                                    : "border-gray focus:ring-primary"
-                                }`}
-                              />
-                            </td>
-                            <td className="p-4">
-                              <Controller
-                                render={({
-                                  field: { onChange, onBlur, value, name, ref },
-                                  fieldState: {
-                                    invalid,
-                                    isTouched,
-                                    isDirty,
-                                    error,
-                                  },
-                                }) => (
-                                  <CurrencyFormat
-                                    onValueChange={(values) => {
-                                      const { value } = values;
-                                      if (!!!value) {
-                                        setError(`products.${idx}.price`, {
-                                          type: "required",
-                                          message: "Price is required",
-                                        });
-                                      } else {
-                                        clearErrors(`products.${idx}.price`);
-                                      }
-                                      requestOrderData[idx].price = value;
-                                      setValue(`products.${idx}.price`, value);
-                                    }}
-                                    id="price"
-                                    value={requestOrderData[idx].price || ""}
-                                    thousandSeparator={true}
-                                    // placeholder="Price"
-                                    prefix={"Rp. "}
-                                    className={`bg-gray py-1 px-2 border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 w-[100px] ${
-                                      error?.message
-                                        ? "border-danger focus:ring-danger"
-                                        : "border-gray focus:ring-primary"
-                                    }`}
-                                  />
-                                )}
-                                name={`products.${idx}.price`}
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Price is required.",
-                                  },
-                                }}
-                              />
-                            </td>
-                            <td className="p-4">
-                              <button
-                                className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
-                                type="button"
-                                onClick={() => onDeleteProduct(e?.id)}>
-                                <MdDelete className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
+              <div className="grid grid-cols-1 text-gray-6">
+                <div className="col-span-1 rounded-lg">
+                  <table className="w-full rounded-lg">
+                    <thead className="text-lefttext-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
                       <tr>
-                        <td colSpan={12} className="p-4">
-                          <div className="text-sm italic text-gray-500 font-semibold">
-                            There is no product data.
-                          </div>
-                        </td>
+                        <th
+                          scope="col"
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Request No.
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Product Name
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Request Qty
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Order Qty
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Price
+                        </th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
+                      {requestOrderData?.length > 0 ? (
+                        requestOrderData?.map((e: any, idx: any) => {
+                          return (
+                            <tr
+                              key={idx}
+                              className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                              <td className="p-4">
+                                <div>{e?.requestNumber}</div>
+                              </td>
+                              <td className="w-[250px]">
+                                <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
+                                  <img
+                                    src={
+                                      e?.productproductImages
+                                        ? `${url}product/files/${e?.productproductImages}`
+                                        : "../../../../image/no-image.jpeg"
+                                    }
+                                    alt="img-product"
+                                    className="object cover object-center w-6 h-6 rounded mr-1"
+                                  />
+                                  <div>{e?.product?.productName}</div>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <div>{e?.currentQty || 0}</div>
+                              </td>
+                              <td className="p-4">
+                                <input
+                                  min={0}
+                                  max={e?.currentQty}
+                                  onChange={({ target }) => {
+                                    if (!!!target?.value) {
+                                      setError(`products.${idx}.qty`, {
+                                        type: "required",
+                                        message: "Qty is required",
+                                      });
+                                    } else {
+                                      clearErrors(`products.${idx}.qty`);
+                                    }
+                                    qtyHandler({
+                                      value: target.value,
+                                      index: idx,
+                                    });
+                                  }}
+                                  value={requestOrderData[idx]?.qty}
+                                  type="number"
+                                  className={`w-14 max-w-max py-1 px-2 bg-gray border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 ${
+                                    errors?.products?.[idx]?.qty
+                                      ? "border-danger focus:ring-danger"
+                                      : "border-gray focus:ring-primary"
+                                  }`}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Controller
+                                  render={({
+                                    field: {
+                                      onChange,
+                                      onBlur,
+                                      value,
+                                      name,
+                                      ref,
+                                    },
+                                    fieldState: {
+                                      invalid,
+                                      isTouched,
+                                      isDirty,
+                                      error,
+                                    },
+                                  }) => (
+                                    <CurrencyFormat
+                                      onValueChange={(values) => {
+                                        const { value } = values;
+                                        if (!!!value) {
+                                          setError(`products.${idx}.price`, {
+                                            type: "required",
+                                            message: "Price is required",
+                                          });
+                                        } else {
+                                          clearErrors(`products.${idx}.price`);
+                                        }
+                                        requestOrderData[idx].price = value;
+                                        setValue(
+                                          `products.${idx}.price`,
+                                          value
+                                        );
+                                      }}
+                                      id="price"
+                                      value={requestOrderData[idx].price || ""}
+                                      thousandSeparator={true}
+                                      // placeholder="Price"
+                                      prefix={"Rp. "}
+                                      className={`bg-gray py-1 px-2 border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 w-[100px] ${
+                                        error?.message
+                                          ? "border-danger focus:ring-danger"
+                                          : "border-gray focus:ring-primary"
+                                      }`}
+                                    />
+                                  )}
+                                  name={`products.${idx}.price`}
+                                  control={control}
+                                  rules={{
+                                    required: {
+                                      value: true,
+                                      message: "Price is required.",
+                                    },
+                                  }}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <button
+                                  className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
+                                  type="button"
+                                  onClick={() => onDeleteProduct(e?.id)}>
+                                  <MdDelete className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={12} className="p-4">
+                            <div className="text-sm italic text-gray-500 font-semibold">
+                              There is no product data.
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="w-full mb-3">
+                <label
+                  className="col-span-1 font-semibold"
+                  htmlFor="orderDescription">
+                  Notes
+                </label>
+                <div className="w-full col-span-4">
+                  <div className="relative">
+                    <textarea
+                      cols={0.5}
+                      rows={5}
+                      maxLength={400}
+                      placeholder="Notes..."
+                      className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                      {...register("orderDescription")}
+                    />
+                    <div className="mt-1 text-xs flex items-center justify-end">
+                      <span className="text-graydark">
+                        {descValue?.length || 0} / 400 characters.
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="w-full mb-3">
-              <label
-                className="col-span-1 font-semibold"
-                htmlFor="orderDescription">
-                Notes
-              </label>
-              <div className="w-full col-span-4">
-                <div className="relative">
-                  <textarea
-                    cols={0.5}
-                    rows={5}
-                    maxLength={400}
-                    placeholder="Notes..."
-                    className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    {...register("orderDescription")}
-                  />
-                  <div className="mt-1 text-xs flex items-center justify-end">
-                    <span className="text-graydark">
-                      {descValue?.length || 0} / 400 characters.
-                    </span>
+            <div className="w-full">
+              <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+                <h3 className="font-bold uppercase tracking-widest text-sm">
+                  Vendor Info
+                </h3>
+                <div className="w-full border-b-2 border-gray my-3"></div>
+                <div className="w-full flex flex-col gap-2 p-2">
+                  <div className="flex items-center w-full gap-2 text-gray-5">
+                    <BsGlobe className="min-w-[20px] min-h-[20px] h-5 w-5" />
+                    <div className="text-xs overflow-hidden">
+                      {vendor?.vendorWebsite ? vendor?.vendorWebsite : "-"}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center w-full gap-2 text-gray-5">
+                    <MdPhone className="min-w-[20px] min-h-[20px] h-5 w-5" />
+                    <div className="text-xs overflow-hidden">
+                      {vendor?.vendorPhone
+                        ? formatPhone("+", vendor?.vendorPhone)
+                        : "-"}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center w-full gap-2 text-gray-5">
+                    <MdEmail className="min-w-[20px] min-h-[20px] h-5 w-5" />
+                    <div className="text-xs overflow-hidden">
+                      {vendor?.vendorEmail ? vendor?.vendorEmail : "-"}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center w-full gap-2 text-gray-5">
+                    <MdPlace className="min-w-[20px] min-h-[20px] h-5 w-5" />
+                    <div className="text-xs overflow-hidden">
+                      {vendor?.vendorLegalAddress
+                        ? vendor?.vendorLegalAddress
+                        : "-"}
+                    </div>
                   </div>
                 </div>
               </div>
