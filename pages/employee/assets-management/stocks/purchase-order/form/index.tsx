@@ -634,10 +634,12 @@ const NewRequestOrder = ({ pageProps }: Props) => {
             </div>
           </div>
 
-          <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4">
+          <div className="w-full grid col-span-1 lg:grid-cols-3 gap-4 mt-5">
             <div className="w-full lg:col-span-2 p-4 border border-gray rounded-xl shadow-card text-gray-6">
               <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
-                <h3 className="font-semibold">Order Cart</h3>
+                <h3 className="font-bold uppercase tracking-widest text-sm">
+                  Order Cart
+                </h3>
                 <Button
                   type="button"
                   variant="primary"
