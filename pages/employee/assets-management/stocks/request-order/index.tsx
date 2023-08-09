@@ -399,7 +399,7 @@ const Products = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
     ],
-    []
+    [isArrayHidden]
   );
 
   useEffect(() => {
