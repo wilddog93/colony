@@ -217,6 +217,7 @@ export default function FloorBatchForm(props: Props) {
     if (isUpdate) {
       newData = {
         floorName: value?.floorName,
+        tower: value?.tower?.id,
       };
       dispatch(
         updateFloors({

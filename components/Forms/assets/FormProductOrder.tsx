@@ -62,7 +62,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-export default function FormProduct({
+export default function FormProductOrder({
   closeModal,
   items,
   setItems,
@@ -77,11 +77,25 @@ export default function FormProduct({
   const url = process.env.API_ENDPOINT;
 
   // data
-  const [selected, setSelected] = useState<any[]>([]);
   const [selectedOption, setSelectedOption] = useState<OptionProps[]>([]);
   const [products, setProducts] = useState<OptionProps | any>(null);
   const [productSelected, setProductSelected] = useState<any | any[]>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [selected, setSelected] = useState<any[]>([]);
+  const onSelected = (val: any) => {
+    const idx = selected.indexOf(val);
+
+    if (idx > -1) {
+      const _selected = [...selected];
+      _selected.splice(idx, 1);
+      setSelected(_selected);
+    } else {
+      const _selected = [...selected];
+      _selected.push(val);
+      setSelected(_selected);
+    }
+  };
 
   const onAddProduct = (user: any) => {
     if (!user) return;

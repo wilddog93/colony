@@ -56,6 +56,11 @@ import {
   useWatch,
 } from "react-hook-form";
 import FormProduct from "../../../../../../components/Forms/assets/FormProduct";
+import {
+  getVendorById,
+  selectVendorManagement,
+} from "../../../../../../redux/features/assets/vendor/vendorManagementReducers";
+import FormProductOrder from "../../../../../../components/Forms/assets/FormProductOrder";
 
 interface PropsData {
   id?: number | any;
@@ -183,6 +188,8 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { products, product } = useAppSelector(selectProductManagement);
+  const { requests } = useAppSelector(selectRequestManagement);
+  const { vendor } = useAppSelector(selectVendorManagement);
   const { pending } = useAppSelector(selectRequestManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -190,18 +197,41 @@ const NewRequestOrder = ({ pageProps }: Props) => {
 
   // data-table
   const [search, setSearch] = useState<string | any>(null);
-  const [productOpt, setProductOpt] = useState<OptionProps[]>([]);
-  const [productData, setProductData] = useState<any[]>([]);
-  const [isOpenProduct, setIsOpenProduct] = useState<boolean>(false);
+  const [requestOrderOpt, setRequestOrderOpt] = useState<OptionProps[]>([]);
+  const [requestOrderData, setRequestOrderData] = useState<any[]>([]);
+  const [isOpenRequestOrder, setIsOpenRequestOrder] = useState<boolean>(false);
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [formData, setFormData] = useState<PropsData | any>(null);
 
   // use-form
   const [watchValue, setWatchValue] = useState<FormValues | any>(null);
   const [watchChange, setWatchChange] = useState<any | null>(null);
+
+  // date
+  const dateTimeFormat = (value: any) => {
+    if (!value) return "-";
+    const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
+    return date;
+  };
+
+  // description-read
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isHiddenDesc.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isHiddenDesc];
+      _selected.splice(idx, 1);
+      setIsHiddenDesc(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isHiddenDesc];
+      _selected.push(val);
+      setIsHiddenDesc(_selected);
+    }
+  };
 
   // form
   const {
@@ -272,33 +302,27 @@ const NewRequestOrder = ({ pageProps }: Props) => {
 
   // product modal
   const onOpenProduct = (items: any) => {
-    setProductData(items);
-    setIsOpenProduct(true);
+    setRequestOrderData(items);
+    setIsOpenRequestOrder(true);
   };
 
   const onCloseProduct = () => {
-    setIsOpenProduct(false);
+    setIsOpenRequestOrder(false);
   };
 
   // product
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
+    const search = {
+      $and: [
+        { requestType: { $eq: "Order" } },
+        { requestStatus: { $in: ["On-Progress", "Approve"] } },
+      ],
+    };
 
-    // const searchObj = {
-    //   $and: [
-    //     {
-    //       $or: [
-    //         { productName: { $contL: search } },
-    //         { productType: { $contL: search } },
-    //       ],
-    //     },
-    //   ],
-    // };
-
-    // qb.search(searchObj);
-
+    qb.search(search);
     qb.sortBy({
-      field: `productName`,
+      field: `createdAt`,
       order: "ASC",
     });
     qb.query();
@@ -306,38 +330,44 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   }, [search]);
 
   useEffect(() => {
-    if (token) dispatch(getProducts({ token, params: filters.queryObject }));
+    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data } = products;
+    const { data } = requests;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
-        newArr.push({
-          ...item,
-          value: item?.id,
-          label: item?.productName,
+        item?.requestProducts?.map((x: any) => {
+          newArr.push({
+            ...x,
+            requestNumber: item?.requestNumber,
+            currentQty: (x?.requestQty || 0) - (x?.requestQtyCompleted || 0),
+            value: x?.id,
+            label: x?.product?.productName,
+          });
         });
       });
     }
-    setProductOpt(newArr);
-  }, [products]);
+    setRequestOrderOpt(newArr);
+  }, [requests]);
+
+  console.log(requestOrderOpt, "options");
 
   const qtyHandler = ({ value, index }: any) => {
     if (!value) {
-      delete productData[index]?.qty;
+      delete requestOrderData[index]?.qty;
     }
-    let items = [...productData];
+    let items = [...requestOrderData];
     // items[index].productOrderQty = parseInt(`${value}`);
     items[index].qty = parseInt(`${value}`);
-    setProductData([...items]);
+    setRequestOrderData([...items]);
   };
 
   const onDeleteProduct = (id: any) => {
     if (!id) return;
-    let filter = productData?.filter((e) => e?.id !== id);
-    setProductData(filter);
+    let filter = requestOrderData?.filter((e) => e?.id !== id);
+    setRequestOrderData(filter);
   };
 
   // on-submit
@@ -388,16 +418,16 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   }, [token]);
 
   useEffect(() => {
-    if (productData?.length > 0) {
-      setValue("products", productData);
+    if (requestOrderData?.length > 0) {
+      setValue("products", requestOrderData);
     } else {
       setValue("products", []);
     }
-  }, [productData]);
+  }, [requestOrderData]);
 
   useEffect(() => {
-    if (productData?.length > 0) {
-      productData.map((item, idx) => {
+    if (requestOrderData?.length > 0) {
+      requestOrderData.map((item, idx) => {
         const qty = item["qty"];
         if (!qty || qty == 0) {
           setError(`products.${idx}.qty`, {
@@ -409,18 +439,26 @@ const NewRequestOrder = ({ pageProps }: Props) => {
         }
       });
     }
-  }, [productData]);
+  }, [requestOrderData]);
 
   const onDiscardRequest = () => {
     setLoading(true);
     router.back();
   };
 
+  useEffect(() => {
+    if (token && query?.id) {
+      dispatch(getVendorById({ token, id: query?.id }));
+    }
+  }, [query?.id, token]);
+
+  console.log(vendor, "vendor-data");
+
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Request Order"
+      head="Form Purchase Order"
       logo="../../../../image/logo/logo-icon.svg"
       images="../../../../image/logo/building-logo.svg"
       userDefault="../../../../image/user/user-01.png"
@@ -455,125 +493,158 @@ const NewRequestOrder = ({ pageProps }: Props) => {
             </button>
           </div>
 
-          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4">
+          <div className="sticky bg-white top-0 z-50 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4 text-gray-6">
             {/* headers */}
-            <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
-              <div className="w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0">
-                <button
-                  type="button"
-                  className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
-                  onClick={() => onOpenDiscard()}
-                  key={"1"}>
-                  <div className="flex gap-1 items-center">
-                    <MdChevronLeft className="w-6 h-6" />
-                    <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
-                      New{" "}
-                      <span className="hidden lg:inline-block">
-                        Request Order
-                      </span>
-                    </h3>
-                  </div>
-                </button>
-                <div className="w-full max-w-[10rem] text-primary">
-                  <input
-                    type="text"
-                    className={`w-full border-2 border-gray-5 px-2 py-1 focus:outline-none focus:border-primary text-lg rounded-lg ${
-                      errors?.requestNumber
-                        ? "border-danger focus:ring-danger"
-                        : ""
-                    }`}
-                    {...register("requestNumber", {
-                      required: {
-                        value: true,
-                        message: "Request No. is required",
-                      },
-                    })}
-                  />
-                  {errors?.requestNumber && (
-                    <div className="mt-1 text-xs flex items-center text-red-300">
-                      <MdWarning className="w-4 h-4 mr-1" />
-                      <span className="text-red-300">
-                        {errors.requestNumber.message as any}
-                      </span>
+            <div className="w-full flex flex-col divide-y-2 divide-gray">
+              <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 py-6">
+                <div className="w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0">
+                  <button
+                    type="button"
+                    className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
+                    onClick={() => onOpenDiscard()}
+                    key={"1"}>
+                    <div className="flex gap-1 items-center">
+                      <MdChevronLeft className="w-6 h-6" />
+                      <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
+                        <span className="hidden lg:inline-block">
+                          Purchase Order
+                        </span>
+                      </h3>
                     </div>
-                  )}
+                  </button>
+                  <div className="w-full max-w-[10rem] text-primary">
+                    <input
+                      type="text"
+                      className={`w-full border-2 border-gray-5 px-2 py-1 focus:outline-none focus:border-primary text-lg rounded-lg ${
+                        errors?.requestNumber
+                          ? "border-danger focus:ring-danger"
+                          : ""
+                      }`}
+                      {...register("requestNumber", {
+                        required: {
+                          value: true,
+                          message: "Request No. is required",
+                        },
+                      })}
+                    />
+                    {errors?.requestNumber && (
+                      <div className="mt-1 text-xs flex items-center text-red-300">
+                        <MdWarning className="w-4 h-4 mr-1" />
+                        <span className="text-red-300">
+                          {errors.requestNumber.message as any}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
+                  <button
+                    type="button"
+                    className="rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1"
+                    onClick={() => onOpenDiscard()}>
+                    <MdDelete className="w-4 h-4 inline-block lg:hidden" />
+                    <span className="hidden lg:inline-block">Cancel</span>
+                  </button>
+
+                  <Button
+                    type="button"
+                    className="rounded-lg text-sm font-semibold py-3 border border-primary active:scale-90 shadow-2"
+                    onClick={handleSubmit(onSubmit)}
+                    disabled={pending}
+                    variant="primary">
+                    {pending ? (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          Loading...
+                        </span>
+                        <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                      </Fragment>
+                    ) : (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          New Request
+                        </span>
+                        <MdAdd className="w-4 h-4" />
+                      </Fragment>
+                    )}
+                  </Button>
                 </div>
               </div>
 
-              <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
-                <button
-                  type="button"
-                  className="rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1"
-                  onClick={() => onOpenDiscard()}>
-                  <MdDelete className="w-4 h-4 inline-block lg:hidden" />
-                  <span className="hidden lg:inline-block">Cancel</span>
-                </button>
+              <div className="w-full grid grid-cols-2 lg:flex-row items-start divide-x-2 divide-gray">
+                <div className="w-full flex flex-col p-4 text-sm">
+                  <div className="w-full flex items-center gap-2">
+                    <div className="font-semibold">Vendor :</div>
+                    <p className="">{vendor?.vendorName || "-"}</p>
+                  </div>
+                  <div className="w-full flex items-center gap-2">
+                    <div className="font-semibold">Purchase date :</div>
+                    <p className="">{dateTimeFormat(query?.date)}</p>
+                  </div>
+                </div>
 
-                <Button
-                  type="button"
-                  className="rounded-lg text-sm font-semibold py-3 border border-primary active:scale-90 shadow-2"
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={pending}
-                  variant="primary">
-                  {pending ? (
-                    <Fragment>
-                      <span className="hidden lg:inline-block">Loading...</span>
-                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
-                    </Fragment>
-                  ) : (
-                    <Fragment>
-                      <span className="hidden lg:inline-block">
-                        New Request
-                      </span>
-                      <MdAdd className="w-4 h-4" />
-                    </Fragment>
-                  )}
-                </Button>
+                <div className="w-full flex flex-col p-4 text-sm">
+                  <div className="font-semibold">Description :</div>
+                  <p className="">
+                    {vendor?.vendorDescription?.length > 70 &&
+                    !isHiddenDesc.includes(vendor?.id)
+                      ? `${vendor?.vendorDescription.substring(70, 0)} ...`
+                      : vendor?.vendorDescription || "-"}
+                  </p>
+                  <button
+                    onClick={() => onReadDescription(vendor?.id)}
+                    className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                      vendor?.vendorDescription?.length > 70 ? "" : "hidden"
+                    }`}>
+                    {isHiddenDesc.includes(vendor?.id) ? "Hide" : "Show"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
             <div className="grid grid-cols-1 text-gray-6">
-              <div className="col-span-1 overflow-x-auto">
-                <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
+              <div className="col-span-1 rounded-lg">
+                <table className="w-full rounded-lg">
                   <thead className="text-lefttext-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
                     <tr>
                       <th
                         scope="col"
-                        className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
+                        className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Product Name
                       </th>
                       <th
                         scope="col"
-                        className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Product Type
                       </th>
                       <th
                         scope="col"
-                        className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Current Stock
                       </th>
                       <th
                         scope="col"
-                        className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Min Stock
                       </th>
                       <th
                         scope="col"
-                        className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
+                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
                         Request Qty
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                    {productData?.length > 0 ? (
-                      productData?.map((e: any, idx: any) => {
+                    {requestOrderData?.length > 0 ? (
+                      requestOrderData?.map((e: any, idx: any) => {
                         return (
                           <tr
                             key={idx}
                             className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                            <td className="w-[350px]">
+                            <td className="w-[250px]">
                               <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
                                 <img
                                   src={
@@ -590,10 +661,10 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                             <td className="p-4">
                               <div>{e?.productType}</div>
                             </td>
-                            <td className="p-4 text-center">
+                            <td className="p-4">
                               <div>{e?.productQty}</div>
                             </td>
-                            <td className="p-4 text-center">
+                            <td className="p-4">
                               <div>{e?.productMinimumStock || 0}</div>
                             </td>
                             <td className="p-4">
@@ -613,9 +684,9 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                                     index: idx,
                                   });
                                 }}
-                                value={productData[idx]?.qty}
+                                value={requestOrderData[idx]?.qty}
                                 type="number"
-                                className={`w-14 max-w-max py-1.5 px-2 bg-gray border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 ${
+                                className={`w-14 max-w-max py-1 px-2 bg-gray border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 ${
                                   errors?.products?.[idx]?.qty
                                     ? "border-danger focus:ring-danger"
                                     : "border-gray focus:ring-primary"
@@ -633,7 +704,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                                 </div>
                               )} */}
                             </td>
-                            <td className="p-4 w-20">
+                            <td className="p-4">
                               <button
                                 className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
                                 type="button"
@@ -662,7 +733,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
               type="button"
               variant="primary"
               className="rounded-lg border border-primary active:scale-90"
-              onClick={() => onOpenProduct(productData)}>
+              onClick={() => onOpenProduct(requestOrderData)}>
               <span className="text-xs">Add Product</span>
               <MdAdd className="w-4 h-4" />
             </Button>
@@ -698,12 +769,12 @@ const NewRequestOrder = ({ pageProps }: Props) => {
       </div>
 
       {/* modal */}
-      <Modal isOpen={isOpenProduct} onClose={onCloseProduct} size="small">
-        <FormProduct
+      <Modal isOpen={isOpenRequestOrder} onClose={onCloseProduct} size="small">
+        <FormProductOrder
           closeModal={onCloseProduct}
-          options={productOpt}
-          items={productData}
-          setItems={setProductData}
+          options={requestOrderOpt}
+          items={requestOrderData}
+          setItems={setRequestOrderData}
           defaultImage="../../../../image/no-image.jpeg"
         />
       </Modal>

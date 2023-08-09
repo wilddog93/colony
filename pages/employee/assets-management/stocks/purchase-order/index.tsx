@@ -13,8 +13,6 @@ import Button from "../../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
-  MdDelete,
-  MdEdit,
   MdOutlineCalendarToday,
   MdUnarchive,
 } from "react-icons/md";
@@ -24,42 +22,28 @@ import { SearchInput } from "../../../../../components/Forms/SearchInput";
 import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
 import SelectTables from "../../../../../components/tables/layouts/server/SelectTables";
 import Modal from "../../../../../components/Modal";
-import {
-  ModalFooter,
-  ModalHeader,
-} from "../../../../../components/Modal/ModalComponent";
+import { ModalHeader } from "../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { selectProjectManagement } from "../../../../../redux/features/task-management/project/projectManagementReducers";
 import { toast } from "react-toastify";
 import {
   OptionProps,
-  RequestOrderProps,
+  PurchaseOrderProps,
 } from "../../../../../utils/useHooks/PropTypes";
-import {
-  getProductCategories,
-  selectProductCategoryManagement,
-} from "../../../../../redux/features/assets/products/category/productCategoryReducers";
 import {
   deleteProduct,
   getProducts,
   selectProductManagement,
 } from "../../../../../redux/features/assets/products/productManagementReducers";
-import ProductForm from "../../../../../components/Forms/employee/assets-inventories/product/ProductForm";
-import {
-  getProductUnits,
-  selectProductUnitManagement,
-} from "../../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
-import {
-  getProductBrands,
-  selectProductBrandManagement,
-} from "../../../../../redux/features/assets/products/brand/productBrandReducers";
-import { FaCircleNotch } from "react-icons/fa";
-import {
-  getRequests,
-  selectRequestManagement,
-} from "../../../../../redux/features/assets/stocks/requestReducers";
 import DatePicker from "react-datepicker";
+import {
+  getOrders,
+  selectOrderManagement,
+} from "../../../../../redux/features/assets/stocks/orderReducers";
+import {
+  getVendors,
+  selectVendorManagement,
+} from "../../../../../redux/features/assets/vendor/vendorManagementReducers";
 
 type Props = {
   pageProps: any;
@@ -184,8 +168,8 @@ const Products = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { requests, pending } = useAppSelector(selectRequestManagement);
-  const { products } = useAppSelector(selectProductManagement);
+  const { orders, pending } = useAppSelector(selectOrderManagement);
+  const { vendors } = useAppSelector(selectVendorManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
@@ -194,16 +178,17 @@ const Products = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<RequestOrderProps[]>([]);
+  const [dataTable, setDataTable] = useState<PurchaseOrderProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [total, setTotal] = useState(1);
 
-  // modal
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [formData, setFormData] = useState<RequestOrderProps | any>(null);
+  // modal to form
+  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
+  const [isVendor, setIsVendor] = useState<OptionProps | any>(null);
+  const [date, setDate] = useState<Date | any>(new Date());
 
   // description-read
   const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
@@ -242,29 +227,22 @@ const Products = ({ pageProps }: Props) => {
   };
 
   // delete modal
-  const onCloseModalDelete = () => {
-    setFormData(null);
-    setIsOpenDelete(false);
+  const onOpenForm = () => {
+    setIsOpenForm(true);
   };
-  const onOpenModalDelete = (items: any) => {
-    setFormData(items);
-    setIsOpenDelete(true);
-  };
-
-  const goToDetail = (id: any) => {
-    if (!id) return;
-    return router.push({
-      pathname: `/employee/assets-inventories/stock/request-order/${id}`,
-    });
+  const onCloseForm = () => {
+    setIsVendor(null);
+    setDate(new Date());
+    setIsOpenForm(false);
   };
 
   const generateColorStatus = (value: any) => {
     let color = "#333";
     switch (value) {
       case "Approve":
-        color = "#5F59F7";
+        color = "#3CCF4E";
         break;
-      case "Rejected":
+      case "Declined":
         color = "#FF1E00";
         break;
       case "Done":
@@ -285,25 +263,14 @@ const Products = ({ pageProps }: Props) => {
     return color;
   };
 
-  const columns = useMemo<ColumnDef<RequestOrderProps, any>[]>(
+  const columns = useMemo<ColumnDef<PurchaseOrderProps, any>[]>(
     () => [
       {
-        accessorKey: "requestNumber",
+        accessorKey: "orderNumber",
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
           const { id } = row?.original;
-          return (
-            <button
-              onClick={() =>
-                router.push({
-                  pathname: `/employee/assets-management/stocks/request-order/${id}`,
-                })
-              }
-              type="button"
-              className="w-full text-left font-semibold text-primary hover:underline active:scale-95 uppercase">
-              {getValue() || "-"}
-            </button>
-          );
+          return <div className="w-full">{getValue() || "-"}</div>;
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -311,7 +278,7 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "requestDescription",
+        accessorKey: "orderDescription",
         header: (info) => <div className="uppercase">Notes</div>,
         cell: ({ row, getValue }) => {
           const { id } = row.original;
@@ -339,7 +306,7 @@ const Products = ({ pageProps }: Props) => {
         minSize: 250,
       },
       {
-        accessorKey: "requestProducts",
+        accessorKey: "orderProducts",
         header: (info) => <div className="uppercase">Items</div>,
         cell: ({ row, getValue }) => {
           const value = getValue()?.length || 0;
@@ -352,20 +319,33 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
+        accessorKey: "vendor",
+        header: (info) => <div className="uppercase">Vendor</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue()?.vendorName || "-";
+          return <div className="w-full">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
         accessorKey: "createdAt",
         header: (info) => (
-          <div className="uppercase w-full text-center">Request Date</div>
+          <div className="uppercase w-full text-left">Request Date</div>
         ),
         cell: ({ row, getValue }) => {
           const value = dateTimeFormat(getValue());
-          return <div className="w-full text-center">{value}</div>;
+          return <div className="w-full text-left">{value}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
       },
       {
-        accessorKey: "requestStatus",
+        accessorKey: "orderStatus",
         cell: ({ row, getValue }) => {
           const value = getValue();
           return (
@@ -388,15 +368,30 @@ const Products = ({ pageProps }: Props) => {
       {
         accessorKey: "updatedAt",
         header: (info) => (
-          <div className="uppercase w-full text-center">Recent Date</div>
+          <div className="uppercase w-full text-left">Recent Date</div>
         ),
         cell: ({ row, getValue }) => {
           const value = dateTimeFormat(getValue());
+          return <div className="w-full text-left">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "documents",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Documents</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue()?.length || 0;
           return <div className="w-full text-center">{value}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
       },
     ],
     []
@@ -488,18 +483,17 @@ const Products = ({ pageProps }: Props) => {
               ).format("YYYY-MM-DD") + "T23:59:59.000Z",
           },
         },
-        { requestType: { $contL: "Order" } },
-        { requestStatus: { $contL: query?.status } },
+        { orderStatus: { $contL: query?.status } },
         {
           $or: [
-            { requestNumber: { $contL: query?.search } },
-            { requestDescription: { $contL: query?.search } },
-            { requestStatus: { $contL: query?.search } },
+            { orderNumber: { $contL: query?.search } },
+            { orderDescription: { $contL: query?.search } },
+            { orderStatus: { $contL: query?.search } },
             {
-              "requestProducts.product.productName": { $contL: query?.search },
+              "orderProducts.product.productName": { $contL: query?.search },
             },
             {
-              "requestProducts.location.locationName": {
+              "orderProducts.vendor.vendorName": {
                 $contL: query?.search,
               },
             },
@@ -519,7 +513,7 @@ const Products = ({ pageProps }: Props) => {
       });
     } else {
       qb.sortBy({
-        field: `requestNumber`,
+        field: `orderNumber`,
         order: !sort?.value ? "ASC" : sort.value,
       });
     }
@@ -536,12 +530,12 @@ const Products = ({ pageProps }: Props) => {
   ]);
 
   useEffect(() => {
-    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
+    if (token) dispatch(getOrders({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = requests;
+    const { data, pageCount, total } = orders;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
@@ -550,33 +544,64 @@ const Products = ({ pageProps }: Props) => {
     setDataTable(newArr);
     setPageCount(pageCount);
     setTotal(total);
-  }, [requests]);
+  }, [orders]);
 
-  // delete
-  const onDelete = (value: any) => {
-    console.log(value, "form-delete");
-    if (!value?.id) return;
-    dispatch(
-      deleteProduct({
-        token,
-        id: value?.id,
-        isSuccess() {
-          toast.dark("Product has been deleted");
-          dispatch(getProducts({ token, params: filters.queryObject }));
-          onCloseModalDelete();
+  // get-vendor
+  const filterVendor = useMemo(() => {
+    let qb = RequestQueryBuilder.create();
+
+    qb.sortBy({ field: "vendorName", order: "ASC" });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getVendors({
+          token,
+          params: filterVendor.queryObject,
+        })
+      );
+  }, [token, filterVendor]);
+
+  const vendorOpt = useMemo(() => {
+    const newArr: any[] = [];
+    const { data } = vendors;
+    if (data && data?.length > 0) {
+      data?.map((vendor: any) => {
+        newArr.push({
+          ...vendor,
+          value: vendor?.id,
+          label: vendor?.vendorName,
+        });
+      });
+    }
+    // remove duplicate values from array and
+    // return [...new Set([...opt, ...newArr])];
+    return newArr;
+  }, [vendors]);
+
+  const goToForm = (value: any) => {
+    if (!value?.id) {
+      toast.dark("Please, fill your vendor information");
+    } else if (!value?.date) {
+      toast.dark("Please, fill your purchase date");
+    } else {
+      return router.push({
+        pathname: `/employee/assets-management/stocks/purchase-order/${value?.id}`,
+        query: {
+          date: value?.date?.toISOString(),
         },
-        isError() {
-          console.log("Error delete");
-        },
-      })
-    );
+      });
+    }
   };
 
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Request Order"
+      head="Purchase Order"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -623,7 +648,7 @@ const Products = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Request Order
+                      Purchase Order
                     </h3>
                   </div>
                 </Button>
@@ -633,14 +658,9 @@ const Products = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={() =>
-                    router.push({
-                      pathname:
-                        "/employee/assets-management/stocks/request-order/form",
-                    })
-                  }
+                  onClick={onOpenForm}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Request</span>
+                  <span className="hidden lg:inline-block">New Purchase</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
@@ -748,41 +768,78 @@ const Products = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* delete modal */}
-      <Modal size="small" onClose={onCloseModalDelete} isOpen={isOpenDelete}>
+      {/* modal-form */}
+      <Modal size="small" onClose={onCloseForm} isOpen={isOpenForm}>
         <Fragment>
           <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
+            className="p-4 border-b-2 border-gray"
             isClose={true}
-            onClick={onCloseModalDelete}>
+            onClick={onCloseForm}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Delete Product</h3>
-              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+              <h3 className="text-sm font-semibold">Vendor</h3>
+              <p className="text-sm text-gray-5">
+                Fill your vendor information.
+              </p>
             </div>
           </ModalHeader>
-          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
-            <Button
-              type="button"
-              variant="secondary-outline"
-              className="rounded-lg border-2 border-gray-2 shadow-2"
-              onClick={onCloseModalDelete}>
-              <span className="text-xs font-semibold">Discard</span>
-            </Button>
+          <div className="w-full p-4 flex flex-col gap-2 text-sm">
+            <div className="mb-3">
+              <label htmlFor="vendor" className="font-semibold">
+                Vendor
+              </label>
+              <DropdownSelect
+                customStyles={stylesSelect}
+                value={isVendor}
+                onChange={setIsVendor}
+                error=""
+                className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                classNamePrefix=""
+                instanceId="vendor"
+                isDisabled={false}
+                isMulti={false}
+                placeholder="Choose vendor"
+                options={vendorOpt}
+                formatOptionLabel={""}
+                icon=""
+              />
+            </div>
 
+            <div className="w-full">
+              <label htmlFor="date" className="font-semibold">
+                Purchase date
+              </label>
+              <label className="w-full text-gray-5 overflow-hidden">
+                <div className="relative">
+                  <DatePicker
+                    selected={date}
+                    onChange={setDate}
+                    isClearable={true}
+                    placeholderText={"Select date"}
+                    dropdownMode="select"
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    onCalendarClose={() => console.log("close calender")}
+                    disabled={false}
+                    shouldCloseOnSelect={true}
+                    clearButtonClassName="after:w-10 after:h-10 h-10 w-10"
+                    className="text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                  />
+                  <MdOutlineCalendarToday className="absolute left-4 top-4 h-6 w-6 text-gray-5" />
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="w-full p-4 border-t-2 border-gray flex">
             <Button
-              type="button"
               variant="primary"
-              className="rounded-lg border-2 border-primary"
-              onClick={() => onDelete(formData)}
-              disabled={pending}>
-              {pending ? (
-                <Fragment>
-                  <span className="text-xs">Deleting...</span>
-                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
-                </Fragment>
-              ) : (
-                <span className="text-xs">Yes, Delete it!</span>
-              )}
+              type="button"
+              onClick={() => goToForm({ id: isVendor?.id, date: date })}
+              className="rounded active:scale-90 w-full">
+              <span className="text-xs uppercase font-semibold">
+                Add new purchase
+              </span>
             </Button>
           </div>
         </Fragment>

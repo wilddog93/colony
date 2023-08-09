@@ -280,3 +280,42 @@ export type RequestOrderProps = {
   requestProducts?: RequestProductProps[];
   requestAssets?: RequestAssetProps[];
 };
+
+export type VendorProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  vendorName?: string | any;
+  vendorDescription?: string | any;
+  vendorLogo?: string | any;
+  vendorWebsite?: string | any;
+  vendorPhone?: number | string | any;
+  vendorEmail?: string | any;
+  vendorLegalName?: string | any;
+  vendorLegalAddress?: string | any;
+};
+
+export type OrderProducts = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  orderQty?: number | string | any;
+  orderPrice?: number | string | any;
+  orderQtyCompleted?: number | string | any;
+  product?: ProductProps;
+  orderProductRequests?: any[];
+};
+
+// purchase-order
+export type PurchaseOrderProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  orderNumber?: string | any;
+  orderDescription?: string | any;
+  orderStatus?: string | any;
+  totalPrice?: number | string | any;
+  documents?: any | any[];
+  vendor?: VendorProps;
+  rrderProducts?: OrderProducts[];
+};
