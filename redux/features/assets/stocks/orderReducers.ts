@@ -160,6 +160,44 @@ export const createOrder = createAsyncThunk<
   }
 });
 
+// create-document-by-id
+export const createOrderDocumentById = createAsyncThunk<
+  any,
+  OrderData,
+  { state: RootState }
+>("/order/create/id/document", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post(
+      `order/${params.id}/document`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // update
 export const updateOrder = createAsyncThunk<
   any,
@@ -176,6 +214,44 @@ export const updateOrder = createAsyncThunk<
   try {
     const response = await axios.patch(
       `order/${params.id}`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// update-change-status
+export const updateOrderChangeStatus = createAsyncThunk<
+  any,
+  OrderData,
+  { state: RootState }
+>("/order/update/change-status", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.patch(
+      `order/switchStatus/${params.id}`,
       params.data,
       config
     );
@@ -312,6 +388,26 @@ export const orderSlice = createSlice({
         state.message = error.message;
       })
 
+      // create-order-doc
+      .addCase(createOrderDocumentById.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(createOrderDocumentById.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(createOrderDocumentById.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
       // update-order
       .addCase(updateOrder.pending, (state) => {
         return {
@@ -327,6 +423,26 @@ export const orderSlice = createSlice({
         };
       })
       .addCase(updateOrder.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // update-order-status
+      .addCase(updateOrderChangeStatus.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(updateOrderChangeStatus.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(updateOrderChangeStatus.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

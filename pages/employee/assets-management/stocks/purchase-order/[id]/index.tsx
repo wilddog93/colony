@@ -1,4 +1,11 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import DefaultLayout from "../../../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
@@ -8,73 +15,59 @@ import {
   getAuthMe,
   selectAuth,
 } from "../../../../../../redux/features/auth/authReducers";
-import { ColumnDef } from "@tanstack/react-table";
 import Button from "../../../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
+  MdCheckCircle,
   MdChevronLeft,
+  MdClose,
   MdDelete,
-  MdEdit,
-  MdOutlineCalendarToday,
+  MdDocumentScanner,
+  MdDownload,
+  MdFileDownload,
+  MdFileUpload,
+  MdRemoveCircle,
   MdUnarchive,
   MdWarning,
 } from "react-icons/md";
 import SidebarComponent from "../../../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuAssets } from "../../../../../../utils/routes";
-import { SearchInput } from "../../../../../../components/Forms/SearchInput";
-import DropdownSelect from "../../../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../../../components/tables/layouts/server/SelectTables";
 import Modal from "../../../../../../components/Modal";
-import {
-  ModalFooter,
-  ModalHeader,
-} from "../../../../../../components/Modal/ModalComponent";
+import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { toast } from "react-toastify";
 import {
   OptionProps,
   ProductProps,
+  PurchaseOrderProps,
 } from "../../../../../../utils/useHooks/PropTypes";
 import {
-  deleteProduct,
   getProducts,
   selectProductManagement,
 } from "../../../../../../redux/features/assets/products/productManagementReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import {
-  createRequestOrder,
-  getRequests,
+  createRequestDocumentById,
+  deleteRequestDocumentById,
+  getRequestById,
   selectRequestManagement,
+  updateRequestChangeStatus,
 } from "../../../../../../redux/features/assets/stocks/requestReducers";
-import DatePicker from "react-datepicker";
-import {
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
 import FormProduct from "../../../../../../components/Forms/assets/FormProduct";
+import Cards from "../../../../../../components/Cards/Cards";
 import {
-  getVendorById,
-  selectVendorManagement,
-} from "../../../../../../redux/features/assets/vendor/vendorManagementReducers";
-import FormProductOrder from "../../../../../../components/Forms/assets/FormProductOrder";
-
-interface PropsData {
-  id?: number | any;
-  createdAt?: string | any;
-  updatedAt?: string | any;
-  productImage?: string | any;
-  productName?: string | any;
-  productDescription?: string | any;
-  productType?: any;
-  productCategory?: any;
-  unitMeasurement?: any;
-  brand?: any;
-  productMinimumStock?: number | any;
-}
+  convertBytes,
+  formatMoney,
+  toBase64,
+} from "../../../../../../utils/useHooks/useFunction";
+import { toast } from "react-toastify";
+import {
+  createOrderDocumentById,
+  getOrderById,
+  selectOrderManagement,
+  updateOrderChangeStatus,
+} from "../../../../../../redux/features/assets/stocks/orderReducers";
 
 type FormValues = {
   id?: number | string;
@@ -87,96 +80,7 @@ type Props = {
   pageProps: any;
 };
 
-const stylesSelectSort = {
-  indicatorsContainer: (provided: any) => ({
-    ...provided,
-    flexDirection: "row-reverse",
-  }),
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    display: "none",
-  }),
-  dropdownIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  clearIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  singleValue: (provided: any) => {
-    return {
-      ...provided,
-      color: "#5F59F7",
-    };
-  },
-  control: (provided: any, state: any) => {
-    return {
-      ...provided,
-      background: "",
-      padding: ".5rem",
-      borderRadius: ".75rem",
-      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-      color: "#5F59F7",
-      "&:hover": {
-        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
-      },
-      minHeight: 38,
-      flexDirection: "row-reverse",
-    };
-  },
-  menuList: (provided: any) => provided,
-};
-
-const stylesSelect = {
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    display: "none",
-  }),
-  dropdownIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  clearIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  singleValue: (provided: any) => {
-    return {
-      ...provided,
-      color: "#5F59F7",
-    };
-  },
-  control: (provided: any, state: any) => {
-    // console.log(provided, "control")
-    return {
-      ...provided,
-      background: "",
-      padding: ".5rem",
-      borderRadius: ".75rem",
-      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-      color: "#5F59F7",
-      "&:hover": {
-        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
-      },
-      minHeight: 38,
-      // flexDirection: "row-reverse"
-    };
-  },
-  menuList: (provided: any) => provided,
-};
-
-const RequestOrderDetail = ({ pageProps }: Props) => {
+const PurchaseDetails = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -187,26 +91,20 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { products, product } = useAppSelector(selectProductManagement);
-  const { requests } = useAppSelector(selectRequestManagement);
-  const { vendor } = useAppSelector(selectVendorManagement);
-  const { pending } = useAppSelector(selectRequestManagement);
+  const { order, pending } = useAppSelector(selectOrderManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [search, setSearch] = useState<string | any>(null);
-  const [requestOrderOpt, setRequestOrderOpt] = useState<OptionProps[]>([]);
-  const [requestOrderData, setRequestOrderData] = useState<any[]>([]);
-  const [isOpenRequestOrder, setIsOpenRequestOrder] = useState<boolean>(false);
+  const [formData, setFormData] = useState<any>(null);
+  const [files, setFiles] = useState<any[]>([]);
+  const [isOpenFiles, setIsOpenFiles] = useState<boolean>(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
-
-  // use-form
-  const [watchValue, setWatchValue] = useState<FormValues | any>(null);
-  const [watchChange, setWatchChange] = useState<any | null>(null);
+  const [isOpenDeleteDoc, setIsOpenDeleteDoc] = useState<boolean>(false);
 
   // date
   const dateTimeFormat = (value: any) => {
@@ -215,81 +113,16 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
     return date;
   };
 
-  // description-read
-  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
-  const onReadDescription = (val: any) => {
-    const idx = isHiddenDesc.indexOf(val);
-
-    if (idx > -1) {
-      // console.log("pus nihss");
-      const _selected = [...isHiddenDesc];
-      _selected.splice(idx, 1);
-      setIsHiddenDesc(_selected);
-    } else {
-      // console.log("push ini");
-      const _selected = [...isHiddenDesc];
-      _selected.push(val);
-      setIsHiddenDesc(_selected);
-    }
+  // discard modal
+  const onOpenDeleteDoc = (value: any) => {
+    setFormData(value);
+    setIsOpenDeleteDoc(true);
   };
 
-  // form
-  const {
-    unregister,
-    register,
-    getValues,
-    setValue,
-    handleSubmit,
-    watch,
-    reset,
-    setError,
-    clearErrors,
-    formState: { errors, isValid },
-    control,
-  } = useForm({
-    mode: "all",
-    defaultValues: useMemo<FormValues>(
-      () => ({
-        id: product?.id,
-        requestNumber: product?.requestNumber,
-        requestDescription: product?.requestDescription,
-        products: product?.products,
-      }),
-      [product]
-    ),
-  });
-
-  useEffect(() => {
-    if (product) {
-      reset({
-        id: product?.id,
-        requestNumber: product?.requestNumber,
-        requestDescription: product?.requestDescription,
-        products: product?.products,
-      });
-    }
-  }, [product]);
-
-  useEffect(() => {
-    const subscription = watch((value, { name, type }): any => {
-      if (value) {
-        setWatchValue(value);
-        setWatchChange({ name, type });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch]);
-
-  const { fields, remove, replace } = useFieldArray({
-    control,
-    name: "products",
-  });
-
-  // description
-  const descValue = useWatch({
-    name: "requestDescription",
-    control,
-  });
+  const onCloseDeleteDoc = () => {
+    setFormData(null);
+    setIsOpenDeleteDoc(false);
+  };
 
   // discard modal
   const onOpenDiscard = () => {
@@ -300,111 +133,19 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
     setIsOpenDiscard(false);
   };
 
-  // product modal
-  const onOpenProduct = (items: any) => {
-    setRequestOrderData(items);
-    setIsOpenRequestOrder(true);
+  // document modal
+  const onOpenFiles = () => {
+    setIsOpenFiles(true);
   };
 
-  const onCloseProduct = () => {
-    setIsOpenRequestOrder(false);
+  const onCloseFiles = () => {
+    setIsOpenFiles(false);
   };
 
-  // product
-  const filters = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-    const search = {
-      $and: [
-        { requestType: { $eq: "Order" } },
-        { requestStatus: { $in: ["On-Progress", "Approve"] } },
-      ],
-    };
-
-    qb.search(search);
-    qb.sortBy({
-      field: `createdAt`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, [search]);
-
+  // get request-by-id
   useEffect(() => {
-    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
-  }, [token, filters]);
-
-  useEffect(() => {
-    let newArr: any[] = [];
-    const { data } = requests;
-    if (data && data?.length > 0) {
-      data?.map((item: any) => {
-        item?.requestProducts?.map((x: any) => {
-          newArr.push({
-            ...x,
-            requestNumber: item?.requestNumber,
-            currentQty: (x?.requestQty || 0) - (x?.requestQtyCompleted || 0),
-            value: x?.id,
-            label: x?.product?.productName,
-          });
-        });
-      });
-    }
-    setRequestOrderOpt(newArr);
-  }, [requests]);
-
-  console.log(requestOrderOpt, "options");
-
-  const qtyHandler = ({ value, index }: any) => {
-    if (!value) {
-      delete requestOrderData[index]?.qty;
-    }
-    let items = [...requestOrderData];
-    // items[index].productOrderQty = parseInt(`${value}`);
-    items[index].qty = parseInt(`${value}`);
-    setRequestOrderData([...items]);
-  };
-
-  const onDeleteProduct = (id: any) => {
-    if (!id) return;
-    let filter = requestOrderData?.filter((e) => e?.id !== id);
-    setRequestOrderData(filter);
-  };
-
-  // on-submit
-  const onSubmit: SubmitHandler<FormValues> = (value) => {
-    let newObj: FormValues = {
-      requestNumber: value.requestNumber,
-      requestDescription: value.requestDescription,
-      products:
-        value?.products && value?.products?.length > 0
-          ? value?.products?.map(({ id, qty }) => ({
-              id,
-              qty,
-            }))
-          : [],
-    };
-    if (value?.products && value?.products?.length > 0) {
-      dispatch(
-        createRequestOrder({
-          token,
-          data: newObj,
-          isSuccess: () => {
-            toast.dark("Create Request Order Success");
-            setTimeout(() => {
-              router.back();
-            }, 2500);
-          },
-          isError: () => {
-            toast.dark("Create Request Order Failed");
-          },
-        })
-      );
-    } else {
-      toast.dark("Please add products to request order!");
-    }
-
-    console.log(newObj, "form");
-  };
+    if (token) dispatch(getOrderById({ token, id: query?.id }));
+  }, [token, query?.id]);
 
   useEffect(() => {
     if (token) {
@@ -417,48 +158,225 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  useEffect(() => {
-    if (requestOrderData?.length > 0) {
-      setValue("products", requestOrderData);
-    } else {
-      setValue("products", []);
-    }
-  }, [requestOrderData]);
-
-  useEffect(() => {
-    if (requestOrderData?.length > 0) {
-      requestOrderData.map((item, idx) => {
-        const qty = item["qty"];
-        if (!qty || qty == 0) {
-          setError(`products.${idx}.qty`, {
-            type: "required",
-            message: "Qty is required",
-          });
-        } else {
-          clearErrors(`products.${idx}.qty`);
-        }
-      });
-    }
-  }, [requestOrderData]);
-
   const onDiscardRequest = () => {
     setLoading(true);
     router.back();
   };
 
-  useEffect(() => {
-    if (token && query?.id) {
-      dispatch(getVendorById({ token, id: query?.id }));
+  // handle-upload-docs
+  const onSelectMultiImage = (e: ChangeEvent<HTMLInputElement>) => {
+    const filePathsPromises: any[] = [];
+    const fileObj = e.target.files;
+    const preview = async () => {
+      if (fileObj) {
+        const totalFiles = e?.target?.files?.length;
+        if (totalFiles) {
+          for (let i = 0; i < totalFiles; i++) {
+            const img = fileObj[i];
+            // console.log(img, 'image obj')
+            filePathsPromises.push(toBase64(img));
+            const filePaths = await Promise.all(filePathsPromises);
+            const mappedFiles = filePaths.map((base64File) => ({
+              documentNumber: "",
+              documentName: base64File?.name,
+              documentSize: base64File?.size,
+              documentSource: base64File?.images,
+            }));
+            setFiles(mappedFiles);
+          }
+        }
+      }
+    };
+    if (!fileObj) {
+      return null;
+    } else {
+      preview();
     }
-  }, [query?.id, token]);
+  };
 
-  console.log(vendor, "vendor-data");
+  // upload-docs
+  const onUploadDocument = (value: any) => {
+    if (!value) {
+      return;
+    }
+    let newObj = value?.document?.length > 0 ? value?.document[0] : "";
+    console.log(newObj, "document");
+    dispatch(
+      createOrderDocumentById({
+        token,
+        id: value?.id,
+        data: newObj,
+        isSuccess: () => {
+          toast.dark("Document has been uploaded");
+          dispatch(getOrderById({ token, id: query?.id }));
+          onCloseFiles();
+        },
+        isError: () => {
+          console.log("Something went wrong!");
+        },
+      })
+    );
+  };
+
+  // delete-file-docs
+  const onDeleteFiles = (id: any) => {
+    if (fileRef.current) {
+      fileRef.current.value = "";
+      setFiles(files.splice(id, 0));
+    }
+  };
+
+  // delete-doc
+  const onDeleteDoc = (value: any) => {
+    if (!value) return;
+    dispatch(
+      deleteRequestDocumentById({
+        token,
+        id: query?.id,
+        documentId: value,
+        isSuccess: () => {
+          toast.dark("Document has been deleted");
+          dispatch(getOrderById({ token, id: query?.id }));
+          onCloseDeleteDoc();
+        },
+        isError: () => {
+          console.log("Something went wrong!");
+        },
+      })
+    );
+  };
+
+  // chnage doc No.
+  const onChangeDocNo = ({ value, idx }: any) => {
+    let items = [...files];
+    items[idx] = { ...items[idx], documentNumber: value };
+    setFiles(items);
+  };
+
+  // download-doc
+  const onDownloadDocument = async ({ url, name }: any) => {
+    async function toDataURL(url: any) {
+      const blob = await fetch(url).then((res) => res.blob());
+      return URL.createObjectURL(blob);
+    }
+    if (url) {
+      const a = document.createElement("a");
+      a.href = await toDataURL(url);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  const orderProducts = useMemo(() => {
+    let productsList: PurchaseOrderProps[] = [];
+    const { orderProducts } = order;
+    if (!orderProducts) {
+      return productsList;
+    } else {
+      orderProducts?.map((item: any) => {
+        productsList.push(item);
+      });
+    }
+    return productsList;
+  }, [order]);
+
+  const documentOrder = useMemo(() => {
+    let document: any[] = [];
+    const { documents } = order;
+    if (!documents) {
+      return document;
+    } else {
+      documents?.map((item: any) => {
+        document.push(item);
+      });
+    }
+    return document;
+  }, [order]);
+
+  const onChangeApproval = (status: any) => {
+    if (!status) return;
+    else if (status == "Waiting") {
+      let obj = { status: "Approve" };
+      dispatch(
+        updateOrderChangeStatus({
+          token,
+          id: query?.id,
+          data: obj,
+          isSuccess: () => {
+            toast.dark("Purchase Order has been approved");
+            dispatch(getOrderById({ token, id: query?.id }));
+          },
+          isError: () => {
+            console.log("Something went wrong!");
+          },
+        })
+      );
+    } else {
+      let obj = { status: "Mark As Complete" };
+      dispatch(
+        updateOrderChangeStatus({
+          token,
+          id: query?.id,
+          data: obj,
+          isSuccess: () => {
+            toast.dark("Purchase Order has been Mark as completed");
+            dispatch(getOrderById({ token, id: query?.id }));
+          },
+          isError: () => {
+            console.log("Something went wrong!");
+          },
+        })
+      );
+    }
+  };
+
+  const onChangeReject = (status: any) => {
+    let obj: any = undefined;
+    if (!status) return;
+    else if (status == "Waiting") {
+      obj = { status: "Rejected" };
+      dispatch(
+        updateOrderChangeStatus({
+          token,
+          id: query?.id,
+          data: obj,
+          isSuccess: () => {
+            toast.dark("Purchase Order has been approved");
+            dispatch(getOrderById({ token, id: query?.id }));
+          },
+          isError: () => {
+            console.log("Something went wrong!");
+          },
+        })
+      );
+    } else if (status == "Approve") {
+      obj = { status: "Cancel" };
+      dispatch(
+        updateRequestChangeStatus({
+          token,
+          id: query?.id,
+          data: obj,
+          isSuccess: () => {
+            toast.dark("Request has been approved");
+            dispatch(getRequestById({ token, id: query?.id }));
+          },
+          isError: () => {
+            console.log("Something went wrong!");
+          },
+        })
+      );
+    }
+  };
+
+  console.log(orderProducts, "order-data");
 
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Form Purchase Order"
+      head="Details Purchase Order"
       logo="../../../../image/logo/logo-icon.svg"
       images="../../../../image/logo/building-logo.svg"
       userDefault="../../../../image/user/user-01.png"
@@ -493,66 +411,48 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
             </button>
           </div>
 
-          <div className="sticky bg-white top-0 z-50 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4 text-gray-6">
+          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4">
             {/* headers */}
-            <div className="w-full flex flex-col divide-y-2 divide-gray">
-              <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 py-6">
-                <div className="w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0">
-                  <button
-                    type="button"
-                    className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
-                    onClick={() => onOpenDiscard()}
-                    key={"1"}>
-                    <div className="flex gap-1 items-center">
-                      <MdChevronLeft className="w-6 h-6" />
-                      <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
-                        <span className="hidden lg:inline-block">
-                          Purchase Order
-                        </span>
-                      </h3>
-                    </div>
-                  </button>
-                  <div className="w-full max-w-[10rem] text-primary">
-                    <input
-                      type="text"
-                      className={`w-full border-2 border-gray-5 px-2 py-1 focus:outline-none focus:border-primary text-lg rounded-lg ${
-                        errors?.requestNumber
-                          ? "border-danger focus:ring-danger"
-                          : ""
-                      }`}
-                      {...register("requestNumber", {
-                        required: {
-                          value: true,
-                          message: "Request No. is required",
-                        },
-                      })}
-                    />
-                    {errors?.requestNumber && (
-                      <div className="mt-1 text-xs flex items-center text-red-300">
-                        <MdWarning className="w-4 h-4 mr-1" />
-                        <span className="text-red-300">
-                          {errors.requestNumber.message as any}
-                        </span>
-                      </div>
-                    )}
+            <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+              <div className="w-full flex flex-col lg:flex-row gap-2 items-center mx-auto lg:mx-0">
+                <button
+                  type="button"
+                  className="rounded-lg text-sm font-semibold border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
+                  onClick={() => onOpenDiscard()}
+                  key={"1"}>
+                  <div className="flex gap-1 items-center">
+                    <MdChevronLeft className="w-6 h-6" />
+                    <h3 className="w-full text-center text-xl font-semibold text-graydark">
+                      <span className="inline-block">Purchase Order</span>
+                    </h3>
                   </div>
+                </button>
+                <div className="w-full max-w-max text-primary">
+                  <p className="font-semibold uppercase">
+                    {order?.orderNumber ? `#${order?.orderNumber}` : "-"}
+                  </p>
                 </div>
+                <div className="w-full max-w-max flex flex-col lg:flex-row items-center gap-2 text-gray-6 text-sm">
+                  <span
+                    className={`w-full max-w-max flex items-center p-1 rounded ${
+                      order?.orderStatus == "Waiting"
+                        ? "border border-yellow-400 bg-yellow-50 text-yellow-400"
+                        : "border border-primary bg-blue-100 text-primary"
+                    }`}>
+                    {order?.orderStatus}
+                  </span>
+                  <div>{dateTimeFormat(order?.updatedAt)}</div>
+                </div>
+              </div>
 
-                <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
+              <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
+                {order?.orderStatus == "Waiting" ||
+                order?.orderStatus == "Approve" ? (
                   <button
                     type="button"
-                    className="rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1"
-                    onClick={() => onOpenDiscard()}>
-                    <MdDelete className="w-4 h-4 inline-block lg:hidden" />
-                    <span className="hidden lg:inline-block">Cancel</span>
-                  </button>
-
-                  <Button
-                    type="button"
-                    className="rounded-lg text-sm font-semibold py-3 border border-primary active:scale-90 shadow-2"
-                    onClick={handleSubmit(onSubmit)}
-                    disabled={pending}
-                    variant="primary">
+                    className={`rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1`}
+                    onClick={() => onChangeReject(order?.orderStatus)}
+                    disabled={pending}>
                     {pending ? (
                       <Fragment>
                         <span className="hidden lg:inline-block">
@@ -563,221 +463,229 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          New Request
+                          {order?.orderStatus == "Waiting"
+                            ? "Reject"
+                            : "Cancel"}
                         </span>
-                        <MdAdd className="w-4 h-4" />
+                        <MdRemoveCircle className="w-4 h-4 inline-block lg:hidden" />
                       </Fragment>
                     )}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="w-full grid grid-cols-2 lg:flex-row items-start divide-x-2 divide-gray">
-                <div className="w-full flex flex-col p-4 text-sm">
-                  <div className="w-full flex items-center gap-2">
-                    <div className="font-semibold">Vendor :</div>
-                    <p className="">{vendor?.vendorName || "-"}</p>
-                  </div>
-                  <div className="w-full flex items-center gap-2">
-                    <div className="font-semibold">Purchase date :</div>
-                    <p className="">{dateTimeFormat(query?.date)}</p>
-                  </div>
-                </div>
-
-                <div className="w-full flex flex-col p-4 text-sm">
-                  <div className="font-semibold">Description :</div>
-                  <p className="">
-                    {vendor?.vendorDescription?.length > 70 &&
-                    !isHiddenDesc.includes(vendor?.id)
-                      ? `${vendor?.vendorDescription.substring(70, 0)} ...`
-                      : vendor?.vendorDescription || "-"}
-                  </p>
-                  <button
-                    onClick={() => onReadDescription(vendor?.id)}
-                    className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
-                      vendor?.vendorDescription?.length > 70 ? "" : "hidden"
-                    }`}>
-                    {isHiddenDesc.includes(vendor?.id) ? "Hide" : "Show"}
                   </button>
-                </div>
+                ) : null}
+
+                {order?.orderStatus !== "Waiting" ||
+                order?.orderStatus !== "On-Progress" ? (
+                  <button
+                    type="button"
+                    className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
+                    onClick={() => onChangeApproval(order?.orderStatus)}
+                    disabled={pending || documentOrder?.length == 0}>
+                    {pending ? (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          Loading...
+                        </span>
+                        <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                      </Fragment>
+                    ) : (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          {order?.orderStatus == "Waiting"
+                            ? "Approve"
+                            : "Mark As Complete"}
+                        </span>
+                        <MdCheckCircle className="w-4 h-4" />
+                      </Fragment>
+                    )}
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
 
-          <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-            <div className="grid grid-cols-1 text-gray-6">
-              <div className="col-span-1 rounded-lg">
-                <table className="w-full rounded-lg">
-                  <thead className="text-lefttext-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Product Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Product Type
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Current Stock
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Min Stock
-                      </th>
-                      <th
-                        scope="col"
-                        className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                        Request Qty
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                    {requestOrderData?.length > 0 ? (
-                      requestOrderData?.map((e: any, idx: any) => {
-                        return (
-                          <tr
-                            key={idx}
-                            className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                            <td className="w-[250px]">
-                              <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                <img
-                                  src={
-                                    e?.productImages
-                                      ? `${url}product/files/${e?.productImages}`
-                                      : "../../../../image/no-image.jpeg"
-                                  }
-                                  alt="img-product"
-                                  className="object cover object-center w-6 h-6 rounded mr-1"
-                                />
-                                <div>{e.productName}</div>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.productType}</div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.productQty}</div>
-                            </td>
-                            <td className="p-4">
-                              <div>{e?.productMinimumStock || 0}</div>
-                            </td>
-                            <td className="p-4">
-                              <input
-                                min={0}
-                                onChange={({ target }) => {
-                                  if (!!!target?.value) {
-                                    setError(`products.${idx}.qty`, {
-                                      type: "required",
-                                      message: "Qty is required",
-                                    });
-                                  } else {
-                                    clearErrors(`products.${idx}.qty`);
-                                  }
-                                  qtyHandler({
-                                    value: target.value,
-                                    index: idx,
-                                  });
-                                }}
-                                value={requestOrderData[idx]?.qty}
-                                type="number"
-                                className={`w-14 max-w-max py-1 px-2 bg-gray border rounded focus:outline-none focus:ring-1 disabled:bg-transparent disabled:border-0 ${
-                                  errors?.products?.[idx]?.qty
-                                    ? "border-danger focus:ring-danger"
-                                    : "border-gray focus:ring-primary"
-                                }`}
-                              />
-
-                              {/* {errors?.products?.[idx]?.qty && (
-                                <div className="mt-1 text-xs flex items-center text-red-300">
-                                  <span className="text-red-300">
-                                    {
-                                      errors?.products?.[idx]?.qty
-                                        ?.message as any
-                                    }
-                                  </span>
-                                </div>
-                              )} */}
-                            </td>
-                            <td className="p-4">
-                              <button
-                                className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
-                                type="button"
-                                onClick={() => onDeleteProduct(e?.id)}>
-                                <MdDelete className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
+          <div className="w-full grid col-span-1 lg:grid-cols-3 gap-2 py-4">
+            <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 lg:col-span-2">
+              <div className="w-full grid grid-cols-2 items-center">
+                <h3 className="text-lg font-bold tracking-widest">
+                  Ordered Items
+                </h3>
+                <div className="w-full flex justify-end">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    className="rounded-lg border border-primary active:scale-90"
+                    onClick={() => console.log("download-data")}>
+                    <span className="text-xs">Download</span>
+                    <MdDownload className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 text-gray-6">
+                <div className="col-span-1 overflow-x-auto">
+                  <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
+                    <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
                       <tr>
-                        <td colSpan={12} className="p-4">
-                          <div className="text-sm italic text-gray-500 font-semibold">
-                            There is no product data.
-                          </div>
-                        </td>
+                        <th
+                          scope="col"
+                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
+                          Product Name
+                        </th>
+                        <th
+                          scope="col"
+                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
+                          Order Qty
+                        </th>
+                        <th
+                          scope="col"
+                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
+                          Ordered Qty
+                        </th>
+                        <th
+                          scope="col"
+                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
+                          Total Price
+                        </th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
+                      {orderProducts?.length > 0 ? (
+                        orderProducts?.map((e: any, idx: any) => {
+                          return (
+                            <tr
+                              key={idx}
+                              className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                              <td className="w-[350px]">
+                                <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
+                                  <img
+                                    src={
+                                      e?.product?.productImages
+                                        ? `${url}product/productImage/${e?.product?.productImages}`
+                                        : "../../../../image/no-image.jpeg"
+                                    }
+                                    alt="img-product"
+                                    className="object cover object-center w-6 h-6 rounded mr-1"
+                                  />
+                                  <div>{e?.product?.productName}</div>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <div>{e?.orderQty | 0}</div>
+                              </td>
+                              <td className="p-4 text-center">
+                                <div>{e?.requestQtyCompleted || 0}</div>
+                              </td>
+                              <td className="p-4 text-center">
+                                <div>
+                                  <span>Rp.</span>
+                                  {e?.orderPrice
+                                    ? formatMoney({ amount: e?.orderPrice })
+                                    : "0"}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={12} className="p-4">
+                            <div className="text-sm italic text-gray-500 font-semibold">
+                              There is no request product data.
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="border-b-2 border-gray w-full h-2 my-3"></div>
+
+              <div className="w-full mb-3">
+                <label
+                  className="col-span-1 font-semibold"
+                  htmlFor="orderDescription">
+                  Notes :
+                </label>
+                <div className="w-full col-span-4 h-full min-h-[100px] overflow-y-auto">
+                  <p className="w-full tracking-wide text-sm text-left">
+                    {order?.orderDescription}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="primary"
-              className="rounded-lg border border-primary active:scale-90"
-              onClick={() => onOpenProduct(requestOrderData)}>
-              <span className="text-xs">Add Product</span>
-              <MdAdd className="w-4 h-4" />
-            </Button>
-
-            <div className="border-b-2 border-gray w-full h-2 my-3"></div>
-
-            <div className="w-full mb-3">
-              <label
-                className="col-span-1 font-semibold"
-                htmlFor="requestDescription">
-                Notes
-              </label>
-              <div className="w-full col-span-4">
-                <div className="relative">
-                  <textarea
-                    cols={0.5}
-                    rows={5}
-                    maxLength={400}
-                    placeholder="Notes..."
-                    className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    {...register("requestDescription")}
-                  />
-                  <div className="mt-1 text-xs flex items-center justify-end">
-                    <span className="text-graydark">
-                      {descValue?.length || 0} / 400 characters.
-                    </span>
+            <div className="w-full flex flex-col gap-2">
+              {/* card */}
+              <Cards className="w-full border border-gray rounded-xl shadow-card text-gray-6 text-sm">
+                <div className="w-full p-4 grid grid-cols-2 gap-1 items-center">
+                  <h3 className="font-semibold">
+                    File Uploaded <span className="text-primary">*</span>
+                  </h3>
+                  <div className="w-full flex justify-end">
+                    <button
+                      onClick={() => onOpenFiles()}
+                      type="button"
+                      className="w-full max-w-max inline-flex border-2 border-gray rounded-lg justify-center items-center focus:outline-none focus:border-primary active:scale-95 px-2 py-1">
+                      <MdFileUpload className="w-4 h-4" />
+                      <span className="font-semibold">Upload File</span>
+                    </button>
                   </div>
                 </div>
-              </div>
+
+                <div className="w-full border-b-2 border-gray"></div>
+
+                <div className="w-full p-4 h-full max-h-[250px] overflow-y-auto">
+                  {documentOrder && documentOrder?.length > 0 ? (
+                    documentOrder?.map((file, id) => {
+                      let pathname = `${url}document/documentSource/${file?.documentSource}`;
+                      return (
+                        <div
+                          key={id}
+                          className="w-full grid grid-cols-5 gap-2 text-xs">
+                          <button
+                            onClick={() =>
+                              onDownloadDocument({
+                                url: pathname,
+                                name: file?.documentName,
+                              })
+                            }
+                            type="button"
+                            className="w-full flex border-2 border-gray rounded-lg justify-center items-center focus:outline-none focus:border-primary active:scale-95">
+                            <MdFileDownload className="w-6 h-6" />
+                          </button>
+
+                          <div className="w-full col-span-3">
+                            <div className="font-semibold">
+                              {file?.documentName?.length > 15
+                                ? `${file?.documentName?.substring(15, 0)}...`
+                                : file?.documentName || "-"}
+                            </div>
+                            <div>
+                              {file?.documentSize
+                                ? convertBytes({ bytes: file?.documentSize })
+                                : "-"}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => onOpenDeleteDoc(file)}
+                            type="button"
+                            className="w-full flex border-2 border-gray rounded-lg justify-center items-center focus:outline-none focus:border-primary active:scale-95">
+                            <MdDelete className="w-5 h-5" />
+                          </button>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div>File not found.</div>
+                  )}
+                </div>
+              </Cards>
             </div>
           </div>
         </div>
       </div>
-
-      {/* modal */}
-      <Modal isOpen={isOpenRequestOrder} onClose={onCloseProduct} size="small">
-        <FormProductOrder
-          closeModal={onCloseProduct}
-          options={requestOrderOpt}
-          items={requestOrderData}
-          setItems={setRequestOrderData}
-          defaultImage="../../../../image/no-image.jpeg"
-        />
-      </Modal>
 
       {/* discard modal */}
       <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
@@ -817,6 +725,147 @@ const RequestOrderDetail = ({ pageProps }: Props) => {
           </div>
         </Fragment>
       </Modal>
+
+      {/* upload modal */}
+      <Modal size="medium" onClose={onCloseFiles} isOpen={isOpenFiles}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray"
+            isClose={true}
+            onClick={onCloseFiles}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-semibold">Upload Files</h3>
+              <p className="text-gray-5 text-sm">
+                Fill your document information.
+              </p>
+            </div>
+          </ModalHeader>
+
+          <div className="w-full p-4 border-b-2 border-gray overflow-hidden">
+            {files && files?.length > 0
+              ? files?.map((file, id) => {
+                  return (
+                    <div className="w-full flex gap-2">
+                      <div className="w-1/2 flex flex-col gap-2">
+                        <div className="font-semibold">Document Name</div>
+                        <div className="w-full grid grid-cols-6 gap-2">
+                          <div className="w-full flex max-w-[50px] h-[50px] min-h-[50px] border border-gray shadow-card rounded-lg justify-center items-center">
+                            <MdDocumentScanner className="w-6 h-6" />
+                          </div>
+                          <div className="w-full col-span-5 text-sm">
+                            <p>{file?.documentName}</p>
+                            <p>
+                              {file?.documentSize
+                                ? convertBytes({ bytes: file?.documentSize })
+                                : "-"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="w-1/2 flex flex-col gap-2">
+                        <label htmlFor="documentNumber">
+                          Document No. <span className="text-primary">*</span>
+                        </label>
+                        <div className="w-full flex gap-1">
+                          <input
+                            type="text"
+                            value={file?.documentNumber || ""}
+                            onChange={({ target }) =>
+                              onChangeDocNo({ value: target.value, idx: id })
+                            }
+                            placeholder="Document No."
+                            className="w-full text-sm rounded-lg border border-stroke bg-transparent py-1.5 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent"
+                          />
+                          <div className="w-full max-w-max flex justify-center items-center">
+                            <Button
+                              type="button"
+                              variant="danger"
+                              className={`rounded-lg text-sm py-1 px-2 shadow-card hover:opacity-90 active:scale-95 ml-auto`}
+                              onClick={() => onDeleteFiles(id)}>
+                              <MdDelete className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              : null}
+            <input
+              type="file"
+              id="document"
+              placeholder="Upload Document"
+              autoFocus
+              className={`w-full focus:outline-none max-w-max text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100 ${
+                files?.length > 0 ? "hidden" : ""
+              }`}
+              onChange={onSelectMultiImage}
+              ref={fileRef}
+              accept="application/pdf,application/vnd.ms-excel"
+            />
+          </div>
+
+          <div className="w-full flex items-center p-4 justify-end gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full rounded-lg border-2 border-primary active:scale-90"
+              onClick={() =>
+                onUploadDocument({ document: files, id: query?.id })
+              }
+              disabled={pending}>
+              {!pending ? (
+                <span className="text-xs">Save</span>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              )}
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
+
+      {/* delete document modal */}
+      <Modal size="small" onClose={onCloseDeleteDoc} isOpen={isOpenDeleteDoc}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseDeleteDoc}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-semibold">Delete</h3>
+              <p className="text-gray-5">{`Are you sure to delete document?`}</p>
+            </div>
+          </ModalHeader>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
+            <button
+              type="button"
+              className="rounded-lg border-2 px-2 py-1 border-gray-5 shadow-2 active:scale-90 focus:outline-none"
+              onClick={onCloseDeleteDoc}>
+              <span className="text-xs font-semibold">No</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary active:scale-90"
+              onClick={() => onDeleteDoc(formData?.id)}
+              disabled={pending}>
+              {!pending ? (
+                <span className="text-xs">Yes, Delete</span>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              )}
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
     </DefaultLayout>
   );
 };
@@ -844,4 +893,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default RequestOrderDetail;
+export default PurchaseDetails;

@@ -306,6 +306,22 @@ const RequestDetails = ({ pageProps }: Props) => {
           },
         })
       );
+    } else {
+      let obj = { status: "Mark As Complete" };
+      dispatch(
+        updateRequestChangeStatus({
+          token,
+          id: query?.id,
+          data: obj,
+          isSuccess: () => {
+            toast.dark("Request has been approved");
+            dispatch(getRequestById({ token, id: query?.id }));
+          },
+          isError: () => {
+            console.log("Something went wrong!");
+          },
+        })
+      );
     }
   };
 
@@ -450,29 +466,32 @@ const RequestDetails = ({ pageProps }: Props) => {
                   </button>
                 ) : null}
 
-                <button
-                  type="button"
-                  className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100 ${
-                    request?.requestStatus !== "Waiting" ? "hidden" : ""
-                  }`}
-                  onClick={() => onChangeApproval(request?.requestStatus)}
-                  disabled={pending || documentRequest?.length == 0}>
-                  {pending ? (
-                    <Fragment>
-                      <span className="hidden lg:inline-block">Loading...</span>
-                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
-                    </Fragment>
-                  ) : (
-                    <Fragment>
-                      <span className="hidden lg:inline-block">
-                        {request?.requestStatus == "Waiting"
-                          ? "Approve"
-                          : request?.requestStatus}
-                      </span>
-                      <MdCheckCircle className="w-4 h-4" />
-                    </Fragment>
-                  )}
-                </button>
+                {request?.requestStatus !== "Waiting" ||
+                request?.requestStatus !== "On-Progress" ? (
+                  <button
+                    type="button"
+                    className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
+                    onClick={() => onChangeApproval(request?.requestStatus)}
+                    disabled={pending || documentRequest?.length == 0}>
+                    {pending ? (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          Loading...
+                        </span>
+                        <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                      </Fragment>
+                    ) : (
+                      <Fragment>
+                        <span className="hidden lg:inline-block">
+                          {request?.requestStatus == "Waiting"
+                            ? "Approve"
+                            : "Mark As Complete"}
+                        </span>
+                        <MdCheckCircle className="w-4 h-4" />
+                      </Fragment>
+                    )}
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
@@ -480,7 +499,9 @@ const RequestDetails = ({ pageProps }: Props) => {
           <div className="w-full grid col-span-1 lg:grid-cols-3 gap-2 py-4">
             <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 lg:col-span-2">
               <div className="w-full grid grid-cols-2 items-center">
-                <h3 className="text-lg font-bold">Requested Items</h3>
+                <h3 className="text-lg font-bold tracking-widest">
+                  Requested Items
+                </h3>
                 <div className="w-full flex justify-end">
                   <Button
                     type="button"
@@ -492,6 +513,7 @@ const RequestDetails = ({ pageProps }: Props) => {
                   </Button>
                 </div>
               </div>
+
               <div className="grid grid-cols-1 text-gray-6">
                 <div className="col-span-1 overflow-x-auto">
                   <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
@@ -531,7 +553,7 @@ const RequestDetails = ({ pageProps }: Props) => {
                                   <img
                                     src={
                                       e?.product?.productImages
-                                        ? `${url}product/files/${e?.product?.productImages}`
+                                        ? `${url}product/productImage/${e?.product?.productImages}`
                                         : "../../../../image/no-image.jpeg"
                                     }
                                     alt="img-product"

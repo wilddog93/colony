@@ -240,7 +240,7 @@ const Products = ({ pageProps }: Props) => {
     let color = "#333";
     switch (value) {
       case "Approve":
-        color = "#3CCF4E";
+        color = "#5F59F7";
         break;
       case "Declined":
         color = "#FF1E00";
@@ -270,7 +270,18 @@ const Products = ({ pageProps }: Props) => {
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
           const { id } = row?.original;
-          return <div className="w-full">{getValue() || "-"}</div>;
+          return (
+            <button
+              type="button"
+              onClick={() =>
+                router.push({
+                  pathname: `/employee/assets-management/stocks/purchase-order/${id}`,
+                })
+              }
+              className="w-full text-left font-semibold text-primary hover:underline active:scale-90 uppercase">
+              {getValue() || "-"}
+            </button>
+          );
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
