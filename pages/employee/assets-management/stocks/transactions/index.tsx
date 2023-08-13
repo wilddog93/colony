@@ -39,6 +39,10 @@ import {
   getVendors,
   selectVendorManagement,
 } from "../../../../../redux/features/assets/vendor/vendorManagementReducers";
+import {
+  getTransactions,
+  selectTransactionManagement,
+} from "../../../../../redux/features/assets/stocks/transactionReducers";
 
 type Props = {
   pageProps: any;
@@ -49,17 +53,28 @@ const sortOpt: OptionProps[] = [
   { value: "DESC", label: "Z-A" },
 ];
 
+const typesOptFilter: OptionProps[] = [
+  { value: "order", label: "Order" },
+  { value: "usage", label: "Usage" },
+  { value: "move", label: "Move" },
+  { value: "out", label: "Asset Out" },
+  { value: "StockTaking", label: "Stock Taking" },
+];
+
 const typesOpt: OptionProps[] = [
-  { value: "Asset", label: "Asset" },
-  { value: "Inventory", label: "Inventory" },
+  { value: "order", label: "Product Received - Order" },
+  { value: "usage", label: "Product Out - Usage" },
+  { value: "move", label: "Product Out - Move" },
+  { value: "out", label: "Product Retirement - Asset Out" },
+  {
+    value: "stock taking",
+    label: "Product Reconciliation - Stock Taking",
+  },
 ];
 
 const statusOpt: OptionProps[] = [
-  { value: "Approved", label: "Approved" },
   { value: "Complete", label: "Complete" },
-  { value: "Declined", label: "Declined" },
-  { value: "Mark As Done", label: "Mark As Done" },
-  { value: "On-Progress", label: "On-Progress" },
+  { value: "Rejected", label: "Rejected" },
   { value: "Waiting", label: "Waiting" },
 ];
 
@@ -152,7 +167,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const Products = ({ pageProps }: Props) => {
+const Transactions = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -163,13 +178,15 @@ const Products = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { orders, pending } = useAppSelector(selectOrderManagement);
+  const { orders } = useAppSelector(selectOrderManagement);
+  const { transactions, pending } = useAppSelector(selectTransactionManagement);
   const { vendors } = useAppSelector(selectVendorManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
   const [sort, setSort] = useState<OptionProps | any>(null);
   const [status, setStatus] = useState<OptionProps | any>(null);
+  const [types, setTypes] = useState<OptionProps | any>(null);
   const [loading, setLoading] = useState(false);
 
   // data-table
@@ -182,8 +199,10 @@ const Products = ({ pageProps }: Props) => {
 
   // modal to form
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
-  const [isVendor, setIsVendor] = useState<OptionProps | any>(null);
-  const [date, setDate] = useState<Date | any>(new Date());
+  const [formData, setFormData] = useState<any>(null);
+  const [transactionType, setTransactionType] = useState<OptionProps | any>(
+    null
+  );
 
   // description-read
   const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
@@ -204,17 +223,6 @@ const Products = ({ pageProps }: Props) => {
   };
 
   // date
-  const now = new Date();
-  const [start, setStart] = useState(
-    new Date(now.getFullYear(), now.getMonth(), 1)
-  );
-  const [end, setEnd] = useState(
-    new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  );
-  const [dateRange, setDateRange] = useState<Date[]>([start, end]);
-  const [startDate, endDate] = dateRange;
-
-  // date
   const dateTimeFormat = (value: any) => {
     if (!value) return "-";
     const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
@@ -226,8 +234,7 @@ const Products = ({ pageProps }: Props) => {
     setIsOpenForm(true);
   };
   const onCloseForm = () => {
-    setIsVendor(null);
-    setDate(new Date());
+    setTransactionType(null);
     setIsOpenForm(false);
   };
 
@@ -261,7 +268,7 @@ const Products = ({ pageProps }: Props) => {
   const columns = useMemo<ColumnDef<PurchaseOrderProps, any>[]>(
     () => [
       {
-        accessorKey: "orderNumber",
+        accessorKey: "transactionNumber",
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
           const { id } = row?.original;
@@ -270,7 +277,7 @@ const Products = ({ pageProps }: Props) => {
               type="button"
               onClick={() =>
                 router.push({
-                  pathname: `/employee/assets-management/stocks/purchase-order/${id}`,
+                  pathname: `/employee/assets-management/stocks/transaction/${id}`,
                 })
               }
               className="w-full text-left font-semibold text-primary hover:underline active:scale-90 uppercase">
@@ -284,8 +291,8 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "orderDescription",
-        header: (info) => <div className="uppercase">Notes</div>,
+        accessorKey: "transactionDescription",
+        header: (info) => <div className="uppercase">Description</div>,
         cell: ({ row, getValue }) => {
           const { id } = row.original;
           let value =
@@ -312,10 +319,10 @@ const Products = ({ pageProps }: Props) => {
         minSize: 250,
       },
       {
-        accessorKey: "orderProducts",
-        header: (info) => <div className="uppercase">Items</div>,
+        accessorKey: "transactionType",
+        header: (info) => <div className="uppercase">Type</div>,
         cell: ({ row, getValue }) => {
-          const value = getValue()?.length || 0;
+          const value = getValue() || "-";
           return <div className="w-full">{value}</div>;
         },
         footer: (props) => props.column.id,
@@ -325,33 +332,7 @@ const Products = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "vendor",
-        header: (info) => <div className="uppercase">Vendor</div>,
-        cell: ({ row, getValue }) => {
-          const value = getValue()?.vendorName || "-";
-          return <div className="w-full">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
-        accessorKey: "createdAt",
-        header: (info) => (
-          <div className="uppercase w-full text-left">Request Date</div>
-        ),
-        cell: ({ row, getValue }) => {
-          const value = dateTimeFormat(getValue());
-          return <div className="w-full text-left">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "orderStatus",
+        accessorKey: "transactionStatus",
         cell: ({ row, getValue }) => {
           const value = getValue();
           return (
@@ -371,34 +352,6 @@ const Products = ({ pageProps }: Props) => {
         // enableSorting: false,
         enableColumnFilter: false,
       },
-      {
-        accessorKey: "updatedAt",
-        header: (info) => (
-          <div className="uppercase w-full text-left">Recent Date</div>
-        ),
-        cell: ({ row, getValue }) => {
-          const value = dateTimeFormat(getValue());
-          return <div className="w-full text-left">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "documents",
-        header: (info) => (
-          <div className="uppercase w-full text-center">Documents</div>
-        ),
-        cell: ({ row, getValue }) => {
-          const value = getValue()?.length || 0;
-          return <div className="w-full text-center">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
     ],
     []
   );
@@ -414,7 +367,7 @@ const Products = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  // get Products
+  // get Transactions
   useEffect(() => {
     if (query?.page) setPages(Number(query?.page) || 1);
     if (query?.limit) setLimit(Number(query?.limit) || 10);
@@ -429,21 +382,7 @@ const Products = ({ pageProps }: Props) => {
     if (query?.status) {
       setStatus({ value: query?.status, label: query?.status });
     }
-    if (query?.startDate) {
-      setStart(new Date(query?.startDate as any));
-    }
-    if (query?.endDate) {
-      setEnd(new Date(query?.endDate as any));
-    }
-  }, [
-    query?.page,
-    query?.limit,
-    query?.search,
-    query?.sort,
-    query?.status,
-    query?.startDate,
-    query?.endDate,
-  ]);
+  }, [query?.page, query?.limit, query?.search, query?.sort, query?.status]);
 
   useEffect(() => {
     let qr: any = {
@@ -454,55 +393,21 @@ const Products = ({ pageProps }: Props) => {
     if (search) qr = { ...qr, search: search };
     if (sort) qr = { ...qr, sort: sort?.value };
     if (status) qr = { ...qr, status: status?.value };
-    if (startDate)
-      qr = {
-        ...qr,
-        startDate: moment(startDate).format("YYYY-MM-DD"),
-      };
-    if (endDate)
-      qr = {
-        ...qr,
-        endDate: moment(endDate).format("YYYY-MM-DD"),
-      };
 
     router.replace({ pathname, query: qr });
-  }, [pages, limit, search, sort, status, startDate, endDate]);
+  }, [pages, limit, search, sort, status]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     const search = {
       $and: [
-        {
-          createdAt: {
-            $gte:
-              moment(
-                query?.startDate
-                  ? query?.startDate
-                  : new Date(now.getFullYear(), now.getMonth(), 1)
-              ).format("YYYY-MM-DD") + "T00:00:00.000Z",
-            $lte:
-              moment(
-                query?.endDate
-                  ? query?.endDate
-                  : new Date(now.getFullYear(), now.getMonth() + 1, 0)
-              ).format("YYYY-MM-DD") + "T23:59:59.000Z",
-          },
-        },
-        { orderStatus: { $contL: query?.status } },
+        { transactionStatus: { $contL: query?.status } },
         {
           $or: [
-            { orderNumber: { $contL: query?.search } },
-            { orderDescription: { $contL: query?.search } },
-            { orderStatus: { $contL: query?.search } },
-            {
-              "orderProducts.product.productName": { $contL: query?.search },
-            },
-            {
-              "orderProducts.vendor.vendorName": {
-                $contL: query?.search,
-              },
-            },
+            { transactionNumber: { $contL: query?.search } },
+            { transactionDescription: { $contL: query?.search } },
+            { transactionStatus: { $contL: query?.search } },
           ],
         },
       ],
@@ -519,29 +424,21 @@ const Products = ({ pageProps }: Props) => {
       });
     } else {
       qb.sortBy({
-        field: `orderNumber`,
+        field: `transactionNumber`,
         order: !sort?.value ? "ASC" : sort.value,
       });
     }
     qb.query();
     return qb;
-  }, [
-    query?.page,
-    query?.limit,
-    query?.search,
-    query?.sort,
-    query?.status,
-    query?.startDate,
-    query?.endDate,
-  ]);
+  }, [query?.page, query?.limit, query?.search, query?.sort, query?.status]);
 
   useEffect(() => {
-    if (token) dispatch(getOrders({ token, params: filters.queryObject }));
+    if (token) dispatch(getTransactions({ token, params: {} }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = orders;
+    const { data, pageCount, total } = transactions;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
@@ -550,56 +447,14 @@ const Products = ({ pageProps }: Props) => {
     setDataTable(newArr);
     setPageCount(pageCount);
     setTotal(total);
-  }, [orders]);
+  }, [transactions]);
 
-  // get-vendor
-  const filterVendor = useMemo(() => {
-    let qb = RequestQueryBuilder.create();
-
-    qb.sortBy({ field: "vendorName", order: "ASC" });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getVendors({
-          token,
-          params: filterVendor.queryObject,
-        })
-      );
-  }, [token, filterVendor]);
-
-  const vendorOpt = useMemo(() => {
-    const newArr: any[] = [];
-    const { data } = vendors;
-    if (data && data?.length > 0) {
-      data?.map((vendor: any) => {
-        newArr.push({
-          ...vendor,
-          value: vendor?.id,
-          label: vendor?.vendorName,
-        });
-      });
-    }
-    // remove duplicate values from array and
-    // return [...new Set([...opt, ...newArr])];
-    return newArr;
-  }, [vendors]);
-
-  const goToForm = (value: any) => {
-    if (!value?.id) {
-      toast.dark("Please, fill your vendor information");
-    } else if (!value?.date) {
-      toast.dark("Please, fill your purchase date");
+  const goToForm = (item: any) => {
+    if (!item?.value) {
+      toast.dark("Please, fill your transaction information");
     } else {
       return router.push({
-        pathname: `/employee/assets-management/stocks/purchase-order/form`,
-        query: {
-          id: value?.id,
-          date: value?.date?.toISOString(),
-        },
+        pathname: `/employee/assets-management/stocks/transactions/form/${item?.value}`,
       });
     }
   };
@@ -608,7 +463,7 @@ const Products = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Purchase Order"
+      head="Transactions"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -655,7 +510,7 @@ const Products = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Purchase Order
+                      Transactions
                     </h3>
                   </div>
                 </Button>
@@ -667,7 +522,9 @@ const Products = ({ pageProps }: Props) => {
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={onOpenForm}
                   variant="primary">
-                  <span className="hidden lg:inline-block">New Purchase</span>
+                  <span className="hidden lg:inline-block">
+                    New Transaction
+                  </span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
@@ -686,34 +543,6 @@ const Products = ({ pageProps }: Props) => {
                     setFilter={setSearch}
                     placeholder="Search..."
                   />
-                </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <div className="w-full">
-                    <label className="w-full text-gray-5 overflow-hidden">
-                      <div className="relative">
-                        <DatePicker
-                          selectsRange={true}
-                          startDate={startDate}
-                          endDate={endDate}
-                          onChange={(update: any) => {
-                            setDateRange(update);
-                          }}
-                          isClearable={false}
-                          placeholderText={"Select date"}
-                          todayButton
-                          dropdownMode="select"
-                          peekNextMonth
-                          showMonthDropdown
-                          showYearDropdown
-                          disabled={false}
-                          clearButtonClassName="after:w-10 after:h-10 h-10 w-10"
-                          className="text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                        />
-                        <MdOutlineCalendarToday className="absolute left-4 top-4 h-6 w-6 text-gray-5" />
-                      </div>
-                    </label>
-                  </div>
                 </div>
 
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
@@ -751,6 +580,24 @@ const Products = ({ pageProps }: Props) => {
                     icon=""
                   />
                 </div>
+
+                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                  <DropdownSelect
+                    customStyles={stylesSelect}
+                    value={types}
+                    onChange={setTypes}
+                    error=""
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                    classNamePrefix=""
+                    formatOptionLabel=""
+                    instanceId="types"
+                    isDisabled={false}
+                    isMulti={false}
+                    placeholder="All Types..."
+                    options={typesOptFilter}
+                    icon=""
+                  />
+                </div>
               </div>
 
               {/* table */}
@@ -783,58 +630,34 @@ const Products = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseForm}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-sm font-semibold">Vendor</h3>
+              <h3 className="text-lg font-semibold">New Transaction</h3>
               <p className="text-sm text-gray-5">
-                Fill your vendor information.
+                Fill your transaction information.
               </p>
             </div>
           </ModalHeader>
           <div className="w-full p-4 flex flex-col gap-2 text-sm">
             <div className="mb-3">
-              <label htmlFor="vendor" className="font-semibold">
-                Vendor
+              <label
+                htmlFor="transactionType"
+                className="font-semibold text-base">
+                Select Type
               </label>
               <DropdownSelect
                 customStyles={stylesSelect}
-                value={isVendor}
-                onChange={setIsVendor}
+                value={transactionType}
+                onChange={setTransactionType}
                 error=""
                 className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                 classNamePrefix=""
-                instanceId="vendor"
+                instanceId="transactionType"
                 isDisabled={false}
                 isMulti={false}
-                placeholder="Choose vendor"
-                options={vendorOpt}
+                placeholder="Choose type"
+                options={typesOpt}
                 formatOptionLabel={""}
                 icon=""
               />
-            </div>
-
-            <div className="w-full">
-              <label htmlFor="date" className="font-semibold">
-                Purchase date
-              </label>
-              <label className="w-full text-gray-5 overflow-hidden">
-                <div className="relative">
-                  <DatePicker
-                    selected={date}
-                    onChange={setDate}
-                    isClearable={true}
-                    placeholderText={"Select date"}
-                    dropdownMode="select"
-                    peekNextMonth
-                    showMonthDropdown
-                    showYearDropdown
-                    onCalendarClose={() => console.log("close calender")}
-                    disabled={false}
-                    shouldCloseOnSelect={true}
-                    clearButtonClassName="after:w-10 after:h-10 h-10 w-10"
-                    className="text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                  />
-                  <MdOutlineCalendarToday className="absolute left-4 top-4 h-6 w-6 text-gray-5" />
-                </div>
-              </label>
             </div>
           </div>
 
@@ -842,10 +665,10 @@ const Products = ({ pageProps }: Props) => {
             <Button
               variant="primary"
               type="button"
-              onClick={() => goToForm({ id: isVendor?.id, date: date })}
+              onClick={() => goToForm({ value: transactionType?.value })}
               className="rounded active:scale-90 w-full">
-              <span className="text-xs uppercase font-semibold">
-                Add new purchase
+              <span className="text-xs uppercase font-semibold py-2">
+                Continue
               </span>
             </Button>
           </div>
@@ -878,4 +701,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Products;
+export default Transactions;

@@ -234,6 +234,11 @@ export type AccessCardTransactionProps = {
 
 // asset-management
 // product
+export type LocationProps = {
+  id?: number | string | any;
+  qty?: number | string | any;
+  assets?: any[];
+};
 export type ProductProps = {
   id?: number | string | any;
   createdAt?: string | any;
@@ -247,6 +252,7 @@ export type ProductProps = {
   productOrderQty?: number | string | any;
   qty?: number | string | any;
   price?: number | string | any;
+  location?: LocationProps[] | any[];
 };
 
 export type RequestProductProps = {
