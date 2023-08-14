@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../../../../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
@@ -17,18 +11,12 @@ import {
   getAuthMe,
   selectAuth,
 } from "../../../../../../../redux/features/auth/authReducers";
-import { ColumnDef } from "@tanstack/react-table";
 import Button from "../../../../../../../components/Button/Button";
 import {
   MdAdd,
   MdArrowRightAlt,
   MdChevronLeft,
   MdDelete,
-  MdEdit,
-  MdEmail,
-  MdOutlineCalendarToday,
-  MdPhone,
-  MdPlace,
   MdShuffle,
   MdSubdirectoryArrowRight,
   MdUnarchive,
@@ -36,14 +24,9 @@ import {
 } from "react-icons/md";
 import SidebarComponent from "../../../../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuAssets } from "../../../../../../../utils/routes";
-import { SearchInput } from "../../../../../../../components/Forms/SearchInput";
 import DropdownSelect from "../../../../../../../components/Dropdown/DropdownSelect";
-import SelectTables from "../../../../../../../components/tables/layouts/server/SelectTables";
 import Modal from "../../../../../../../components/Modal";
-import {
-  ModalFooter,
-  ModalHeader,
-} from "../../../../../../../components/Modal/ModalComponent";
+import { ModalHeader } from "../../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { toast } from "react-toastify";
@@ -51,40 +34,21 @@ import {
   OptionProps,
   ProductProps,
 } from "../../../../../../../utils/useHooks/PropTypes";
-import {
-  deleteProduct,
-  getProducts,
-  selectProductManagement,
-} from "../../../../../../../redux/features/assets/products/productManagementReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import {
-  createRequestOrder,
-  getRequests,
-  selectRequestManagement,
-} from "../../../../../../../redux/features/assets/stocks/requestReducers";
-import DatePicker from "react-datepicker";
-import {
-  Controller,
   SubmitHandler,
   useFieldArray,
   useForm,
   useWatch,
 } from "react-hook-form";
-import FormProduct from "../../../../../../../components/Forms/assets/FormProduct";
 import {
-  getVendorById,
-  selectVendorManagement,
-} from "../../../../../../../redux/features/assets/vendor/vendorManagementReducers";
-import FormProductOrder from "../../../../../../../components/Forms/assets/FormProductOrder";
-import CurrencyFormat from "react-currency-format";
-import {
-  createOrder,
   getOrders,
   selectOrderManagement,
 } from "../../../../../../../redux/features/assets/stocks/orderReducers";
-import { BsGlobe } from "react-icons/bs";
-import { formatPhone } from "../../../../../../../utils/useHooks/useFunction";
-import { selectTransactionManagement } from "../../../../../../../redux/features/assets/stocks/transactionReducers";
+import {
+  createTransactionOrder,
+  selectTransactionManagement,
+} from "../../../../../../../redux/features/assets/stocks/transactionReducers";
 import SelectProductOrder from "../../../../../../../components/Forms/assets/transaction/SelectProductOrder";
 import {
   getLocations,
@@ -173,22 +137,13 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { transactions, transaction } = useAppSelector(
-    selectTransactionManagement
-  );
+  const { transaction } = useAppSelector(selectTransactionManagement);
   const { orders, order } = useAppSelector(selectOrderManagement);
   const { locations } = useAppSelector(selectLocationManagement);
-  const { vendor } = useAppSelector(selectVendorManagement);
-  const { pending } = useAppSelector(selectOrderManagement);
+  const { pending } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // data-table
-  const [search, setSearch] = useState<string | any>(null);
-  const [requestOrderOpt, setRequestOrderOpt] = useState<OptionProps[]>([]);
-  const [requestOrderData, setRequestOrderData] = useState<any[]>([]);
-  const [isOpenRequestOrder, setIsOpenRequestOrder] = useState<boolean>(false);
 
   // main-data
   const [orderData, setOrderData] = useState<OptionProps[] | any[]>([]);
@@ -301,16 +256,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     setIsOpenDiscard(false);
   };
 
-  // product modal
-  const onOpenProduct = (items: any) => {
-    setRequestOrderData(items);
-    setIsOpenRequestOrder(true);
-  };
-
-  const onCloseProduct = () => {
-    setIsOpenRequestOrder(false);
-  };
-
   // PO - Options
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
@@ -325,7 +270,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     });
     qb.query();
     return qb;
-  }, [search]);
+  }, []);
 
   useEffect(() => {
     if (token) dispatch(getOrders({ token, params: filters.queryObject }));
@@ -347,44 +292,51 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   }, [orders]);
 
   // inventory-function
-  const qtyHandlerInventory = useCallback(
-    ({ value, index, locationIdx }: any) => {
-      if (!value) {
-        delete inventoryData[index]?.location[locationIdx]?.qty;
-      }
-      let items = [...inventoryData];
-      if (!items[index].location[locationIdx]) {
-        items[index].location = [{ qty: Number(value) }];
-      } else {
-        items[index].location[locationIdx].qty = parseInt(`${value}`);
-      }
-      items[index].totalMove = items[index]?.location?.reduce(function (
-        sum: any,
-        current: any
-      ) {
-        return sum + Number(current.qty);
-      },
-      0);
-      let totalQty = items[index].location?.reduce(function (
-        sum: any,
-        current: any
-      ) {
-        return sum + Number(current?.qty);
-      },
-      0);
-      items[index].available = items[index].stock - totalQty;
+  const qtyHandlerInventory = ({ value, index, locationIdx }: any) => {
+    if (!value) {
+      delete inventoryData[index]?.location[locationIdx]?.qty;
+    }
+    let items = [...inventoryData];
+    if (!items[index].location[locationIdx]) {
+      items[index].location = [{ qty: Number(value) }];
+    }
+    for (const item of items) {
+      const stock = item.stock;
+      const locations = item.location;
 
-      setInventoryData([...items]);
+      for (const loc of locations) {
+        if (loc.qty > stock) {
+          loc.qty = stock;
+        }
+      }
+    }
+
+    items[index].location[locationIdx].qty = parseInt(`${value}`);
+
+    items[index].totalMove = items[index]?.location?.reduce(function (
+      sum: any,
+      current: any
+    ) {
+      return sum + Number(current.qty);
     },
-    []
-  );
+    0);
+    let totalQty = items[index].location?.reduce(function (
+      sum: any,
+      current: any
+    ) {
+      return sum + Number(current?.qty);
+    },
+    0);
+    items[index].available = items[index].stock - totalQty;
+
+    setInventoryData([...items]);
+  };
 
   const onSelectInventory = ({ value, index, locIdx }: any) => {
     if (!value) delete inventoryData[index].location[locIdx].moveTo;
     let item = [...inventoryData];
     item[index].location[locIdx].moveTo = value;
     setInventoryData(item);
-    console.log(value, "select-opt");
   };
 
   const onShuffleInventory = (index: any) => {
@@ -393,7 +345,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
       qty: 0,
     });
     setInventoryData(item);
-    console.log(item, "shuffle");
   };
 
   const onDeleteInventory = ({ index, locationIdx }: any) => {
@@ -615,7 +566,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
           };
           order?.locations?.push(locations);
         }
-        console.log(locations, "cekd");
 
         locations?.assets?.push({
           serialNumber: item?.serialNumber,
@@ -631,6 +581,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   // error-inventory
   const errorInventory = useMemo(() => {
     let newErr = {
+      available: false,
       locations: false,
       qty: false,
     };
@@ -648,6 +599,11 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
             newErr.qty = false;
           }
         });
+        if (item?.available < 0) {
+          newErr.available = true;
+        } else {
+          newErr.available = false;
+        }
       });
     }
     return newErr;
@@ -676,10 +632,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     }
     return newErr;
   }, [assetData]);
-
-  console.log(errorAsset, "cek-inventory-error");
-
-  console.log({ transformedInventory, transformedAsset }, "data-result");
 
   // set inventory data to form-value
   useEffect(() => {
@@ -756,6 +708,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
       return;
     }
     if (
+      errorInventory.available ||
       errorInventory.locations ||
       errorInventory.qty ||
       errorAsset.locations ||
@@ -764,14 +717,28 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
       toast.dark("Please, fill your transaction order correctly");
       return;
     }
-    console.log(newObj, "form-data");
+    // console.log(newObj, "form-data");
+
+    dispatch(
+      createTransactionOrder({
+        token,
+        data: newObj,
+        isSuccess: () => {
+          toast.dark("Transaction order has been created successfully.");
+          router.back();
+        },
+        isError: () => {
+          console.log("error-create-transaction-order");
+        },
+      })
+    );
   };
 
-  console.log(options, "locations");
+  // console.log(options, "locations");
 
-  console.log("data-order :", orderData);
-  console.log("data-inventory :", inventoryData);
-  console.log("data-asset :", assetData);
+  // console.log("data-order :", orderData);
+  // console.log("data-inventory :", inventoryData);
+  // console.log("data-asset :", assetData);
 
   return (
     <DefaultLayout
@@ -960,7 +927,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
                       {inventoryData?.length > 0 ? (
                         inventoryData?.map((e: any, idx: any) => {
-                          let total = e.location.reduce(function (
+                          let totalQty = e.location.reduce(function (
                             sum: any,
                             current: any
                           ) {
@@ -1037,7 +1004,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                 </td>
                                 <td className="p-4">
                                   <div className="w-full flex justify-center">
-                                    {total || 0}
                                     <input
                                       min={0}
                                       max={
@@ -1062,7 +1028,8 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                           !inventoryData[idx].location[0]
                                             ?.qty ||
                                           inventoryData[idx].location[0]?.qty ==
-                                            0
+                                            0 ||
+                                          inventoryData[idx].available < 0
                                             ? "border-danger focus:border-danger"
                                             : "border-gray focus:border-primary"
                                         }
@@ -1164,7 +1131,8 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                           !inventoryData[idx].location[locIdx]
                                             ?.qty ||
                                           inventoryData[idx].location[locIdx]
-                                            ?.qty == 0
+                                            ?.qty == 0 ||
+                                          inventoryData[idx].available < 0
                                             ? "border-danger focus:border-danger"
                                             : "border-gray focus:border-primary"
                                         }
@@ -1360,17 +1328,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
-
-      {/* modal */}
-      <Modal isOpen={isOpenRequestOrder} onClose={onCloseProduct} size="small">
-        <FormProductOrder
-          closeModal={onCloseProduct}
-          options={requestOrderOpt}
-          items={requestOrderData}
-          setItems={setRequestOrderData}
-          defaultImage="../../../../image/no-image.jpeg"
-        />
-      </Modal>
 
       {/* discard modal */}
       <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
