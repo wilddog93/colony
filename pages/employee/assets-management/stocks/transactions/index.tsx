@@ -419,7 +419,7 @@ const Transactions = ({ pageProps }: Props) => {
     qb.search(search);
     if (!query?.sort) {
       qb.sortBy({
-        field: `updatedAt`,
+        field: "updatedAt",
         order: "DESC",
       });
     } else {
@@ -430,10 +430,18 @@ const Transactions = ({ pageProps }: Props) => {
     }
     qb.query();
     return qb;
-  }, [query?.page, query?.limit, query?.search, query?.sort, query?.status]);
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.status,
+    sort,
+  ]);
 
   useEffect(() => {
-    if (token) dispatch(getTransactions({ token, params: {} }));
+    if (token)
+      dispatch(getTransactions({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
@@ -557,6 +565,7 @@ const Transactions = ({ pageProps }: Props) => {
                     instanceId="1"
                     isDisabled={false}
                     isMulti={false}
+                    isClearable
                     placeholder="Sorts..."
                     options={sortOpt}
                     icon="MdSort"
@@ -575,6 +584,7 @@ const Transactions = ({ pageProps }: Props) => {
                     instanceId="status"
                     isDisabled={false}
                     isMulti={false}
+                    isClearable
                     placeholder="All Status..."
                     options={statusOpt}
                     icon=""
@@ -592,6 +602,7 @@ const Transactions = ({ pageProps }: Props) => {
                     formatOptionLabel=""
                     instanceId="types"
                     isDisabled={false}
+                    isClearable
                     isMulti={false}
                     placeholder="All Types..."
                     options={typesOptFilter}

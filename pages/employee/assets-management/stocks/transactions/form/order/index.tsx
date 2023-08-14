@@ -569,7 +569,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
 
         locations?.assets?.push({
           serialNumber: item?.serialNumber,
-          price: item?.orderPrice,
+          value: Number(item?.orderPrice) || 0,
         });
         locations.qty = locations?.assets?.length || 1;
       });
