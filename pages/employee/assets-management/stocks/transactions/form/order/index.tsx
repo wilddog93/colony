@@ -934,13 +934,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
                       {inventoryData?.length > 0 ? (
                         inventoryData?.map((e: any, idx: any) => {
-                          let totalQty = e.location.reduce(function (
-                            sum: any,
-                            current: any
-                          ) {
-                            return sum + Number(current.qty);
-                          },
-                          0);
                           return (
                             <Fragment key={idx}>
                               <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
@@ -1279,7 +1272,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                       isDisabled={false}
                                       isMulti={false}
                                       placeholder="Choose"
-                                      options={options?.inventoryOption}
+                                      options={options?.assetOption}
                                       formatOptionLabel={""}
                                       isClearable={false}
                                       icon=""

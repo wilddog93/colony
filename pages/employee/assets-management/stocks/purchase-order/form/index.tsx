@@ -447,12 +447,18 @@ const NewRequestOrder = ({ pageProps }: Props) => {
   useEffect(() => {
     if (requestOrderData?.length > 0) {
       requestOrderData.map((item, idx) => {
+        const currentQty = item["currentQty"];
         const qty = item["qty"];
         const price = item["price"];
         if (!qty || qty == 0) {
           setError(`products.${idx}.qty`, {
             type: "required",
             message: "Qty is required",
+          });
+        } else if (qty > currentQty) {
+          setError(`products.${idx}.qty`, {
+            type: "required",
+            message: "Qty must be less then current qty",
           });
         } else {
           clearErrors(`products.${idx}.qty`);

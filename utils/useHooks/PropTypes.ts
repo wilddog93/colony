@@ -252,7 +252,7 @@ export type ProductProps = {
   productOrderQty?: number | string | any;
   qty?: number | string | any;
   price?: number | string | any;
-  location?: LocationProps[] | any[];
+  location?: LocationProps[] | any[] | any;
 };
 
 export type RequestProductProps = {
