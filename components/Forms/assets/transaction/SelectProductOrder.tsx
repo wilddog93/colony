@@ -15,6 +15,7 @@ type Props = {
   items?: any;
   setItems: Dispatch<SetStateAction<any | any[]>>;
   token?: any;
+  isDetail?: boolean;
   options: OptionProps[] | any[];
   isUpdate?: boolean;
   defaultImage: string | any;
@@ -61,6 +62,7 @@ export default function SelectProductOrder({
   items,
   setItems,
   options,
+  isDetail,
   token,
   isUpdate,
   defaultImage,
@@ -97,13 +99,13 @@ export default function SelectProductOrder({
     return date;
   };
 
-  const onAddProduct = (user: any) => {
-    if (!user) return;
+  const onAddProduct = (item: any) => {
+    if (!item) return;
     let dataProducts =
       !productSelected || productSelected?.length == 0
-        ? [user]
-        : [...productSelected, user];
-    let filterOpt = selectedOption?.filter((e) => e?.value != user?.id);
+        ? [item]
+        : [...productSelected, item];
+    let filterOpt = selectedOption?.filter((e) => e?.value != item?.id);
 
     const filters = Array.from(new Set(dataProducts.map((a) => a.id))).map(
       (id) => {
@@ -153,6 +155,8 @@ export default function SelectProductOrder({
   //     setItems(value);
   //   };
 
+  console.log(productSelected, "item-order");
+
   const OrderComponent = (props: any) => {
     const { item } = props;
     return (
@@ -166,7 +170,7 @@ export default function SelectProductOrder({
               <span>{dateFormat(item?.createdAt)}</span>
             </div>
           </div>
-          <div className="ml-auto">
+          <div className={isDetail ? "hidden" : "ml-auto"}>
             <button
               type="button"
               onClick={() => onDeleteHandler(item)}
@@ -202,7 +206,7 @@ export default function SelectProductOrder({
 
           <div className="w-full p-4 tracking-wide">
             <div className="font-semibold text-sm">Total Product :</div>
-            <p>{item?.orderProducts?.length || 0}</p>
+            <p>{item?.orderProducts?.length || item?.product?.length || 0}</p>
           </div>
         </div>
       </div>
@@ -218,19 +222,11 @@ export default function SelectProductOrder({
     );
   };
 
-  console.log(options, "options");
-
   return (
     <Fragment>
-      <div className={`w-full flex flex-col gap-1 mb-3`}>
-        <h3 className="font-bold uppercase tracking-widest text-sm">
-          Purchase Order
-        </h3>
-      </div>
-
       {/* step-1 */}
       <div className={`w-full`}>
-        <div className="w-full mb-3">
+        <div className={`w-full mb-3 ${!isDetail ? "" : "hidden"}`}>
           {/* <label htmlFor="user">Search :</label> */}
           <div className="w-full flex gap-1">
             <div className="w-[85%]">

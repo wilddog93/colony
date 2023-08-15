@@ -21,67 +21,54 @@ import {
   MdArrowRightAlt,
   MdCheckCircle,
   MdChevronLeft,
-  MdClose,
   MdDelete,
   MdDocumentScanner,
   MdDownload,
   MdFileDownload,
   MdFileUpload,
   MdRemoveCircle,
+  MdShuffle,
+  MdSubdirectoryArrowRight,
   MdUnarchive,
   MdWarning,
 } from "react-icons/md";
 import SidebarComponent from "../../../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuAssets } from "../../../../../../utils/routes";
+import DropdownSelect from "../../../../../../components/Dropdown/DropdownSelect";
 import Modal from "../../../../../../components/Modal";
 import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import { toast } from "react-toastify";
 import {
   OptionProps,
   ProductProps,
-  PurchaseOrderProps,
 } from "../../../../../../utils/useHooks/PropTypes";
-import {
-  getProducts,
-  selectProductManagement,
-} from "../../../../../../redux/features/assets/products/productManagementReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import {
-  createRequestDocumentById,
-  deleteRequestDocumentById,
-  getRequestById,
-  selectRequestManagement,
-  updateRequestChangeStatus,
-} from "../../../../../../redux/features/assets/stocks/requestReducers";
-import FormProduct from "../../../../../../components/Forms/assets/FormProduct";
-import Cards from "../../../../../../components/Cards/Cards";
+  getOrders,
+  selectOrderManagement,
+} from "../../../../../../redux/features/assets/stocks/orderReducers";
+import {
+  createTransactionDocumentById,
+  deleteTransactionDocumentById,
+  getTransactionById,
+  selectTransactionManagement,
+  updateTransactionChangeStatus,
+} from "../../../../../../redux/features/assets/stocks/transactionReducers";
+import SelectProductOrder from "../../../../../../components/Forms/assets/transaction/SelectProductOrder";
+import { selectLocationManagement } from "../../../../../../redux/features/assets/locations/locationManagementReducers";
 import {
   convertBytes,
-  formatMoney,
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
-import { toast } from "react-toastify";
-import {
-  createOrderDocumentById,
-  deleteOrderDocumentById,
-  getOrderById,
-  selectOrderManagement,
-  updateOrderChangeStatus,
-} from "../../../../../../redux/features/assets/stocks/orderReducers";
-
-type FormValues = {
-  id?: number | string;
-  requestNumber?: number | string;
-  requestDescription?: string;
-  products?: ProductProps[];
-};
+import Cards from "../../../../../../components/Cards/Cards";
 
 type Props = {
   pageProps: any;
 };
 
-const PurchaseDetails = ({ pageProps }: Props) => {
+const TransactionOrderDetails = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -92,10 +79,16 @@ const PurchaseDetails = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { order, pending } = useAppSelector(selectOrderManagement);
+  const { transaction } = useAppSelector(selectTransactionManagement);
+  const { orders, order } = useAppSelector(selectOrderManagement);
+  const { locations } = useAppSelector(selectLocationManagement);
+  const { pending } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // main-data
+  const [orderData, setOrderData] = useState<OptionProps[] | any[]>([]);
 
   // data-table
   const [formData, setFormData] = useState<any>(null);
@@ -114,15 +107,22 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     return date;
   };
 
-  // discard modal
-  const onOpenDeleteDoc = (value: any) => {
-    setFormData(value);
-    setIsOpenDeleteDoc(true);
-  };
+  // description-read
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isHiddenDesc.indexOf(val);
 
-  const onCloseDeleteDoc = () => {
-    setFormData(null);
-    setIsOpenDeleteDoc(false);
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isHiddenDesc];
+      _selected.splice(idx, 1);
+      setIsHiddenDesc(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isHiddenDesc];
+      _selected.push(val);
+      setIsHiddenDesc(_selected);
+    }
   };
 
   // discard modal
@@ -134,6 +134,17 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     setIsOpenDiscard(false);
   };
 
+  // discard modal
+  const onOpenDeleteDoc = (value: any) => {
+    setFormData(value);
+    setIsOpenDeleteDoc(true);
+  };
+
+  const onCloseDeleteDoc = () => {
+    setFormData(null);
+    setIsOpenDeleteDoc(false);
+  };
+
   // document modal
   const onOpenFiles = () => {
     setIsOpenFiles(true);
@@ -143,9 +154,8 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     setIsOpenFiles(false);
   };
 
-  // get request-by-id
   useEffect(() => {
-    if (token) dispatch(getOrderById({ token, id: query?.id }));
+    if (token) dispatch(getTransactionById({ token, id: query?.id }));
   }, [token, query?.id]);
 
   useEffect(() => {
@@ -163,6 +173,106 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     setLoading(true);
     router.back();
   };
+
+  // get all-details
+  const transformedOrderData = useMemo(() => {
+    const grouped: any = {};
+    if (transaction?.transactionOrderProducts?.length > 0) {
+      transaction?.transactionOrderProducts.forEach((item: any, index: any) => {
+        const orderKey = item?.orderProduct?.order;
+        const productKey = item?.orderProduct?.product;
+        const location: any[] = [];
+
+        item.transactionOrderProductLocations.map((y: any, idx: any) => {
+          if (y.location) {
+            location.push({
+              ...y?.location,
+              assets:
+                y?.transactionOrderAssets?.length > 0
+                  ? y?.transactionOrderAssets
+                  : [],
+              transactionQty: y?.transactionQty,
+            });
+          }
+        });
+
+        if (!grouped[orderKey]) {
+          grouped[orderKey] = {
+            ...orderKey,
+            product: [],
+          };
+        }
+
+        let product = grouped[orderKey].product.find(
+          (o: any) => o.id === productKey
+        );
+        if (!product) {
+          product = {
+            ...productKey,
+            orderNumber: grouped[orderKey].orderNumber,
+            location: location,
+          };
+          grouped[orderKey].product.push(product);
+        }
+
+        console.log(grouped, "grouped");
+      });
+    }
+    return Object.values(grouped);
+  }, [transaction]);
+
+  const transformedInventory = useMemo(() => {
+    let dataArr: any[] = [];
+    if (transformedOrderData?.length > 0) {
+      transformedOrderData?.map((data: any) => {
+        data["product"]
+          .filter((item: any) => item?.productType == "Inventory")
+          .map((prod: any) => {
+            dataArr.push({
+              ...prod,
+              order: {
+                ...data,
+              },
+            });
+          });
+      });
+    }
+    return dataArr;
+  }, [transformedOrderData]);
+
+  const transformedAsset = useMemo(() => {
+    let dataAssets: any | any[] = undefined;
+    if (transformedOrderData?.length > 0) {
+      transformedOrderData?.map((data: any) => {
+        let products = data["product"].filter(
+          (item: any) => item?.productType == "Asset"
+        );
+        dataAssets =
+          products?.length > 0 &&
+          products.reduce(
+            (ret: any, current: any) => {
+              const product = {
+                ...current,
+                qty: products?.length,
+              };
+
+              current.location.map((x: any) => {
+                x.assets.map((y: any) => {
+                  ret.assets.push({
+                    ...product,
+                    serialNumber: y.serialNumber,
+                    location: x,
+                  });
+                });
+              });
+              return ret;
+            },
+            { assets: [] }
+          );
+      });
+      return dataAssets?.assets;
+    }
+  }, [transformedOrderData]);
 
   // handle-upload-docs
   const onSelectMultiImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -203,13 +313,13 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     let newObj = value?.document?.length > 0 ? value?.document[0] : "";
     console.log(newObj, "document");
     dispatch(
-      createOrderDocumentById({
+      createTransactionDocumentById({
         token,
         id: value?.id,
         data: newObj,
         isSuccess: () => {
           toast.dark("Document has been uploaded");
-          dispatch(getOrderById({ token, id: query?.id }));
+          dispatch(getTransactionById({ token, id: query?.id }));
           onCloseFiles();
         },
         isError: () => {
@@ -231,13 +341,13 @@ const PurchaseDetails = ({ pageProps }: Props) => {
   const onDeleteDoc = (value: any) => {
     if (!value) return;
     dispatch(
-      deleteOrderDocumentById({
+      deleteTransactionDocumentById({
         token,
         id: query?.id,
         documentId: value,
         isSuccess: () => {
           toast.dark("Document has been deleted");
-          dispatch(getOrderById({ token, id: query?.id }));
+          dispatch(getTransactionById({ token, id: query?.id }));
           onCloseDeleteDoc();
         },
         isError: () => {
@@ -270,22 +380,9 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     }
   };
 
-  const orderProducts = useMemo(() => {
-    let productsList: PurchaseOrderProps[] = [];
-    const { orderProducts } = order;
-    if (!orderProducts) {
-      return productsList;
-    } else {
-      orderProducts?.map((item: any) => {
-        productsList.push(item);
-      });
-    }
-    return productsList;
-  }, [order]);
-
-  const documentOrder = useMemo(() => {
+  const documentTransaction = useMemo(() => {
     let document: any[] = [];
-    const { documents } = order;
+    const { documents } = transaction;
     if (!documents) {
       return document;
     } else {
@@ -294,20 +391,20 @@ const PurchaseDetails = ({ pageProps }: Props) => {
       });
     }
     return document;
-  }, [order]);
+  }, [transaction]);
 
   const onChangeApproval = (status: any) => {
     if (!status) return;
     else if (status == "Waiting") {
       let obj = { status: "Approve" };
       dispatch(
-        updateOrderChangeStatus({
+        updateTransactionChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Purchase Order has been approved");
-            dispatch(getOrderById({ token, id: query?.id }));
+            toast.dark("Transaction Order has been approved");
+            dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -317,13 +414,13 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     } else {
       let obj = { status: "Mark As Complete" };
       dispatch(
-        updateOrderChangeStatus({
+        updateTransactionChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Purchase Order has been Mark as completed");
-            dispatch(getOrderById({ token, id: query?.id }));
+            toast.dark("Transaction Order has been Mark as completed");
+            dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -339,13 +436,13 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     else if (status == "Waiting") {
       obj = { status: "Rejected" };
       dispatch(
-        updateOrderChangeStatus({
+        updateTransactionChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Purchase Order has been approved");
-            dispatch(getOrderById({ token, id: query?.id }));
+            toast.dark("Transaction Order has been approved");
+            dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -355,13 +452,13 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     } else if (status == "Approve") {
       obj = { status: "Cancel" };
       dispatch(
-        updateOrderChangeStatus({
+        updateTransactionChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Purchase Order has been approved");
-            dispatch(getOrderById({ token, id: query?.id }));
+            toast.dark("Transaction Order has been approved");
+            dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -371,16 +468,14 @@ const PurchaseDetails = ({ pageProps }: Props) => {
     }
   };
 
-  console.log(orderProducts, "order-data");
-
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Details Purchase Order"
-      logo="../../../../image/logo/logo-icon.svg"
-      images="../../../../image/logo/building-logo.svg"
-      userDefault="../../../../image/user/user-01.png"
+      head="Form Purchase Order"
+      logo="../../../../../image/logo/logo-icon.svg"
+      images="../../../../../image/logo/building-logo.svg"
+      userDefault="../../../../../image/user/user-01.png"
       description=""
       token={token}
       icons={{
@@ -412,47 +507,51 @@ const PurchaseDetails = ({ pageProps }: Props) => {
             </button>
           </div>
 
-          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4">
+          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2 border border-gray mt-5 rounded-xl shadow-card px-4 text-gray-6">
             {/* headers */}
             <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div className="w-full flex flex-col lg:flex-row gap-2 items-center mx-auto lg:mx-0">
                 <button
                   type="button"
-                  className="rounded-lg text-sm font-semibold border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
+                  className="w-full max-w-max rounded-lg text-sm font-semibold border-0 gap-2.5 focus:outline-none flex items-center text-gray-6"
                   onClick={() => onOpenDiscard()}
                   key={"1"}>
                   <div className="flex gap-1 items-center">
                     <MdChevronLeft className="w-6 h-6" />
                     <h3 className="w-full text-center text-xl font-semibold text-graydark">
-                      <span className="inline-block">Purchase Order</span>
+                      <span className="inline-block">Transaction Order</span>
                     </h3>
                   </div>
                 </button>
                 <div className="w-full max-w-max text-primary">
                   <p className="font-semibold uppercase">
-                    {order?.orderNumber ? `#${order?.orderNumber}` : "-"}
+                    {transaction?.transactionNumber
+                      ? `#${transaction?.transactionNumber}`
+                      : "-"}
                   </p>
                 </div>
                 <div className="w-full max-w-max flex flex-col lg:flex-row items-center gap-2 text-gray-6 text-sm">
                   <span
                     className={`w-full max-w-max flex items-center p-1 rounded ${
-                      order?.orderStatus == "Waiting"
+                      transaction?.transactionStatus == "Waiting"
                         ? "border border-yellow-400 bg-yellow-50 text-yellow-400"
                         : "border border-primary bg-blue-100 text-primary"
                     }`}>
-                    {order?.orderStatus}
+                    {transaction?.transactionStatus}
                   </span>
-                  <div>{dateTimeFormat(order?.updatedAt)}</div>
+                  <div>{dateTimeFormat(transaction?.updatedAt)}</div>
                 </div>
               </div>
 
               <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
-                {order?.orderStatus == "Waiting" ||
-                order?.orderStatus == "Approve" ? (
+                {transaction?.transactionStatus == "Waiting" ||
+                transaction?.transactionStatus == "Approve" ? (
                   <button
                     type="button"
                     className={`rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1`}
-                    onClick={() => onChangeReject(order?.orderStatus)}
+                    onClick={() =>
+                      onChangeReject(transaction?.transactionStatus)
+                    }
                     disabled={pending}>
                     {pending ? (
                       <Fragment>
@@ -464,7 +563,7 @@ const PurchaseDetails = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          {order?.orderStatus == "Waiting"
+                          {transaction?.transactionStatus == "Waiting"
                             ? "Reject"
                             : "Cancel"}
                         </span>
@@ -474,13 +573,15 @@ const PurchaseDetails = ({ pageProps }: Props) => {
                   </button>
                 ) : null}
 
-                {order?.orderStatus !== "Waiting" ||
-                order?.orderStatus !== "On-Progress" ? (
+                {transaction?.transactionStatus !== "Waiting" ||
+                transaction?.transactionStatus !== "On-Progress" ? (
                   <button
                     type="button"
-                    className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
-                    onClick={() => onChangeApproval(order?.orderStatus)}
-                    disabled={pending || documentOrder?.length == 0}>
+                    className={`inline-flex gap-2 text-white items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
+                    onClick={() =>
+                      onChangeApproval(transaction?.transactionStatus)
+                    }
+                    disabled={pending}>
                     {pending ? (
                       <Fragment>
                         <span className="hidden lg:inline-block">
@@ -491,7 +592,7 @@ const PurchaseDetails = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          {order?.orderStatus == "Waiting"
+                          {transaction?.transactionStatus == "Waiting"
                             ? "Approve"
                             : "Mark As Complete"}
                         </span>
@@ -505,113 +606,284 @@ const PurchaseDetails = ({ pageProps }: Props) => {
           </div>
 
           <div className="w-full grid col-span-1 lg:grid-cols-3 gap-2 py-4">
-            <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 lg:col-span-2">
-              <div className="w-full grid grid-cols-2 items-center">
-                <h3 className="text-lg font-bold tracking-widest">
-                  Ordered Items
-                </h3>
-                <div className="w-full flex justify-end">
+            <div className="w-full lg:col-span-2 flex flex-col gap-4">
+              {/* PO */}
+              <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+                <div className={`w-full flex items-center gap-1 mb-3`}>
+                  <h3 className="font-bold uppercase tracking-widest text-sm">
+                    Purchase Order
+                  </h3>
+
                   <Button
-                    type="button"
                     variant="primary"
-                    className="rounded-lg border border-primary active:scale-90"
-                    onClick={() => console.log("download-data")}>
-                    <span className="text-xs">Download</span>
+                    type="button"
+                    className="ml-auto rounded-lg active:scale-90"
+                    onClick={() => console.log("download")}>
+                    <span className="text-sm font-semibold">Download</span>
                     <MdDownload className="w-4 h-4" />
                   </Button>
                 </div>
+                <SelectProductOrder
+                  options={[]}
+                  items={transformedOrderData}
+                  setItems={setOrderData}
+                  defaultImage=""
+                  isDetail
+                />
               </div>
-              <div className="grid grid-cols-1 text-gray-6">
-                <div className="col-span-1 overflow-x-auto">
-                  <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
-                    <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
-                          Product Name
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
-                          Order Qty
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
-                          Ordered Qty
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-center">
-                          Total Price
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                      {orderProducts?.length > 0 ? (
-                        orderProducts?.map((e: any, idx: any) => {
-                          return (
-                            <tr
-                              key={idx}
-                              className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                              <td className="w-[350px]">
-                                <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                  <img
-                                    src={
-                                      e?.product?.productImages
-                                        ? `${url}product/productImage/${e?.product?.productImages}`
-                                        : "../../../../image/no-image.jpeg"
-                                    }
-                                    alt="img-product"
-                                    className="object cover object-center w-6 h-6 rounded mr-1"
-                                  />
-                                  <div>{e?.product?.productName}</div>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <div>{e?.orderQty | 0}</div>
-                              </td>
-                              <td className="p-4 text-center">
-                                <div>{e?.requestQtyCompleted || 0}</div>
-                              </td>
-                              <td className="p-4 text-center">
-                                <div>
-                                  <span>Rp.</span>
-                                  {e?.orderPrice
-                                    ? formatMoney({ amount: e?.orderPrice })
-                                    : "0"}
+
+              {/* inventory */}
+              <div className="w-full grid grid-cols-1 gap-4">
+                <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+                  <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
+                    <h3 className="font-bold uppercase tracking-widest text-sm">
+                      Inventory
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 text-gray-6">
+                    <div className="col-span-1 rounded-lg">
+                      <table className="w-full rounded-lg">
+                        <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="w-[250px] px-2 py-4 text-sm text-wide capitalize text-left">
+                              Product
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Order No.
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
+                              Received Qty
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
+                              Move To
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
+                          {transformedInventory?.length > 0 ? (
+                            transformedInventory?.map((e: any, idx: any) => {
+                              return (
+                                <Fragment key={idx}>
+                                  <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                                    <td className="w-[250px]">
+                                      <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
+                                        <img
+                                          src={
+                                            e?.productImages
+                                              ? `${url}product/files/${e?.productImages}`
+                                              : "../../../../../image/no-image.jpeg"
+                                          }
+                                          alt="img-product"
+                                          className="object cover object-center w-6 h-6 rounded mr-1"
+                                        />
+                                        <div>{e?.productName}</div>
+                                      </div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div>{e?.orderNumber}</div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div className="text-center font-semibold">
+                                        {e?.location[0].transactionQty || "-"}
+                                      </div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div className="text-center font-semibold">
+                                        {e?.location[0].locationName || "-"}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  {e?.location?.length > 0 &&
+                                    e?.location?.map(
+                                      (loc: any, locIdx: any) => {
+                                        if (locIdx == 0) return null;
+                                        return (
+                                          <tr
+                                            key={locIdx}
+                                            className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                                            <td className="p-4">
+                                              <div className="w-full flex items-center">
+                                                <MdSubdirectoryArrowRight className="w-5 h-5 mr-5" />
+                                                <img
+                                                  src={
+                                                    e?.productImages
+                                                      ? `${url}product/productImage/${e?.productImages}`
+                                                      : "../../../../../image/no-image.jpeg"
+                                                  }
+                                                  alt="img-product"
+                                                  className="object cover object-center w-10 h-10 rounded mr-1"
+                                                />
+                                                <span>{e?.productName}</span>
+                                              </div>
+                                            </td>
+                                            <td className="p-4">
+                                              {e?.orderNumber}
+                                            </td>
+                                            <td className="p-4">
+                                              <div className="text-center font-semibold">
+                                                {loc?.transactionQty || 0}
+                                              </div>
+                                            </td>
+                                            <td className="p-4">
+                                              <div className="text-center font-semibold">
+                                                {loc?.locationName || "-"}
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        );
+                                      }
+                                    )}
+                                </Fragment>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={12} className="p-4">
+                                <div className="text-sm italic text-gray-500 font-semibold">
+                                  There is no inventory data.
                                 </div>
                               </td>
                             </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={12} className="p-4">
-                            <div className="text-sm italic text-gray-500 font-semibold">
-                              There is no request product data.
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="border-b-2 border-gray w-full h-2 my-3"></div>
+              {/* assets */}
+              <div className="w-full grid grid-cols-1 gap-4">
+                <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+                  <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
+                    <h3 className="font-bold uppercase tracking-widest text-sm">
+                      Asset
+                    </h3>
+                  </div>
 
-              <div className="w-full mb-3">
-                <label
-                  className="col-span-1 font-semibold"
-                  htmlFor="orderDescription">
-                  Notes :
-                </label>
-                <div className="w-full col-span-4 h-full min-h-[100px] overflow-y-auto">
-                  <p className="w-full tracking-wide text-sm text-left">
-                    {order?.orderDescription}
-                  </p>
+                  <div className="grid grid-cols-1 text-gray-6">
+                    <div className="col-span-1 rounded-lg">
+                      <table className="w-full rounded-lg">
+                        <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="w-[250px] px-2 py-4 text-sm text-wide capitalize text-left">
+                              Product
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Order No.
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Serial No.
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
+                              Move To
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
+                          {transformedAsset?.length > 0 ? (
+                            transformedAsset?.map((e: any, idx: any) => {
+                              return (
+                                <Fragment key={idx}>
+                                  <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                                    <td className="w-[250px]">
+                                      <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
+                                        <img
+                                          src={
+                                            e?.productImages
+                                              ? `${url}product/files/${e?.productImages}`
+                                              : "../../../../../image/no-image.jpeg"
+                                          }
+                                          alt="img-product"
+                                          className="object cover object-center w-6 h-6 rounded mr-1"
+                                        />
+                                        <div>{e?.productName}</div>
+                                      </div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div>{e?.orderNumber}</div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div className="text-left uppercase font-semibold">
+                                        {e?.serialNumber}
+                                      </div>
+                                    </td>
+                                    <td className="p-4">
+                                      <div className="text-center">
+                                        {e?.location?.locationName || "-"}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </Fragment>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={12} className="p-4">
+                                <div className="text-sm italic text-gray-500 font-semibold">
+                                  There is no asset data.
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* description */}
+              <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
+                <div className="w-full">
+                  <label
+                    className="col-span-1 font-bold uppercase tracking-widest"
+                    htmlFor="orderDescription">
+                    Additional Information
+                  </label>
+                  <div className="w-full mt-2">
+                    <div className="relative">
+                      <div className="w-full  text-xs flex flex-col">
+                        <p className="text-graydark">
+                          {transaction?.transactionDescription?.length > 70 &&
+                          !isHiddenDesc.includes(transaction.id)
+                            ? `${transaction?.transactionDescription.substring(
+                                70,
+                                0
+                              )} ...`
+                            : transaction?.transactionDescription || "-"}
+                        </p>
+                        <button
+                          onClick={() => onReadDescription(transaction.id)}
+                          className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                            transaction.transactionDescription?.length > 70
+                              ? ""
+                              : "hidden"
+                          }`}>
+                          {isHiddenDesc.includes(transaction.id)
+                            ? "Hide"
+                            : "Show"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -637,8 +909,8 @@ const PurchaseDetails = ({ pageProps }: Props) => {
                 <div className="w-full border-b-2 border-gray"></div>
 
                 <div className="w-full p-4 h-full max-h-[250px] overflow-y-auto">
-                  {documentOrder && documentOrder?.length > 0 ? (
-                    documentOrder?.map((file, id) => {
+                  {documentTransaction && documentTransaction?.length > 0 ? (
+                    documentTransaction?.map((file, id) => {
                       let pathname = `${url}document/documentSource/${file?.documentSource}`;
                       return (
                         <div
@@ -696,8 +968,10 @@ const PurchaseDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Back to Order</h3>
-              <p className="text-gray-5">{`Are you sure to go back to order product ?`}</p>
+              <h3 className="text-lg font-semibold">
+                Back to Transaction Order
+              </h3>
+              <p className="text-gray-5">{`Are you sure to go back to Transaction Order ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
@@ -894,4 +1168,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default PurchaseDetails;
+export default TransactionOrderDetails;

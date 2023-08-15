@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 import {
   OptionProps,
   PurchaseOrderProps,
+  TransactionProps,
 } from "../../../../../utils/useHooks/PropTypes";
 import DatePicker from "react-datepicker";
 import {
@@ -190,7 +191,7 @@ const Transactions = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<PurchaseOrderProps[]>([]);
+  const [dataTable, setDataTable] = useState<TransactionProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -265,19 +266,19 @@ const Transactions = ({ pageProps }: Props) => {
     return color;
   };
 
-  const columns = useMemo<ColumnDef<PurchaseOrderProps, any>[]>(
+  const columns = useMemo<ColumnDef<TransactionProps, any>[]>(
     () => [
       {
         accessorKey: "transactionNumber",
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
-          const { id } = row?.original;
+          const { id, transactionType } = row?.original;
           return (
             <button
               type="button"
               onClick={() =>
                 router.push({
-                  pathname: `/employee/assets-management/stocks/transaction/${id}`,
+                  pathname: `/employee/assets-management/stocks/transactions/${transactionType?.toLowerCase()}/${id}`,
                 })
               }
               className="w-full text-left font-semibold text-primary hover:underline active:scale-90 uppercase">

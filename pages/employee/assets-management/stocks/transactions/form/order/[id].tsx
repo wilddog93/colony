@@ -55,20 +55,6 @@ import {
   selectLocationManagement,
 } from "../../../../../../../redux/features/assets/locations/locationManagementReducers";
 
-interface PropsData {
-  id?: number | any;
-  createdAt?: string | any;
-  updatedAt?: string | any;
-  productImage?: string | any;
-  productName?: string | any;
-  productDescription?: string | any;
-  productType?: any;
-  productCategory?: any;
-  unitMeasurement?: any;
-  brand?: any;
-  productMinimumStock?: number | any;
-}
-
 type FormValues = {
   id?: number | string;
   transactionNumber?: number | string;
@@ -126,7 +112,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const NewTransactionOrder = ({ pageProps }: Props) => {
+const TransactionOrderDetails = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -151,14 +137,8 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   const [inventoryData, setInventoryData] = useState<any[]>([]);
   const [assetData, setAssetData] = useState<any[]>([]);
 
-  console.log("order-data", orderData);
-
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
-
-  // use-form
-  const [watchValue, setWatchValue] = useState<FormValues | any>(null);
-  const [watchChange, setWatchChange] = useState<any | null>(null);
 
   // date
   const dateTimeFormat = (value: any) => {
@@ -184,70 +164,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
       setIsHiddenDesc(_selected);
     }
   };
-
-  // form
-  const {
-    unregister,
-    register,
-    getValues,
-    setValue,
-    handleSubmit,
-    watch,
-    reset,
-    setError,
-    clearErrors,
-    formState: { errors, isValid },
-    control,
-  } = useForm({
-    mode: "all",
-    defaultValues: useMemo<FormValues>(
-      () => ({
-        id: transaction?.id,
-        transactionNumber: transaction?.transactionNumber,
-        transactionDescription: transaction?.transactionDescription,
-        products: transaction?.products,
-      }),
-      [transaction]
-    ),
-  });
-
-  useEffect(() => {
-    if (transaction) {
-      reset({
-        id: transaction?.id,
-        transactionNumber: transaction?.transactionNumber,
-        transactionDescription: transaction?.transactionDescription,
-        products: transaction?.products,
-      });
-    }
-  }, [transaction]);
-
-  useEffect(() => {
-    const subscription = watch((value, { name, type }): any => {
-      if (value) {
-        setWatchValue(value);
-        setWatchChange({ name, type });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch]);
-
-  const inventories = useFieldArray({
-    control,
-    name: "inventories",
-  });
-  // { fields, remove, replace }
-
-  const assets = useFieldArray({
-    control,
-    name: "assets",
-  });
-
-  // description
-  const descValue = useWatch({
-    name: "transactionDescription",
-    control,
-  });
 
   // discard modal
   const onOpenDiscard = () => {
@@ -580,168 +496,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     return Object.values(grouped);
   }, [assetData]);
 
-  // error-inventory
-  const errorInventory = useMemo(() => {
-    let newErr = {
-      available: false,
-      locations: false,
-      qty: false,
-    };
-    if (inventoryData?.length > 0) {
-      inventoryData?.map((item, index) => {
-        item?.location.map((o: any, i: any) => {
-          if (o.moveTo == null) {
-            newErr.locations = true;
-          } else {
-            newErr.locations = false;
-          }
-          if (!o.qty || o.qty == 0) {
-            newErr.qty = true;
-          } else {
-            newErr.qty = false;
-          }
-        });
-        if (item?.available < 0) {
-          newErr.available = true;
-        } else {
-          newErr.available = false;
-        }
-      });
-    }
-    return newErr;
-  }, [inventoryData]);
-
-  // error-asset
-  const errorAsset = useMemo(() => {
-    let newErr = {
-      locations: false,
-      serialNumber: false,
-    };
-    if (assetData?.length > 0) {
-      assetData?.map((item, index) => {
-        if (!item.location || item.location == null) {
-          newErr.locations = true;
-        } else {
-          newErr.locations = false;
-        }
-
-        if (!item.serialNumber || item.serialNumber == null) {
-          newErr.serialNumber = true;
-        } else {
-          newErr.serialNumber = false;
-        }
-      });
-    }
-    return newErr;
-  }, [assetData]);
-
-  // set inventory data to form-value
-  useEffect(() => {
-    if (inventoryData?.length > 0) {
-      setValue(`inventories`, transformedInventory);
-    } else {
-      setValue("inventories", []);
-    }
-  }, [transformedInventory]);
-
-  // set asset data to form-valu
-  useEffect(() => {
-    if (assetData?.length > 0) {
-      setValue(`assets`, transformedAsset);
-    } else {
-      setValue("assets", []);
-    }
-  }, [transformedAsset]);
-
-  // location-option
-  const filterLoc = useMemo(() => {
-    let qb = RequestQueryBuilder.create();
-
-    qb.sortBy({ field: "locationName", order: "ASC" });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token) dispatch(getLocations({ token, params: filterLoc.queryObject }));
-  }, [token, filterLoc]);
-
-  const options = useMemo(() => {
-    let locInventories: OptionProps[] = [];
-    let locAssets: OptionProps[] = [];
-    let filter = locations?.data?.filter(
-      (x: any) => x?.locationType !== "Non-Storage"
-    );
-    const { data } = locations;
-    if (data && data?.length > 0) {
-      filter?.map((item: any) => {
-        locInventories.push({
-          ...item,
-          value: item?.id,
-          label: item?.locationName,
-        });
-      });
-      data?.map((item: any) => {
-        locAssets.push({
-          ...item,
-          value: item?.id,
-          label: item?.locationName,
-        });
-      });
-    }
-    return { inventoryOption: locInventories, assetOption: locAssets };
-  }, [locations]);
-  // location-option end
-
-  // on-submit
-  const onSubmit: SubmitHandler<FormValues> = (value) => {
-    const concatenatedArraySpread: any[] = [
-      ...(value.inventories || []),
-      ...(value?.assets || []),
-    ];
-    let newObj: FormValues = {
-      transactionNumber: value.transactionNumber,
-      transactionDescription: value.transactionDescription,
-      products: concatenatedArraySpread,
-    };
-
-    if (!newObj?.products || newObj?.products?.length == 0) {
-      toast.dark("Please, fill your transaction order");
-      return;
-    }
-    if (
-      errorInventory.available ||
-      errorInventory.locations ||
-      errorInventory.qty ||
-      errorAsset.locations ||
-      errorAsset.serialNumber
-    ) {
-      toast.dark("Please, fill your transaction order correctly");
-      return;
-    }
-    // console.log(newObj, "form-data");
-
-    dispatch(
-      createTransactionOrder({
-        token,
-        data: newObj,
-        isSuccess: () => {
-          toast.dark("Transaction order has been created successfully.");
-          router.back();
-        },
-        isError: () => {
-          console.log("error-create-transaction-order");
-        },
-      })
-    );
-  };
-
-  // console.log(options, "locations");
-
-  // console.log("data-order :", orderData);
-  // console.log("data-inventory :", inventoryData);
-  // console.log("data-asset :", assetData);
-
   return (
     <DefaultLayout
       title="Colony"
@@ -799,28 +553,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     </div>
                   </button>
                   <div className="w-full max-w-[10rem] text-primary">
-                    <input
-                      type="text"
-                      className={`w-full border-2  px-2 py-1 focus:outline-none text-lg rounded-lg ${
-                        errors?.transactionNumber
-                          ? "border-danger focus:border-danger"
-                          : "border-gray-5 focus:border-primary"
-                      }`}
-                      {...register("transactionNumber", {
-                        required: {
-                          value: true,
-                          message: "This fill is required",
-                        },
-                      })}
-                    />
-                    {errors?.transactionNumber && (
-                      <div className="mt-1 text-xs flex items-center text-red-300">
-                        <MdWarning className="w-4 h-4 mr-1" />
-                        <span className="text-red-300">
-                          {errors.transactionNumber.message as any}
-                        </span>
-                      </div>
-                    )}
+                    {transaction?.transactionNumber}
                   </div>
                 </div>
 
@@ -836,7 +569,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                   <Button
                     type="button"
                     className="rounded-lg text-sm font-semibold py-3 border border-primary active:scale-90 shadow-2"
-                    onClick={handleSubmit(onSubmit)}
+                    onClick={() => console.log("data")}
                     disabled={pending}
                     variant="primary">
                     {pending ? (
@@ -848,9 +581,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                       </Fragment>
                     ) : (
                       <Fragment>
-                        <span className="hidden lg:inline-block">
-                          New Transaction
-                        </span>
+                        <span className="hidden lg:inline-block">Apptove</span>
                         <MdAdd className="w-4 h-4" />
                       </Fragment>
                     )}
@@ -862,16 +593,12 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
 
           {/* PO */}
           <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 mt-5">
-            <div className={`w-full flex flex-col gap-1 mb-3`}>
-              <h3 className="font-bold uppercase tracking-widest text-sm">
-                Purchase Order
-              </h3>
-            </div>
             <SelectProductOrder
               options={orderOpt}
               items={orderData}
               setItems={setOrderData}
               defaultImage=""
+              isDetail
             />
           </div>
 
@@ -934,13 +661,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
                       {inventoryData?.length > 0 ? (
                         inventoryData?.map((e: any, idx: any) => {
-                          let totalQty = e.location.reduce(function (
-                            sum: any,
-                            current: any
-                          ) {
-                            return sum + Number(current.qty);
-                          },
-                          0);
                           return (
                             <Fragment key={idx}>
                               <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
@@ -971,197 +691,10 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                   <div>{e?.available || 0}</div>
                                 </td>
                                 <td className="p-4">
-                                  <div className="w-[100px] flex">
-                                    <DropdownSelect
-                                      customStyles={stylesSelect}
-                                      value={
-                                        inventoryData[idx].location[0].moveTo ||
-                                        null
-                                      }
-                                      onChange={(value: any) => {
-                                        onSelectInventory({
-                                          value,
-                                          index: idx,
-                                          locIdx: 0,
-                                        });
-                                      }}
-                                      error={
-                                        inventoryData[idx].location[0].moveTo ==
-                                        null
-                                          ? "true"
-                                          : ""
-                                      }
-                                      className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
-                                        inventoryData[idx].location[0].moveTo ==
-                                        null
-                                          ? "border border-danger focus:border-danger rounded-lg"
-                                          : "focus:border-primary"
-                                      }`}
-                                      classNamePrefix=""
-                                      instanceId="user"
-                                      isDisabled={false}
-                                      isMulti={false}
-                                      placeholder="Choose"
-                                      options={options?.inventoryOption}
-                                      formatOptionLabel={""}
-                                      isClearable={true}
-                                      icon=""
-                                    />
-                                  </div>
+                                  <div className="w-[100px] flex">select</div>
                                 </td>
-                                <td className="p-4">
-                                  <div className="w-full flex justify-center">
-                                    <input
-                                      min={0}
-                                      max={
-                                        e?.totalMove == e?.stock
-                                          ? 0
-                                          : e?.stock || null
-                                      }
-                                      onChange={({ target }) => {
-                                        qtyHandlerInventory({
-                                          value: target.value,
-                                          index: idx,
-                                          locationIdx: 0,
-                                        });
-                                      }}
-                                      value={
-                                        inventoryData[idx].location[0]?.qty ||
-                                        ""
-                                      }
-                                      type="number"
-                                      className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                        ${
-                                          !inventoryData[idx].location[0]
-                                            ?.qty ||
-                                          inventoryData[idx].location[0]?.qty ==
-                                            0 ||
-                                          inventoryData[idx].available < 0
-                                            ? "border-danger focus:border-danger"
-                                            : "border-gray focus:border-primary"
-                                        }
-                                      `}
-                                    />
-                                  </div>
-                                </td>
-                                <td className="p-4">
-                                  <button
-                                    className="flex items-center px-2 py-2 rounded-lg border-2 border-primary bg-primary text-white shadow-1 active:scale-90 disabled:opacity-50 disabled:active:scale-100"
-                                    type="button"
-                                    disabled={inventoryData[idx].available == 0}
-                                    onClick={() => onShuffleInventory(idx)}>
-                                    <MdShuffle className="w-4 h-4" />
-                                  </button>
-                                </td>
+                                <td className="p-4">qty</td>
                               </tr>
-                              {e?.location?.length > 0 &&
-                                e?.location?.map((loc: any, locIdx: any) => {
-                                  if (locIdx == 0) return null;
-                                  return (
-                                    <tr
-                                      key={locIdx}
-                                      className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                      <td className="p-4">
-                                        <div className="w-full flex items-center">
-                                          <MdSubdirectoryArrowRight className="w-5 h-5 mr-5" />
-                                          <img
-                                            src={
-                                              e?.product?.productImages
-                                                ? `${url}product/productImage/${e?.product?.productImages}`
-                                                : "../../../../../image/no-image.jpeg"
-                                            }
-                                            alt="img-product"
-                                            className="object cover object-center w-10 h-10 rounded mr-1"
-                                          />
-                                          <span>{e?.product?.productName}</span>
-                                        </div>
-                                      </td>
-                                      <td className="p-4">{e?.orderNumber}</td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4">
-                                        <div className="w-full flex">
-                                          <DropdownSelect
-                                            customStyles={stylesSelect}
-                                            value={
-                                              inventoryData[idx].location[
-                                                locIdx
-                                              ].moveTo || null
-                                            }
-                                            onChange={(value: any) => {
-                                              onSelectInventory({
-                                                value,
-                                                index: idx,
-                                                locIdx,
-                                              });
-                                            }}
-                                            error=""
-                                            className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
-                                              inventoryData[idx].location[
-                                                locIdx
-                                              ].moveTo == null
-                                                ? "border border-danger focus:border-danger rounded-lg"
-                                                : "focus:border-primary"
-                                            }`}
-                                            classNamePrefix=""
-                                            instanceId="user"
-                                            isDisabled={false}
-                                            isMulti={false}
-                                            placeholder="Choose"
-                                            options={options?.inventoryOption}
-                                            formatOptionLabel={""}
-                                            isClearable={true}
-                                            icon=""
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="p-4">
-                                        <input
-                                          min={0}
-                                          max={
-                                            e?.totalMove == e?.stock
-                                              ? 0
-                                              : e?.stock
-                                          }
-                                          value={loc?.qty || ""}
-                                          onChange={({ target }) => {
-                                            qtyHandlerInventory({
-                                              value: target.value,
-                                              index: idx,
-                                              locationIdx: locIdx,
-                                            });
-                                          }}
-                                          type="number"
-                                          className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                        ${
-                                          !inventoryData[idx].location[locIdx]
-                                            ?.qty ||
-                                          inventoryData[idx].location[locIdx]
-                                            ?.qty == 0 ||
-                                          inventoryData[idx].available < 0
-                                            ? "border-danger focus:border-danger"
-                                            : "border-gray focus:border-primary"
-                                        }
-                                      `}
-                                        />
-                                      </td>
-                                      <td className="p-4">
-                                        <button
-                                          className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
-                                          type="button"
-                                          onClick={() =>
-                                            onDeleteInventory({
-                                              index: idx,
-                                              locationIdx: locIdx,
-                                            })
-                                          }>
-                                          <MdDelete className="w-4 h-4" />
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
                             </Fragment>
                           );
                         })
@@ -1240,51 +773,9 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                 <td className="p-4">
                                   <div>{e?.orderNumber}</div>
                                 </td>
+                                <td className="p-4">serial number</td>
                                 <td className="p-4">
-                                  <div className="w-full flex justify-center">
-                                    <input
-                                      name="serialNumber"
-                                      onChange={updateFieldChanged(
-                                        "serialNumber",
-                                        idx
-                                      )}
-                                      value={e.serialNumber || ""}
-                                      type="text"
-                                      className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                      ${
-                                        !e?.serialNumber
-                                          ? "border-danger focus:border-danger"
-                                          : "border-gray focus:border-primary"
-                                      }
-                                      `}
-                                    />
-                                  </div>
-                                </td>
-                                <td className="p-4">
-                                  <div className="w-32 flex">
-                                    <DropdownSelect
-                                      customStyles={stylesSelect}
-                                      value={e.location || null}
-                                      onChange={onSelectAsset("location", idx)}
-                                      error=""
-                                      className={`text-xs font-normal text-gray-5 w-[90px] rounded-lg
-                                        ${
-                                          !e.location || e.location == null
-                                            ? "border border-danger focus:border-danger"
-                                            : "focus:border-primary"
-                                        }}
-                                      `}
-                                      classNamePrefix=""
-                                      instanceId="user"
-                                      isDisabled={false}
-                                      isMulti={false}
-                                      placeholder="Choose"
-                                      options={options?.inventoryOption}
-                                      formatOptionLabel={""}
-                                      isClearable={false}
-                                      icon=""
-                                    />
-                                  </div>
+                                  <div className="w-32 flex">location</div>
                                 </td>
                               </tr>
                             </Fragment>
@@ -1322,11 +813,10 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     maxLength={400}
                     placeholder="Notes..."
                     className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    {...register("transactionDescription")}
                   />
                   <div className="mt-1 text-xs flex items-center">
                     <span className="text-graydark">
-                      {descValue?.length || 0} / 400 characters.
+                      {/* {descValue?.length || 0} / 400 characters. */}
                     </span>
                   </div>
                 </div>
@@ -1401,4 +891,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default NewTransactionOrder;
+export default TransactionOrderDetails;

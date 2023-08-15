@@ -585,14 +585,6 @@ export const menuAssets: MenuProps[] = [
         },
       },
       {
-        pathname: "Transactions",
-        url: "/employee/assets-management/stocks/transactions",
-        query: {
-          page: 1,
-          limit: 10,
-        },
-      },
-      {
         pathname: "Move & Usage",
         url: "/employee/assets-management/stocks/move-usage",
         query: {
@@ -611,6 +603,14 @@ export const menuAssets: MenuProps[] = [
       {
         pathname: "Stock Taking",
         url: "/employee/assets-management/stocks/stock-taking",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Transactions",
+        url: "/employee/assets-management/stocks/transactions",
         query: {
           page: 1,
           limit: 10,

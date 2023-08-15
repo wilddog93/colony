@@ -326,3 +326,16 @@ export type PurchaseOrderProps = {
   vendor?: VendorProps;
   rrderProducts?: OrderProducts[];
 };
+
+// transaction
+export type TransactionProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  documents?: any | any[];
+  totalPrice?: number | string | any;
+  transactionDescription?: string | any;
+  transactionNumber?: string | any;
+  transactionStatus?: string | any;
+  transactionType?: string | any;
+};

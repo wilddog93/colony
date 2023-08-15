@@ -37,6 +37,7 @@ interface HeadersConfiguration {
 
 interface OrderData {
   id?: any;
+  documentId?: any;
   data?: any;
   token?: any;
   isSuccess: () => void;
@@ -308,6 +309,43 @@ export const deleteOrder = createAsyncThunk<
   }
 });
 
+// delete
+export const deleteOrderDocumentById = createAsyncThunk<
+  any,
+  OrderData,
+  { state: RootState }
+>("/order/delete/id/document/documentId", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.delete(
+      `order/${params.id}/document/${params.documentId}`,
+      config
+    );
+    const { data, status } = response;
+    if (status == 204) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // SLICER
 export const orderSlice = createSlice({
   name: "orders",
@@ -463,6 +501,26 @@ export const orderSlice = createSlice({
         };
       })
       .addCase(deleteOrder.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // delete-doc-order
+      .addCase(deleteOrderDocumentById.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(deleteOrderDocumentById.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(deleteOrderDocumentById.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
