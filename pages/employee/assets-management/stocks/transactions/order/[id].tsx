@@ -411,7 +411,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
           },
         })
       );
-    } else {
+    } else if (status == "On-Progress") {
       let obj = { status: "Mark As Complete" };
       dispatch(
         updateTransactionChangeStatus({
@@ -427,6 +427,8 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
           },
         })
       );
+    } else {
+      toast.dark("Transaction status is not valid");
     }
   };
 
@@ -581,7 +583,9 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                     onClick={() =>
                       onChangeApproval(transaction?.transactionStatus)
                     }
-                    disabled={pending}>
+                    disabled={
+                      pending || transaction?.transactionStatus == "Approve"
+                    }>
                     {pending ? (
                       <Fragment>
                         <span className="hidden lg:inline-block">
@@ -968,10 +972,10 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-base font-semibold">
                 Back to Transaction Order
               </h3>
-              <p className="text-gray-5">{`Are you sure to go back to Transaction Order ?`}</p>
+              <p className="text-gray-5 text-sm">{`Are you sure to go back to Transaction Order ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
@@ -1085,7 +1089,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
             <Button
               type="button"
               variant="primary"
-              className="w-full rounded-lg border-2 border-primary active:scale-90"
+              className="w-full rounded-lg border-2 border-primary active:scale-90 uppercase font-semibold"
               onClick={() =>
                 onUploadDocument({ document: files, id: query?.id })
               }
@@ -1111,8 +1115,8 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDeleteDoc}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Delete</h3>
-              <p className="text-gray-5">{`Are you sure to delete document?`}</p>
+              <h3 className="text-base font-semibold">Delete</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to delete document?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">

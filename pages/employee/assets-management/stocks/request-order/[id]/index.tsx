@@ -306,7 +306,7 @@ const RequestDetails = ({ pageProps }: Props) => {
           },
         })
       );
-    } else {
+    } else if (status == "On-Progress") {
       let obj = { status: "Mark As Complete" };
       dispatch(
         updateRequestChangeStatus({
@@ -322,6 +322,8 @@ const RequestDetails = ({ pageProps }: Props) => {
           },
         })
       );
+    } else {
+      toast.dark("Request status is not valid");
     }
   };
 
@@ -472,7 +474,11 @@ const RequestDetails = ({ pageProps }: Props) => {
                     type="button"
                     className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
                     onClick={() => onChangeApproval(request?.requestStatus)}
-                    disabled={pending || documentRequest?.length == 0}>
+                    disabled={
+                      pending ||
+                      documentRequest?.length == 0 ||
+                      request?.requestStatus == "Approve"
+                    }>
                     {pending ? (
                       <Fragment>
                         <span className="hidden lg:inline-block">
@@ -684,8 +690,8 @@ const RequestDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Back to Order</h3>
-              <p className="text-gray-5">{`Are you sure to go back to order product ?`}</p>
+              <h3 className="text-base font-semibold">Back to Order</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to go back to order product ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
@@ -799,7 +805,7 @@ const RequestDetails = ({ pageProps }: Props) => {
             <Button
               type="button"
               variant="primary"
-              className="w-full rounded-lg border-2 border-primary active:scale-90"
+              className="w-full rounded-lg border-2 border-primary active:scale-90 uppercase font-semibold"
               onClick={() =>
                 onUploadDocument({ document: files, id: query?.id })
               }
@@ -825,8 +831,8 @@ const RequestDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDeleteDoc}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Delete</h3>
-              <p className="text-gray-5">{`Are you sure to delete document?`}</p>
+              <h3 className="text-base font-semibold">Delete</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to delete document?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
