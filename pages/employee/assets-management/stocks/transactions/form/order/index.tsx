@@ -746,7 +746,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Form Purchase Order"
+      head="Form Transaction Order"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"

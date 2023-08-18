@@ -41,6 +41,7 @@ import requestManagementReducers from "../features/assets/stocks/requestReducers
 import orderManagementReducers from "../features/assets/stocks/orderReducers";
 import transactionManagementReducers from "../features/assets/stocks/transactionReducers";
 import stockBalanceManagementReducers from "../features/assets/stocks/stockBalanceReducers";
+import productLocationManagementReducers from "../features/assets/locations/productLocationManagementReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -84,6 +85,7 @@ export const combinedReducer = combineReducers({
   productUnitManagement: productUnitReducers,
   productBrandManagement: productBrandReducers,
   locationManagement: locationManagementReducers,
+  productLocationManagement: productLocationManagementReducers,
   vendorManagement: vendorManagementReducers,
   requestManagement: requestManagementReducers,
   orderManagement: orderManagementReducers,

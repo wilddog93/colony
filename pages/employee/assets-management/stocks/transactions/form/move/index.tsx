@@ -54,6 +54,15 @@ import {
   getLocations,
   selectLocationManagement,
 } from "../../../../../../../redux/features/assets/locations/locationManagementReducers";
+import {
+  getRequests,
+  selectRequestManagement,
+} from "../../../../../../../redux/features/assets/stocks/requestReducers";
+import SelectProductRequest from "../../../../../../../components/Forms/assets/transaction/SelectProductRequest";
+import {
+  getProductLocations,
+  selectProductLocationManagement,
+} from "../../../../../../../redux/features/assets/locations/productLocationManagementReducers";
 
 type FormValues = {
   id?: number | string;
@@ -112,7 +121,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const TransactionOrderDetails = ({ pageProps }: Props) => {
+const NewTransactionMove = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -123,22 +132,30 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { transaction } = useAppSelector(selectTransactionManagement);
+  const { requests } = useAppSelector(selectRequestManagement);
   const { orders, order } = useAppSelector(selectOrderManagement);
-  const { locations } = useAppSelector(selectLocationManagement);
+  const { productLocations } = useAppSelector(selectProductLocationManagement);
   const { pending } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // main-data
+  const [requestData, setRequestData] = useState<OptionProps[] | any[]>([]);
+  const [requestOpt, setRequestOpt] = useState<OptionProps[] | any[]>([]);
   const [orderData, setOrderData] = useState<OptionProps[] | any[]>([]);
   const [orderOpt, setOrderOpt] = useState<OptionProps[] | any[]>([]);
   const [inventoryData, setInventoryData] = useState<any[]>([]);
   const [assetData, setAssetData] = useState<any[]>([]);
 
+  console.log("order-data", orderData);
+
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
+
+  // use-form
+  const [watchValue, setWatchValue] = useState<FormValues | any>(null);
+  const [watchChange, setWatchChange] = useState<any | null>(null);
 
   // date
   const dateTimeFormat = (value: any) => {
@@ -165,6 +182,59 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     }
   };
 
+  // form
+  const {
+    unregister,
+    register,
+    getValues,
+    setValue,
+    handleSubmit,
+    watch,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors, isValid },
+    control,
+  } = useForm({
+    mode: "all",
+    defaultValues: useMemo<FormValues>(
+      () => ({
+        id: undefined,
+        transactionNumber: "",
+        transactionDescription: "",
+        products: [],
+      }),
+      []
+    ),
+  });
+
+  useEffect(() => {
+    const subscription = watch((value, { name, type }): any => {
+      if (value) {
+        setWatchValue(value);
+        setWatchChange({ name, type });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const inventories = useFieldArray({
+    control,
+    name: "inventories",
+  });
+  // { fields, remove, replace }
+
+  const assets = useFieldArray({
+    control,
+    name: "assets",
+  });
+
+  // description
+  const descValue = useWatch({
+    name: "transactionDescription",
+    control,
+  });
+
   // discard modal
   const onOpenDiscard = () => {
     setIsOpenDiscard(true);
@@ -174,11 +244,14 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     setIsOpenDiscard(false);
   };
 
-  // PO - Options
+  // Request - Options
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
     const search = {
-      $and: [{ orderStatus: { $in: ["On-Progress", "Approve"] } }],
+      $and: [
+        { requestStatus: { $in: ["On-Progress", "Approve"] } },
+        { requestType: { $in: ["Move"] } },
+      ],
     };
 
     qb.search(search);
@@ -191,75 +264,67 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token) dispatch(getOrders({ token, params: filters.queryObject }));
+    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data } = orders;
+    const { data } = requests;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push({
           ...item,
           value: item?.id,
-          label: item?.orderNumber,
+          label: item?.requestNumber,
         });
       });
     }
-    setOrderOpt(newArr);
-  }, [orders]);
+    setRequestOpt(newArr);
+  }, [requests]);
+  // Request - Options end
 
   // inventory-function
   const qtyHandlerInventory = ({ value, index, locationIdx }: any) => {
     if (!value) {
-      delete inventoryData[index]?.location[locationIdx]?.qty;
+      delete inventoryData[index]?.selectedLocation[locationIdx]?.qty;
     }
     let items = [...inventoryData];
-    if (!items[index].location[locationIdx]) {
-      items[index].location = [{ qty: Number(value) }];
+    if (!items[index].selectedLocation[locationIdx]) {
+      items[index].selectedLocation = [{ qty: Number(value) }];
     }
-    for (const item of items) {
-      const stock = item.stock;
-      const locations = item.location;
+    // for (const item of items) {
+    //   const moved = item.totalMove;
+    //   const locations = item.selectedLocation;
 
-      for (const loc of locations) {
-        if (loc.qty > stock) {
-          loc.qty = stock;
-        }
-      }
-    }
+    //   for (const loc of locations) {
+    //     if (loc.qty > moved) {
+    //       loc.qty = moved;
+    //     }
+    //   }
+    // }
 
-    items[index].location[locationIdx].qty = parseInt(`${value}`);
-
-    items[index].totalMove = items[index]?.location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current.qty);
-    },
-    0);
-    let totalQty = items[index].location?.reduce(function (
+    items[index].selectedLocation[locationIdx].qty = parseInt(`${value}`);
+    let totalQty = items[index].selectedLocation?.reduce(function (
       sum: any,
       current: any
     ) {
       return sum + Number(current?.qty);
     },
     0);
-    items[index].available = items[index].stock - totalQty;
-
+    items[index].totalMove = totalQty;
     setInventoryData([...items]);
   };
 
   const onSelectInventory = ({ value, index, locIdx }: any) => {
-    if (!value) delete inventoryData[index].location[locIdx].moveTo;
+    if (!value) delete inventoryData[index].selectedLocation[locIdx].moveTo;
     let item = [...inventoryData];
-    item[index].location[locIdx].moveTo = value;
+    item[index].selectedLocation[locIdx].moveTo = value;
     setInventoryData(item);
   };
 
   const onShuffleInventory = (index: any) => {
     let item: any[] = [...inventoryData];
-    item[index].location.push({
+    item[index].selectedLocation.push({
       qty: 0,
     });
     setInventoryData(item);
@@ -267,22 +332,15 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
 
   const onDeleteInventory = ({ index, locationIdx }: any) => {
     let item: any[] = [...inventoryData];
-    item[index].location.splice(locationIdx, 1);
-    item[index].totalMove = item[index]?.location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current.qty);
-    },
-    0);
-    let totalQty = item[index].location?.reduce(function (
+    item[index].selectedLocation.splice(locationIdx, 1);
+    let totalQty = item[index].selectedLocation?.reduce(function (
       sum: any,
       current: any
     ) {
       return sum + Number(current?.qty);
     },
     0);
-    item[index].available = item[index].stock - totalQty;
+    item[index].totalMove = totalQty;
     setInventoryData(item);
   };
   // inventory-function-end
@@ -331,10 +389,10 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
   // first-manipulation-data-inventory
   useEffect(() => {
     const inventory: any[] = [];
-    const productArr: any[] = orderData;
+    const productArr: any[] = requestData;
     if (productArr?.length > 0) {
       productArr.map((item: any) => {
-        let inv = item["orderProducts"].filter(
+        let inv = item["requestProducts"].filter(
           (o: any) => o.product?.productType == "Inventory"
         );
 
@@ -342,48 +400,62 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
           inventory.push({
             ...x,
             id: Date.now() + Math.random(),
-            orderId: x.id,
+            requestId: x.id,
             product: x?.product,
-            orderNumber: item?.orderNumber,
-            stock: x.orderQty || 0,
-            available: (x.orderQty || 0) - (x.orderQtyCompleted || 0),
+            requestNumber: item?.requestNumber,
+            stock: x?.requestQty - x?.requestQtyCompleted,
+            available: x?.requestQty - x?.requestQtyCompleted,
             totalMove: 0,
-            location: [{ qty: 0 }],
-            orders: item?.orderProducts?.filter(
+            location: [
+              {
+                moveTo: {
+                  ...x?.location,
+                  value: x.location.id,
+                  label: x.location.locationName,
+                },
+                qty: x.requestQty,
+              },
+            ],
+            selectedLocation: [],
+            requests: item?.requestProducts?.filter(
               (e: any) => e?.product?.productType == "Inventory"
             ),
           });
         });
+
+        console.log(inv, "data-inventory");
       });
     }
 
     setInventoryData(inventory);
-  }, [orderData]);
+  }, [requestData]);
 
   // first-manipulation-data-asset
   useEffect(() => {
     const asset: any[] = [];
-    const productArr: any[] = orderData;
+    const productArr: any[] = requestData;
     if (productArr?.length > 0) {
       productArr.map((item: any) => {
-        let ass = item["orderProducts"].filter(
+        let ass = item["requestProducts"].filter(
           (o: any) => o.product?.productType == "Asset"
         );
 
         ass.map((x: any) => {
-          let length = x?.orderQty - x?.orderQtyCompleted;
+          let length = x?.requestQty;
           let obj = {
             ...x,
             id: Date.now() + Math.random(),
-            orderId: x.id,
+            requestId: x.id,
             product: x?.product,
-            serialNumber: null,
-            price: x.orderPrice,
-            orderNumber: item?.orderNumber,
-            qty: 1,
-            location: null,
-            stock: x?.orderQty - x?.orderQtyCompleted,
-            orders: item?.orderProducts?.filter(
+            requestNumber: item?.requestNumber,
+            stock: x?.requestQty - x?.requestQtyCompleted,
+            qty: x?.requestQty - x?.requestQtyCompleted,
+            location: {
+              ...x?.location,
+              qty: x?.requestQty - x?.requestQtyCompleted,
+            },
+            selectedLocation: null,
+            requests: item?.requestProducts?.filter(
               (e: any) => e?.product?.productType == "Asset"
             ),
           };
@@ -394,7 +466,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
       });
     }
     setAssetData(asset);
-  }, [orderData]);
+  }, [requestData]);
 
   const transformedInventory = useMemo(() => {
     const grouped: any = {};
@@ -402,27 +474,34 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     if (inventoryData?.length > 0) {
       inventoryData.forEach((item, index) => {
         const productKey = item?.product?.id;
-        const orderKey = item?.orderId;
+        const requestKey = item?.requestId;
         const locations: any[] = [];
 
         if (!grouped[productKey]) {
           grouped[productKey] = {
             id: item.product.id,
             // productName: item.product.productName,
-            orders: [],
+            requests: [],
           };
         }
 
-        let order = grouped[productKey].orders.find(
-          (o: any) => o.id === orderKey
+        let request = grouped[productKey].requests.find(
+          (o: any) => o.id === requestKey
         );
 
-        item.location.map((y: any, idx: any) => {
-          if (y.moveTo || parseInt(y.qty) > 0) {
-            locations.push({ id: y?.moveTo?.id, qty: y?.qty });
-          }
-        });
-
+        if (item.selectedLocation?.length > 0) {
+          item?.selectedLocation?.map((y: any, idx: any) => {
+            if (y.moveTo.id || parseInt(y.qty) > 0) {
+              locations.push({ id: y?.moveTo?.id, qty: y?.qty });
+            }
+          });
+        } else {
+          item?.location?.map((y: any, idx: any) => {
+            if (y.moveTo.id || parseInt(y.qty) > 0) {
+              locations.push({ id: y?.moveTo?.id, qty: y?.qty });
+            }
+          });
+        }
         const resultLoc = locations?.reduce((acc, curr) => {
           const existingItem = acc.find((item: any) => item.id === curr.id);
 
@@ -435,12 +514,12 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
           return acc;
         }, []);
 
-        if (!order) {
-          order = {
-            id: orderKey,
+        if (!request) {
+          request = {
+            id: requestKey,
             locations: resultLoc,
           };
-          grouped[productKey].orders.push(order);
+          grouped[productKey].requests.push(request);
         }
       });
     }
@@ -453,42 +532,42 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     if (assetData?.length > 0) {
       assetData.map((item) => {
         const productKey = item?.product?.id;
-        const orderKey = item?.orderId;
-        const locationKey = item?.location?.id;
+        const requestKey = item?.requestId;
+        const locationKey = item?.selectedLocation?.id;
 
         if (!grouped[productKey]) {
           grouped[productKey] = {
             id: item.product.id,
             // productName: item.product.productName,
-            orders: [],
+            requests: [],
           };
         }
 
-        let order = grouped[productKey].orders.find(
-          (o: any) => o.id === orderKey
+        let request = grouped[productKey].requests?.find(
+          (o: any) => o.id === requestKey
         );
-        if (!order) {
-          order = {
-            id: orderKey,
+        if (!request) {
+          request = {
+            id: requestKey,
+            qty: item?.qty,
             locations: [],
           };
-          grouped[productKey].orders.push(order);
+          grouped[productKey]?.requests?.push(request);
         }
 
-        let locations = order?.locations.find((l: any) => l.id === locationKey);
+        let locations = request?.locations.find(
+          (l: any) => l.id === locationKey
+        );
         if (!locations) {
           locations = {
             id: locationKey,
             assets: [],
             qty: 1,
           };
-          order?.locations?.push(locations);
+          request?.locations?.push(locations);
         }
 
-        locations?.assets?.push({
-          serialNumber: item?.serialNumber,
-          value: Number(item?.orderPrice) || 0,
-        });
+        locations?.assets?.push(item?.selectedLocation?.assets?.id);
         locations.qty = locations?.assets?.length || 1;
       });
     }
@@ -496,11 +575,206 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     return Object.values(grouped);
   }, [assetData]);
 
+  // error-inventory
+  const errorInventory = useMemo(() => {
+    let newErr = {
+      available: false,
+      locations: false,
+      qty: false,
+    };
+    if (inventoryData?.length > 0) {
+      inventoryData?.map((item, index) => {
+        let totalQty = item?.selectedLocation?.reduce(function (
+          sum: any,
+          current: any
+        ) {
+          return sum + Number(current?.qty);
+        },
+        0);
+        item?.selectedLocation.map((o: any, i: any) => {
+          if (o.moveTo == null) {
+            newErr.locations = true;
+          } else {
+            newErr.locations = false;
+          }
+          if (!o.qty || o.qty == 0) {
+            newErr.qty = true;
+          } else {
+            newErr.qty = false;
+          }
+        });
+        if (item?.available < totalQty) {
+          newErr.available = true;
+        } else {
+          newErr.available = false;
+        }
+      });
+    }
+    return newErr;
+  }, [inventoryData]);
+
+  // error-asset
+  const errorAsset = useMemo(() => {
+    let newErr = {
+      locations: false,
+    };
+    if (assetData?.length > 0) {
+      assetData?.map((item, index) => {
+        if (!item.selectedLocation || item.selectedLocation == null) {
+          newErr.locations = true;
+        } else {
+          newErr.locations = false;
+        }
+      });
+    }
+    return newErr;
+  }, [assetData]);
+
+  // set inventory data to form-value
+  useEffect(() => {
+    if (inventoryData?.length > 0) {
+      setValue(`inventories`, transformedInventory);
+    } else {
+      setValue("inventories", []);
+    }
+  }, [transformedInventory]);
+
+  // set asset data to form-valu
+  useEffect(() => {
+    if (assetData?.length > 0) {
+      setValue(`assets`, transformedAsset);
+    } else {
+      setValue("assets", []);
+    }
+  }, [transformedAsset]);
+
+  // location-option
+  const filterLoc = useMemo(() => {
+    let qb = RequestQueryBuilder.create();
+    // qb.sortBy({ field: "location.locationName", order: "ASC" });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(getProductLocations({ token, params: filterLoc.queryObject }));
+  }, [token, filterLoc]);
+
+  const options = useMemo(() => {
+    let locInventories: OptionProps[] = [];
+    let locAssets: OptionProps[] = [];
+    let filteredInventory = productLocations?.data?.filter(
+      (x: any) => x?.productQty == 0
+    );
+
+    const filteredAsset = productLocations?.data?.filter((item: any) => {
+      return item?.assetLocations?.some((x: any) => x?.endTime === null);
+    });
+
+    const { data } = productLocations;
+    if (data && data?.length > 0) {
+      filteredInventory?.map((item: any) => {
+        locInventories.push({
+          ...item,
+          value: item?.location?.id,
+          label: item?.location?.locationName,
+          available: item?.qty,
+          total: item?.qty,
+          qty: 0,
+        });
+      });
+      filteredAsset?.map((item: any) => {
+        if (item?.assetLocations?.length > 0) {
+          item?.assetLocations?.map((x: any) => {
+            locAssets.push({
+              ...item,
+              productQty: item?.productQty,
+              assets: x?.asset,
+              value: x?.asset?.serialNumber,
+              label: x?.asset?.serialNumber,
+            });
+          });
+        }
+      });
+    }
+
+    return { inventoryOption: locInventories, assetOption: locAssets };
+  }, [productLocations]);
+
+  const formatOptionLabelLocation = (props: any) => {
+    return (
+      <div className="w-full flex flex-row items-center justify-between text-xs">
+        <div className="text-gray-500">
+          <span>From :</span>
+          <span className="font-bold ml-1">{props?.label}</span>
+        </div>
+        <div className="text-gray-500">
+          <span>Available :</span>
+          <span className="font-bold ml-1">{props?.productQty}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const filterredLocation = ({ productId, locationId }: any) => {
+    const newLocation: Array<any> = [];
+    let locationOptions: Array<any> = options.inventoryOption;
+  };
+  // location-option end
+
+  // on-submit
+  const onSubmit: SubmitHandler<FormValues> = (value) => {
+    const concatenatedArraySpread: any[] = [
+      ...(value.inventories || []),
+      ...(value?.assets || []),
+    ];
+    let newObj: FormValues = {
+      transactionNumber: value.transactionNumber,
+      transactionDescription: value.transactionDescription,
+      products: concatenatedArraySpread,
+    };
+
+    if (!newObj?.products || newObj?.products?.length == 0) {
+      toast.dark("Please, fill your transaction order");
+      return;
+    }
+    if (
+      errorInventory.available ||
+      errorInventory.locations ||
+      errorInventory.qty ||
+      errorAsset.locations
+    ) {
+      toast.dark("Please, fill your transaction order correctly");
+      return;
+    }
+    console.log(newObj, "form-data");
+
+    // dispatch(
+    //   createTransactionOrder({
+    //     token,
+    //     data: newObj,
+    //     isSuccess: () => {
+    //       toast.dark("Transaction order has been created successfully.");
+    //       router.back();
+    //     },
+    //     isError: () => {
+    //       console.log("error-create-transaction-order");
+    //     },
+    //   })
+    // );
+  };
+
+  // console.log("data-request :", requestData);
+  // console.log("data-inventory :", inventoryData);
+  console.log("data-location :", { options, productLocations });
+  console.log("data-asset :", assetData);
+
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Form Purchase Order"
+      head="Form Transaction Move"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"
@@ -548,12 +822,33 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                     <div className="flex gap-1 items-center">
                       <MdChevronLeft className="w-6 h-6" />
                       <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
-                        <span className="inline-block">Transaction Order</span>
+                        <span className="inline-block">Transaction Move</span>
                       </h3>
                     </div>
                   </button>
                   <div className="w-full max-w-[10rem] text-primary">
-                    {transaction?.transactionNumber}
+                    <input
+                      type="text"
+                      className={`w-full border-2  px-2 py-1 focus:outline-none text-lg rounded-lg ${
+                        errors?.transactionNumber
+                          ? "border-danger focus:border-danger"
+                          : "border-gray-5 focus:border-primary"
+                      }`}
+                      {...register("transactionNumber", {
+                        required: {
+                          value: true,
+                          message: "This fill is required",
+                        },
+                      })}
+                    />
+                    {errors?.transactionNumber && (
+                      <div className="mt-1 text-xs flex items-center text-red-300">
+                        <MdWarning className="w-4 h-4 mr-1" />
+                        <span className="text-red-300">
+                          {errors.transactionNumber.message as any}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -569,7 +864,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                   <Button
                     type="button"
                     className="rounded-lg text-sm font-semibold py-3 border border-primary active:scale-90 shadow-2"
-                    onClick={() => console.log("data")}
+                    onClick={handleSubmit(onSubmit)}
                     disabled={pending}
                     variant="primary">
                     {pending ? (
@@ -581,7 +876,9 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                       </Fragment>
                     ) : (
                       <Fragment>
-                        <span className="hidden lg:inline-block">Apptove</span>
+                        <span className="hidden lg:inline-block">
+                          New Transaction
+                        </span>
                         <MdAdd className="w-4 h-4" />
                       </Fragment>
                     )}
@@ -593,12 +890,16 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
 
           {/* PO */}
           <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 mt-5">
-            <SelectProductOrder
-              options={orderOpt}
-              items={orderData}
-              setItems={setOrderData}
+            <div className={`w-full flex flex-col gap-1 mb-3`}>
+              <h3 className="font-bold uppercase tracking-widest text-sm">
+                Requested Move
+              </h3>
+            </div>
+            <SelectProductRequest
+              options={requestOpt}
+              items={requestData}
+              setItems={setRequestData}
               defaultImage=""
-              isDetail
             />
           </div>
 
@@ -624,22 +925,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                         <th
                           scope="col"
                           className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Order No.
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Stock
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Moved
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Available
+                          Request No.
                         </th>
                         <th
                           scope="col"
@@ -678,23 +964,143 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                                     <div>{e?.product?.productName}</div>
                                   </div>
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.orderNumber}</div>
+                                <td className="py-4 px-2">
+                                  <div>{e?.requestNumber}</div>
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.stock || 0}</div>
+                                <td className="py-4 px-2">
+                                  <div className="w-42 flex">
+                                    {e.location?.map?.((loc: any) =>
+                                      loc?.moveTo?.locationName?.split("")
+                                    )}
+                                  </div>
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.totalMove || 0}</div>
+                                <td className="py-2 px-4">
+                                  {e.available || 0}
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.available || 0}</div>
+                                <td className="py-2 px-4">
+                                  <button
+                                    className="flex items-center px-2 py-2 rounded-lg border-2 border-primary bg-primary text-white shadow-1 active:scale-90 disabled:opacity-50 disabled:active:scale-100"
+                                    type="button"
+                                    disabled={
+                                      e.totalMove == e.available ||
+                                      options.inventoryOption?.length == 0
+                                    }
+                                    onClick={() => onShuffleInventory(idx)}>
+                                    <MdShuffle className="w-4 h-4" />
+                                  </button>
                                 </td>
-                                <td className="p-4">
-                                  <div className="w-[100px] flex">select</div>
-                                </td>
-                                <td className="p-4">qty</td>
                               </tr>
+                              {e?.selectedLocation?.length > 0 &&
+                                e?.selectedLocation?.map(
+                                  (loc: any, locIdx: any) => {
+                                    let totalQty = e?.selectedLocation?.reduce(
+                                      function (sum: any, current: any) {
+                                        return sum + Number(current?.qty);
+                                      },
+                                      0
+                                    );
+                                    return (
+                                      <tr
+                                        key={locIdx}
+                                        className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
+                                        <td className="py-2 px-4">
+                                          <div className="w-full flex items-center">
+                                            <MdSubdirectoryArrowRight className="w-5 h-5 mr-5" />
+                                            <img
+                                              src={
+                                                e?.product?.productImages
+                                                  ? `${url}product/productImage/${e?.product?.productImages}`
+                                                  : "../../../../../image/no-image.jpeg"
+                                              }
+                                              alt="img-product"
+                                              className="object cover object-center w-10 h-10 rounded mr-1"
+                                            />
+                                            <span>
+                                              {e?.product?.productName}
+                                            </span>
+                                          </div>
+                                        </td>
+                                        <td colSpan={3} className="py-2 px-4">
+                                          <div className="w-full flex">
+                                            <DropdownSelect
+                                              customStyles={stylesSelect}
+                                              value={
+                                                inventoryData[idx]
+                                                  .selectedLocation[locIdx]
+                                                  .moveTo || null
+                                              }
+                                              onChange={(value: any) => {
+                                                onSelectInventory({
+                                                  value,
+                                                  index: idx,
+                                                  locIdx,
+                                                });
+                                              }}
+                                              error=""
+                                              className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
+                                                inventoryData[idx]
+                                                  .selectedLocation[locIdx]
+                                                  .moveTo == null
+                                                  ? "border border-danger focus:border-danger rounded-lg"
+                                                  : "focus:border-primary"
+                                              }`}
+                                              classNamePrefix=""
+                                              instanceId="user"
+                                              isDisabled={false}
+                                              isMulti={false}
+                                              placeholder="Choose"
+                                              options={options?.inventoryOption}
+                                              formatOptionLabel={""}
+                                              isClearable={true}
+                                              icon=""
+                                            />
+                                          </div>
+                                        </td>
+                                        <td className="py-2 px-4">
+                                          <input
+                                            min={0}
+                                            max={e?.available}
+                                            value={loc?.qty || ""}
+                                            onChange={({ target }) => {
+                                              qtyHandlerInventory({
+                                                value: target.value,
+                                                index: idx,
+                                                locationIdx: locIdx,
+                                              });
+                                            }}
+                                            type="number"
+                                            className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
+                                        ${
+                                          !inventoryData[idx].selectedLocation[
+                                            locIdx
+                                          ]?.qty ||
+                                          inventoryData[idx].selectedLocation[
+                                            locIdx
+                                          ]?.qty == 0 ||
+                                          e.available < totalQty
+                                            ? "border-danger focus:border-danger"
+                                            : "border-gray focus:border-primary"
+                                        }
+                                      `}
+                                          />
+                                        </td>
+                                        <td className="p-4">
+                                          <button
+                                            className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
+                                            type="button"
+                                            onClick={() =>
+                                              onDeleteInventory({
+                                                index: idx,
+                                                locationIdx: locIdx,
+                                              })
+                                            }>
+                                            <MdDelete className="w-4 h-4" />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+                                )}
                             </Fragment>
                           );
                         })
@@ -736,12 +1142,17 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                         <th
                           scope="col"
                           className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Order No.
+                          Request No.
                         </th>
                         <th
                           scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-center">
-                          Serial No.
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          From
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
+                          Asset ID
                         </th>
                         <th
                           scope="col"
@@ -771,11 +1182,53 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                                   </div>
                                 </td>
                                 <td className="p-4">
-                                  <div>{e?.orderNumber}</div>
+                                  <div>{e?.requestNumber}</div>
                                 </td>
-                                <td className="p-4">serial number</td>
                                 <td className="p-4">
-                                  <div className="w-32 flex">location</div>
+                                  <div>{e?.location?.locationName}</div>
+                                </td>
+                                <td className="p-4">
+                                  <div className="w-full flex">
+                                    <DropdownSelect
+                                      customStyles={stylesSelect}
+                                      value={e.selectedLocation || null}
+                                      onChange={onSelectAsset(
+                                        "selectedLocation",
+                                        idx
+                                      )}
+                                      error=""
+                                      className={`text-xs font-normal text-gray-5 w-[90px] rounded-lg
+                                        ${
+                                          !e.selectedLocation ||
+                                          e.selectedLocation == null
+                                            ? "border border-danger focus:border-danger"
+                                            : "focus:border-primary"
+                                        }}
+                                      `}
+                                      classNamePrefix=""
+                                      instanceId="user"
+                                      isDisabled={false}
+                                      isMulti={false}
+                                      placeholder="Choose"
+                                      options={options?.assetOption?.filter(
+                                        (x: any) =>
+                                          x?.product?.id == e?.product.id
+                                      )}
+                                      formatOptionLabel={
+                                        formatOptionLabelLocation
+                                      }
+                                      isClearable={true}
+                                      icon=""
+                                    />
+                                  </div>
+                                </td>
+                                <td className="p-4">
+                                  <div>
+                                    {
+                                      e?.selectedLocation?.location
+                                        ?.locationName
+                                    }
+                                  </div>
                                 </td>
                               </tr>
                             </Fragment>
@@ -813,10 +1266,11 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                     maxLength={400}
                     placeholder="Notes..."
                     className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    {...register("transactionDescription")}
                   />
                   <div className="mt-1 text-xs flex items-center">
                     <span className="text-graydark">
-                      {/* {descValue?.length || 0} / 400 characters. */}
+                      {descValue?.length || 0} / 400 characters.
                     </span>
                   </div>
                 </div>
@@ -891,4 +1345,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default TransactionOrderDetails;
+export default NewTransactionMove;
