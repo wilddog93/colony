@@ -17,7 +17,6 @@ import {
 } from "../../../../../../redux/features/auth/authReducers";
 import Button from "../../../../../../components/Button/Button";
 import {
-  MdAdd,
   MdArrowRightAlt,
   MdCheckCircle,
   MdChevronLeft,
@@ -27,28 +26,16 @@ import {
   MdFileDownload,
   MdFileUpload,
   MdRemoveCircle,
-  MdShuffle,
-  MdSubdirectoryArrowRight,
   MdUnarchive,
-  MdWarning,
 } from "react-icons/md";
 import SidebarComponent from "../../../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuAssets } from "../../../../../../utils/routes";
-import DropdownSelect from "../../../../../../components/Dropdown/DropdownSelect";
 import Modal from "../../../../../../components/Modal";
 import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
-import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { toast } from "react-toastify";
-import {
-  OptionProps,
-  ProductProps,
-} from "../../../../../../utils/useHooks/PropTypes";
+import { OptionProps } from "../../../../../../utils/useHooks/PropTypes";
 import { FaCircleNotch } from "react-icons/fa";
-import {
-  getOrders,
-  selectOrderManagement,
-} from "../../../../../../redux/features/assets/stocks/orderReducers";
 import {
   createTransactionDocumentById,
   deleteTransactionDocumentById,
@@ -56,8 +43,6 @@ import {
   selectTransactionManagement,
   updateTransactionChangeStatus,
 } from "../../../../../../redux/features/assets/stocks/transactionReducers";
-import SelectProductOrder from "../../../../../../components/Forms/assets/transaction/SelectProductOrder";
-import { selectLocationManagement } from "../../../../../../redux/features/assets/locations/locationManagementReducers";
 import {
   convertBytes,
   toBase64,
@@ -369,7 +354,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Transaction Order has been approved");
+            toast.dark("Transaction Usage has been approved");
             dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
@@ -385,7 +370,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Transaction Order has been Mark as completed");
+            toast.dark("Transaction Usage has been Mark as completed");
             dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
@@ -409,7 +394,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Transaction Order has been approved");
+            toast.dark("Transaction Usage has been approved");
             dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
@@ -425,7 +410,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Transaction Order has been approved");
+            toast.dark("Transaction Usage has been approved");
             dispatch(getTransactionById({ token, id: query?.id }));
           },
           isError: () => {
@@ -817,10 +802,8 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-base font-semibold">
-                Back to Transaction Usage
-              </h3>
-              <p className="text-gray-5 text-sm">{`Are you sure to go back to Transaction Order ?`}</p>
+              <h3 className="text-base font-semibold">Back to Transactions</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to go back to Transactions ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
