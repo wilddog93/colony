@@ -46,6 +46,7 @@ import {
   selectOrderManagement,
 } from "../../../../../../../redux/features/assets/stocks/orderReducers";
 import {
+  createTransactionMove,
   createTransactionOrder,
   selectTransactionManagement,
 } from "../../../../../../../redux/features/assets/stocks/transactionReducers";
@@ -133,9 +134,8 @@ const NewTransactionMove = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { requests } = useAppSelector(selectRequestManagement);
-  const { orders, order } = useAppSelector(selectOrderManagement);
   const { productLocations } = useAppSelector(selectProductLocationManagement);
-  const { pending } = useAppSelector(selectTransactionManagement);
+  const { pending, transaction } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -508,7 +508,7 @@ const NewTransactionMove = ({ pageProps }: Props) => {
           if (existingItem) {
             existingItem.qty += curr.qty;
           } else {
-            acc.push({ id: curr.id, qty: curr.qty });
+            acc.push({ id: curr?.id, qty: curr.qty });
           }
 
           return acc;
@@ -525,6 +525,8 @@ const NewTransactionMove = ({ pageProps }: Props) => {
     }
     return Object.values(grouped);
   }, [inventoryData]);
+
+  console.log(inventoryData, "data-inven");
 
   const transformedAsset = useMemo(() => {
     const grouped: any = {};
@@ -676,9 +678,11 @@ const NewTransactionMove = ({ pageProps }: Props) => {
     if (data && data?.length > 0) {
       filteredInventory?.map((item: any) => {
         locInventories.push({
-          ...item,
+          ...item?.location,
           value: item?.location?.id,
           label: item?.location?.locationName,
+          product: item?.product,
+
           available: item?.qty,
           total: item?.qty,
           qty: 0,
@@ -750,19 +754,20 @@ const NewTransactionMove = ({ pageProps }: Props) => {
     }
     console.log(newObj, "form-data");
 
-    // dispatch(
-    //   createTransactionOrder({
-    //     token,
-    //     data: newObj,
-    //     isSuccess: () => {
-    //       toast.dark("Transaction order has been created successfully.");
-    //       router.back();
-    //     },
-    //     isError: () => {
-    //       console.log("error-create-transaction-order");
-    //     },
-    //   })
-    // );
+    dispatch(
+      createTransactionMove({
+        token,
+        data: newObj,
+        isSuccess: () => {
+          console.log(transaction, "transaction");
+          toast.dark("Transaction move has been created successfully.");
+          router.back();
+        },
+        isError: () => {
+          console.log("error-create-transaction-move");
+        },
+      })
+    );
   };
 
   // console.log("data-request :", requestData);
