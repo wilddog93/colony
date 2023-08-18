@@ -666,13 +666,12 @@ const TransactionMoveDetails = ({ pageProps }: Props) => {
                             <th
                               scope="col"
                               className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Move To
+                              Move Qty
                             </th>
-
                             <th
                               scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Move Qty
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Move To
                             </th>
                           </tr>
                         </thead>
@@ -702,14 +701,14 @@ const TransactionMoveDetails = ({ pageProps }: Props) => {
                                     <td className="px-2 py-4">
                                       <div className="text-center font-semibold">
                                         {e?.locations?.map((loc: any) => {
-                                          return loc?.locationName;
+                                          return loc?.transactionQty;
                                         }) || "-"}
                                       </div>
                                     </td>
                                     <td className="px-2 py-4">
-                                      <div className="text-center font-semibold">
+                                      <div className="text-left font-semibold">
                                         {e?.locations?.map((loc: any) => {
-                                          return loc?.transactionQty;
+                                          return loc?.locationName;
                                         }) || "-"}
                                       </div>
                                     </td>
@@ -764,7 +763,7 @@ const TransactionMoveDetails = ({ pageProps }: Props) => {
                             </th>
                             <th
                               scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
                               Move To
                             </th>
                           </tr>
@@ -802,7 +801,7 @@ const TransactionMoveDetails = ({ pageProps }: Props) => {
                                       </div>
                                     </td>
                                     <td className="px-2 py-4">
-                                      <div className="text-center">
+                                      <div className="text-left">
                                         {e?.locations?.locationName || "-"}
                                       </div>
                                     </td>
