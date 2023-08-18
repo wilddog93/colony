@@ -63,12 +63,13 @@ import {
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
 import Cards from "../../../../../../components/Cards/Cards";
+import SelectProductRequest from "../../../../../../components/Forms/assets/transaction/SelectProductRequest";
 
 type Props = {
   pageProps: any;
 };
 
-const TransactionOrderDetails = ({ pageProps }: Props) => {
+const TransactionUsageDetails = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -80,15 +81,13 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { transaction } = useAppSelector(selectTransactionManagement);
-  const { orders, order } = useAppSelector(selectOrderManagement);
-  const { locations } = useAppSelector(selectLocationManagement);
   const { pending } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // main-data
-  const [orderData, setOrderData] = useState<OptionProps[] | any[]>([]);
+  const [requestData, setRequestData] = useState<OptionProps[] | any[]>([]);
 
   // data-table
   const [formData, setFormData] = useState<any>(null);
@@ -175,62 +174,63 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
   };
 
   // get all-details
-  const transformedOrderData = useMemo(() => {
+  const transformedRequestData = useMemo(() => {
     const grouped: any = {};
-    if (transaction?.transactionOrderProducts?.length > 0) {
-      transaction?.transactionOrderProducts.forEach((item: any, index: any) => {
-        const orderKey = item?.orderProduct?.order;
-        const productKey = item?.orderProduct?.product;
-        const location: any[] = [];
+    if (transaction?.transactionRequestProducts?.length > 0) {
+      transaction?.transactionRequestProducts.forEach(
+        (item: any, index: any) => {
+          const requestKey = item?.requestProduct?.request;
+          const productKey = item?.requestProduct?.product;
+          const locationKey = item?.productLocation?.location;
+          const transactionQty = item?.transactionQty;
 
-        item.transactionOrderProductLocations.map((y: any, idx: any) => {
-          if (y.location) {
-            location.push({
-              ...y?.location,
-              assets:
-                y?.transactionOrderAssets?.length > 0
-                  ? y?.transactionOrderAssets
-                  : [],
-              transactionQty: y?.transactionQty,
-            });
+          if (!grouped[requestKey]) {
+            grouped[requestKey] = {
+              ...requestKey,
+              product: [],
+              locations: [],
+            };
           }
-        });
 
-        if (!grouped[orderKey]) {
-          grouped[orderKey] = {
-            ...orderKey,
-            product: [],
-          };
+          let product = grouped[requestKey].product.find(
+            (o: any) => o.id === productKey
+          );
+          if (!product) {
+            product = {
+              ...productKey,
+              requests: grouped[requestKey],
+            };
+            grouped[requestKey].product.push(product);
+          }
+
+          let locations = grouped[requestKey]?.locations.find(
+            (l: any) => l.id === locationKey
+          );
+          if (!locations) {
+            locations = {
+              ...locationKey,
+              qty: transactionQty,
+            };
+            grouped[requestKey]?.locations?.push(locations);
+          }
+
+          console.log(grouped, "grouped");
         }
-
-        let product = grouped[orderKey].product.find(
-          (o: any) => o.id === productKey
-        );
-        if (!product) {
-          product = {
-            ...productKey,
-            orderNumber: grouped[orderKey].orderNumber,
-            location: location,
-          };
-          grouped[orderKey].product.push(product);
-        }
-
-        console.log(grouped, "grouped");
-      });
+      );
     }
     return Object.values(grouped);
   }, [transaction]);
 
   const transformedInventory = useMemo(() => {
     let dataArr: any[] = [];
-    if (transformedOrderData?.length > 0) {
-      transformedOrderData?.map((data: any) => {
+    if (transformedRequestData?.length > 0) {
+      transformedRequestData?.map((data: any) => {
         data["product"]
           .filter((item: any) => item?.productType == "Inventory")
           .map((prod: any) => {
             dataArr.push({
               ...prod,
-              order: {
+              requests: {
                 ...data,
               },
             });
@@ -238,41 +238,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
       });
     }
     return dataArr;
-  }, [transformedOrderData]);
-
-  const transformedAsset = useMemo(() => {
-    let dataAssets: any | any[] = undefined;
-    if (transformedOrderData?.length > 0) {
-      transformedOrderData?.map((data: any) => {
-        let products = data["product"].filter(
-          (item: any) => item?.productType == "Asset"
-        );
-        dataAssets =
-          products?.length > 0 &&
-          products.reduce(
-            (ret: any, current: any) => {
-              const product = {
-                ...current,
-                qty: products?.length,
-              };
-
-              current.location.map((x: any) => {
-                x.assets.map((y: any) => {
-                  ret.assets.push({
-                    ...product,
-                    serialNumber: y.serialNumber,
-                    location: x,
-                  });
-                });
-              });
-              return ret;
-            },
-            { assets: [] }
-          );
-      });
-      return dataAssets?.assets;
-    }
-  }, [transformedOrderData]);
+  }, [transformedRequestData]);
 
   // handle-upload-docs
   const onSelectMultiImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -474,7 +440,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Form Purchase Order"
+      head="Transaction Usage Details"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"
@@ -521,7 +487,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                   <div className="flex gap-1 items-center">
                     <MdChevronLeft className="w-6 h-6" />
                     <h3 className="w-full text-center text-xl font-semibold text-graydark">
-                      <span className="inline-block">Transaction Order</span>
+                      <span className="inline-block">Transaction Usage</span>
                     </h3>
                   </div>
                 </button>
@@ -615,7 +581,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
               <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
                 <div className={`w-full flex items-center gap-1 mb-3`}>
                   <h3 className="font-bold uppercase tracking-widest text-sm">
-                    Purchase Order
+                    Requested Usage
                   </h3>
 
                   <Button
@@ -627,10 +593,10 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                     <MdDownload className="w-4 h-4" />
                   </Button>
                 </div>
-                <SelectProductOrder
+                <SelectProductRequest
                   options={[]}
-                  items={transformedOrderData}
-                  setItems={setOrderData}
+                  items={transformedRequestData}
+                  setItems={setRequestData}
                   defaultImage=""
                   isDetail
                 />
@@ -658,17 +624,17 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                             <th
                               scope="col"
                               className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Order No.
+                              Request No.
+                            </th>
+                            <th
+                              scope="col"
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Location
                             </th>
                             <th
                               scope="col"
                               className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
                               Received Qty
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Move To
                             </th>
                           </tr>
                         </thead>
@@ -692,60 +658,28 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                                         <div>{e?.productName}</div>
                                       </div>
                                     </td>
-                                    <td className="p-4">
-                                      <div>{e?.orderNumber}</div>
+                                    <td className="p-4 font-semibold uppercase">
+                                      <div>{e?.requests?.requestNumber}</div>
                                     </td>
                                     <td className="p-4">
-                                      <div className="text-center font-semibold">
-                                        {e?.location[0].transactionQty || "-"}
+                                      <div className="text-left font-semibold">
+                                        {e?.requests?.locations?.map(
+                                          (loc: any) => {
+                                            return loc?.locationName;
+                                          }
+                                        )}
                                       </div>
                                     </td>
                                     <td className="p-4">
                                       <div className="text-center font-semibold">
-                                        {e?.location[0].locationName || "-"}
+                                        {e?.requests?.locations?.map(
+                                          (loc: any) => {
+                                            return loc?.qty;
+                                          }
+                                        )}
                                       </div>
                                     </td>
                                   </tr>
-                                  {e?.location?.length > 0 &&
-                                    e?.location?.map(
-                                      (loc: any, locIdx: any) => {
-                                        if (locIdx == 0) return null;
-                                        return (
-                                          <tr
-                                            key={locIdx}
-                                            className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                            <td className="p-4">
-                                              <div className="w-full flex items-center">
-                                                <MdSubdirectoryArrowRight className="w-5 h-5 mr-5" />
-                                                <img
-                                                  src={
-                                                    e?.productImages
-                                                      ? `${url}product/productImage/${e?.productImages}`
-                                                      : "../../../../../image/no-image.jpeg"
-                                                  }
-                                                  alt="img-product"
-                                                  className="object cover object-center w-10 h-10 rounded mr-1"
-                                                />
-                                                <span>{e?.productName}</span>
-                                              </div>
-                                            </td>
-                                            <td className="p-4">
-                                              {e?.orderNumber}
-                                            </td>
-                                            <td className="p-4">
-                                              <div className="text-center font-semibold">
-                                                {loc?.transactionQty || 0}
-                                              </div>
-                                            </td>
-                                            <td className="p-4">
-                                              <div className="text-center font-semibold">
-                                                {loc?.locationName || "-"}
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        );
-                                      }
-                                    )}
                                 </Fragment>
                               );
                             })
@@ -754,95 +688,6 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
                               <td colSpan={12} className="p-4">
                                 <div className="text-sm italic text-gray-500 font-semibold">
                                   There is no inventory data.
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* assets */}
-              <div className="w-full grid grid-cols-1 gap-4">
-                <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-                  <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
-                    <h3 className="font-bold uppercase tracking-widest text-sm">
-                      Asset
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 text-gray-6">
-                    <div className="col-span-1 rounded-lg">
-                      <table className="w-full rounded-lg">
-                        <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                          <tr>
-                            <th
-                              scope="col"
-                              className="w-[250px] px-2 py-4 text-sm text-wide capitalize text-left">
-                              Product
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Order No.
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Serial No.
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Move To
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                          {transformedAsset?.length > 0 ? (
-                            transformedAsset?.map((e: any, idx: any) => {
-                              return (
-                                <Fragment key={idx}>
-                                  <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                    <td className="w-[250px]">
-                                      <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                        <img
-                                          src={
-                                            e?.productImages
-                                              ? `${url}product/files/${e?.productImages}`
-                                              : "../../../../../image/no-image.jpeg"
-                                          }
-                                          alt="img-product"
-                                          className="object cover object-center w-6 h-6 rounded mr-1"
-                                        />
-                                        <div>{e?.productName}</div>
-                                      </div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div>{e?.orderNumber}</div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="text-left uppercase font-semibold">
-                                        {e?.serialNumber}
-                                      </div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="text-center">
-                                        {e?.location?.locationName || "-"}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                </Fragment>
-                              );
-                            })
-                          ) : (
-                            <tr>
-                              <td colSpan={12} className="p-4">
-                                <div className="text-sm italic text-gray-500 font-semibold">
-                                  There is no asset data.
                                 </div>
                               </td>
                             </tr>
@@ -973,7 +818,7 @@ const TransactionOrderDetails = ({ pageProps }: Props) => {
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
               <h3 className="text-base font-semibold">
-                Back to Transaction Order
+                Back to Transaction Usage
               </h3>
               <p className="text-gray-5 text-sm">{`Are you sure to go back to Transaction Order ?`}</p>
             </div>
@@ -1172,4 +1017,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default TransactionOrderDetails;
+export default TransactionUsageDetails;
