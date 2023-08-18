@@ -491,7 +491,7 @@ const NewTransactionMove = ({ pageProps }: Props) => {
 
         if (item.selectedLocation?.length > 0) {
           item?.selectedLocation?.map((y: any, idx: any) => {
-            if (y.moveTo.id || parseInt(y.qty) > 0) {
+            if (y?.moveTo?.id || parseInt(y?.qty) > 0) {
               locations.push({ id: y?.moveTo?.id, qty: y?.qty });
             }
           });
@@ -665,7 +665,7 @@ const NewTransactionMove = ({ pageProps }: Props) => {
     let locInventories: OptionProps[] = [];
     let locAssets: OptionProps[] = [];
     let filteredInventory = productLocations?.data?.filter(
-      (x: any) => x?.productQty == 0
+      (x: any) => x?.productQty > 0 && x?.product?.productType == "Inventory"
     );
 
     const filteredAsset = productLocations?.data?.filter((item: any) => {
@@ -999,6 +999,10 @@ const NewTransactionMove = ({ pageProps }: Props) => {
                                       },
                                       0
                                     );
+                                    console.log(
+                                      e?.available - e?.totalMove,
+                                      "cek"
+                                    );
                                     return (
                                       <tr
                                         key={locIdx}
@@ -1049,7 +1053,13 @@ const NewTransactionMove = ({ pageProps }: Props) => {
                                               isDisabled={false}
                                               isMulti={false}
                                               placeholder="Choose"
-                                              options={options?.inventoryOption}
+                                              options={options?.inventoryOption?.filter(
+                                                (item: any) =>
+                                                  item?.product?.id ==
+                                                    e?.product?.id &&
+                                                  item?.location?.id !==
+                                                    e?.location[idx]?.moveTo?.id
+                                              )}
                                               formatOptionLabel={""}
                                               isClearable={true}
                                               icon=""
@@ -1059,7 +1069,11 @@ const NewTransactionMove = ({ pageProps }: Props) => {
                                         <td className="py-2 px-4">
                                           <input
                                             min={0}
-                                            max={e?.available}
+                                            max={
+                                              e?.available - e?.totalMove == 0
+                                                ? 0
+                                                : e?.available
+                                            }
                                             value={loc?.qty || ""}
                                             onChange={({ target }) => {
                                               qtyHandlerInventory({
