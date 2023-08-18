@@ -46,7 +46,9 @@ import {
   selectOrderManagement,
 } from "../../../../../../../redux/features/assets/stocks/orderReducers";
 import {
+  createTransactionMove,
   createTransactionOrder,
+  createTransactionUsage,
   selectTransactionManagement,
 } from "../../../../../../../redux/features/assets/stocks/transactionReducers";
 import SelectProductOrder from "../../../../../../../components/Forms/assets/transaction/SelectProductOrder";
@@ -54,20 +56,15 @@ import {
   getLocations,
   selectLocationManagement,
 } from "../../../../../../../redux/features/assets/locations/locationManagementReducers";
-
-interface PropsData {
-  id?: number | any;
-  createdAt?: string | any;
-  updatedAt?: string | any;
-  productImage?: string | any;
-  productName?: string | any;
-  productDescription?: string | any;
-  productType?: any;
-  productCategory?: any;
-  unitMeasurement?: any;
-  brand?: any;
-  productMinimumStock?: number | any;
-}
+import {
+  getRequests,
+  selectRequestManagement,
+} from "../../../../../../../redux/features/assets/stocks/requestReducers";
+import SelectProductRequest from "../../../../../../../components/Forms/assets/transaction/SelectProductRequest";
+import {
+  getProductLocations,
+  selectProductLocationManagement,
+} from "../../../../../../../redux/features/assets/locations/productLocationManagementReducers";
 
 type FormValues = {
   id?: number | string;
@@ -126,7 +123,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const NewTransactionOrder = ({ pageProps }: Props) => {
+const NewTransactionUsage = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -137,21 +134,22 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { transaction } = useAppSelector(selectTransactionManagement);
-  const { orders, order } = useAppSelector(selectOrderManagement);
-  const { locations } = useAppSelector(selectLocationManagement);
-  const { pending } = useAppSelector(selectTransactionManagement);
+  const { requests } = useAppSelector(selectRequestManagement);
+  const { productLocations } = useAppSelector(selectProductLocationManagement);
+  const { pending, transaction } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // main-data
+  const [requestData, setRequestData] = useState<OptionProps[] | any[]>([]);
+  const [requestOpt, setRequestOpt] = useState<OptionProps[] | any[]>([]);
   const [orderData, setOrderData] = useState<OptionProps[] | any[]>([]);
   const [orderOpt, setOrderOpt] = useState<OptionProps[] | any[]>([]);
   const [inventoryData, setInventoryData] = useState<any[]>([]);
   const [assetData, setAssetData] = useState<any[]>([]);
 
-  console.log("order-data", orderData);
+  // console.log("order-data", orderData);
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
@@ -202,25 +200,14 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     mode: "all",
     defaultValues: useMemo<FormValues>(
       () => ({
-        id: transaction?.id,
-        transactionNumber: transaction?.transactionNumber,
-        transactionDescription: transaction?.transactionDescription,
-        products: transaction?.products,
+        id: undefined,
+        transactionNumber: "",
+        transactionDescription: "",
+        products: [],
       }),
-      [transaction]
+      []
     ),
   });
-
-  useEffect(() => {
-    if (transaction) {
-      reset({
-        id: transaction?.id,
-        transactionNumber: transaction?.transactionNumber,
-        transactionDescription: transaction?.transactionDescription,
-        products: transaction?.products,
-      });
-    }
-  }, [transaction]);
 
   useEffect(() => {
     const subscription = watch((value, { name, type }): any => {
@@ -231,17 +218,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     });
     return () => subscription.unsubscribe();
   }, [watch]);
-
-  const inventories = useFieldArray({
-    control,
-    name: "inventories",
-  });
-  // { fields, remove, replace }
-
-  const assets = useFieldArray({
-    control,
-    name: "assets",
-  });
 
   // description
   const descValue = useWatch({
@@ -258,11 +234,14 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     setIsOpenDiscard(false);
   };
 
-  // PO - Options
+  // Request - Options
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
     const search = {
-      $and: [{ orderStatus: { $in: ["On-Progress", "Approve"] } }],
+      $and: [
+        { requestStatus: { $in: ["On-Progress", "Approve"] } },
+        { requestType: { $in: ["Usage"] } },
+      ],
     };
 
     qb.search(search);
@@ -275,116 +254,27 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (token) dispatch(getOrders({ token, params: filters.queryObject }));
+    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data } = orders;
+    const { data } = requests;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push({
           ...item,
           value: item?.id,
-          label: item?.orderNumber,
+          label: item?.requestNumber,
         });
       });
     }
-    setOrderOpt(newArr);
-  }, [orders]);
+    setRequestOpt(newArr);
+  }, [requests]);
+  // Request - Options end
 
-  // inventory-function
-  const qtyHandlerInventory = ({ value, index, locationIdx }: any) => {
-    if (!value) {
-      delete inventoryData[index]?.location[locationIdx]?.qty;
-    }
-    let items = [...inventoryData];
-    if (!items[index].location[locationIdx]) {
-      items[index].location = [{ qty: Number(value) }];
-    }
-    for (const item of items) {
-      const stock = item.stock;
-      const locations = item.location;
-
-      for (const loc of locations) {
-        if (loc.qty > stock) {
-          loc.qty = stock;
-        }
-      }
-    }
-
-    items[index].location[locationIdx].qty = parseInt(`${value}`);
-
-    items[index].totalMove = items[index]?.location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current.qty);
-    },
-    0);
-    let totalQty = items[index].location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current?.qty);
-    },
-    0);
-    items[index].available = items[index].stock - totalQty;
-
-    setInventoryData([...items]);
-  };
-
-  const onSelectInventory = ({ value, index, locIdx }: any) => {
-    if (!value) delete inventoryData[index].location[locIdx].moveTo;
-    let item = [...inventoryData];
-    item[index].location[locIdx].moveTo = value;
-    setInventoryData(item);
-  };
-
-  const onShuffleInventory = (index: any) => {
-    let item: any[] = [...inventoryData];
-    item[index].location.push({
-      qty: 0,
-    });
-    setInventoryData(item);
-  };
-
-  const onDeleteInventory = ({ index, locationIdx }: any) => {
-    let item: any[] = [...inventoryData];
-    item[index].location.splice(locationIdx, 1);
-    item[index].totalMove = item[index]?.location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current.qty);
-    },
-    0);
-    let totalQty = item[index].location?.reduce(function (
-      sum: any,
-      current: any
-    ) {
-      return sum + Number(current?.qty);
-    },
-    0);
-    item[index].available = item[index].stock - totalQty;
-    setInventoryData(item);
-  };
-  // inventory-function-end
-
-  // asset-fuction
-  const updateFieldChanged = (name: any, index: any) => (event: any) => {
-    let newArr = assetData.map((item, i) => {
-      if (index == i) {
-        return { ...item, [name]: event.target.value };
-      } else {
-        return item;
-      }
-    });
-    setAssetData(newArr);
-  };
-
-  const onSelectAsset = (name: any, index: any) => (event: any) => {
-    let newArr = assetData.map((item, i) => {
+  const onSelectInventory = (name: any, index: any) => (event: any) => {
+    let newArr = inventoryData.map((item, i) => {
       if (index == i) {
         return { ...item, [name]: event };
       } else {
@@ -392,9 +282,9 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
       }
     });
     // console.log({ name, index }, "select-handle");
-    setAssetData(newArr);
+    setInventoryData(newArr);
   };
-  // asset function-end
+  // inventory-function-end
 
   useEffect(() => {
     if (token) {
@@ -415,10 +305,10 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
   // first-manipulation-data-inventory
   useEffect(() => {
     const inventory: any[] = [];
-    const productArr: any[] = orderData;
+    const productArr: any[] = requestData;
     if (productArr?.length > 0) {
       productArr.map((item: any) => {
-        let inv = item["orderProducts"].filter(
+        let inv = item["requestProducts"].filter(
           (o: any) => o.product?.productType == "Inventory"
         );
 
@@ -426,59 +316,24 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
           inventory.push({
             ...x,
             id: Date.now() + Math.random(),
-            orderId: x.id,
+            requestId: x.id,
             product: x?.product,
-            orderNumber: item?.orderNumber,
-            stock: x.orderQty || 0,
-            available: (x.orderQty || 0) - (x.orderQtyCompleted || 0),
-            totalMove: 0,
-            location: [{ qty: 0 }],
-            orders: item?.orderProducts?.filter(
+            requestNumber: item?.requestNumber,
+            stock: x?.requestQty - x?.requestQtyCompleted,
+            qty: x?.requestQty,
+            location: null,
+            requests: item?.requestProducts?.filter(
               (e: any) => e?.product?.productType == "Inventory"
             ),
           });
         });
+
+        console.log(inv, "data-inventory");
       });
     }
 
     setInventoryData(inventory);
-  }, [orderData]);
-
-  // first-manipulation-data-asset
-  useEffect(() => {
-    const asset: any[] = [];
-    const productArr: any[] = orderData;
-    if (productArr?.length > 0) {
-      productArr.map((item: any) => {
-        let ass = item["orderProducts"].filter(
-          (o: any) => o.product?.productType == "Asset"
-        );
-
-        ass.map((x: any) => {
-          let length = x?.orderQty - x?.orderQtyCompleted;
-          let obj = {
-            ...x,
-            id: Date.now() + Math.random(),
-            orderId: x.id,
-            product: x?.product,
-            serialNumber: null,
-            price: x.orderPrice,
-            orderNumber: item?.orderNumber,
-            qty: 1,
-            location: null,
-            stock: x?.orderQty - x?.orderQtyCompleted,
-            orders: item?.orderProducts?.filter(
-              (e: any) => e?.product?.productType == "Asset"
-            ),
-          };
-          let newAssets = new Array(length);
-          newAssets.fill(obj);
-          asset.push(...newAssets);
-        });
-      });
-    }
-    setAssetData(asset);
-  }, [orderData]);
+  }, [requestData]);
 
   const transformedInventory = useMemo(() => {
     const grouped: any = {};
@@ -486,154 +341,69 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     if (inventoryData?.length > 0) {
       inventoryData.forEach((item, index) => {
         const productKey = item?.product?.id;
-        const orderKey = item?.orderId;
-        const locations: any[] = [];
+        const requestKey = item?.requestId;
+        const locationKey = item?.location?.id;
+        const requestQty = item?.qty;
 
         if (!grouped[productKey]) {
           grouped[productKey] = {
             id: item.product.id,
             // productName: item.product.productName,
-            orders: [],
+            requests: [],
           };
         }
 
-        let order = grouped[productKey].orders.find(
-          (o: any) => o.id === orderKey
+        let request = grouped[productKey].requests?.find(
+          (o: any) => o.id === requestKey
         );
-
-        item.location.map((y: any, idx: any) => {
-          if (y.moveTo || parseInt(y.qty) > 0) {
-            locations.push({ id: y?.moveTo?.id, qty: y?.qty });
-          }
-        });
-
-        const resultLoc = locations?.reduce((acc, curr) => {
-          const existingItem = acc.find((item: any) => item.id === curr.id);
-
-          if (existingItem) {
-            existingItem.qty += curr.qty;
-          } else {
-            acc.push({ id: curr.id, qty: curr.qty });
-          }
-
-          return acc;
-        }, []);
-
-        if (!order) {
-          order = {
-            id: orderKey,
-            locations: resultLoc,
+        if (!request) {
+          request = {
+            id: requestKey,
+            locations: [],
           };
-          grouped[productKey].orders.push(order);
+          grouped[productKey]?.requests?.push(request);
         }
+
+        let locations = request?.locations.find(
+          (l: any) => l.id === locationKey
+        );
+        if (!locations) {
+          locations = {
+            id: locationKey,
+            qty: requestQty,
+          };
+          request?.locations?.push(locations);
+        }
+        locations.qty = requestQty;
       });
     }
     return Object.values(grouped);
   }, [inventoryData]);
 
-  const transformedAsset = useMemo(() => {
-    const grouped: any = {};
-
-    if (assetData?.length > 0) {
-      assetData.map((item) => {
-        const productKey = item?.product?.id;
-        const orderKey = item?.orderId;
-        const locationKey = item?.location?.id;
-
-        if (!grouped[productKey]) {
-          grouped[productKey] = {
-            id: item.product.id,
-            // productName: item.product.productName,
-            orders: [],
-          };
-        }
-
-        let order = grouped[productKey].orders.find(
-          (o: any) => o.id === orderKey
-        );
-        if (!order) {
-          order = {
-            id: orderKey,
-            locations: [],
-          };
-          grouped[productKey].orders.push(order);
-        }
-
-        let locations = order?.locations.find((l: any) => l.id === locationKey);
-        if (!locations) {
-          locations = {
-            id: locationKey,
-            assets: [],
-            qty: 1,
-          };
-          order?.locations?.push(locations);
-        }
-
-        locations?.assets?.push({
-          serialNumber: item?.serialNumber,
-          value: Number(item?.orderPrice) || 0,
-        });
-        locations.qty = locations?.assets?.length || 1;
-      });
-    }
-
-    return Object.values(grouped);
-  }, [assetData]);
+  console.log(inventoryData, "data-inven");
 
   // error-inventory
   const errorInventory = useMemo(() => {
     let newErr = {
-      available: false,
       locations: false,
       qty: false,
     };
     if (inventoryData?.length > 0) {
       inventoryData?.map((item, index) => {
-        item?.location.map((o: any, i: any) => {
-          if (o.moveTo == null) {
-            newErr.locations = true;
-          } else {
-            newErr.locations = false;
-          }
-          if (!o.qty || o.qty == 0) {
-            newErr.qty = true;
-          } else {
-            newErr.qty = false;
-          }
-        });
-        if (item?.available < 0) {
-          newErr.available = true;
+        if (item?.location == null) {
+          newErr.locations = true;
         } else {
-          newErr.available = false;
+          newErr.locations = false;
+        }
+        if (!item?.qty || item?.qty == 0) {
+          newErr.qty = true;
+        } else {
+          newErr.qty = false;
         }
       });
     }
     return newErr;
   }, [inventoryData]);
-
-  // error-asset
-  const errorAsset = useMemo(() => {
-    let newErr = {
-      locations: false,
-      serialNumber: false,
-    };
-    if (assetData?.length > 0) {
-      assetData?.map((item, index) => {
-        if (!item.location || item.location == null) {
-          newErr.locations = true;
-        } else {
-          newErr.locations = false;
-        }
-
-        if (!item.serialNumber || item.serialNumber == null) {
-          newErr.serialNumber = true;
-        } else {
-          newErr.serialNumber = false;
-        }
-      });
-    }
-    return newErr;
-  }, [assetData]);
 
   // set inventory data to form-value
   useEffect(() => {
@@ -644,61 +414,52 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     }
   }, [transformedInventory]);
 
-  // set asset data to form-valu
-  useEffect(() => {
-    if (assetData?.length > 0) {
-      setValue(`assets`, transformedAsset);
-    } else {
-      setValue("assets", []);
-    }
-  }, [transformedAsset]);
-
   // location-option
   const filterLoc = useMemo(() => {
     let qb = RequestQueryBuilder.create();
-
-    qb.sortBy({ field: "locationName", order: "ASC" });
+    // qb.sortBy({ field: "location.locationName", order: "ASC" });
     qb.query();
     return qb;
   }, []);
 
   useEffect(() => {
-    if (token) dispatch(getLocations({ token, params: filterLoc.queryObject }));
+    if (token)
+      dispatch(getProductLocations({ token, params: filterLoc.queryObject }));
   }, [token, filterLoc]);
 
   const options = useMemo(() => {
     let locInventories: OptionProps[] = [];
-    let locAssets: OptionProps[] = [];
-    let filter = locations?.data?.filter(
-      (x: any) => x?.locationType !== "Non-Storage"
+    let filteredInventory = productLocations?.data?.filter(
+      (x: any) => x?.productQty > 0 && x?.product?.productType == "Inventory"
     );
-    const { data } = locations;
+
+    const filteredAsset = productLocations?.data?.filter((item: any) => {
+      return item?.assetLocations?.some((x: any) => x?.endTime === null);
+    });
+
+    const { data } = productLocations;
     if (data && data?.length > 0) {
-      filter?.map((item: any) => {
+      filteredInventory?.map((item: any) => {
         locInventories.push({
-          ...item,
-          value: item?.id,
-          label: item?.locationName,
-        });
-      });
-      data?.map((item: any) => {
-        locAssets.push({
-          ...item,
-          value: item?.id,
-          label: item?.locationName,
+          ...item?.location,
+          value: item?.location?.id,
+          label: item?.location?.locationName,
+          product: item?.product,
+
+          available: item?.qty,
+          total: item?.qty,
+          qty: 0,
         });
       });
     }
-    return { inventoryOption: locInventories, assetOption: locAssets };
-  }, [locations]);
+
+    return { inventoryOption: locInventories };
+  }, [productLocations]);
   // location-option end
 
   // on-submit
   const onSubmit: SubmitHandler<FormValues> = (value) => {
-    const concatenatedArraySpread: any[] = [
-      ...(value.inventories || []),
-      ...(value?.assets || []),
-    ];
+    const concatenatedArraySpread: any[] = [...(value.inventories || [])];
     let newObj: FormValues = {
       transactionNumber: value.transactionNumber,
       transactionDescription: value.transactionDescription,
@@ -706,47 +467,41 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
     };
 
     if (!newObj?.products || newObj?.products?.length == 0) {
-      toast.dark("Please, fill your transaction order");
+      toast.dark("Please, fill your transaction usage");
       return;
     }
-    if (
-      errorInventory.available ||
-      errorInventory.locations ||
-      errorInventory.qty ||
-      errorAsset.locations ||
-      errorAsset.serialNumber
-    ) {
-      toast.dark("Please, fill your transaction order correctly");
+    if (errorInventory.locations || errorInventory.qty) {
+      toast.dark("Please, fill your transaction usage correctly");
       return;
     }
-    // console.log(newObj, "form-data");
+    console.log(newObj, "form-data");
 
     dispatch(
-      createTransactionOrder({
+      createTransactionUsage({
         token,
         data: newObj,
         isSuccess: () => {
-          toast.dark("Transaction order has been created successfully.");
+          console.log(transaction, "transaction");
+          toast.dark("Transaction usage has been created successfully.");
           router.back();
         },
         isError: () => {
-          console.log("error-create-transaction-order");
+          console.log("error-create-transaction-usage");
         },
       })
     );
   };
 
-  // console.log(options, "locations");
-
-  // console.log("data-order :", orderData);
+  // console.log("data-request :", requestData);
   // console.log("data-inventory :", inventoryData);
+  // console.log("data-location :", { options, productLocations });
   // console.log("data-asset :", assetData);
 
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Form Purchase Order"
+      head="Form Transaction Usage"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"
@@ -794,7 +549,7 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                     <div className="flex gap-1 items-center">
                       <MdChevronLeft className="w-6 h-6" />
                       <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
-                        <span className="inline-block">Transaction Order</span>
+                        <span className="inline-block">Transaction Usage</span>
                       </h3>
                     </div>
                   </button>
@@ -864,13 +619,13 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
           <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 mt-5">
             <div className={`w-full flex flex-col gap-1 mb-3`}>
               <h3 className="font-bold uppercase tracking-widest text-sm">
-                Purchase Order
+                Requested Usage
               </h3>
             </div>
-            <SelectProductOrder
-              options={orderOpt}
-              items={orderData}
-              setItems={setOrderData}
+            <SelectProductRequest
+              options={requestOpt}
+              items={requestData}
+              setItems={setRequestData}
               defaultImage=""
             />
           </div>
@@ -897,27 +652,12 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                         <th
                           scope="col"
                           className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Order No.
+                          Request No.
                         </th>
                         <th
                           scope="col"
                           className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Stock
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Moved
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Available
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Move To
+                          Usage From
                         </th>
                         <th
                           scope="col"
@@ -951,210 +691,43 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                                     <div>{e?.product?.productName}</div>
                                   </div>
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.orderNumber}</div>
+                                <td className="py-4 px-2">
+                                  <div>{e?.requestNumber}</div>
                                 </td>
-                                <td className="p-4">
-                                  <div>{e?.stock || 0}</div>
-                                </td>
-                                <td className="p-4">
-                                  <div>{e?.totalMove || 0}</div>
-                                </td>
-                                <td className="p-4">
-                                  <div>{e?.available || 0}</div>
-                                </td>
-                                <td className="p-4">
-                                  <div className="w-[100px] flex">
-                                    <DropdownSelect
-                                      customStyles={stylesSelect}
-                                      value={
-                                        inventoryData[idx].location[0].moveTo ||
-                                        null
-                                      }
-                                      onChange={(value: any) => {
-                                        onSelectInventory({
-                                          value,
-                                          index: idx,
-                                          locIdx: 0,
-                                        });
-                                      }}
-                                      error={
-                                        inventoryData[idx].location[0].moveTo ==
-                                        null
-                                          ? "true"
-                                          : ""
-                                      }
-                                      className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
-                                        inventoryData[idx].location[0].moveTo ==
-                                        null
-                                          ? "border border-danger focus:border-danger rounded-lg"
-                                          : "focus:border-primary"
-                                      }`}
-                                      classNamePrefix=""
-                                      instanceId="user"
-                                      isDisabled={false}
-                                      isMulti={false}
-                                      placeholder="Choose"
-                                      options={options?.inventoryOption}
-                                      formatOptionLabel={""}
-                                      isClearable={true}
-                                      icon=""
-                                    />
+                                <td className="py-4 px-2">
+                                  <div className="w-42 flex">
+                                    <div className="w-full flex">
+                                      <DropdownSelect
+                                        customStyles={stylesSelect}
+                                        value={e?.location || null}
+                                        onChange={onSelectInventory(
+                                          "location",
+                                          idx
+                                        )}
+                                        error=""
+                                        className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
+                                          e?.location == null
+                                            ? "border border-danger focus:border-danger rounded-lg"
+                                            : "focus:border-primary"
+                                        }`}
+                                        classNamePrefix=""
+                                        instanceId="user"
+                                        isDisabled={false}
+                                        isMulti={false}
+                                        placeholder="Choose"
+                                        options={options?.inventoryOption?.filter(
+                                          (item: any) =>
+                                            item?.product?.id == e?.product?.id
+                                        )}
+                                        formatOptionLabel={""}
+                                        isClearable={true}
+                                        icon=""
+                                      />
+                                    </div>
                                   </div>
                                 </td>
-                                <td className="p-4">
-                                  <div className="w-full flex justify-center">
-                                    <input
-                                      min={0}
-                                      max={
-                                        e?.totalMove == e?.stock
-                                          ? 0
-                                          : e?.stock || null
-                                      }
-                                      onChange={({ target }) => {
-                                        qtyHandlerInventory({
-                                          value: target.value,
-                                          index: idx,
-                                          locationIdx: 0,
-                                        });
-                                      }}
-                                      value={
-                                        inventoryData[idx].location[0]?.qty ||
-                                        ""
-                                      }
-                                      type="number"
-                                      className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                        ${
-                                          !inventoryData[idx].location[0]
-                                            ?.qty ||
-                                          inventoryData[idx].location[0]?.qty ==
-                                            0 ||
-                                          inventoryData[idx].available < 0
-                                            ? "border-danger focus:border-danger"
-                                            : "border-gray focus:border-primary"
-                                        }
-                                      `}
-                                    />
-                                  </div>
-                                </td>
-                                <td className="p-4">
-                                  <button
-                                    className="flex items-center px-2 py-2 rounded-lg border-2 border-primary bg-primary text-white shadow-1 active:scale-90 disabled:opacity-50 disabled:active:scale-100"
-                                    type="button"
-                                    disabled={inventoryData[idx].available == 0}
-                                    onClick={() => onShuffleInventory(idx)}>
-                                    <MdShuffle className="w-4 h-4" />
-                                  </button>
-                                </td>
+                                <td className="py-2 px-4">{e.qty || 0}</td>
                               </tr>
-                              {e?.location?.length > 0 &&
-                                e?.location?.map((loc: any, locIdx: any) => {
-                                  if (locIdx == 0) return null;
-                                  return (
-                                    <tr
-                                      key={locIdx}
-                                      className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                      <td className="p-4">
-                                        <div className="w-full flex items-center">
-                                          <MdSubdirectoryArrowRight className="w-5 h-5 mr-5" />
-                                          <img
-                                            src={
-                                              e?.product?.productImages
-                                                ? `${url}product/productImage/${e?.product?.productImages}`
-                                                : "../../../../../image/no-image.jpeg"
-                                            }
-                                            alt="img-product"
-                                            className="object cover object-center w-10 h-10 rounded mr-1"
-                                          />
-                                          <span>{e?.product?.productName}</span>
-                                        </div>
-                                      </td>
-                                      <td className="p-4">{e?.orderNumber}</td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4"></td>
-                                      <td className="p-4">
-                                        <div className="w-full flex">
-                                          <DropdownSelect
-                                            customStyles={stylesSelect}
-                                            value={
-                                              inventoryData[idx].location[
-                                                locIdx
-                                              ].moveTo || null
-                                            }
-                                            onChange={(value: any) => {
-                                              onSelectInventory({
-                                                value,
-                                                index: idx,
-                                                locIdx,
-                                              });
-                                            }}
-                                            error=""
-                                            className={`text-xs font-normal text-gray-5 w-[90px] focus:outline-none ${
-                                              inventoryData[idx].location[
-                                                locIdx
-                                              ].moveTo == null
-                                                ? "border border-danger focus:border-danger rounded-lg"
-                                                : "focus:border-primary"
-                                            }`}
-                                            classNamePrefix=""
-                                            instanceId="user"
-                                            isDisabled={false}
-                                            isMulti={false}
-                                            placeholder="Choose"
-                                            options={options?.inventoryOption}
-                                            formatOptionLabel={""}
-                                            isClearable={true}
-                                            icon=""
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="p-4">
-                                        <input
-                                          min={0}
-                                          max={
-                                            e?.totalMove == e?.stock
-                                              ? 0
-                                              : e?.stock
-                                          }
-                                          value={loc?.qty || ""}
-                                          onChange={({ target }) => {
-                                            qtyHandlerInventory({
-                                              value: target.value,
-                                              index: idx,
-                                              locationIdx: locIdx,
-                                            });
-                                          }}
-                                          type="number"
-                                          className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                        ${
-                                          !inventoryData[idx].location[locIdx]
-                                            ?.qty ||
-                                          inventoryData[idx].location[locIdx]
-                                            ?.qty == 0 ||
-                                          inventoryData[idx].available < 0
-                                            ? "border-danger focus:border-danger"
-                                            : "border-gray focus:border-primary"
-                                        }
-                                      `}
-                                        />
-                                      </td>
-                                      <td className="p-4">
-                                        <button
-                                          className="flex items-center px-2 py-2 rounded-lg border-2 border-gray shadow-1 active:scale-90"
-                                          type="button"
-                                          onClick={() =>
-                                            onDeleteInventory({
-                                              index: idx,
-                                              locationIdx: locIdx,
-                                            })
-                                          }>
-                                          <MdDelete className="w-4 h-4" />
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
                             </Fragment>
                           );
                         })
@@ -1163,131 +736,6 @@ const NewTransactionOrder = ({ pageProps }: Props) => {
                           <td colSpan={12} className="p-4">
                             <div className="text-sm italic text-gray-500 font-semibold">
                               There is no inventory data.
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* assets */}
-          <div className="w-full grid grid-cols-1 gap-4 mt-5">
-            <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-              <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
-                <h3 className="font-bold uppercase tracking-widest text-sm">
-                  Asset
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 text-gray-6">
-                <div className="col-span-1 rounded-lg">
-                  <table className="w-full rounded-lg">
-                    <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="w-[250px] font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Product
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Order No.
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-center">
-                          Serial No.
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-42 font-normal px-2 py-4 text-sm text-wide capitalize text-left">
-                          Move To
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                      {assetData?.length > 0 ? (
-                        assetData?.map((e: any, idx: any) => {
-                          return (
-                            <Fragment key={idx}>
-                              <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                <td className="w-[250px]">
-                                  <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                    <img
-                                      src={
-                                        e?.product?.productImages
-                                          ? `${url}product/files/${e?.product?.productImages}`
-                                          : "../../../../../image/no-image.jpeg"
-                                      }
-                                      alt="img-product"
-                                      className="object cover object-center w-6 h-6 rounded mr-1"
-                                    />
-                                    <div>{e?.product?.productName}</div>
-                                  </div>
-                                </td>
-                                <td className="p-4">
-                                  <div>{e?.orderNumber}</div>
-                                </td>
-                                <td className="p-4">
-                                  <div className="w-full flex justify-center">
-                                    <input
-                                      name="serialNumber"
-                                      onChange={updateFieldChanged(
-                                        "serialNumber",
-                                        idx
-                                      )}
-                                      value={e.serialNumber || ""}
-                                      type="text"
-                                      className={`w-14 max-w-max py-1.5 px-2 bg-white border rounded-lg focus:outline-none disabled:bg-transparent disabled:border-0
-                                      ${
-                                        !e?.serialNumber
-                                          ? "border-danger focus:border-danger"
-                                          : "border-gray focus:border-primary"
-                                      }
-                                      `}
-                                    />
-                                  </div>
-                                </td>
-                                <td className="p-4">
-                                  <div className="w-32 flex">
-                                    <DropdownSelect
-                                      customStyles={stylesSelect}
-                                      value={e.location || null}
-                                      onChange={onSelectAsset("location", idx)}
-                                      error=""
-                                      className={`text-xs font-normal text-gray-5 w-[90px] rounded-lg
-                                        ${
-                                          !e.location || e.location == null
-                                            ? "border border-danger focus:border-danger"
-                                            : "focus:border-primary"
-                                        }}
-                                      `}
-                                      classNamePrefix=""
-                                      instanceId="user"
-                                      isDisabled={false}
-                                      isMulti={false}
-                                      placeholder="Choose"
-                                      options={options?.assetOption}
-                                      formatOptionLabel={""}
-                                      isClearable={false}
-                                      icon=""
-                                    />
-                                  </div>
-                                </td>
-                              </tr>
-                            </Fragment>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={12} className="p-4">
-                            <div className="text-sm italic text-gray-500 font-semibold">
-                              There is no asset data.
                             </div>
                           </td>
                         </tr>
@@ -1394,4 +842,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default NewTransactionOrder;
+export default NewTransactionUsage;

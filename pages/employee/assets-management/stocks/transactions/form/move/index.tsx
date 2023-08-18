@@ -740,7 +740,7 @@ const NewTransactionMove = ({ pageProps }: Props) => {
     };
 
     if (!newObj?.products || newObj?.products?.length == 0) {
-      toast.dark("Please, fill your transaction order");
+      toast.dark("Please, fill your transaction move");
       return;
     }
     if (

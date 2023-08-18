@@ -745,7 +745,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
                                 />
                               </div>
                             </td>
-                            <td className="p-4">
+                            <td className="p-4 text-center">
                               <input
                                 min={0}
                                 max={e?.productQty}
