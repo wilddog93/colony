@@ -148,7 +148,7 @@ const NewTransactionMove = ({ pageProps }: Props) => {
   const [inventoryData, setInventoryData] = useState<any[]>([]);
   const [assetData, setAssetData] = useState<any[]>([]);
 
-  console.log("order-data", orderData);
+  // console.log("order-data", orderData);
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
@@ -767,8 +767,8 @@ const NewTransactionMove = ({ pageProps }: Props) => {
 
   // console.log("data-request :", requestData);
   // console.log("data-inventory :", inventoryData);
-  console.log("data-location :", { options, productLocations });
-  console.log("data-asset :", assetData);
+  // console.log("data-location :", { options, productLocations });
+  // console.log("data-asset :", assetData);
 
   return (
     <DefaultLayout
@@ -998,10 +998,6 @@ const NewTransactionMove = ({ pageProps }: Props) => {
                                         return sum + Number(current?.qty);
                                       },
                                       0
-                                    );
-                                    console.log(
-                                      e?.available - e?.totalMove,
-                                      "cek"
                                     );
                                     return (
                                       <tr
