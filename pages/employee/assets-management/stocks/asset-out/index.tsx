@@ -28,22 +28,14 @@ import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { toast } from "react-toastify";
 import {
   OptionProps,
-  PurchaseOrderProps,
-  TransactionProps,
+  RequestOrderProps,
 } from "../../../../../utils/useHooks/PropTypes";
+import { selectProductManagement } from "../../../../../redux/features/assets/products/productManagementReducers";
+import {
+  getRequests,
+  selectRequestManagement,
+} from "../../../../../redux/features/assets/stocks/requestReducers";
 import DatePicker from "react-datepicker";
-import {
-  getOrders,
-  selectOrderManagement,
-} from "../../../../../redux/features/assets/stocks/orderReducers";
-import {
-  getVendors,
-  selectVendorManagement,
-} from "../../../../../redux/features/assets/vendor/vendorManagementReducers";
-import {
-  getTransactions,
-  selectTransactionManagement,
-} from "../../../../../redux/features/assets/stocks/transactionReducers";
 
 type Props = {
   pageProps: any;
@@ -54,29 +46,18 @@ const sortOpt: OptionProps[] = [
   { value: "DESC", label: "Z-A" },
 ];
 
-const typesOptFilter: OptionProps[] = [
-  { value: "order", label: "Order" },
-  { value: "usage", label: "Usage" },
-  { value: "move", label: "Move" },
-  { value: "out", label: "Asset Out" },
-  { value: "StockTaking", label: "Stock Taking" },
+const statusOpt: OptionProps[] = [
+  { value: "Approved", label: "Approved" },
+  { value: "Complete", label: "Complete" },
+  { value: "Declined", label: "Declined" },
+  { value: "Mark As Done", label: "Mark As Done" },
+  { value: "On-Progress", label: "On-Progress" },
+  { value: "Waiting", label: "Waiting" },
 ];
 
 const typesOpt: OptionProps[] = [
-  { value: "order", label: "Product Received - Order" },
-  { value: "usage", label: "Product Out - Usage" },
-  { value: "move", label: "Product Out - Move" },
-  { value: "asset-out", label: "Product Retirement - Asset Out" },
-  {
-    value: "stock taking",
-    label: "Product Reconciliation - Stock Taking",
-  },
-];
-
-const statusOpt: OptionProps[] = [
-  { value: "Complete", label: "Complete" },
-  { value: "Rejected", label: "Rejected" },
-  { value: "Waiting", label: "Waiting" },
+  { value: "usage", label: "Request Usage" },
+  { value: "move", label: "Request Move" },
 ];
 
 const stylesSelectSort = {
@@ -168,7 +149,7 @@ const stylesSelect = {
   menuList: (provided: any) => provided,
 };
 
-const Transactions = ({ pageProps }: Props) => {
+const RequestAssetOut = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -179,31 +160,27 @@ const Transactions = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { orders } = useAppSelector(selectOrderManagement);
-  const { transactions, pending } = useAppSelector(selectTransactionManagement);
-  const { vendors } = useAppSelector(selectVendorManagement);
+  const { requests, pending } = useAppSelector(selectRequestManagement);
+  const { products } = useAppSelector(selectProductManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState<string | any>(null);
   const [sort, setSort] = useState<OptionProps | any>(null);
   const [status, setStatus] = useState<OptionProps | any>(null);
-  const [types, setTypes] = useState<OptionProps | any>(null);
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<TransactionProps[]>([]);
+  const [dataTable, setDataTable] = useState<RequestOrderProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [total, setTotal] = useState(1);
 
-  // modal to form
-  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
-  const [formData, setFormData] = useState<any>(null);
-  const [transactionType, setTransactionType] = useState<OptionProps | any>(
-    null
-  );
+  // modal
+  const [isOpenForm, setIsOpenForm] = useState(false);
+  const [formData, setFormData] = useState<RequestOrderProps | any>(null);
+  const [transactionType, setTransactionType] = useState<any>(null);
 
   // description-read
   const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
@@ -224,13 +201,24 @@ const Transactions = ({ pageProps }: Props) => {
   };
 
   // date
+  const now = new Date();
+  const [start, setStart] = useState(
+    new Date(now.getFullYear(), now.getMonth(), 1)
+  );
+  const [end, setEnd] = useState(
+    new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  );
+  const [dateRange, setDateRange] = useState<Date[]>([start, end]);
+  const [startDate, endDate] = dateRange;
+
+  // date
   const dateTimeFormat = (value: any) => {
     if (!value) return "-";
     const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
     return date;
   };
 
-  // delete modal
+  // select type modal
   const onOpenForm = () => {
     setIsOpenForm(true);
   };
@@ -245,7 +233,7 @@ const Transactions = ({ pageProps }: Props) => {
       case "Approve":
         color = "#5F59F7";
         break;
-      case "Declined":
+      case "Rejected":
         color = "#FF1E00";
         break;
       case "Done":
@@ -266,22 +254,22 @@ const Transactions = ({ pageProps }: Props) => {
     return color;
   };
 
-  const columns = useMemo<ColumnDef<TransactionProps, any>[]>(
+  const columns = useMemo<ColumnDef<RequestOrderProps, any>[]>(
     () => [
       {
-        accessorKey: "transactionNumber",
+        accessorKey: "requestNumber",
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
-          const { id, transactionType } = row?.original;
+          const { id, requestType } = row?.original;
           return (
             <button
-              type="button"
               onClick={() =>
                 router.push({
-                  pathname: `/employee/assets-management/stocks/transactions/${transactionType?.toLowerCase()}/${id}`,
+                  pathname: `/employee/assets-management/stocks/asset-out/${id}`,
                 })
               }
-              className="w-full text-left font-semibold text-primary hover:underline active:scale-90 uppercase">
+              type="button"
+              className="w-full text-left font-semibold text-primary hover:underline active:scale-95 uppercase">
               {getValue() || "-"}
             </button>
           );
@@ -292,8 +280,8 @@ const Transactions = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "transactionDescription",
-        header: (info) => <div className="uppercase">Description</div>,
+        accessorKey: "requestDescription",
+        header: (info) => <div className="uppercase">Notes</div>,
         cell: ({ row, getValue }) => {
           const { id } = row.original;
           let value =
@@ -320,7 +308,7 @@ const Transactions = ({ pageProps }: Props) => {
         minSize: 250,
       },
       {
-        accessorKey: "transactionType",
+        accessorKey: "requestType",
         header: (info) => <div className="uppercase">Type</div>,
         cell: ({ row, getValue }) => {
           const value = getValue() || "-";
@@ -333,7 +321,33 @@ const Transactions = ({ pageProps }: Props) => {
         minSize: 10,
       },
       {
-        accessorKey: "transactionStatus",
+        accessorKey: "requestProducts",
+        header: (info) => <div className="uppercase text-center">Items</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue()?.length || 0;
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "createdAt",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Request Date</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = dateTimeFormat(getValue());
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "requestStatus",
         cell: ({ row, getValue }) => {
           const value = getValue();
           return (
@@ -353,8 +367,21 @@ const Transactions = ({ pageProps }: Props) => {
         // enableSorting: false,
         enableColumnFilter: false,
       },
+      {
+        accessorKey: "updatedAt",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Recent Date</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = dateTimeFormat(getValue());
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
     ],
-    []
+    [isArrayHidden]
   );
 
   useEffect(() => {
@@ -368,7 +395,7 @@ const Transactions = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  // get Transactions
+  // get Products
   useEffect(() => {
     if (query?.page) setPages(Number(query?.page) || 1);
     if (query?.limit) setLimit(Number(query?.limit) || 10);
@@ -383,7 +410,21 @@ const Transactions = ({ pageProps }: Props) => {
     if (query?.status) {
       setStatus({ value: query?.status, label: query?.status });
     }
-  }, [query?.page, query?.limit, query?.search, query?.sort, query?.status]);
+    if (query?.startDate) {
+      setStart(new Date(query?.startDate as any));
+    }
+    if (query?.endDate) {
+      setEnd(new Date(query?.endDate as any));
+    }
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.status,
+    query?.startDate,
+    query?.endDate,
+  ]);
 
   useEffect(() => {
     let qr: any = {
@@ -394,21 +435,56 @@ const Transactions = ({ pageProps }: Props) => {
     if (search) qr = { ...qr, search: search };
     if (sort) qr = { ...qr, sort: sort?.value };
     if (status) qr = { ...qr, status: status?.value };
+    if (startDate)
+      qr = {
+        ...qr,
+        startDate: moment(startDate).format("YYYY-MM-DD"),
+      };
+    if (endDate)
+      qr = {
+        ...qr,
+        endDate: moment(endDate).format("YYYY-MM-DD"),
+      };
 
     router.replace({ pathname, query: qr });
-  }, [pages, limit, search, sort, status]);
+  }, [pages, limit, search, sort, status, startDate, endDate]);
 
   const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     const search = {
       $and: [
-        { transactionStatus: { $contL: query?.status } },
+        {
+          createdAt: {
+            $gte:
+              moment(
+                query?.startDate
+                  ? query?.startDate
+                  : new Date(now.getFullYear(), now.getMonth(), 1)
+              ).format("YYYY-MM-DD") + "T00:00:00.000Z",
+            $lte:
+              moment(
+                query?.endDate
+                  ? query?.endDate
+                  : new Date(now.getFullYear(), now.getMonth() + 1, 0)
+              ).format("YYYY-MM-DD") + "T23:59:59.000Z",
+          },
+        },
+        { requestType: { $in: ["Out"] } },
+        { requestStatus: { $contL: query?.status } },
         {
           $or: [
-            { transactionNumber: { $contL: query?.search } },
-            { transactionDescription: { $contL: query?.search } },
-            { transactionStatus: { $contL: query?.search } },
+            { requestNumber: { $contL: query?.search } },
+            { requestDescription: { $contL: query?.search } },
+            { requestStatus: { $contL: query?.search } },
+            {
+              "requestProducts.product.productName": { $contL: query?.search },
+            },
+            {
+              "requestProducts.location.locationName": {
+                $contL: query?.search,
+              },
+            },
           ],
         },
       ],
@@ -420,12 +496,12 @@ const Transactions = ({ pageProps }: Props) => {
     qb.search(search);
     if (!query?.sort) {
       qb.sortBy({
-        field: "updatedAt",
+        field: `updatedAt`,
         order: "DESC",
       });
     } else {
       qb.sortBy({
-        field: `transactionNumber`,
+        field: `requestNumber`,
         order: !sort?.value ? "ASC" : sort.value,
       });
     }
@@ -437,17 +513,17 @@ const Transactions = ({ pageProps }: Props) => {
     query?.search,
     query?.sort,
     query?.status,
-    sort,
+    query?.startDate,
+    query?.endDate,
   ]);
 
   useEffect(() => {
-    if (token)
-      dispatch(getTransactions({ token, params: filters.queryObject }));
+    if (token) dispatch(getRequests({ token, params: filters.queryObject }));
   }, [token, filters]);
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = transactions;
+    const { data, pageCount, total } = requests;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
@@ -456,14 +532,17 @@ const Transactions = ({ pageProps }: Props) => {
     setDataTable(newArr);
     setPageCount(pageCount);
     setTotal(total);
-  }, [transactions]);
+  }, [requests]);
 
   const goToForm = (item: any) => {
     if (!item?.value) {
       toast.dark("Please, fill your transaction information");
     } else {
       return router.push({
-        pathname: `/employee/assets-management/stocks/transactions/form/${item?.value}`,
+        pathname: `/employee/assets-management/stocks/asset-out/form`,
+        query: {
+          type: item?.value,
+        },
       });
     }
   };
@@ -472,7 +551,7 @@ const Transactions = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Transactions"
+      head="Request Asset Out"
       logo="../../../image/logo/logo-icon.svg"
       images="../../../image/logo/building-logo.svg"
       userDefault="../../../image/user/user-01.png"
@@ -519,7 +598,7 @@ const Transactions = ({ pageProps }: Props) => {
                   key={"1"}>
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      Transactions
+                      Asset Out
                     </h3>
                   </div>
                 </Button>
@@ -528,12 +607,15 @@ const Transactions = ({ pageProps }: Props) => {
               <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
                 <Button
                   type="button"
-                  className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpenForm}
+                  className="rounded-lg text-sm font-semibold py-3 active:scale-90"
+                  onClick={() => {
+                    router.push({
+                      pathname:
+                        "/employee/assets-management/stocks/asset-out/form",
+                    });
+                  }}
                   variant="primary">
-                  <span className="hidden lg:inline-block">
-                    New Transaction
-                  </span>
+                  <span className="hidden lg:inline-block">New Request</span>
                   <MdAdd className="w-4 h-4" />
                 </Button>
               </div>
@@ -555,6 +637,34 @@ const Transactions = ({ pageProps }: Props) => {
                 </div>
 
                 <div className="w-full flex flex-col lg:flex-row items-center gap-2">
+                  <div className="w-full">
+                    <label className="w-full text-gray-5 overflow-hidden">
+                      <div className="relative">
+                        <DatePicker
+                          selectsRange={true}
+                          startDate={startDate}
+                          endDate={endDate}
+                          onChange={(update: any) => {
+                            setDateRange(update);
+                          }}
+                          isClearable={false}
+                          placeholderText={"Select date"}
+                          todayButton
+                          dropdownMode="select"
+                          peekNextMonth
+                          showMonthDropdown
+                          showYearDropdown
+                          disabled={false}
+                          clearButtonClassName="after:w-10 after:h-10 h-10 w-10"
+                          className="text-sm lg:text-md w-full text-gray-5 rounded-lg border border-stroke bg-transparent py-4 pl-12 pr-6 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        />
+                        <MdOutlineCalendarToday className="absolute left-4 top-4 h-6 w-6 text-gray-5" />
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelectSort}
                     value={sort}
@@ -566,7 +676,6 @@ const Transactions = ({ pageProps }: Props) => {
                     instanceId="1"
                     isDisabled={false}
                     isMulti={false}
-                    isClearable
                     placeholder="Sorts..."
                     options={sortOpt}
                     icon="MdSort"
@@ -585,28 +694,8 @@ const Transactions = ({ pageProps }: Props) => {
                     instanceId="status"
                     isDisabled={false}
                     isMulti={false}
-                    isClearable
                     placeholder="All Status..."
                     options={statusOpt}
-                    icon=""
-                  />
-                </div>
-
-                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                  <DropdownSelect
-                    customStyles={stylesSelect}
-                    value={types}
-                    onChange={setTypes}
-                    error=""
-                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                    classNamePrefix=""
-                    formatOptionLabel=""
-                    instanceId="types"
-                    isDisabled={false}
-                    isClearable
-                    isMulti={false}
-                    placeholder="All Types..."
-                    options={typesOptFilter}
                     icon=""
                   />
                 </div>
@@ -642,9 +731,9 @@ const Transactions = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseForm}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">New Transaction</h3>
+              <h3 className="text-lg font-semibold">New Request</h3>
               <p className="text-sm text-gray-5">
-                Fill your transaction information.
+                Fill your request information.
               </p>
             </div>
           </ModalHeader>
@@ -713,4 +802,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Transactions;
+export default RequestAssetOut;
