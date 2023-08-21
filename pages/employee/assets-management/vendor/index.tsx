@@ -265,7 +265,9 @@ const Products = ({ pageProps }: Props) => {
   };
 
   const onCloseModalDetail = () => {
-    setFormData(null);
+    if (!isOpenEdit) {
+      setFormData(null);
+    }
     setIsOpenDetail(false);
   };
 
@@ -292,7 +294,12 @@ const Products = ({ pageProps }: Props) => {
     };
     setFormData(newData);
     setIsOpenEdit(true);
-    // console.log(formData, "form-edit");
+    if (isOpenDetail) {
+      setTimeout(() => {
+        onCloseModalDetail();
+      }, 1000);
+    }
+    console.log(formData, "form-edit");
   };
 
   const onCloseModalEdit = () => {
