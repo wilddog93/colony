@@ -490,11 +490,14 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                 ) : null}
 
                 {transaction?.transactionStatus !== "Waiting" ||
-                transaction?.transactionStatus !== "Approve" ||
                 transaction?.transactionStatus !== "On-Progress" ? (
                   <button
                     type="button"
-                    className={`inline-flex gap-2 text-white items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
+                    className={`inline-flex gap-2 text-white items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100 ${
+                      transaction?.transactionStatus == "Approve"
+                        ? "hidden"
+                        : ""
+                    }`}
                     onClick={() =>
                       onChangeApproval(transaction?.transactionStatus)
                     }

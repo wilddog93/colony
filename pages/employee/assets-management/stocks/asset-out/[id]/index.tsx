@@ -480,7 +480,14 @@ const RequestDetails = ({ pageProps }: Props) => {
                 request?.requestStatus !== "On-Progress" ? (
                   <button
                     type="button"
-                    className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100`}
+                    className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100
+                      ${
+                        request?.requestStatus == "Mark As Complete" ||
+                        request?.requestStatus == "Complete"
+                          ? "hidden"
+                          : ""
+                      }
+                      `}
                     onClick={() => onChangeApproval(request?.requestStatus)}
                     disabled={
                       pending ||

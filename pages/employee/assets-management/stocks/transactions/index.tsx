@@ -260,6 +260,9 @@ const Transactions = ({ pageProps }: Props) => {
       case "Complete":
         color = "#3CCF4E";
         break;
+      case "Mark As Complete":
+        color = "#3CCF4E";
+        break;
       default:
         return color;
     }
