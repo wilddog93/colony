@@ -38,6 +38,7 @@ import {
 import { FaCircleNotch } from "react-icons/fa";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import {
+  createTransactionOut,
   createTransactionUsage,
   selectTransactionManagement,
 } from "../../../../../../../redux/features/assets/stocks/transactionReducers";
@@ -50,9 +51,11 @@ import {
   getProductLocations,
   selectProductLocationManagement,
 } from "../../../../../../../redux/features/assets/locations/productLocationManagementReducers";
-import SelectTables from "../../../../../../../components/tables/layouts/server/SelectTables";
+import TransactionAssetTables from "../../../../../../../components/tables/layouts/server/TransactionAssetTables";
 import { ColumnDef } from "@tanstack/react-table";
 import { IndeterminateCheckbox } from "../../../../../../../components/tables/components/TableComponent";
+import { formatMoney } from "../../../../../../../utils/useHooks/useFunction";
+import TransactionTables from "../../../../../../../components/tables/layouts/TransactionTables";
 
 type AssetProps = {
   id?: number | string | any;
@@ -306,45 +309,36 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
 
   // first-manipulation-data-inventory
   useEffect(() => {
-    const inventory: any[] = [];
-    const productArr: any[] = requestData;
-    if (productArr?.length > 0) {
-      productArr.map((item: any) => {
-        let inv = item["requestProducts"].filter(
-          (o: any) => o.product?.productType == "Inventory"
-        );
+    const newAsset: any[] = [];
+    const assetArr: any[] = requestData;
+    if (assetArr?.length > 0) {
+      assetArr.map((item: any) => {
+        let assets = item["requestAssets"];
 
-        inv.map((x: any) => {
-          inventory.push({
+        assets.map((x: any) => {
+          newAsset.push({
             ...x,
-            id: Date.now() + Math.random(),
-            requestId: x.id,
-            product: x?.product,
-            requestNumber: item?.requestNumber,
-            stock: x?.requestQty - x?.requestQtyCompleted,
-            qty: x?.requestQty,
-            location: null,
-            requests: item?.requestProducts?.filter(
-              (e: any) => e?.product?.productType == "Inventory"
-            ),
+            product: x?.asset?.product,
           });
         });
 
-        console.log(inv, "data-inventory");
+        console.log(newAsset, "data-asset");
       });
     }
 
-    setInventoryData(inventory);
+    setAssetData(newAsset);
   }, [requestData]);
+
+  console.log(requestData, "requestData");
 
   // set inventory data to form-value
   useEffect(() => {
-    if (assetData?.length > 0) {
-      setValue(`requestAssets`, assetData);
+    if (isSelectedRow?.length > 0) {
+      setValue(`requestAssets`, isSelectedRow);
     } else {
       setValue("requestAssets", []);
     }
-  }, []);
+  }, [isSelectedRow]);
 
   // location-option
   const filterLoc = useMemo(() => {
@@ -425,8 +419,20 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
         header: (info) => <div className="uppercase">Product Name</div>,
         cell: ({ row, getValue }) => {
           const name = getValue()?.productName;
+          const images = getValue()?.productImage;
           return (
-            <div className="w-full text-left font-semibold">{name || "-"}</div>
+            <div className="w-full flex items-center gap-1 text-left font-semibold">
+              <img
+                src={
+                  images
+                    ? `${url}product/productImage/${images}`
+                    : "../../../../../image/no-image.jpeg"
+                }
+                alt="product-img"
+                className="w-8 h-8 rounded object-cover object-center"
+              />
+              <div>{name || "-"}</div>
+            </div>
           );
         },
         footer: (props) => props.column.id,
@@ -435,13 +441,13 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
         minSize: 250,
       },
       {
-        accessorKey: "product",
-        header: (info) => <div className="uppercase">Product Name</div>,
+        accessorKey: "asset",
+        header: (info) => <div className="uppercase">Serial No.</div>,
         cell: ({ row, getValue }) => {
-          const category = getValue()?.productCategory?.productCategoryName;
+          const serialNumber = getValue()?.serialNumber;
           return (
             <div className="w-full text-left font-semibold">
-              {category || "-"}
+              {serialNumber || "-"}
             </div>
           );
         },
@@ -450,7 +456,7 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
       },
       {
         accessorKey: "assetStatus",
-        header: (info) => <div className="uppercase">Asset Status</div>,
+        header: (info) => <div className="uppercase">Status</div>,
         cell: ({ row, getValue }) => {
           const value = getValue() || "-";
           return <div className="w-full text-left">{value}</div>;
@@ -463,9 +469,15 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
         accessorKey: "assetValue",
         cell: ({ row, getValue }) => {
           const value = getValue();
-          return <div className="w-full text-left">{value}</div>;
+          return (
+            <div className="w-full text-left">
+              Rp.{value ? formatMoney({ amount: value }) : "0"}
+            </div>
+          );
         },
-        header: (props) => <div className="w-full uppercase">Asset Value</div>,
+        header: (props) => (
+          <div className="w-full text-left uppercase">Value</div>
+        ),
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
@@ -476,37 +488,35 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
 
   // on-submit
   const onSubmit: SubmitHandler<FormValues> = (value) => {
-    const concatenatedArraySpread: any[] = [...(value.requestAssets || [])];
     let newObj: FormValues = {
       transactionNumber: value.transactionNumber,
       transactionDescription: value.transactionDescription,
-      requestAssets: concatenatedArraySpread,
+      requestAssets:
+        value?.requestAssets && value?.requestAssets?.length > 0
+          ? value?.requestAssets?.map((item: any) => item.id)
+          : [],
     };
 
     if (!newObj?.requestAssets || newObj?.requestAssets?.length == 0) {
-      toast.dark("Please, fill your transaction asset out");
+      toast.dark("Please select at least one Asset");
       return;
     }
-    // if (errorInventory.locations || errorInventory.qty) {
-    //   toast.dark("Please, fill your transaction usage correctly");
-    //   return;
-    // }
-    console.log(newObj, "form-data");
+    // console.log(newObj, "form-data");
 
-    // dispatch(
-    //   createTransactionUsage({
-    //     token,
-    //     data: newObj,
-    //     isSuccess: () => {
-    //       console.log(transaction, "transaction");
-    //       toast.dark("Transaction usage has been created successfully.");
-    //       router.back();
-    //     },
-    //     isError: () => {
-    //       console.log("error-create-transaction-usage");
-    //     },
-    //   })
-    // );
+    dispatch(
+      createTransactionOut({
+        token,
+        data: newObj,
+        isSuccess: () => {
+          console.log(transaction, "transaction");
+          toast.dark("Transaction usage has been created successfully.");
+          router.back();
+        },
+        isError: () => {
+          console.log("error-create-transaction-usage");
+        },
+      })
+    );
   };
 
   // console.log("data-request :", requestData);
@@ -566,7 +576,9 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
                     <div className="flex gap-1 items-center">
                       <MdChevronLeft className="w-6 h-6" />
                       <h3 className="w-full lg:max-w-max text-center text-xl font-semibold text-graydark">
-                        <span className="inline-block">Transaction Usage</span>
+                        <span className="inline-block">
+                          Transaction Asset Out
+                        </span>
                       </h3>
                     </div>
                   </button>
@@ -657,7 +669,7 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
               </div>
 
               {/* table */}
-              <SelectTables
+              <TransactionTables
                 loading={loading}
                 setLoading={setLoading}
                 pages={pages}
@@ -711,8 +723,8 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Back to Order</h3>
-              <p className="text-gray-5">{`Are you sure to go back to order product ?`}</p>
+              <h3 className="text-lg font-semibold">Back to Transactions</h3>
+              <p className="text-gray-5">{`Are you sure to go back to transactions ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
