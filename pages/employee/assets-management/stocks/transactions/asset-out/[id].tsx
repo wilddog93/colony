@@ -45,10 +45,12 @@ import {
 } from "../../../../../../redux/features/assets/stocks/transactionReducers";
 import {
   convertBytes,
+  formatMoney,
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
 import Cards from "../../../../../../components/Cards/Cards";
 import SelectProductRequest from "../../../../../../components/Forms/assets/transaction/SelectProductRequest";
+import SelectRequestAsset from "../../../../../../components/Forms/assets/transaction/SelectRequestAsset";
 
 type Props = {
   pageProps: any;
@@ -160,70 +162,30 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
 
   // get all-details
   const transformedRequestData = useMemo(() => {
-    const grouped: any = {};
-    if (transaction?.transactionRequestProducts?.length > 0) {
-      transaction?.transactionRequestProducts.forEach(
-        (item: any, index: any) => {
-          const requestKey = item?.requestProduct?.request;
-          const productKey = item?.requestProduct?.product;
-          const locationKey = item?.productLocation?.location;
-          const transactionQty = item?.transactionQty;
-
-          if (!grouped[requestKey]) {
-            grouped[requestKey] = {
-              ...requestKey,
-              product: [],
-              locations: [],
-            };
-          }
-
-          let product = grouped[requestKey].product.find(
-            (o: any) => o.id === productKey
-          );
-          if (!product) {
-            product = {
-              ...productKey,
-              requests: grouped[requestKey],
-            };
-            grouped[requestKey].product.push(product);
-          }
-
-          let locations = grouped[requestKey]?.locations.find(
-            (l: any) => l.id === locationKey
-          );
-          if (!locations) {
-            locations = {
-              ...locationKey,
-              qty: transactionQty,
-            };
-            grouped[requestKey]?.locations?.push(locations);
-          }
-
-          console.log(grouped, "grouped");
-        }
-      );
+    const newArr: any[] = [];
+    if (transaction?.transactionRequestAssets?.length > 0) {
+      transaction?.transactionRequestAssets.forEach((item: any, index: any) => {
+        newArr.push({
+          ...item.requestAsset,
+          product: item.requestAsset?.asset?.product,
+        });
+      });
     }
-    return Object.values(grouped);
+    return newArr;
   }, [transaction]);
 
-  const transformedInventory = useMemo(() => {
+  const transformedAsset = useMemo(() => {
     let dataArr: any[] = [];
     if (transformedRequestData?.length > 0) {
       transformedRequestData?.map((data: any) => {
-        data["product"]
-          .filter((item: any) => item?.productType == "Inventory")
-          .map((prod: any) => {
-            dataArr.push({
-              ...prod,
-              requests: {
-                ...data,
-              },
-            });
-          });
+        dataArr.push(data);
       });
     }
     return dataArr;
   }, [transformedRequestData]);
+
+  // console.log(transformedRequestData, "transformedRequestData");
+  // console.log(transformedAsset, "transformedAsset");
 
   // handle-upload-docs
   const onSelectMultiImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -262,7 +224,6 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
       return;
     }
     let newObj = value?.document?.length > 0 ? value?.document[0] : "";
-    console.log(newObj, "document");
     dispatch(
       createTransactionDocumentById({
         token,
@@ -425,7 +386,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Transaction Usage Details"
+      head="Transaction Asset Out Details"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"
@@ -472,7 +433,9 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                   <div className="flex gap-1 items-center">
                     <MdChevronLeft className="w-6 h-6" />
                     <h3 className="w-full text-center text-xl font-semibold text-graydark">
-                      <span className="inline-block">Transaction Usage</span>
+                      <span className="inline-block">
+                        Transaction Asset Out
+                      </span>
                     </h3>
                   </div>
                 </button>
@@ -527,6 +490,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                 ) : null}
 
                 {transaction?.transactionStatus !== "Waiting" ||
+                transaction?.transactionStatus !== "Approve" ||
                 transaction?.transactionStatus !== "On-Progress" ? (
                   <button
                     type="button"
@@ -566,7 +530,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
               <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
                 <div className={`w-full flex items-center gap-1 mb-3`}>
                   <h3 className="font-bold uppercase tracking-widest text-sm">
-                    Requested Usage
+                    Requested Asset Out
                   </h3>
 
                   <Button
@@ -578,7 +542,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                     <MdDownload className="w-4 h-4" />
                   </Button>
                 </div>
-                <SelectProductRequest
+                <SelectRequestAsset
                   options={[]}
                   items={transformedRequestData}
                   setItems={setRequestData}
@@ -592,7 +556,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                 <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
                   <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
                     <h3 className="font-bold uppercase tracking-widest text-sm">
-                      Inventory
+                      Asset Out
                     </h3>
                   </div>
 
@@ -609,23 +573,23 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                             <th
                               scope="col"
                               className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Request No.
+                              Serial No.
                             </th>
                             <th
                               scope="col"
                               className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Location
+                              Status
                             </th>
                             <th
                               scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Received Qty
+                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
+                              Value
                             </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                          {transformedInventory?.length > 0 ? (
-                            transformedInventory?.map((e: any, idx: any) => {
+                          {transformedAsset?.length > 0 ? (
+                            transformedAsset?.map((e: any, idx: any) => {
                               return (
                                 <Fragment key={idx}>
                                   <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
@@ -633,35 +597,34 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                                       <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
                                         <img
                                           src={
-                                            e?.productImages
-                                              ? `${url}product/files/${e?.productImages}`
+                                            e?.product?.productImages
+                                              ? `${url}product/files/${e?.product?.productImages}`
                                               : "../../../../../image/no-image.jpeg"
                                           }
                                           alt="img-product"
                                           className="object cover object-center w-6 h-6 rounded mr-1"
                                         />
-                                        <div>{e?.productName}</div>
+                                        <div>
+                                          {e?.product?.productName || "-"}
+                                        </div>
                                       </div>
                                     </td>
                                     <td className="p-4 font-semibold uppercase">
-                                      <div>{e?.requests?.requestNumber}</div>
+                                      <div>{e?.asset?.serialNumber || "-"}</div>
                                     </td>
                                     <td className="p-4">
                                       <div className="text-left font-semibold">
-                                        {e?.requests?.locations?.map(
-                                          (loc: any) => {
-                                            return loc?.locationName;
-                                          }
-                                        )}
+                                        {e?.assetStatus || "-"}
                                       </div>
                                     </td>
                                     <td className="p-4">
                                       <div className="text-center font-semibold">
-                                        {e?.requests?.locations?.map(
-                                          (loc: any) => {
-                                            return loc?.qty;
-                                          }
-                                        )}
+                                        Rp.
+                                        {e?.assetValue
+                                          ? formatMoney({
+                                              amount: e?.assetValue,
+                                            })
+                                          : "0"}
                                       </div>
                                     </td>
                                   </tr>

@@ -278,7 +278,11 @@ const Transactions = ({ pageProps }: Props) => {
               type="button"
               onClick={() =>
                 router.push({
-                  pathname: `/employee/assets-management/stocks/transactions/${transactionType?.toLowerCase()}/${id}`,
+                  pathname: `/employee/assets-management/stocks/transactions/${
+                    transactionType == "Out"
+                      ? "asset-out"
+                      : transactionType?.toLowerCase()
+                  }/${id}`,
                 })
               }
               className="w-full text-left font-semibold text-primary hover:underline active:scale-90 uppercase">
