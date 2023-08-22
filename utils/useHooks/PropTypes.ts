@@ -339,3 +339,31 @@ export type TransactionProps = {
   transactionStatus?: string | any;
   transactionType?: string | any;
 };
+
+// stock-balance
+export type StockBalanceProps = {
+  id?: number | string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+  stockBalanceNumber?: string | any;
+  stockBalanceDescription?: string | any;
+  stockBalanceCheckerName?: string | any;
+  stockBalanceCheckerEmail?: string | any;
+  stockBalanceApprovalName?: string | any;
+  stockBalanceApprovalEmail?: string | any;
+  stockBalanceAuditorName?: string | any;
+  stockBalanceAuditorEmail?: string | any;
+  stockBalanceStatus?: string | any;
+  documents: any[];
+  stockBalanceProductLocations: any | any[];
+};
+
+export type ProductLocationProps = {
+  id?: number | string | any;
+  assetLocations?: any[];
+  createdAt?: string | any;
+  location?: LocationProps | any;
+  product?: ProductProps | any;
+  productQty?: number | string | any;
+  updatedAt?: string | any;
+};
