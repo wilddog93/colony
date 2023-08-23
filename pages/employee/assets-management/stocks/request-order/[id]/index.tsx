@@ -61,6 +61,7 @@ import {
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 type FormValues = {
   id?: number | string;
@@ -98,6 +99,7 @@ const RequestDetails = ({ pageProps }: Props) => {
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
   const [isOpenDeleteDoc, setIsOpenDeleteDoc] = useState<boolean>(false);
+  const [isOpenDownloadData, setIsOpenDownloadData] = useState<boolean>(false);
 
   // date
   const dateTimeFormat = (value: any) => {
@@ -365,6 +367,46 @@ const RequestDetails = ({ pageProps }: Props) => {
     }
   };
 
+  // download-data-request
+  const onOpenDownloadData = () => {
+    setIsOpenDownloadData(true);
+  };
+
+  const onCloseDownloadData = () => {
+    setIsOpenDownloadData(false);
+  };
+
+  const onDownloadData = async (params: any) => {
+    let date = moment(new Date()).format("lll");
+    setLoading(true);
+    try {
+      axios({
+        url: `request/${params.id}/report`,
+        method: "GET",
+        responseType: "blob",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${params.token}`,
+        },
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${date}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        toast.dark("Download file's successfully");
+        setLoading(false);
+        onCloseDownloadData();
+      });
+    } catch (error: any) {
+      const { data, status } = error.response;
+      let newError: any = { message: data.message[0] };
+      toast.dark(newError.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <DefaultLayout
       title="Colony"
@@ -518,7 +560,7 @@ const RequestDetails = ({ pageProps }: Props) => {
                     type="button"
                     variant="primary"
                     className="rounded-lg border border-primary active:scale-90"
-                    onClick={() => console.log("download-data")}>
+                    onClick={onOpenDownloadData}>
                     <span className="text-xs">Download</span>
                     <MdDownload className="w-4 h-4" />
                   </Button>
@@ -686,6 +728,48 @@ const RequestDetails = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* download data modal */}
+      <Modal
+        size="small"
+        onClose={onCloseDownloadData}
+        isOpen={isOpenDownloadData}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseDownloadData}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-semibold">Download Data</h3>
+              <p className="text-gray-5 text-sm">{`Do you want to download this data ?`}</p>
+            </div>
+          </ModalHeader>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
+            <button
+              type="button"
+              className="inline-flex rounded-lg border-2 px-4 py-2 border-gray-5 shadow-2 active:scale-90 focus:outline-none"
+              onClick={onCloseDownloadData}>
+              <span className="text-xs font-semibold">No</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary active:scale-90"
+              onClick={() => onDownloadData({ token, id: query?.id })}
+              disabled={loading}>
+              {!loading ? (
+                <span className="text-xs">Yes, download data!</span>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              )}
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
 
       {/* discard modal */}
       <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>

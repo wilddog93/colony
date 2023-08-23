@@ -656,14 +656,6 @@ const RequestDetails = ({ pageProps }: Props) => {
 
   // download-data-detail
   const onDownloadData = async (params: any) => {
-    let config = {
-      params: params.params,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${params.token}`,
-      },
-    };
     let date = moment(new Date()).format("lll");
     setLoading(true);
     try {
@@ -1033,6 +1025,7 @@ const RequestDetails = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+
       {/* download data modal */}
       <Modal size="small" onClose={onCloseDownloadData} isOpen={isDownloadData}>
         <Fragment>
