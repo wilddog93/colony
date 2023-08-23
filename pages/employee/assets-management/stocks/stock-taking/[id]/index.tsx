@@ -66,6 +66,7 @@ import {
 import { toast } from "react-toastify";
 import {
   createStockBalanceDocumentById,
+  deleteStockBalanceDocumentById,
   getStockBalanceById,
   selectStockBalanceManagement,
   updateStockBalanceChangeStatus,
@@ -264,7 +265,7 @@ const RequestDetails = ({ pageProps }: Props) => {
         data: newObj,
         isSuccess: () => {
           toast.dark("Document has been uploaded");
-          dispatch(getRequestById({ token, id: query?.id }));
+          dispatch(getStockBalanceById({ token, id: query?.id }));
           onCloseFiles();
         },
         isError: () => {
@@ -286,13 +287,13 @@ const RequestDetails = ({ pageProps }: Props) => {
   const onDeleteDoc = (value: any) => {
     if (!value) return;
     dispatch(
-      deleteRequestDocumentById({
+      deleteStockBalanceDocumentById({
         token,
         id: query?.id,
         documentId: value,
         isSuccess: () => {
           toast.dark("Document has been deleted");
-          dispatch(getRequestById({ token, id: query?.id }));
+          dispatch(getStockBalanceById({ token, id: query?.id }));
           onCloseDeleteDoc();
         },
         isError: () => {
