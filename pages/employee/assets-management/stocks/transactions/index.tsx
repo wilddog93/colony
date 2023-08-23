@@ -44,6 +44,10 @@ import {
   getTransactions,
   selectTransactionManagement,
 } from "../../../../../redux/features/assets/stocks/transactionReducers";
+import {
+  getStockBalances,
+  selectStockBalanceManagement,
+} from "../../../../../redux/features/assets/stocks/stockBalanceReducers";
 
 type Props = {
   pageProps: any;
@@ -68,7 +72,7 @@ const typesOpt: OptionProps[] = [
   { value: "move", label: "Product Out - Move" },
   { value: "asset-out", label: "Product Retirement - Asset Out" },
   {
-    value: "stock taking",
+    value: "stock-taking",
     label: "Product Reconciliation - Stock Taking",
   },
 ];
@@ -181,6 +185,7 @@ const Transactions = ({ pageProps }: Props) => {
   const { data } = useAppSelector(selectAuth);
   const { orders } = useAppSelector(selectOrderManagement);
   const { transactions, pending } = useAppSelector(selectTransactionManagement);
+  const { stockBalances } = useAppSelector(selectStockBalanceManagement);
   const { vendors } = useAppSelector(selectVendorManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -204,6 +209,11 @@ const Transactions = ({ pageProps }: Props) => {
   const [transactionType, setTransactionType] = useState<OptionProps | any>(
     null
   );
+
+  // stock-balance
+  const [stockBalanceSelected, setStockBalanceSelected] = useState<
+    OptionProps | any
+  >(null);
 
   // description-read
   const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
@@ -361,7 +371,7 @@ const Transactions = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
     ],
-    []
+    [isArrayHidden]
   );
 
   useEffect(() => {
@@ -466,14 +476,75 @@ const Transactions = ({ pageProps }: Props) => {
   }, [transactions]);
 
   const goToForm = (item: any) => {
+    console.log("item", item);
     if (!item?.value) {
       toast.dark("Please, fill your transaction information");
     } else {
-      return router.push({
-        pathname: `/employee/assets-management/stocks/transactions/form/${item?.value}`,
-      });
+      if (item?.value == "stock-taking") {
+        if (!stockBalanceSelected) {
+          toast.dark(`Please, fill your stock balance data`);
+          return;
+        }
+        return router.push({
+          pathname: `/employee/assets-management/stocks/transactions/form/${item?.value}`,
+          query: {
+            stocks: stockBalanceSelected?.value,
+          },
+        });
+      } else {
+        return router.push({
+          pathname: `/employee/assets-management/stocks/transactions/form/${item?.value}`,
+        });
+      }
     }
   };
+
+  // stock-balance
+  const filterStock = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [{ stockBalanceStatus: { $in: ["On-Progress", "Approve"] } }],
+    };
+
+    qb.search(search);
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (transactionType?.value == "stock-taking" && token) {
+      dispatch(
+        getStockBalances({
+          token,
+          params: filterStock.queryObject,
+        })
+      );
+    }
+  }, [token, transactionType?.value, filterStock]);
+
+  const stockOption = useMemo(() => {
+    const newArray: OptionProps[] = [];
+
+    const { data } = stockBalances;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArray.push({
+          ...item,
+          value: item.id || "",
+          label: item.stockBalanceNumber?.toUpperCase() || "",
+        });
+      });
+    }
+
+    return newArray;
+  }, [stockBalances]);
+
+  console.log(stockBalances, "stockBalances");
 
   return (
     <DefaultLayout
@@ -676,6 +747,32 @@ const Transactions = ({ pageProps }: Props) => {
                 options={typesOpt}
                 formatOptionLabel={""}
                 icon=""
+                isClearable
+              />
+            </div>
+
+            <div
+              className={`mb-3 ${
+                transactionType?.value !== "stock-taking" ? "hidden" : ""
+              }`}>
+              <label htmlFor="stockBalance" className="font-semibold text-base">
+                Stocks
+              </label>
+              <DropdownSelect
+                customStyles={stylesSelect}
+                value={stockBalanceSelected}
+                onChange={setStockBalanceSelected}
+                error=""
+                className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
+                classNamePrefix=""
+                instanceId="stockBalance"
+                isDisabled={false}
+                isMulti={false}
+                placeholder="Choose stock taking"
+                options={stockOption}
+                formatOptionLabel={""}
+                icon=""
+                isClearable
               />
             </div>
           </div>
