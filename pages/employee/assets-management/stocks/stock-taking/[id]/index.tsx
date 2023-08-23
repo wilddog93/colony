@@ -755,6 +755,8 @@ const RequestDetails = ({ pageProps }: Props) => {
                     className={`w-full max-w-max flex items-center p-1 rounded ${
                       stockBalance?.stockBalanceStatus == "Waiting"
                         ? "border border-yellow-400 bg-yellow-50 text-yellow-400"
+                        : stockBalance?.stockBalanceStatus == "Cancel"
+                        ? "border border-red-400 bg-red-50 text-red-400"
                         : "border border-primary bg-blue-100 text-primary"
                     }`}>
                     {stockBalance?.stockBalanceStatus}

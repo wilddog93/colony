@@ -255,7 +255,13 @@ const Transactions = ({ pageProps }: Props) => {
       case "Approve":
         color = "#5F59F7";
         break;
+      case "Rejected":
+        color = "#FF1E00";
+        break;
       case "Declined":
+        color = "#FF1E00";
+        break;
+      case "Cancel":
         color = "#FF1E00";
         break;
       case "Done":

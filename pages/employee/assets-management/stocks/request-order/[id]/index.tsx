@@ -474,6 +474,8 @@ const RequestDetails = ({ pageProps }: Props) => {
                     className={`w-full max-w-max flex items-center p-1 rounded ${
                       request?.requestStatus == "Waiting"
                         ? "border border-yellow-400 bg-yellow-50 text-yellow-400"
+                        : request?.requestStatus == "Cancel"
+                        ? "border border-red-400 bg-red-50 text-red-400"
                         : "border border-primary bg-blue-100 text-primary"
                     }`}>
                     {request?.requestStatus}
@@ -516,7 +518,8 @@ const RequestDetails = ({ pageProps }: Props) => {
                     type="button"
                     className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100 ${
                       request?.requestStatus == "Mark As Complete" ||
-                      request?.requestStatus == "Complete"
+                      request?.requestStatus == "Complete" ||
+                      request?.requestStatus == "Cancel"
                         ? "hidden"
                         : ""
                     }`}

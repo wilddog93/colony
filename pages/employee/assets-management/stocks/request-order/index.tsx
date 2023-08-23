@@ -267,6 +267,12 @@ const Products = ({ pageProps }: Props) => {
       case "Rejected":
         color = "#FF1E00";
         break;
+      case "Declined":
+        color = "#FF1E00";
+        break;
+      case "Cancel":
+        color = "#FF1E00";
+        break;
       case "Done":
         color = "#8758FF";
         break;
