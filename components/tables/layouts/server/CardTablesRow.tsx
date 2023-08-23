@@ -259,7 +259,7 @@ function CardTablesRow(props: any) {
       <div
         ref={refTable}
         onScroll={(e) => handleScroll(e.target as HTMLDivElement)}
-        className="relative col-span-1 p-4 overflow-auto h-[600px]">
+        className="relative col-span-1 p-4 overflow-auto h-full max-h-[600px]">
         <table className="relative w-full overflow-auto border-separate border-0 border-spacing-y-4 rounded-lg px-2">
           <thead
             className={`w-full sticky overflow-hidden -top-5 z-10 bg-gray transform duration-500 ease-in-out text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700 ${

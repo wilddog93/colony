@@ -38,6 +38,7 @@ import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import {
+  LocationProps,
   OptionProps,
   ProductProps,
   RequestAssetProps,
@@ -63,6 +64,36 @@ import {
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
 import { toast } from "react-toastify";
+import {
+  createStockBalanceDocumentById,
+  getStockBalanceById,
+  selectStockBalanceManagement,
+  updateStockBalanceChangeStatus,
+} from "../../../../../../redux/features/assets/stocks/stockBalanceReducers";
+import { ColumnDef } from "@tanstack/react-table";
+import CardTablesRow from "../../../../../../components/tables/layouts/server/CardTablesRow";
+import axios from "axios";
+
+type AssetProps = {
+  assetId?: number | string;
+  brandName?: string | any;
+  locationId?: number | string;
+  productLocationId?: string | any;
+  productName?: string | any;
+  serialNumber?: string | any;
+  status?: boolean | any;
+  location?: LocationProps[] | any[];
+};
+
+type InventoryProps = {
+  productLocationId?: number | string | any;
+  locationId?: number | string | any;
+  brandName?: string | any;
+  productName?: string | any;
+  actualQty?: string | any;
+  systemQty?: boolean | any;
+  location?: LocationProps[] | any[];
+};
 
 type FormValues = {
   id?: number | string;
@@ -86,16 +117,46 @@ const RequestDetails = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { request, pending } = useAppSelector(selectRequestManagement);
+  const { request } = useAppSelector(selectRequestManagement);
+  const { stockBalances, stockBalance, pending } = useAppSelector(
+    selectStockBalanceManagement
+  );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  // data-table
+  // data-file
   const [formData, setFormData] = useState<any>(null);
   const [files, setFiles] = useState<any[]>([]);
   const [isOpenFiles, setIsOpenFiles] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // data-table
+  const [assetData, setAssetData] = useState<AssetProps[] | any[]>([]);
+  const [inventoryData, setInventoryData] = useState<InventoryProps[] | any[]>(
+    []
+  );
+  const [pages, setPages] = useState<number>(1);
+  const [pagesAsset, setPagesAsset] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
+  const [limitAsset, setLimitAsset] = useState<number>(10);
+  const [pageCount, setPageCount] = useState<number>(1);
+  const [pageCountAsset, setPageCountAsset] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+  const [totalAsset, setTotalAsset] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isSelectedRow, setIsSelectedRow] = useState<any[]>([]);
+  const [tabs, setTabs] = useState("asset");
+
+  // dowload-data
+  const [isDownloadData, setIsDownloadData] = useState<boolean>(false);
+
+  const onOpenDownloadData = () => {
+    setIsDownloadData(true);
+  };
+
+  const onCloseDownloadData = () => {
+    setIsDownloadData(false);
+  };
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
@@ -139,7 +200,7 @@ const RequestDetails = ({ pageProps }: Props) => {
 
   // get request-by-id
   useEffect(() => {
-    if (token) dispatch(getRequestById({ token, id: query?.id }));
+    if (token) dispatch(getStockBalanceById({ token, id: query?.id }));
   }, [token, query?.id]);
 
   useEffect(() => {
@@ -197,7 +258,7 @@ const RequestDetails = ({ pageProps }: Props) => {
     let newObj = value?.document?.length > 0 ? value?.document[0] : "";
     console.log(newObj, "document");
     dispatch(
-      createRequestDocumentById({
+      createStockBalanceDocumentById({
         token,
         id: value?.id,
         data: newObj,
@@ -264,28 +325,9 @@ const RequestDetails = ({ pageProps }: Props) => {
     }
   };
 
-  const requestAssets = useMemo(() => {
-    let assets: RequestAssetProps[] = [];
-    const { requestAssets } = request;
-    if (!requestAssets) {
-      return assets;
-    } else {
-      requestAssets?.map((item: any) => {
-        assets.push({
-          ...item,
-          product: item?.asset?.product,
-        });
-      });
-    }
-
-    return assets;
-  }, [request]);
-
-  console.log(request, "data-request");
-
-  const documentRequest = useMemo(() => {
+  const documentStockBalance = useMemo(() => {
     let document: any[] = [];
-    const { documents } = request;
+    const { documents } = stockBalance;
     if (!documents) {
       return document;
     } else {
@@ -294,20 +336,95 @@ const RequestDetails = ({ pageProps }: Props) => {
       });
     }
     return document;
-  }, [request]);
+  }, [stockBalance]);
 
+  // manipulate-data
+  useEffect(() => {
+    console.log(stockBalance, "stockBalance");
+    let inventory: any[] = [];
+    let asset: any[] = [];
+    let totalPage: number = 1;
+    let total: number = 0;
+    let totalPageAsset: number = 1;
+    let totalAsset: number = 0;
+    const { stockBalanceProductLocations } = stockBalance;
+    if (
+      stockBalanceProductLocations &&
+      stockBalanceProductLocations?.length > 0
+    ) {
+      stockBalanceProductLocations?.map((stock: any, index: any) => {
+        if (stock?.productLocation) {
+          inventory.push({
+            id: stock?.id,
+            productLocationId: stock?.productLocation?.id,
+            location: [
+              {
+                ...stock?.productLocation?.location,
+              },
+            ],
+            productName: stock?.productLocation.product?.productName,
+            product: stock?.productLocation.product,
+            systemQty: stock?.systemQty,
+            actualQty:
+              (stock?.systemQty || 0) -
+              (stock?.losetQty || 0) +
+              (stock?.unregisteredQty || 0),
+          });
+        }
+        if (stock?.stockBalanceAssets?.length > 0) {
+          stock?.stockBalanceAssets?.map((item: any) => {
+            let filterLocation = item?.asset?.assetLocations?.filter(
+              (x: any) => x.endTime == null
+            );
+            console.log(stock, "hasil");
+            if (filterLocation.length > 0) {
+              filterLocation.map((e: any) => {
+                asset.push({
+                  ...stock,
+                  asset: item?.asset ?? {},
+                  serialNumber: item?.asset?.serialNumber,
+                  productLocationId: e?.productLocation?.id,
+                  productId: item?.asset?.product?.id,
+                  product: item?.asset?.product,
+                  productName: item?.asset?.product?.productName,
+                  location: [e?.productLocation?.location],
+                  locationId: e?.productLocation?.location?.id,
+                });
+              });
+            }
+          });
+        }
+      });
+    }
+    totalAsset = asset?.length || 0;
+    totalPageAsset =
+      totalAsset >= limit ? Math.round(asset?.length / limit) : 1;
+
+    total = inventory?.length || 0;
+    totalPage = total >= limit ? Math.round(asset?.length / limit) : 1;
+    setInventoryData(inventory);
+    setAssetData(asset);
+    setPageCount(totalPage);
+    setTotal(total);
+    setPageCountAsset(totalPageAsset);
+    setTotalAsset(totalAsset);
+  }, [stockBalance, limit]);
+
+  console.log(inventoryData, "inventoryData");
+
+  // change-status
   const onChangeApproval = (status: any) => {
     if (!status) return;
     else if (status == "Waiting") {
       let obj = { status: "Approve" };
       dispatch(
-        updateRequestChangeStatus({
+        updateStockBalanceChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Request has been approved");
-            dispatch(getRequestById({ token, id: query?.id }));
+            toast.dark("Stock has been approved");
+            dispatch(getStockBalanceById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -317,13 +434,13 @@ const RequestDetails = ({ pageProps }: Props) => {
     } else if (status == "On-Progress") {
       let obj = { status: "Mark As Complete" };
       dispatch(
-        updateRequestChangeStatus({
+        updateStockBalanceChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Request has been approved");
-            dispatch(getRequestById({ token, id: query?.id }));
+            toast.dark("Stock has been approved");
+            dispatch(getStockBalanceById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -331,7 +448,7 @@ const RequestDetails = ({ pageProps }: Props) => {
         })
       );
     } else {
-      toast.dark("Request status is not valid");
+      toast.dark("Stock status is not valid");
     }
   };
 
@@ -341,13 +458,13 @@ const RequestDetails = ({ pageProps }: Props) => {
     else if (status == "Waiting") {
       obj = { status: "Rejected" };
       dispatch(
-        updateRequestChangeStatus({
+        updateStockBalanceChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Request has been approved");
-            dispatch(getRequestById({ token, id: query?.id }));
+            toast.dark("Stock has been approved");
+            dispatch(getStockBalanceById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -357,13 +474,13 @@ const RequestDetails = ({ pageProps }: Props) => {
     } else if (status == "Approve") {
       obj = { status: "Cancel" };
       dispatch(
-        updateRequestChangeStatus({
+        updateStockBalanceChangeStatus({
           token,
           id: query?.id,
           data: obj,
           isSuccess: () => {
-            toast.dark("Request has been approved");
-            dispatch(getRequestById({ token, id: query?.id }));
+            toast.dark("Stock has been approved");
+            dispatch(getStockBalanceById({ token, id: query?.id }));
           },
           isError: () => {
             console.log("Something went wrong!");
@@ -373,11 +490,216 @@ const RequestDetails = ({ pageProps }: Props) => {
     }
   };
 
+  const columnInventory = useMemo<ColumnDef<InventoryProps, any>[]>(
+    () => [
+      {
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "brandName",
+        header: (info) => <div className="uppercase">Brand</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "locationId",
+        header: (info) => <div className="uppercase">Location</div>,
+        cell: ({ row, getValue }) => {
+          const { location } = row?.original;
+          return (
+            <div className="w-full text-left">
+              {location && location?.length > 0
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                      {item.locationName}
+                    </div>
+                  ))
+                : "-"}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "systemQty",
+        header: (info) => (
+          <div className="w-full uppercase text-center">System</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "actualQty",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Actual</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "productLocationId",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Diff</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const { actualQty, systemQty } = row?.original;
+          const result = systemQty - actualQty;
+          return (
+            <div
+              className={`w-full text-center font-semibold ${
+                result < 0 ? "text-danger" : "text-primary"
+              }`}>
+              {result}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+    ],
+    []
+  );
+
+  const columnAsset = useMemo<ColumnDef<AssetProps, any>[]>(
+    () => [
+      {
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "brandName",
+        header: (info) => <div className="uppercase">Brand</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "locationId",
+        header: (info) => <div className="uppercase">Location</div>,
+        cell: ({ row, getValue }) => {
+          const { location } = row?.original;
+          return (
+            <div className="w-full text-left">
+              {location && location?.length > 0
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                      {item.locationName}
+                    </div>
+                  ))
+                : "-"}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "serialNumber",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Serial No.</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      // {
+      //   accessorKey: "status",
+      //   header: (info) => (
+      //     <div className="w-full uppercase text-center">Status</div>
+      //   ),
+      //   cell: ({ row, getValue }) => {
+      //     return (
+      //       <div
+      //         className={`w-full text-center font-semibold uppercase ${
+      //           getValue() ? "text-primary" : "text-danger"
+      //         }`}>
+      //         {getValue() ? "Pass" : "Loss"}
+      //       </div>
+      //     );
+      //   },
+      //   footer: (props) => props.column.id,
+      //   enableColumnFilter: false,
+      // },
+    ],
+    []
+  );
+
+  // download-data-detail
+  const onDownloadData = async (params: any) => {
+    let config = {
+      params: params.params,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${params.token}`,
+      },
+    };
+    let date = moment(new Date()).format("lll");
+    setLoading(true);
+    try {
+      axios({
+        url: `stockBalance/${params.id}/report`,
+        method: "GET",
+        responseType: "blob",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${params.token}`,
+        },
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${date}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        toast.dark("Download file's successfully");
+        setLoading(false);
+        onCloseDownloadData();
+      });
+    } catch (error: any) {
+      const { data, status } = error.response;
+      let newError: any = { message: data.message[0] };
+      toast.dark(newError.message);
+      setLoading(false);
+    }
+  };
+
+  // console.log({ stockBalance }, "stock-data");
+
   return (
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Details Request Asset Out"
+      head="Details Stock Taking"
       logo="../../../../image/logo/logo-icon.svg"
       images="../../../../image/logo/building-logo.svg"
       userDefault="../../../../image/user/user-01.png"
@@ -424,37 +746,39 @@ const RequestDetails = ({ pageProps }: Props) => {
                   <div className="flex gap-1 items-center">
                     <MdChevronLeft className="w-6 h-6" />
                     <h3 className="w-full text-center text-xl font-semibold text-graydark capitalize">
-                      <span className="inline-block">Request Asset Out</span>
+                      <span className="inline-block">Stock Taking</span>
                     </h3>
                   </div>
                 </button>
                 <div className="w-full max-w-max text-primary">
                   <p className="font-semibold uppercase">
-                    {request?.requestNumber
-                      ? `#${request?.requestNumber}`
+                    {stockBalance?.stockBalanceNumber
+                      ? `#${stockBalance?.stockBalanceNumber}`
                       : "-"}
                   </p>
                 </div>
                 <div className="w-full max-w-max flex flex-col lg:flex-row items-center gap-2 text-gray-6 text-sm">
                   <span
                     className={`w-full max-w-max flex items-center p-1 rounded ${
-                      request?.requestStatus == "Waiting"
+                      stockBalance?.stockBalanceStatus == "Waiting"
                         ? "border border-yellow-400 bg-yellow-50 text-yellow-400"
                         : "border border-primary bg-blue-100 text-primary"
                     }`}>
-                    {request?.requestStatus}
+                    {stockBalance?.stockBalanceStatus}
                   </span>
-                  <div>{dateTimeFormat(request?.updatedAt)}</div>
+                  <div>{dateTimeFormat(stockBalance?.updatedAt)}</div>
                 </div>
               </div>
 
               <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
-                {request?.requestStatus == "Waiting" ||
-                request?.requestStatus == "Approve" ? (
+                {stockBalance?.stockBalanceStatus == "Waiting" ||
+                stockBalance?.stockBalanceStatus == "Approve" ? (
                   <button
                     type="button"
                     className={`rounded-lg text-sm font-semibold px-4 py-3 border-2 border-gray inline-flex text-gray-6 active:scale-90 shadow-1`}
-                    onClick={() => onChangeReject(request?.requestStatus)}
+                    onClick={() =>
+                      onChangeReject(stockBalance?.stockBalanceStatus)
+                    }
                     disabled={pending}>
                     {pending ? (
                       <Fragment>
@@ -466,7 +790,7 @@ const RequestDetails = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          {request?.requestStatus == "Waiting"
+                          {stockBalance?.stockBalanceStatus == "Waiting"
                             ? "Reject"
                             : "Cancel"}
                         </span>
@@ -476,23 +800,26 @@ const RequestDetails = ({ pageProps }: Props) => {
                   </button>
                 ) : null}
 
-                {request?.requestStatus !== "Waiting" ||
-                request?.requestStatus !== "On-Progress" ? (
+                {stockBalance?.stockBalanceStatus !== "Waiting" ||
+                stockBalance?.stockBalanceStatus !== "On-Progress" ? (
                   <button
                     type="button"
                     className={`inline-flex gap-2 items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100
                       ${
-                        request?.requestStatus == "Mark As Complete" ||
-                        request?.requestStatus == "Complete"
+                        stockBalance?.stockBalanceStatus ==
+                          "Mark As Complete" ||
+                        stockBalance?.stockBalanceStatus == "Complete"
                           ? "hidden"
                           : ""
                       }
                       `}
-                    onClick={() => onChangeApproval(request?.requestStatus)}
+                    onClick={() =>
+                      onChangeApproval(stockBalance?.stockBalanceStatus)
+                    }
                     disabled={
                       pending ||
-                      documentRequest?.length == 0 ||
-                      request?.requestStatus == "Approve"
+                      documentStockBalance?.length == 0 ||
+                      stockBalance?.stockBalanceStatus == "Approve"
                     }>
                     {pending ? (
                       <Fragment>
@@ -504,7 +831,7 @@ const RequestDetails = ({ pageProps }: Props) => {
                     ) : (
                       <Fragment>
                         <span className="hidden lg:inline-block">
-                          {request?.requestStatus == "Waiting"
+                          {stockBalance?.stockBalanceStatus == "Waiting"
                             ? "Approve"
                             : "Mark As Complete"}
                         </span>
@@ -521,116 +848,120 @@ const RequestDetails = ({ pageProps }: Props) => {
             <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6 lg:col-span-2">
               <div className="w-full grid grid-cols-2 items-center">
                 <h3 className="text-lg font-bold tracking-widest">
-                  Requested Items
+                  Data Comparation
                 </h3>
                 <div className="w-full flex justify-end">
                   <Button
                     type="button"
                     variant="primary"
                     className="rounded-lg border border-primary active:scale-90"
-                    onClick={() => console.log("download-data")}>
+                    onClick={() => onOpenDownloadData()}>
                     <span className="text-xs">Download</span>
                     <MdDownload className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 text-gray-6">
-                <div className="col-span-1 overflow-x-auto">
-                  <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
-                    <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
-                          Asset Name
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
-                          Serial No.
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
-                          Status
-                        </th>
-                        <th
-                          scope="col"
-                          className="font-semibold px-2 py-4 text-sm text-wide capitalize text-left">
-                          Value
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                      {requestAssets?.length > 0 ? (
-                        requestAssets?.map((e: any, idx: any) => {
-                          return (
-                            <tr
-                              key={idx}
-                              className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                              <td className="w-[350px]">
-                                <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                  <img
-                                    src={
-                                      e?.product?.productImages
-                                        ? `${url}product/productImage/${e?.product?.productImages}`
-                                        : "../../../../image/no-image.jpeg"
-                                    }
-                                    alt="img-product"
-                                    className="object cover object-center w-6 h-6 rounded mr-1"
-                                  />
-                                  <div>{e?.product?.productName}</div>
-                                </div>
-                              </td>
-                              <td className="px-2 py-4">
-                                <div>{e?.asset?.serialNumber}</div>
-                              </td>
-                              <td className="px-2 py-4 text-left">
-                                <div>{e?.assetStatus || "-"}</div>
-                              </td>
-                              <td className="px-2 py-4 text-left">
-                                <div>
-                                  Rp.
-                                  {e?.assetValue
-                                    ? formatMoney({ amount: e?.assetValue })
-                                    : "0"}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={12} className="p-4">
-                            <div className="text-sm italic text-gray-500 font-semibold">
-                              There is no request product data.
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+              {/* tabs */}
+              <div className="w-full flex items-center px-4">
+                <ul
+                  role=""
+                  className="w-full flex items-center gap-2 border-b-2 border-gray">
+                  {Array("asset", "inventory").map((item: any, index: any) => {
+                    return (
+                      <li key={index}>
+                        <button
+                          type="button"
+                          onClick={() => setTabs(item)}
+                          className={`inline-block py-4 px-2 text-sm uppercase font-semibold focus:outline-none ${
+                            item == tabs
+                              ? "border-b-2 border-primary text-primary"
+                              : ""
+                          }`}>
+                          <span>{item}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
 
-              <div className="border-b-2 border-gray w-full h-2 my-3"></div>
+              <CardTablesRow
+                loading={loading}
+                setLoading={setLoading}
+                pages={tabs == "asset" ? pagesAsset : pages}
+                setPages={tabs == "asset" ? setPagesAsset : setPages}
+                limit={tabs == "asset" ? limitAsset : limit}
+                setLimit={tabs == "asset" ? setLimitAsset : setLimit}
+                columns={tabs == "asset" ? columnAsset : columnInventory}
+                dataTable={tabs == "asset" ? assetData : inventoryData}
+                pageCount={tabs == "asset" ? pageCountAsset : pageCount}
+                total={tabs == "asset" ? totalAsset : total}
+                setIsSelected={setIsSelectedRow}
+                headerColor="bg-white"
+              />
+              {tabs == "asset" && assetData?.length == 0 ? (
+                <div className="px-6 text-xs text-gray-5">Data not found.</div>
+              ) : null}
 
-              <div className="w-full mb-3">
+              {tabs == "inventory" && inventoryData?.length == 0 ? (
+                <div className="px-6 text-xs text-gray-5">Data not found.</div>
+              ) : null}
+
+              <div className="w-full mb-3 px-6">
                 <label
                   className="col-span-1 font-semibold"
                   htmlFor="requestDescription">
-                  Notes :
+                  Notes
                 </label>
-                <div className="w-full col-span-4 h-full min-h-[100px] overflow-y-auto">
-                  <p className="w-full tracking-wide text-sm text-left">
-                    {request?.requestDescription}
-                  </p>
+                <div className="w-full col-span-4">
+                  {stockBalance?.stockBalanceDescription || "-"}
                 </div>
               </div>
             </div>
 
             <div className="w-full flex flex-col gap-2">
+              <div className="w-full border border-gray rounded-xl text-gray-6 divide-y-2 divide-gray tracking-wider">
+                <div className="w-full flex items-center gap-2 p-4">
+                  <div className="w-full tracking-wider">
+                    <h3 className="font-bold text-sm lg:text-lg">
+                      Responsible Users
+                    </h3>
+                  </div>
+                </div>
+
+                <div className={`w-full p-4 text-sm`}>
+                  <div className="w-full flex flex-col mb-3 text-sm gap-2">
+                    <h3 className="font-semibold">Checker</h3>
+                    <div className="w-full p-2 bg-gray rounded-lg text-xs">
+                      <p className="font-semibold capitalize">
+                        {stockBalance?.stockBalanceCheckerName || "-"}
+                      </p>
+                      <p>{stockBalance?.stockBalanceCheckerEmail || "-"}</p>
+                    </div>
+                  </div>
+
+                  <div className="w-full mb-3 text-sm">
+                    <h3 className="font-semibold">Approval</h3>
+                    <div className="w-full p-2 bg-gray rounded-lg text-xs">
+                      <p className="font-semibold capitalize">
+                        {stockBalance?.stockBalanceApprovalName || "-"}
+                      </p>
+                      <p>{stockBalance?.stockBalanceApprovalEmail || "-"}</p>
+                    </div>
+                  </div>
+
+                  <div className="w-full mb-3 text-sm">
+                    <h3 className="font-semibold">Auditor</h3>
+                    <div className="w-full p-2 bg-gray rounded-lg text-xs">
+                      <p className="font-semibold capitalize">
+                        {stockBalance?.stockBalanceAuditorName || "-"}
+                      </p>
+                      <p>{stockBalance?.stockBalanceAuditorEmail || "-"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
               {/* card */}
               <Cards className="w-full border border-gray rounded-xl shadow-card text-gray-6 text-sm">
                 <div className="w-full p-4 grid grid-cols-2 gap-1 items-center">
@@ -650,9 +981,9 @@ const RequestDetails = ({ pageProps }: Props) => {
 
                 <div className="w-full border-b-2 border-gray"></div>
 
-                <div className="w-full p-4 h-full max-h-[250px] overflow-y-auto">
-                  {documentRequest && documentRequest?.length > 0 ? (
-                    documentRequest?.map((file, id) => {
+                <div className="w-full p-4 h-full max-h-[250px] overflow-y-auto flex flex-col gap-2">
+                  {documentStockBalance && documentStockBalance?.length > 0 ? (
+                    documentStockBalance?.map((file, id) => {
                       let pathname = `${url}document/documentSource/${file?.documentSource}`;
                       return (
                         <div
@@ -701,6 +1032,44 @@ const RequestDetails = ({ pageProps }: Props) => {
           </div>
         </div>
       </div>
+      {/* download data modal */}
+      <Modal size="small" onClose={onCloseDownloadData} isOpen={isDownloadData}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseDownloadData}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-semibold">Download Data</h3>
+              <p className="text-gray-5 text-sm">{`Do you want to download this data ?`}</p>
+            </div>
+          </ModalHeader>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
+            <button
+              type="button"
+              className="inline-flex rounded-lg border-2 px-4 py-2 border-gray-5 shadow-2 active:scale-90 focus:outline-none"
+              onClick={onCloseDownloadData}>
+              <span className="text-xs font-semibold">No</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary active:scale-90"
+              onClick={() => onDownloadData({ token, id: query?.id })}
+              disabled={loading}>
+              {!loading ? (
+                <span className="text-xs">Yes, download data!</span>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs">loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              )}
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
 
       {/* discard modal */}
       <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
@@ -710,10 +1079,8 @@ const RequestDetails = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseDiscard}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-base font-semibold">
-                Back to Request Asset Out
-              </h3>
-              <p className="text-gray-5 text-sm">{`Are you sure to go back to request asset out ?`}</p>
+              <h3 className="text-base font-semibold">Back to Stock Taking</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to go back to stock taking ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">

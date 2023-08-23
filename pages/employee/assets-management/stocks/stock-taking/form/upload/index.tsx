@@ -672,8 +672,17 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
                   className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold py-3 px-4 active:scale-90 border-2 border-primary shadow-2"
                   onClick={handleSubmit(onSubmit)}
                   disabled={pending || !isValid}>
-                  <span className="hidden lg:inline-block">Submit</span>
-                  <MdCheckCircleOutline className="w-4 h-4" />
+                  {!pending ? (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">Submit</span>
+                      <MdCheckCircleOutline className="w-4 h-4" />
+                    </Fragment>
+                  ) : (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </Fragment>
+                  )}
                 </Button>
               </div>
             </div>

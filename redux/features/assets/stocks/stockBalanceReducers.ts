@@ -161,6 +161,44 @@ export const createStockBalance = createAsyncThunk<
   }
 });
 
+// create-document-by-id
+export const createStockBalanceDocumentById = createAsyncThunk<
+  any,
+  StockBalanceData,
+  { state: RootState }
+>("/stockBalance/create/id/document", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post(
+      `stockBalance/${params.id}/document`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // generate
 export const generateStockBalance = createAsyncThunk<
   any,
@@ -275,6 +313,44 @@ export const updateStockBalance = createAsyncThunk<
   }
 });
 
+// update-change-status
+export const updateStockBalanceChangeStatus = createAsyncThunk<
+  any,
+  StockBalanceData,
+  { state: RootState }
+>("/stockBalance/update/change-status", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.patch(
+      `stockBalance/switchStatus/${params.id}`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // delete
 export const deleteStockBalance = createAsyncThunk<
   any,
@@ -308,6 +384,46 @@ export const deleteStockBalance = createAsyncThunk<
     }
   }
 });
+
+// delete
+export const deleteStockBalanceDocumentById = createAsyncThunk<
+  any,
+  StockBalanceData,
+  { state: RootState }
+>(
+  "/stockBalance/delete/id/document/documentId",
+  async (params, { getState }) => {
+    let config: HeadersConfiguration = {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${params.token}`,
+      },
+    };
+    try {
+      const response = await axios.delete(
+        `stockBalance/${params.id}/document/${params.documentId}`,
+        config
+      );
+      const { data, status } = response;
+      if (status == 204) {
+        params.isSuccess();
+        return data;
+      } else {
+        throw response;
+      }
+    } catch (error: any) {
+      const { data, status } = error.response;
+      let newError: any = { message: data.message[0] };
+      toast.dark(newError.message);
+      if (error.response && error.response.status === 404) {
+        throw new Error("User not found");
+      } else {
+        throw new Error(newError.message);
+      }
+    }
+  }
+);
 
 // SLICER
 export const stockBalanceSlice = createSlice({
@@ -389,6 +505,29 @@ export const stockBalanceSlice = createSlice({
         state.message = error.message;
       })
 
+      // create-stockBalance-document-id
+      .addCase(createStockBalanceDocumentById.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(
+        createStockBalanceDocumentById.fulfilled,
+        (state, { payload }) => {
+          return {
+            ...state,
+            pending: false,
+            error: false,
+          };
+        }
+      )
+      .addCase(createStockBalanceDocumentById.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
       // generate-stockBalance
       .addCase(generateStockBalance.pending, (state) => {
         return {
@@ -444,6 +583,29 @@ export const stockBalanceSlice = createSlice({
         };
       })
       .addCase(updateStockBalance.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // update-stockBalance-change-status
+      .addCase(updateStockBalanceChangeStatus.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(
+        updateStockBalanceChangeStatus.fulfilled,
+        (state, { payload }) => {
+          return {
+            ...state,
+            pending: false,
+            error: false,
+          };
+        }
+      )
+      .addCase(updateStockBalanceChangeStatus.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;
