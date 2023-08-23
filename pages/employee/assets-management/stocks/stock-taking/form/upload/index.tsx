@@ -78,7 +78,10 @@ import {
 } from "../../../../../../../redux/features/assets/locations/productLocationManagementReducers";
 import SelectTables from "../../../../../../../components/tables/layouts/server/SelectTables";
 import CardTablesRow from "../../../../../../../components/tables/layouts/server/CardTablesRow";
-import { createStockBalance } from "../../../../../../../redux/features/assets/stocks/stockBalanceReducers";
+import {
+  createStockBalance,
+  selectStockBalanceManagement,
+} from "../../../../../../../redux/features/assets/stocks/stockBalanceReducers";
 
 interface PropsData {
   id?: number | any;
@@ -193,9 +196,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { productLocations, pending } = useAppSelector(
-    selectProductLocationManagement
-  );
+  const { pending } = useAppSelector(selectStockBalanceManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -217,21 +218,12 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     []
   );
   const [tabs, setTabs] = useState<any>("asset");
+  const [saveStatus, setSaveStatus] = useState<boolean>(false);
 
   // modal
   const [isOpenDiscard, setIsOpenDiscard] = useState<boolean>(false);
 
   // use-form
-  const [watchValue, setWatchValue] = useState<FormValues | any>(null);
-  const [watchChange, setWatchChange] = useState<any | null>(null);
-
-  // location
-  const [locationData, setLocationData] = useState<any[]>([]);
-  const [selectedOption, setSelectedOption] = useState<OptionProps[] | any[]>(
-    []
-  );
-  const [selected, setSelected] = useState<any>(null);
-  const [locationSelected, setLocationSelected] = useState<any[] | any>([]);
 
   // local-storage
   const getFromLocalStorage = (key: string) => {
@@ -247,10 +239,10 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
       : [],
     excelFile: getFromLocalStorage("base64")
       ? getFromLocalStorage("base64")
-      : [],
+      : "",
     stockBalanceNumber: getFromLocalStorage("stockNumber")
       ? getFromLocalStorage("stockNumber")
-      : [],
+      : "",
   };
 
   // form
@@ -300,6 +292,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     });
   }, []);
 
+  // set storage
   useEffect(() => {
     let asset: AssetProps[] = [];
     let totalAsset: number = 0;
@@ -308,6 +301,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     let total: number = 0;
     let totalPage: number = 1;
     let location: any[] = [];
+    let status = initiaLocalStorage?.storage?.saveStatus ? true : false;
     console.log(initiaLocalStorage, "storage");
     if (initiaLocalStorage?.data?.asset?.length > 0) {
       console.log(initiaLocalStorage?.data, "asset-data");
@@ -317,20 +311,24 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
           location: location,
         });
       });
-      totalAsset = initiaLocalStorage?.data?.asset?.length || 0;
-      totalPageAsset =
-        totalAsset >= limit
-          ? Math.round(initiaLocalStorage?.data?.asset?.length / limit)
-          : 1;
+
       initiaLocalStorage?.data?.location?.map((item: any) => {
         location.push(item);
       });
+
       initiaLocalStorage?.data?.inventory?.map((item: any) => {
         inventory.push({
           ...item,
           location: location,
         });
       });
+
+      totalAsset = initiaLocalStorage?.data?.asset?.length || 0;
+      totalPageAsset =
+        totalAsset >= limit
+          ? Math.round(initiaLocalStorage?.data?.asset?.length / limit)
+          : 1;
+
       total = initiaLocalStorage?.data?.inventory?.length || 0;
       totalPage =
         total >= limit
@@ -343,6 +341,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     setTotal(total);
     setPageCountAsset(totalPageAsset);
     setTotalAsset(totalAsset);
+    setSaveStatus(status);
   }, [limit]);
 
   // description
@@ -365,35 +364,6 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     if (!value) return "-";
     const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
     return date;
-  };
-
-  // on-submit
-  const onSubmit: SubmitHandler<FormValues> = (value) => {
-    console.log(value, "form-data");
-    let newObj = {
-      stockBalanceNumber: value?.stockBalanceNumber,
-      stockBalanceDescription: value?.stockBalanceDescription,
-      stockBalanceCheckerName: value?.stockBalanceCheckerName,
-      stockBalanceCheckerEmail: value?.stockBalanceCheckerEmail,
-      stockBalanceApprovalName: value?.stockBalanceApprovalName,
-      stockBalanceApprovalEmail: value?.stockBalanceApprovalEmail,
-      stockBalanceAuditorName: value?.stockBalanceAuditorName,
-      stockBalanceAuditorEmail: value?.stockBalanceAuditorEmail,
-      excelFile: initiaLocalStorage?.excelFile,
-    };
-    dispatch(
-      createStockBalance({
-        token,
-        data: newObj,
-        isSuccess: () => {
-          toast.dark(`Stock data has been uploaded`);
-          onDiscardStock();
-        },
-        isError: () => {
-          console.log("error-upload-data");
-        },
-      })
-    );
   };
 
   useEffect(() => {
@@ -420,41 +390,6 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     localStorage.removeItem("excelFile");
     localStorage.removeItem("stockNumber");
   };
-
-  // product
-  const filters = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    const search = {
-      $and: [
-        {
-          "location.id": {
-            $in:
-              locationSelected?.length > 0
-                ? locationSelected?.map((item: any) => item?.id)
-                : [],
-          },
-        },
-      ],
-    };
-
-    qb.search(search);
-
-    qb.sortBy({
-      field: `product.productName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, [locationSelected]);
-
-  useEffect(() => {
-    if (locationSelected?.length > 0) {
-      dispatch(getProductLocations({ token, params: filters.queryObject }));
-    } else {
-      dispatch(resetProductLocations());
-    }
-  }, [token, locationSelected, filters]);
 
   const columnInventory = useMemo<ColumnDef<InventoryProps, any>[]>(
     () => [
@@ -484,8 +419,10 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
           return (
             <div className="w-full text-left">
               {location && location?.length > 0
-                ? location?.map((item: any) => (
-                    <div className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
                       {item.locationName}
                     </div>
                   ))
@@ -570,8 +507,10 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
           return (
             <div className="w-full text-left">
               {location && location?.length > 0
-                ? location?.map((item: any) => (
-                    <div className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
                       {item.locationName}
                     </div>
                   ))
@@ -615,7 +554,45 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     []
   );
 
-  console.log({ assetData, inventoryData }, "data-product");
+  // on-submit
+  const onSubmit: SubmitHandler<FormValues> = (value) => {
+    console.log(value, "form-data");
+    if (!saveStatus) {
+      toast.dark(
+        "Stock data storage failed, there is no change in the excel file"
+      );
+      return;
+    }
+    let newObj = {
+      stockBalanceNumber: value?.stockBalanceNumber,
+      stockBalanceDescription: value?.stockBalanceDescription,
+      stockBalanceCheckerName: value?.stockBalanceCheckerName,
+      stockBalanceCheckerEmail: value?.stockBalanceCheckerEmail,
+      stockBalanceApprovalName: value?.stockBalanceApprovalName,
+      stockBalanceApprovalEmail: value?.stockBalanceApprovalEmail,
+      stockBalanceAuditorName: value?.stockBalanceAuditorName,
+      stockBalanceAuditorEmail: value?.stockBalanceAuditorEmail,
+      excelFile: initiaLocalStorage?.excelFile,
+    };
+    dispatch(
+      createStockBalance({
+        token,
+        data: newObj,
+        isSuccess: () => {
+          toast.dark(`Stock data has been uploaded`);
+          onDiscardStock();
+        },
+        isError: () => {
+          console.log("error-upload-data");
+        },
+      })
+    );
+  };
+
+  console.log(
+    { assetData, inventoryData, storage: initiaLocalStorage?.data },
+    "data-product"
+  );
 
   return (
     <DefaultLayout
@@ -714,7 +691,6 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
                   role=""
                   className="w-full flex items-center gap-2 border-b-2 border-gray">
                   {Array("asset", "inventory").map((item: any, index: any) => {
-                    console.log({ item, tabs }, "tabs");
                     return (
                       <li key={index}>
                         <button
