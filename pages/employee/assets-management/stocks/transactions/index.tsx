@@ -286,6 +286,7 @@ const Transactions = ({ pageProps }: Props) => {
         header: (info) => <div className="uppercase">Transaction No.</div>,
         cell: ({ row, getValue }) => {
           const { id, transactionType } = row?.original;
+          console.log(transactionType, "transactionType");
           return (
             <button
               type="button"
@@ -294,6 +295,8 @@ const Transactions = ({ pageProps }: Props) => {
                   pathname: `/employee/assets-management/stocks/transactions/${
                     transactionType == "Out"
                       ? "asset-out"
+                      : transactionType == "StockBalance"
+                      ? "stock-taking"
                       : transactionType?.toLowerCase()
                   }/${id}`,
                 })
