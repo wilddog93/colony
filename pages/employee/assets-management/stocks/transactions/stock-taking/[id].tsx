@@ -34,7 +34,10 @@ import Modal from "../../../../../../components/Modal";
 import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { toast } from "react-toastify";
-import { OptionProps } from "../../../../../../utils/useHooks/PropTypes";
+import {
+  LocationProps,
+  OptionProps,
+} from "../../../../../../utils/useHooks/PropTypes";
 import { FaCircleNotch } from "react-icons/fa";
 import {
   createTransactionDocumentById,
@@ -45,17 +48,42 @@ import {
 } from "../../../../../../redux/features/assets/stocks/transactionReducers";
 import {
   convertBytes,
+  formatMoney,
   toBase64,
 } from "../../../../../../utils/useHooks/useFunction";
 import Cards from "../../../../../../components/Cards/Cards";
 import SelectProductRequest from "../../../../../../components/Forms/assets/transaction/SelectProductRequest";
+import SelectRequestAsset from "../../../../../../components/Forms/assets/transaction/SelectRequestAsset";
+import { ColumnDef } from "@tanstack/react-table";
+import CardTablesRow from "../../../../../../components/tables/layouts/server/CardTablesRow";
 import axios from "axios";
+
+type AssetProps = {
+  assetId?: number | string;
+  brandName?: string | any;
+  locationId?: number | string;
+  productLocationId?: string | any;
+  productName?: string | any;
+  serialNumber?: string | any;
+  status?: boolean | any;
+  location?: LocationProps[] | any[];
+};
+
+type InventoryProps = {
+  productLocationId?: number | string | any;
+  locationId?: number | string | any;
+  brandName?: string | any;
+  productName?: string | any;
+  actualQty?: string | any;
+  systemQty?: boolean | any;
+  location?: LocationProps[] | any[];
+};
 
 type Props = {
   pageProps: any;
 };
 
-const TransactionUsageDetails = ({ pageProps }: Props) => {
+const TransactionStockDetails = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
@@ -70,10 +98,23 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
   const { pending } = useAppSelector(selectTransactionManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   // main-data
-  const [requestData, setRequestData] = useState<OptionProps[] | any[]>([]);
+  const [assetData, setAssetData] = useState<AssetProps[] | any[]>([]);
+  const [inventoryData, setInventoryData] = useState<InventoryProps[] | any[]>(
+    []
+  );
+  const [pages, setPages] = useState<number>(1);
+  const [pagesAsset, setPagesAsset] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
+  const [limitAsset, setLimitAsset] = useState<number>(10);
+  const [pageCount, setPageCount] = useState<number>(0);
+  const [pageCountAsset, setPageCountAsset] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+  const [totalAsset, setTotalAsset] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isSelectedRow, setIsSelectedRow] = useState<any[]>([]);
+  const [tabs, setTabs] = useState("asset");
 
   // data-table
   const [formData, setFormData] = useState<any>(null);
@@ -160,72 +201,86 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
     router.back();
   };
 
-  // get all-details
-  const transformedRequestData = useMemo(() => {
-    const grouped: any = {};
-    if (transaction?.transactionRequestProducts?.length > 0) {
-      transaction?.transactionRequestProducts.forEach(
-        (item: any, index: any) => {
-          const requestKey = item?.requestProduct?.request;
-          const productKey = item?.requestProduct?.product;
-          const locationKey = item?.productLocation?.location;
-          const transactionQty = item?.transactionQty;
-
-          if (!grouped[requestKey]) {
-            grouped[requestKey] = {
-              ...requestKey,
-              product: [],
-              locations: [],
-            };
-          }
-
-          let product = grouped[requestKey].product.find(
-            (o: any) => o.id === productKey
-          );
-          if (!product) {
-            product = {
-              ...productKey,
-              requests: grouped[requestKey],
-            };
-            grouped[requestKey].product.push(product);
-          }
-
-          let locations = grouped[requestKey]?.locations.find(
-            (l: any) => l.id === locationKey
-          );
-          if (!locations) {
-            locations = {
-              ...locationKey,
-              qty: transactionQty,
-            };
-            grouped[requestKey]?.locations?.push(locations);
-          }
-
-          console.log(grouped, "grouped");
-        }
-      );
-    }
-    return Object.values(grouped);
-  }, [transaction]);
-
-  const transformedInventory = useMemo(() => {
-    let dataArr: any[] = [];
-    if (transformedRequestData?.length > 0) {
-      transformedRequestData?.map((data: any) => {
-        data["product"]
-          .filter((item: any) => item?.productType == "Inventory")
-          .map((prod: any) => {
-            dataArr.push({
-              ...prod,
-              requests: {
-                ...data,
-              },
-            });
+  // manipulate-data-details
+  useEffect(() => {
+    let inventory: any[] = [];
+    let asset: any[] = [];
+    let totalPage: number = 1;
+    let total: number = 0;
+    let totalPageAsset: number = 1;
+    let totalAsset: number = 0;
+    const { transactionStockBalances } = transaction;
+    if (transactionStockBalances && transactionStockBalances?.length > 0) {
+      transactionStockBalances?.map((trans: any) => {
+        const { stockBalance } = trans;
+        const { stockBalanceProductLocations } = stockBalance;
+        if (
+          stockBalanceProductLocations &&
+          stockBalanceProductLocations?.length > 0
+        ) {
+          stockBalanceProductLocations?.map((stock: any, index: any) => {
+            if (stock?.productLocation) {
+              inventory.push({
+                id: stock?.id,
+                productLocationId: stock?.productLocation?.id,
+                location: [
+                  {
+                    ...stock?.productLocation?.location,
+                  },
+                ],
+                productName: stock?.productLocation.product?.productName,
+                product: stock?.productLocation.product,
+                systemQty: stock?.systemQty,
+                actualQty:
+                  (stock?.systemQty || 0) -
+                  (stock?.losetQty || 0) +
+                  (stock?.unregisteredQty || 0),
+              });
+            }
+            if (stock?.stockBalanceAssets?.length > 0) {
+              stock?.stockBalanceAssets?.map((item: any) => {
+                let filterLocation = item?.asset?.assetLocations?.filter(
+                  (x: any) => x.endTime == null
+                );
+                console.log(stock, "hasil");
+                if (filterLocation.length > 0) {
+                  filterLocation.map((e: any) => {
+                    asset.push({
+                      ...stock,
+                      asset: item?.asset ?? {},
+                      serialNumber: item?.asset?.serialNumber,
+                      productLocationId: e?.productLocation?.id,
+                      productId: item?.asset?.product?.id,
+                      product: item?.asset?.product,
+                      productName: item?.asset?.product?.productName,
+                      location: [e?.productLocation?.location],
+                      locationId: e?.productLocation?.location?.id,
+                    });
+                  });
+                }
+              });
+            }
           });
+        }
       });
     }
-    return dataArr;
-  }, [transformedRequestData]);
+
+    totalAsset = asset?.length || 0;
+    totalPageAsset =
+      totalAsset >= limit ? Math.round(asset?.length / limitAsset) : 1;
+
+    total = inventory?.length || 0;
+    totalPage = total >= limit ? Math.round(asset?.length / limit) : 1;
+    setInventoryData(inventory);
+    setAssetData(asset);
+    setPageCount(totalPage);
+    setTotal(total);
+    setPageCountAsset(totalPageAsset);
+    setTotalAsset(totalAsset);
+  }, [transaction, limit, limitAsset]);
+
+  // console.log(transformedRequestData, "transformedRequestData");
+  // console.log(transaction, "transaction");
 
   // handle-upload-docs
   const onSelectMultiImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -264,7 +319,6 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
       return;
     }
     let newObj = value?.document?.length > 0 ? value?.document[0] : "";
-    console.log(newObj, "document");
     dispatch(
       createTransactionDocumentById({
         token,
@@ -423,6 +477,152 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
     }
   };
 
+  // data
+  const columnInventory = useMemo<ColumnDef<InventoryProps, any>[]>(
+    () => [
+      {
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "brandName",
+        header: (info) => <div className="uppercase">Brand</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "locationId",
+        header: (info) => <div className="uppercase">Location</div>,
+        cell: ({ row, getValue }) => {
+          const { location } = row?.original;
+          return (
+            <div className="w-full text-left">
+              {location && location?.length > 0
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                      {item.locationName}
+                    </div>
+                  ))
+                : "-"}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "systemQty",
+        header: (info) => (
+          <div className="w-full uppercase text-center">System</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "actualQty",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Actual</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "productLocationId",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Diff</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const { actualQty, systemQty } = row?.original;
+          const result = systemQty - actualQty;
+          return (
+            <div
+              className={`w-full text-center font-semibold ${
+                result < 0 ? "text-danger" : "text-primary"
+              }`}>
+              {result}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+    ],
+    []
+  );
+
+  const columnAsset = useMemo<ColumnDef<AssetProps, any>[]>(
+    () => [
+      {
+        accessorKey: "productName",
+        header: (info) => <div className="uppercase">Product Name</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "brandName",
+        header: (info) => <div className="uppercase">Brand</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-left">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "locationId",
+        header: (info) => <div className="uppercase">Location</div>,
+        cell: ({ row, getValue }) => {
+          const { location } = row?.original;
+          return (
+            <div className="w-full text-left">
+              {location && location?.length > 0
+                ? location?.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="w-full max-w-max px-2 py-1 rounded-md border-2 border-gray-4">
+                      {item.locationName}
+                    </div>
+                  ))
+                : "-"}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "serialNumber",
+        header: (info) => (
+          <div className="w-full uppercase text-center">Serial No.</div>
+        ),
+        cell: ({ row, getValue }) => {
+          return <div className="w-full text-center">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+    ],
+    []
+  );
+
   // download-data details
   const onDownloadTransactionData = async (params: any) => {
     let date = moment(new Date()).format("lll");
@@ -467,7 +667,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Assets & Inventories"
-      head="Transaction Usage Details"
+      head="Transaction Stock Details"
       logo="../../../../../image/logo/logo-icon.svg"
       images="../../../../../image/logo/building-logo.svg"
       userDefault="../../../../../image/user/user-01.png"
@@ -514,7 +714,9 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                   <div className="flex gap-1 items-center">
                     <MdChevronLeft className="w-6 h-6" />
                     <h3 className="w-full text-center text-xl font-semibold text-graydark">
-                      <span className="inline-block">Transaction Usage</span>
+                      <span className="inline-block">
+                        Transaction Stock Taking
+                      </span>
                     </h3>
                   </div>
                 </button>
@@ -572,13 +774,11 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                 transaction?.transactionStatus !== "On-Progress" ? (
                   <button
                     type="button"
-                    className={`inline-flex gap-2 text-white items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100
-                    ${
+                    className={`inline-flex gap-2 text-white items-center rounded-lg text-sm font-semibold px-4 py-3 active:scale-90 shadow-2 focus:outline-none border border-primary bg-primary disabled:opacity-30 disabled:active:scale-100 ${
                       transaction?.transactionStatus == "Approve"
                         ? "hidden"
                         : ""
-                    }
-                      `}
+                    }`}
                     onClick={() =>
                       onChangeApproval(transaction?.transactionStatus)
                     }
@@ -611,10 +811,10 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           <div className="w-full grid col-span-1 lg:grid-cols-3 gap-2 py-4">
             <div className="w-full lg:col-span-2 flex flex-col gap-4">
               {/* PO */}
-              <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-                <div className={`w-full flex items-center gap-1 mb-3`}>
+              <div className="w-full border border-gray rounded-xl shadow-card text-gray-6">
+                <div className={`w-full flex items-center gap-1 p-4`}>
                   <h3 className="font-bold uppercase tracking-widest text-sm">
-                    Requested Usage
+                    Data Comparation
                   </h3>
 
                   <Button
@@ -626,110 +826,46 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
                     <MdDownload className="w-4 h-4" />
                   </Button>
                 </div>
-                <SelectProductRequest
-                  options={[]}
-                  items={transformedRequestData}
-                  setItems={setRequestData}
-                  defaultImage=""
-                  isDetail
-                />
-              </div>
 
-              {/* inventory */}
-              <div className="w-full grid grid-cols-1 gap-4">
-                <div className="w-full p-4 border border-gray rounded-xl shadow-card text-gray-6">
-                  <div className="w-full flex justify-between items-center border-b-2 border-gray pb-4">
-                    <h3 className="font-bold uppercase tracking-widest text-sm">
-                      Inventory
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 text-gray-6">
-                    <div className="col-span-1 rounded-lg">
-                      <table className="w-full rounded-lg">
-                        <thead className="text-left text-xs font-semibold tracking-wide text-gray-500 uppercase border-b-2 border-gray">
-                          <tr>
-                            <th
-                              scope="col"
-                              className="w-[250px] px-2 py-4 text-sm text-wide capitalize text-left">
-                              Product
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Request No.
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-left">
-                              Location
-                            </th>
-                            <th
-                              scope="col"
-                              className="w-42 px-2 py-4 text-sm text-wide capitalize text-center">
-                              Received Qty
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y-0 divide-gray-5 text-gray-6 text-xs">
-                          {transformedInventory?.length > 0 ? (
-                            transformedInventory?.map((e: any, idx: any) => {
-                              return (
-                                <Fragment key={idx}>
-                                  <tr className="w-full bg-white p-4 rounded-lg mb-2 text-xs">
-                                    <td className="w-[250px]">
-                                      <div className="w-full flex items-center border border-gray rounded-lg bg-gray p-2">
-                                        <img
-                                          src={
-                                            e?.productImages
-                                              ? `${url}product/files/${e?.productImages}`
-                                              : "../../../../../image/no-image.jpeg"
-                                          }
-                                          alt="img-product"
-                                          className="object cover object-center w-6 h-6 rounded mr-1"
-                                        />
-                                        <div>{e?.productName}</div>
-                                      </div>
-                                    </td>
-                                    <td className="p-4 font-semibold uppercase">
-                                      <div>{e?.requests?.requestNumber}</div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="text-left font-semibold">
-                                        {e?.requests?.locations?.map(
-                                          (loc: any) => {
-                                            return loc?.locationName;
-                                          }
-                                        )}
-                                      </div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="text-center font-semibold">
-                                        {e?.requests?.locations?.map(
-                                          (loc: any) => {
-                                            return loc?.qty;
-                                          }
-                                        )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                </Fragment>
-                              );
-                            })
-                          ) : (
-                            <tr>
-                              <td colSpan={12} className="p-4">
-                                <div className="text-sm italic text-gray-500 font-semibold">
-                                  There is no inventory data.
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                <div className="w-full flex items-center px-4">
+                  <ul
+                    role=""
+                    className="w-full flex items-center gap-2 border-b-2 border-gray">
+                    {Array("asset", "inventory").map(
+                      (item: any, index: any) => {
+                        return (
+                          <li key={index}>
+                            <button
+                              type="button"
+                              onClick={() => setTabs(item)}
+                              className={`inline-block py-4 px-2 text-sm uppercase font-semibold focus:outline-none ${
+                                item == tabs
+                                  ? "border-b-2 border-primary text-primary"
+                                  : ""
+                              }`}>
+                              <span>{item}</span>
+                            </button>
+                          </li>
+                        );
+                      }
+                    )}
+                  </ul>
                 </div>
+
+                <CardTablesRow
+                  loading={loading}
+                  setLoading={setLoading}
+                  pages={tabs == "asset" ? pagesAsset : pages}
+                  setPages={tabs == "asset" ? setPagesAsset : setPages}
+                  limit={tabs == "asset" ? limitAsset : limit}
+                  setLimit={tabs == "asset" ? setLimitAsset : setLimit}
+                  columns={tabs == "asset" ? columnAsset : columnInventory}
+                  dataTable={tabs == "asset" ? assetData : inventoryData}
+                  pageCount={tabs == "asset" ? pageCountAsset : pageCount}
+                  total={tabs == "asset" ? totalAsset : total}
+                  setIsSelected={setIsSelectedRow}
+                  headerColor="bg-white"
+                />
               </div>
 
               {/* description */}
@@ -901,7 +1037,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
             <button
               type="button"
-              className="rounded-lg border-2 px-2 py-1 border-gray-5 shadow-2 active:scale-90 focus:outline-none"
+              className="inline-flex rounded-lg border-2 px-2 py-2 border-gray-5 shadow-2 active:scale-90 focus:outline-none"
               onClick={onCloseDiscard}>
               <span className="text-xs font-semibold">No</span>
             </button>
@@ -944,7 +1080,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
             {files && files?.length > 0
               ? files?.map((file, id) => {
                   return (
-                    <div className="w-full flex gap-2">
+                    <div key={id} className="w-full flex gap-2">
                       <div className="w-1/2 flex flex-col gap-2">
                         <div className="font-semibold">Document Name</div>
                         <div className="w-full grid grid-cols-6 gap-2">
@@ -1092,4 +1228,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default TransactionUsageDetails;
+export default TransactionStockDetails;

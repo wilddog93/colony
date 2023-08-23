@@ -236,7 +236,7 @@ const TransactionFormStockTaking = ({ pageProps }: Props) => {
     }
     totalAsset = asset?.length || 0;
     totalPageAsset =
-      totalAsset >= limit ? Math.round(asset?.length / limit) : 1;
+      totalAsset >= limit ? Math.round(asset?.length / limitAsset) : 1;
 
     total = inventory?.length || 0;
     totalPage = total >= limit ? Math.round(asset?.length / limit) : 1;
@@ -246,7 +246,7 @@ const TransactionFormStockTaking = ({ pageProps }: Props) => {
     setTotal(total);
     setPageCountAsset(totalPageAsset);
     setTotalAsset(totalAsset);
-  }, [stockBalance, limit]);
+  }, [stockBalance, limit, limitAsset]);
 
   const columnInventory = useMemo<ColumnDef<InventoryProps, any>[]>(
     () => [

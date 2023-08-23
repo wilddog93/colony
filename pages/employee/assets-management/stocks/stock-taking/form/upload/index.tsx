@@ -326,7 +326,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
       totalAsset = initiaLocalStorage?.data?.asset?.length || 0;
       totalPageAsset =
         totalAsset >= limit
-          ? Math.round(initiaLocalStorage?.data?.asset?.length / limit)
+          ? Math.round(initiaLocalStorage?.data?.asset?.length / limitAsset)
           : 1;
 
       total = initiaLocalStorage?.data?.inventory?.length || 0;
@@ -342,7 +342,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     setPageCountAsset(totalPageAsset);
     setTotalAsset(totalAsset);
     setSaveStatus(status);
-  }, [limit]);
+  }, [limit, limitAsset]);
 
   // description
   const descValue = useWatch({
