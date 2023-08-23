@@ -301,7 +301,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     let total: number = 0;
     let totalPage: number = 1;
     let location: any[] = [];
-    let status = initiaLocalStorage?.storage?.saveStatus ? true : false;
+    let status = initiaLocalStorage?.data?.saveStatus;
     console.log(initiaLocalStorage, "storage");
     if (initiaLocalStorage?.data?.asset?.length > 0) {
       console.log(initiaLocalStorage?.data, "asset-data");
@@ -590,7 +590,11 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
   };
 
   console.log(
-    { assetData, inventoryData, storage: initiaLocalStorage?.data },
+    {
+      assetData,
+      inventoryData,
+      storage: initiaLocalStorage?.data?.saveStatus,
+    },
     "data-product"
   );
 

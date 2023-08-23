@@ -143,7 +143,7 @@ export const createStockBalance = createAsyncThunk<
   try {
     const response = await axios.post("stockBalance", params.data, config);
     const { data, status } = response;
-    if (status == 201) {
+    if (status == 200 || status == 201) {
       params.isSuccess();
       return data;
     } else {
