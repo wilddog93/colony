@@ -301,7 +301,10 @@ function SelectTables(props: any) {
                     return (
                       <td
                         key={cell.id}
-                        style={{ width: cell.column.columnDef.size }}
+                        style={{
+                          width: cell.column.columnDef.size,
+                          maxWidth: cell.column.columnDef.maxSize,
+                        }}
                         className="px-4 py-4">
                         {loading && !isInfiniteScroll ? (
                           <div className="px-1 py-1 animate-pulse flex items-center justify-center">

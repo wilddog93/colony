@@ -367,3 +367,14 @@ export type ProductLocationProps = {
   productQty?: number | string | any;
   updatedAt?: string | any;
 };
+
+// billing
+export type BillingTaxProps = {
+  id?: number | string | any;
+  billingTaxId?: number | string | any;
+  billingTaxName?: string | any;
+  billingTaxTotal?: number | string | any;
+  billingTaxType?: string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+};
