@@ -387,7 +387,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
               toast.dark("Create Request Move Success");
               setTimeout(() => {
                 router.back();
-              }, 1000);
+              }, 500);
             },
             isError: () => {
               toast.dark("Create Request Move Failed");
@@ -403,7 +403,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
               toast.dark("Create Request Usage Success");
               setTimeout(() => {
                 router.back();
-              }, 1000);
+              }, 500);
             },
             isError: () => {
               toast.dark("Create Request Usage Failed");

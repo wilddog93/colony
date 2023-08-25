@@ -362,7 +362,7 @@ const NewRequestOrder = ({ pageProps }: Props) => {
             toast.dark("Create Request Order Success");
             setTimeout(() => {
               router.back();
-            }, 2500);
+            }, 1000);
           },
           isError: () => {
             toast.dark("Create Request Order Failed");

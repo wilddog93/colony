@@ -391,7 +391,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
             toast.dark("Create Request Asset Out Success");
             setTimeout(() => {
               router.back();
-            }, 1000);
+            }, 500);
           },
           isError: () => {
             toast.dark("Create Request Asset Out Failed");

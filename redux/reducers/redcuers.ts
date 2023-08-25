@@ -42,6 +42,8 @@ import orderManagementReducers from "../features/assets/stocks/orderReducers";
 import transactionManagementReducers from "../features/assets/stocks/transactionReducers";
 import stockBalanceManagementReducers from "../features/assets/stocks/stockBalanceReducers";
 import productLocationManagementReducers from "../features/assets/locations/productLocationManagementReducers";
+import billingTemplateManagementReducers from "../features/billing/template/billingTemplateReducers";
+import billingTaxManagementReducers from "../features/billing/tax/billingTaxReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -91,4 +93,7 @@ export const combinedReducer = combineReducers({
   orderManagement: orderManagementReducers,
   transactionManagement: transactionManagementReducers,
   stockBalanceManagement: stockBalanceManagementReducers,
+  // billing-management
+  billingTemplateManagement: billingTemplateManagementReducers,
+  billingTaxManagement: billingTaxManagementReducers,
 });
