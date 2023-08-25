@@ -576,7 +576,7 @@ const BillingTax = ({ pageProps }: Props) => {
     <DefaultLayout
       title="Colony"
       header="Billings & Payments"
-      head="=Taxes"
+      head="Taxes"
       logo="../../../../image/logo/logo-icon.svg"
       images="../../../../image/logo/building-logo.svg"
       userDefault="../../../../image/user/user-01.png"
