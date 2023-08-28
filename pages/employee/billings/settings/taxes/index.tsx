@@ -57,6 +57,7 @@ import {
   getBillingTax,
   selectBillingTaxManagement,
 } from "../../../../../redux/features/billing/tax/billingTaxReducers";
+import TaxForm from "../../../../../components/Forms/Billings/settings/taxes/TaxForm";
 
 interface Options {
   value: string | any;
@@ -723,6 +724,33 @@ const BillingTax = ({ pageProps }: Props) => {
               )}
             </Button>
           </div>
+        </Fragment>
+      </Modal>
+
+      {/* tax-form */}
+      <Modal size="small" onClose={onCloseModalAdd} isOpen={isOpenAdd}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseModalAdd}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-semibold">New Taxes</h3>
+              <p className="text-gray-5 text-sm">
+                Fill your information taxes data
+              </p>
+            </div>
+          </ModalHeader>
+
+          <TaxForm
+            token={token}
+            items={formData}
+            isOpen={isOpenAdd}
+            onClose={onCloseModalAdd}
+            getData={() =>
+              dispatch(getBillingTax({ token, params: filters.queryObject }))
+            }
+          />
         </Fragment>
       </Modal>
     </DefaultLayout>
