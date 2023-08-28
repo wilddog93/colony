@@ -378,3 +378,13 @@ export type BillingTaxProps = {
   createdAt?: string | any;
   updatedAt?: string | any;
 };
+
+export type BillingDiscountProps = {
+  id?: number | string | any;
+  billingDiscountId?: number | string | any;
+  billingDiscountName?: string | any;
+  billingDiscountTotal?: number | string | any;
+  billingDiscountType?: string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+};

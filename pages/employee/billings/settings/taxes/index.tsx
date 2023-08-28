@@ -273,7 +273,7 @@ const BillingTax = ({ pageProps }: Props) => {
       {
         accessorKey: "billingTaxTotal",
         header: (info) => (
-          <div className="uppercase w-full text-center">Product Quantity</div>
+          <div className="uppercase w-full text-center">Total</div>
         ),
         cell: ({ row, getValue }) => {
           const value = getValue();
