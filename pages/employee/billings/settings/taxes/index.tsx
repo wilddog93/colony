@@ -54,10 +54,12 @@ import {
   selectBillingTemplateManagement,
 } from "../../../../../redux/features/billing/template/billingTemplateReducers";
 import {
+  deleteBillingTax,
   getBillingTax,
   selectBillingTaxManagement,
 } from "../../../../../redux/features/billing/tax/billingTaxReducers";
 import TaxForm from "../../../../../components/Forms/Billings/settings/taxes/TaxForm";
+import { formatMoney } from "../../../../../utils/useHooks/useFunction";
 
 interface Options {
   value: string | any;
@@ -227,7 +229,12 @@ const BillingTax = ({ pageProps }: Props) => {
 
   // modal update
   const onOpenModalEdit = (items: any) => {
-    let newData: BillingTaxProps | any = {};
+    let newData: BillingTaxProps | any = {
+      ...items,
+      billingTaxType: items?.billingTaxType
+        ? { value: items?.billingTaxType, label: items?.billingTaxType }
+        : null,
+    };
     setFormData(newData);
     setIsOpenEdit(true);
   };
@@ -295,7 +302,14 @@ const BillingTax = ({ pageProps }: Props) => {
         ),
         cell: ({ row, getValue }) => {
           const value = getValue();
-          return <div className="w-full text-center">{value}</div>;
+          const { billingTaxType } = row?.original;
+          return (
+            <div className="w-full text-center">
+              {billingTaxType === "Percent"
+                ? `${value} %`
+                : `Rp.${formatMoney({ amount: value })}`}
+            </div>
+          );
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
@@ -441,15 +455,14 @@ const BillingTax = ({ pageProps }: Props) => {
 
   // delete
   const onDelete = (value: any) => {
-    console.log(value, "form-delete");
     if (!value?.id) return;
     dispatch(
-      deleteProduct({
+      deleteBillingTax({
         token,
         id: value?.id,
         isSuccess() {
-          toast.dark("Product has been deleted");
-          dispatch(getProducts({ token, params: filters.queryObject }));
+          toast.dark("Taxes has been deleted");
+          dispatch(getBillingTax({ token, params: filters.queryObject }));
           onCloseModalDelete();
         },
         isError() {
@@ -695,8 +708,10 @@ const BillingTax = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseModalDelete}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Delete Product</h3>
-              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+              <h3 className="text-base font-semibold">Delete Taxes</h3>
+              <p className="text-gray-5 text-sm">{`Are you sure to delete ${
+                formData?.billingTaxName || "-"
+              } ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
@@ -727,7 +742,7 @@ const BillingTax = ({ pageProps }: Props) => {
         </Fragment>
       </Modal>
 
-      {/* tax-form */}
+      {/* tax-form - create */}
       <Modal size="small" onClose={onCloseModalAdd} isOpen={isOpenAdd}>
         <Fragment>
           <ModalHeader
@@ -750,6 +765,34 @@ const BillingTax = ({ pageProps }: Props) => {
             getData={() =>
               dispatch(getBillingTax({ token, params: filters.queryObject }))
             }
+          />
+        </Fragment>
+      </Modal>
+
+      {/* tax-form - update */}
+      <Modal size="small" onClose={onCloseModalEdit} isOpen={isOpenEdit}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseModalEdit}>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-semibold">New Taxes</h3>
+              <p className="text-gray-5 text-sm">
+                Fill your information taxes data
+              </p>
+            </div>
+          </ModalHeader>
+
+          <TaxForm
+            token={token}
+            items={formData}
+            isOpen={isOpenAdd}
+            onClose={onCloseModalEdit}
+            getData={() =>
+              dispatch(getBillingTax({ token, params: filters.queryObject }))
+            }
+            isUpdate
           />
         </Fragment>
       </Modal>
