@@ -31,28 +31,7 @@ import {
   BillingTaxProps,
   OptionProps,
 } from "../../../../../utils/useHooks/PropTypes";
-import {
-  getProductCategories,
-  selectProductCategoryManagement,
-} from "../../../../../redux/features/assets/products/category/productCategoryReducers";
-import {
-  deleteProduct,
-  getProducts,
-  selectProductManagement,
-} from "../../../../../redux/features/assets/products/productManagementReducers";
-import {
-  getProductUnits,
-  selectProductUnitManagement,
-} from "../../../../../redux/features/assets/products/unit-measurement/productUnitReducers";
-import {
-  getProductBrands,
-  selectProductBrandManagement,
-} from "../../../../../redux/features/assets/products/brand/productBrandReducers";
 import { FaCircleNotch } from "react-icons/fa";
-import {
-  getBillingTemplate,
-  selectBillingTemplateManagement,
-} from "../../../../../redux/features/billing/template/billingTemplateReducers";
 import {
   deleteBillingTax,
   getBillingTax,
@@ -180,10 +159,6 @@ const BillingTax = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { products } = useAppSelector(selectProductManagement);
-  const { productCategories } = useAppSelector(selectProductCategoryManagement);
-  const { productUnits } = useAppSelector(selectProductUnitManagement);
-  const { productBrands } = useAppSelector(selectProductBrandManagement);
   // billing
   const { billingTaxs, pending } = useAppSelector(selectBillingTaxManagement);
 
@@ -471,120 +446,6 @@ const BillingTax = ({ pageProps }: Props) => {
       })
     );
   };
-
-  // get product-category
-  const filterProductCategory = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `productCategoryName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductCategories({
-          token,
-          params: filterProductCategory.queryObject,
-        })
-      );
-  }, [token, filterProductCategory]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productCategories;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.productCategoryName,
-          label: item?.productCategoryName,
-        });
-      });
-      setCategoryOpt(arr);
-    }
-  }, [productCategories]);
-  // product-category end
-
-  // get product-unit-measurement
-  const filterProductUnit = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `unitMeasurementName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductUnits({
-          token,
-          params: filterProductUnit.queryObject,
-        })
-      );
-  }, [token, filterProductUnit]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productUnits;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.unitMeasurementName,
-          label: item?.unitMeasurementName,
-        });
-      });
-      setUnitOpt(arr);
-    }
-  }, [productUnits]);
-  // product-unit-measurement end
-
-  // get product-brand
-  const filterProductBrand = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `brandName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductBrands({
-          token,
-          params: filterProductBrand.queryObject,
-        })
-      );
-  }, [token, filterProductBrand]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productBrands;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.brandName,
-          label: item?.brandName,
-        });
-      });
-      setBrandOpt(arr);
-    }
-  }, [productBrands]);
-  // product-brand end
 
   return (
     <DefaultLayout
