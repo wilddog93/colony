@@ -14,7 +14,6 @@ import {
   getAuthMe,
   selectAuth,
 } from "../../../../../../redux/features/auth/authReducers";
-import { ColumnDef } from "@tanstack/react-table";
 import Button from "../../../../../../components/Button/Button";
 import {
   MdAdd,
@@ -23,30 +22,19 @@ import {
   MdChevronLeft,
   MdClose,
   MdDelete,
-  MdDownload,
   MdEdit,
-  MdInfo,
   MdMonetizationOn,
-  MdMoreHoriz,
   MdOutlineCalendarToday,
   MdSave,
-  MdUploadFile,
   MdWarning,
   MdWork,
 } from "react-icons/md";
 import SidebarComponent from "../../../../../../components/Layouts/Sidebar/SidebarComponent";
 import { menuPayments, menuTask } from "../../../../../../utils/routes";
-import { SearchInput } from "../../../../../../components/Forms/SearchInput";
 import DropdownSelect from "../../../../../../components/Dropdown/DropdownSelect";
 import Modal from "../../../../../../components/Modal";
-import {
-  ModalFooter,
-  ModalHeader,
-} from "../../../../../../components/Modal/ModalComponent";
-import {
-  DivisionProps,
-  createDivisionArr,
-} from "../../../../../../components/tables/components/taskData";
+import { ModalHeader } from "../../../../../../components/Modal/ModalComponent";
+import { DivisionProps } from "../../../../../../components/tables/components/taskData";
 import moment from "moment";
 import Cards from "../../../../../../components/Cards/Cards";
 import DatePicker from "react-datepicker";
@@ -71,7 +59,9 @@ import {
 } from "../../../../../../redux/features/billing/discount/billingDiscountReducers";
 import {
   createBillingTemplate,
+  getBillingTemplateById,
   selectBillingTemplateManagement,
+  updateBillingTemplate,
 } from "../../../../../../redux/features/billing/template/billingTemplateReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { OptionProps } from "../../../../../../utils/useHooks/PropTypes";
@@ -81,20 +71,6 @@ import { FaCircleNotch } from "react-icons/fa";
 type Props = {
   pageProps: any;
 };
-
-const discountOpt = [
-  { type: "currency", value: "20000", label: "Promo IDR 20.000" },
-  { type: "percent", value: "10", label: "Promo Mingguan 10%" },
-  { type: "percent", value: "50", label: "Promo Lebaran 50%" },
-  { type: "percent", value: "80", label: "Big Sale 80%" },
-  { type: "percent", value: "100", label: "Gratis 100%" },
-];
-
-const taxOpt = [
-  { type: "percent", value: "10", label: "PPH10" },
-  { type: "percent", value: "12", label: "PPH12" },
-  { type: "currency", value: "50000", label: "IDR 50.000" },
-];
 
 const stylesSelect = {
   indicatorSeparator: (provided: any) => ({
@@ -112,6 +88,7 @@ const stylesSelect = {
     return {
       ...provided,
       color: "#7B8C9E",
+      padding: "0.4rem",
     };
   },
   singleValue: (provided: any) => {
@@ -163,12 +140,7 @@ type FormValues = {
   units: any | any[];
 };
 
-type FormStateProps = {
-  error: FieldErrors;
-  isValid: boolean;
-};
-
-const TemplatesForm = ({ pageProps }: Props) => {
+const TemplatesFormUpdate = ({ pageProps }: Props) => {
   moment.locale("id");
   const router = useRouter();
   const { pathname, query } = router;
@@ -178,17 +150,15 @@ const TemplatesForm = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { pending } = useAppSelector(selectBillingTemplateManagement);
+  const { pending, billingTemplate } = useAppSelector(
+    selectBillingTemplateManagement
+  );
   const { billingTaxs } = useAppSelector(selectBillingTaxManagement);
   const { billingDiscounts } = useAppSelector(selectBillingDiscountManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // modal
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isOpenDetail, setIsOpenDetail] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<DivisionProps>();
   const [isOpenDiscard, setIsOpenDiscard] = useState(false);
 
   // form
@@ -325,6 +295,70 @@ const TemplatesForm = ({ pageProps }: Props) => {
     // console.log(watchValue?.billingTypes, 'hasil')
   }, [formValues, watchChange?.name]);
 
+  useEffect(() => {
+    if (billingTemplate) {
+      reset({
+        id: billingTemplate?.id,
+        billingTemplateName: billingTemplate?.billingTemplateName,
+        billingTemplateNotes: billingTemplate?.billingTemplateNotes,
+        payments:
+          billingTemplate?.billingTemplateDetails?.length > 0
+            ? billingTemplate?.billingTemplateDetails?.map((item: any) => {
+                let discountAmount =
+                  item?.billingDiscount?.billingDiscountType == "Percent"
+                    ? Math.round(
+                        (Number(item.billingTemplateDetailAmount) || 0) *
+                          ((Number(
+                            item?.billingDiscount?.billingDiscountTotal
+                          ) || 0) /
+                            100)
+                      )
+                    : Number(item?.billingDiscount?.total) || 0;
+                let taxAmount =
+                  item?.billingTax?.billingTaxType == "Percent"
+                    ? Math.round(
+                        (Number(item.billingTemplateDetailAmount) || 0) *
+                          ((Number(item?.billingTax?.billingTaxTotal) || 0) /
+                            100)
+                      )
+                    : Number(item?.billingTax?.total) || 0;
+                let total =
+                  (Number(item.billingTemplateDetailAmount) || 0) +
+                  (Number(taxAmount) || 0) -
+                  (Number(discountAmount) || 0);
+                return {
+                  id: item?.id,
+                  billingTemplateDetailName: item?.billingTemplateDetailName,
+                  billingTemplateDetailAmount:
+                    item?.billingTemplateDetailAmount,
+                  billingDiscount: item?.billingDiscount
+                    ? {
+                        ...item?.billingDiscount,
+                        value: item?.billingDiscount?.billingDiscountName,
+                        label: item?.billingDiscount?.billingDiscountName,
+                        type: item?.billingDiscount?.billingDiscountType,
+                        total: item?.billingDiscount?.billingDiscountTotal,
+                      }
+                    : null,
+                  billingDiscountAmount: discountAmount,
+                  billingTaxAmount: taxAmount,
+                  billingTax: item?.billingTax
+                    ? {
+                        ...item?.billingTax,
+                        value: item?.billingTax?.billingTaxName,
+                        label: item?.billingTax?.billingTaxName,
+                        type: item?.billingTax?.billingTaxType,
+                        total: item?.billingTax?.billingTaxTotal,
+                      }
+                    : null,
+                  billingTotal: total,
+                };
+              })
+            : [],
+      });
+    }
+  }, [billingTemplate]);
+
   // date format
   const dateFormat = (value: string | any) => {
     if (!value) return "-";
@@ -345,29 +379,6 @@ const TemplatesForm = ({ pageProps }: Props) => {
     });
   };
 
-  // detail modal
-  const onCloseDetail = () => {
-    setDetails(undefined);
-    setIsOpenDetail(false);
-  };
-  const onOpenDetail = (items: any) => {
-    setDetails(items);
-    setIsOpenDetail(true);
-  };
-
-  console.log(errors, "error form");
-  // console.log(watchValue?.billingTypes, 'watch')
-
-  // detail modal
-  const onCloseDelete = () => {
-    setDetails(undefined);
-    setIsOpenDelete(false);
-  };
-  const onOpenDelete = (items: any) => {
-    setDetails(items);
-    setIsOpenDelete(true);
-  };
-
   useEffect(() => {
     if (token) {
       dispatch(
@@ -385,20 +396,20 @@ const TemplatesForm = ({ pageProps }: Props) => {
   });
 
   const Total = ({ control }: { control: Control<FormValues> }) => {
-    const subTotal = formValues.reduce(
+    const subTotal = formValues?.reduce(
       (acc, current) =>
         acc + (Number(current.billingTemplateDetailAmount) || 0),
       0
     );
-    const totalTax = formValues.reduce(
+    const totalTax = formValues?.reduce(
       (acc, current) => acc + (Number(current.billingTaxAmount) || 0),
       0
     );
-    const totalDiscount = formValues.reduce(
+    const totalDiscount = formValues?.reduce(
       (acc, current) => acc + (Number(current.billingDiscountAmount) || 0),
       0
     );
-    const total = formValues.reduce(
+    const total = formValues?.reduce(
       (acc, current) =>
         acc +
         (Number(current.billingTemplateDetailAmount) || 0) +
@@ -508,11 +519,12 @@ const TemplatesForm = ({ pageProps }: Props) => {
           : [],
     };
     dispatch(
-      createBillingTemplate({
+      updateBillingTemplate({
+        id: query?.id,
         token,
         data: newObj,
         isSuccess: () => {
-          toast.dark("New Template has been created");
+          toast.dark("Template has been updated");
           router.push({
             pathname: "/employee/billings/settings/templates",
             query: {
@@ -529,16 +541,22 @@ const TemplatesForm = ({ pageProps }: Props) => {
     console.log(newObj, "form-data");
   };
 
-  console.log({ discountOption, discountOpt }, "discount-opt");
+  // get data-id
+  useEffect(() => {
+    if (token && query?.id)
+      dispatch(getBillingTemplateById({ token, id: query?.id }));
+  }, [query?.id, token]);
+
+  console.log(billingTemplate, "billingTemplate");
 
   return (
     <DefaultLayout
       title="Colony"
       header="Billings & Payments"
-      head="Templates"
-      logo="../../../../image/logo/logo-icon.svg"
-      images="../../../../image/logo/building-logo.svg"
-      userDefault="../../../../image/user/user-01.png"
+      head="Form Templates"
+      logo="../../../../../image/logo/logo-icon.svg"
+      images="../../../../../image/logo/building-logo.svg"
+      userDefault="../../../../../image/user/user-01.png"
       description=""
       token={token}
       icons={{
@@ -586,7 +604,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
                   <MdChevronLeft className="w-5 h-5" />
                   <div className="flex flex-col gap-1 items-start">
                     <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                      New Templates
+                      Edit Templates
                     </h3>
                   </div>
                 </Button>
@@ -1318,7 +1336,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
         </form>
       </div>
 
-      {/* delete modal */}
+      {/* discard modal */}
       <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
         <Fragment>
           <ModalHeader
@@ -1328,7 +1346,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
             <div className="w-full">
               <h3 className="text-base font-semibold">Go back</h3>
               <p className="text-sm text-gray-5">
-                Are you sure to cancel create template ?
+                Are you sure to cancel update template ?
               </p>
             </div>
           </ModalHeader>
@@ -1338,7 +1356,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
               variant="secondary-outline"
               className="rounded-md text-sm border-2 border-gray-4"
               type="button"
-              onClick={onCloseDelete}>
+              onClick={onCloseDiscard}>
               <span className="text-sm">Close</span>
             </Button>
 
@@ -1379,4 +1397,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default TemplatesForm;
+export default TemplatesFormUpdate;

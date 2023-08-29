@@ -50,6 +50,7 @@ import {
 } from "../../../../../redux/features/assets/products/brand/productBrandReducers";
 import { FaCircleNotch } from "react-icons/fa";
 import {
+  deleteBillingTemplate,
   getBillingTemplate,
   selectBillingTemplateManagement,
 } from "../../../../../redux/features/billing/template/billingTemplateReducers";
@@ -134,49 +135,6 @@ const stylesSelectSort = {
   menuList: (provided: any) => provided,
 };
 
-const stylesSelect = {
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    display: "none",
-  }),
-  dropdownIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  clearIndicator: (provided: any) => {
-    return {
-      ...provided,
-      color: "#7B8C9E",
-    };
-  },
-  singleValue: (provided: any) => {
-    return {
-      ...provided,
-      color: "#5F59F7",
-    };
-  },
-  control: (provided: any, state: any) => {
-    // console.log(provided, "control")
-    return {
-      ...provided,
-      background: "",
-      padding: ".5rem",
-      borderRadius: ".75rem",
-      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
-      color: "#5F59F7",
-      "&:hover": {
-        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
-      },
-      minHeight: 38,
-      // flexDirection: "row-reverse"
-    };
-  },
-  menuList: (provided: any) => provided,
-};
-
 const BillingTemplates = ({ pageProps }: Props) => {
   moment.locale("id");
   const url = process.env.API_ENDPOINT;
@@ -219,6 +177,24 @@ const BillingTemplates = ({ pageProps }: Props) => {
   const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [formData, setFormData] = useState<BillingTemplateProps | any>(null);
+
+  // description-read
+  const [isArrayHidden, setIsArrayHidden] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isArrayHidden.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isArrayHidden];
+      _selected.splice(idx, 1);
+      setIsArrayHidden(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isArrayHidden];
+      _selected.push(val);
+      setIsArrayHidden(_selected);
+    }
+  };
 
   // date format
   const dateFormat = (value: string | any) => {
@@ -284,98 +260,6 @@ const BillingTemplates = ({ pageProps }: Props) => {
     setFormData(items);
     setIsOpenDelete(true);
   };
-
-  console.log(billingTemplates, "billingTemplates");
-
-  const columns = useMemo<ColumnDef<BillingTemplateProps, any>[]>(
-    () => [
-      {
-        accessorKey: "billingTemplateName",
-        header: (info) => <div className="uppercase">Name</div>,
-        cell: ({ row, getValue }) => {
-          let value = getValue() || "-";
-          return (
-            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
-              <span>{value}</span>
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "billingTemplateNotes",
-        header: (info) => <div className="uppercase">Note</div>,
-        cell: ({ row, getValue }) => {
-          return <div className="w-full">{getValue() || "-"}</div>;
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "billingTemplateDetails",
-        header: (info) => <div className="uppercase">Total</div>,
-        cell: ({ row, getValue }) => {
-          const { billingTemplateDetails } = row.original;
-
-          return (
-            <div className="w-full">
-              {billingTemplateDetails && billingTemplateDetails?.length > 0
-                ? billingTemplateDetails?.map((item: any, idx: any) => {
-                    return (
-                      <div key={idx}>
-                        Rp.{" "}
-                        {item?.billingTemplateDetailAmount
-                          ? formatMoney({
-                              amount: item?.billingTemplateDetailAmount,
-                            })
-                          : "0"}
-                      </div>
-                    );
-                  })
-                : "-"}
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
-        accessorKey: "id",
-        cell: ({ row, getValue }) => {
-          return (
-            <div className="w-full text-center flex items-center justify-center">
-              <button
-                onClick={() => onOpenModalEdit(row?.original)}
-                className="px-1 py-1"
-                type="button">
-                <MdEdit className="text-gray-5 w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => onOpenModalDelete(row?.original)}
-                className="px-1 py-1"
-                type="button">
-                <MdDelete className="text-danger w-4 h-4" />
-              </button>
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-center uppercase">Actions</div>
-        ),
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-    ],
-    []
-  );
 
   useEffect(() => {
     if (token) {
@@ -465,7 +349,7 @@ const BillingTemplates = ({ pageProps }: Props) => {
       dispatch(getBillingTemplate({ token, params: filters.queryObject }));
   }, [token, filters]);
 
-  console.log(billingTemplates, "billingTemplates");
+  // console.log(billingTemplates, "billingTemplates");
 
   useEffect(() => {
     let newArr: any[] = [];
@@ -486,15 +370,15 @@ const BillingTemplates = ({ pageProps }: Props) => {
 
   // delete
   const onDelete = (value: any) => {
-    console.log(value, "form-delete");
+    // console.log(value, "form-delete");
     if (!value?.id) return;
     dispatch(
-      deleteProduct({
+      deleteBillingTemplate({
         token,
         id: value?.id,
         isSuccess() {
-          toast.dark("Product has been deleted");
-          dispatch(getProducts({ token, params: filters.queryObject }));
+          toast.dark("Template has been deleted");
+          dispatch(getBillingTemplate({ token, params: filters.queryObject }));
           onCloseModalDelete();
         },
         isError() {
@@ -504,7 +388,115 @@ const BillingTemplates = ({ pageProps }: Props) => {
     );
   };
 
-  console.log(pageCount, "pageCount");
+  const columns = useMemo<ColumnDef<BillingTemplateProps, any>[]>(
+    () => [
+      {
+        accessorKey: "billingTemplateName",
+        header: (info) => <div className="uppercase">Name</div>,
+        cell: ({ row, getValue }) => {
+          let value = getValue() || "-";
+          return (
+            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
+              <span>{value}</span>
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "billingTemplateNotes",
+        header: (info) => <div className="uppercase">Note</div>,
+        cell: ({ row, getValue }) => {
+          const { id } = row.original;
+          let value =
+            getValue()?.length > 70 && !isArrayHidden.includes(id)
+              ? `${getValue().substring(70, 0)} ...`
+              : getValue() || "-";
+          return (
+            <div className="flex flex-col">
+              <p>{value}</p>
+              <button
+                onClick={() => onReadDescription(id)}
+                className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                  getValue()?.length > 70 ? "" : "hidden"
+                }`}>
+                {isArrayHidden.includes(id) ? "Hide" : "Show"}
+              </button>
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "billingTemplateDetails",
+        header: (info) => <div className="uppercase">Total</div>,
+        cell: ({ row, getValue }) => {
+          const { billingTemplateDetails } = row.original;
+
+          return (
+            <div className="w-full">
+              {billingTemplateDetails && billingTemplateDetails?.length > 0
+                ? billingTemplateDetails?.map((item: any, idx: any) => {
+                    return (
+                      <div key={idx}>
+                        Rp.{" "}
+                        {item?.billingTemplateDetailAmount
+                          ? formatMoney({
+                              amount: item?.billingTemplateDetailAmount,
+                            })
+                          : "0"}
+                      </div>
+                    );
+                  })
+                : "-"}
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+      {
+        accessorKey: "id",
+        cell: ({ row, getValue }) => {
+          return (
+            <div className="w-full text-center flex items-center justify-center">
+              <button
+                onClick={() =>
+                  router.push({
+                    pathname: `/employee/billings/settings/templates/form/${getValue()}`,
+                  })
+                }
+                className="px-1 py-1"
+                type="button">
+                <MdEdit className="text-gray-5 w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => onOpenModalDelete(row?.original)}
+                className="px-1 py-1"
+                type="button">
+                <MdDelete className="text-danger w-4 h-4" />
+              </button>
+            </div>
+          );
+        },
+        header: (props) => (
+          <div className="w-full text-center uppercase">Actions</div>
+        ),
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+        size: 10,
+        minSize: 10,
+      },
+    ],
+    [isArrayHidden]
+  );
 
   return (
     <DefaultLayout
