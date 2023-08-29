@@ -481,16 +481,20 @@ const BillingTemplates = ({ pageProps }: Props) => {
 
   useEffect(() => {
     let newArr: any[] = [];
-    const { data, pageCount, total } = products;
+    let newPageCount: number = 0;
+    let newTotal: number = 0;
+    const { data, pageCount, total } = billingTemplates;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
         newArr.push(item);
       });
+      newPageCount = pageCount;
+      newTotal = total;
     }
     setDataTable(newArr);
-    setPageCount(pageCount);
-    setTotal(total);
-  }, [products]);
+    setPageCount(newPageCount);
+    setTotal(newTotal);
+  }, [billingTemplates]);
 
   // delete
   const onDelete = (value: any) => {
@@ -625,6 +629,8 @@ const BillingTemplates = ({ pageProps }: Props) => {
     }
   }, [productBrands]);
   // product-brand end
+
+  console.log(pageCount, "pageCount");
 
   return (
     <DefaultLayout

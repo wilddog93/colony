@@ -60,7 +60,22 @@ import {
 } from "react-hook-form";
 import CurrencyFormat from "react-currency-format";
 import { formatMoney } from "../../../../../../utils/useHooks/useFunction";
-import { selectBillingTaxManagement } from "../../../../../../redux/features/billing/tax/billingTaxReducers";
+import {
+  getBillingTax,
+  selectBillingTaxManagement,
+} from "../../../../../../redux/features/billing/tax/billingTaxReducers";
+import {
+  getBillingDiscount,
+  selectBillingDiscountManagement,
+} from "../../../../../../redux/features/billing/discount/billingDiscountReducers";
+import {
+  createBillingTemplate,
+  selectBillingTemplateManagement,
+} from "../../../../../../redux/features/billing/template/billingTemplateReducers";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import { OptionProps } from "../../../../../../utils/useHooks/PropTypes";
+import { toast } from "react-toastify";
+import { FaCircleNotch } from "react-icons/fa";
 
 type Props = {
   pageProps: any;
@@ -162,7 +177,9 @@ const TemplatesForm = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { pending } = useAppSelector(selectBillingTemplateManagement);
   const { billingTaxs } = useAppSelector(selectBillingTaxManagement);
+  const { billingDiscounts } = useAppSelector(selectBillingDiscountManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -171,6 +188,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
   const [isOpenDetail, setIsOpenDetail] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [details, setDetails] = useState<DivisionProps>();
+  const [isOpenDiscard, setIsOpenDiscard] = useState(false);
 
   // form
   const [isCode, setIsCode] = useState<boolean>(false);
@@ -253,6 +271,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
     });
   };
 
+  // auto increase
   useEffect(() => {
     // console.log(formValues, "watchChange")
     if (formValues?.length > 0) {
@@ -268,15 +287,15 @@ const TemplatesForm = ({ pageProps }: Props) => {
           watchChange?.name === `payments.${index}.billingTaxAmount`;
 
         let totalDiscount =
-          value?.billingDiscount?.type == "percent"
+          value?.billingDiscount?.type == "Percent"
             ? (Number(value.billingAmount) || 0) *
-              ((Number(value?.billingDiscount?.value) || 0) / 100)
-            : Number(value?.billingDiscount?.value) || 0;
+              ((Number(value?.billingDiscount?.total) || 0) / 100)
+            : Number(value?.billingDiscount?.total) || 0;
         let totalTax =
-          value?.billingDiscount?.type == "percent"
+          value?.billingTax?.type == "Percent"
             ? (Number(value.billingAmount) || 0) *
-              ((Number(value?.billingDiscount?.value) || 0) / 100)
-            : Number(value?.billingDiscount?.value) || 0;
+              ((Number(value?.billingTax?.total) || 0) / 100)
+            : Number(value?.billingTax?.total) || 0;
         let total =
           (Number(value.billingAmount) || 0) +
           (Number(value?.billingTaxAmount) || 0) -
@@ -301,24 +320,25 @@ const TemplatesForm = ({ pageProps }: Props) => {
     // console.log(watchValue?.billingTypes, 'hasil')
   }, [formValues, watchChange?.name]);
 
-  const onSubmit: SubmitHandler<FormValues> = (value) => {
-    let newObj = {
-      billingTemplateName: value?.billingTemplateName,
-      billingTemplateNotes: value?.billingTemplateNotes,
-      payments: value?.payments,
-    };
-    console.log(newObj, "form-data");
-  };
-
   // date format
   const dateFormat = (value: string | any) => {
     if (!value) return "-";
     return moment(new Date(value)).format("MMM DD, YYYY, HH:mm");
   };
 
-  // form modal
-  const onClose = () => setIsOpenModal(false);
-  const onOpen = () => setIsOpenModal(true);
+  // form modal discard
+  const onCloseDiscard = () => setIsOpenDiscard(false);
+  const onOpenDiscard = () => setIsOpenDiscard(true);
+  const onDiscard = () => {
+    reset();
+    router.push({
+      pathname: "/employee/billings/settings/templates/",
+      query: {
+        page: 1,
+        limit: 10,
+      },
+    });
+  };
 
   // detail modal
   const onCloseDetail = () => {
@@ -402,6 +422,108 @@ const TemplatesForm = ({ pageProps }: Props) => {
     );
   };
 
+  // get discount
+  const filterDiscount = useMemo(() => {
+    let qb = RequestQueryBuilder.create();
+
+    qb.sortBy({ field: "billingDiscountName", order: "ASC" });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(
+        getBillingDiscount({ token, params: filterDiscount.queryObject })
+      );
+  }, [filterDiscount, token]);
+
+  const discountOption = useMemo(() => {
+    let newArr: OptionProps[] | any[] = [];
+    const { data } = billingDiscounts;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push({
+          ...item,
+          type: item?.billingDiscountType,
+          value: item?.billingDiscountName,
+          total: item?.billingDiscountTotal,
+          label: item?.billingDiscountName,
+        });
+      });
+    }
+    return newArr;
+  }, [billingDiscounts]);
+  // end discount
+
+  // get taxes
+  const filterTax = useMemo(() => {
+    let qb = RequestQueryBuilder.create();
+
+    qb.sortBy({ field: "billingTaxName", order: "ASC" });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token)
+      dispatch(getBillingTax({ token, params: filterTax.queryObject }));
+  }, [filterTax, token]);
+
+  const taxOption = useMemo(() => {
+    let newArr: OptionProps[] | any[] = [];
+    const { data } = billingTaxs;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push({
+          ...item,
+          type: item?.billingTaxType,
+          value: item?.billingTaxName,
+          total: item?.billingTaxTotal,
+          label: item?.billingTaxName,
+        });
+      });
+    }
+    return newArr;
+  }, [billingTaxs]);
+
+  const onSubmit: SubmitHandler<FormValues> = (value) => {
+    let newObj = {
+      billingTemplateName: value?.billingTemplateName,
+      billingTemplateNotes: value?.billingTemplateNotes,
+      payments:
+        value?.payments && value?.payments?.length > 0
+          ? value?.payments?.map((item) => ({
+              billingTemplatePaymentName: item?.billingTemplatePaymentName,
+              billingDiscount: item?.billingDiscount?.id,
+              billingTax: item?.billingTax?.id,
+            }))
+          : [],
+    };
+    dispatch(
+      createBillingTemplate({
+        token,
+        data: newObj,
+        isSuccess: () => {
+          toast.dark("New Template has been created");
+          router.push({
+            pathname: "/employee/billings/settings/templates",
+            query: {
+              page: 1,
+              limit: 10,
+            },
+          });
+        },
+        isError: () => {
+          console.log("error-create-template");
+        },
+      })
+    );
+    console.log(newObj, "form-data");
+  };
+
+  console.log({ discountOption, discountOpt }, "discount-opt");
+
   return (
     <DefaultLayout
       title="Colony"
@@ -451,7 +573,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5"
-                  onClick={() => router.back()}
+                  onClick={onOpenDiscard}
                   variant="secondary-outline"
                   key={"1"}>
                   <MdChevronLeft className="w-5 h-5" />
@@ -467,28 +589,36 @@ const TemplatesForm = ({ pageProps }: Props) => {
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpen}
+                  onClick={onOpenDiscard}
                   variant="danger">
                   <MdDelete className="w-4 h-4" />
-                  <span className="hidden lg:inline-block">
-                    Discard Template
-                  </span>
+                  <span className="hidden lg:inline-block">Cancel</span>
                 </Button>
-                <Button
+                {/* <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={handleSubmit(onSubmit)}
                   variant="primary-outline">
                   <span className="hidden lg:inline-block">Export Excel</span>
                   <MdDownload className="w-4 h-4" />
-                </Button>
+                </Button> */}
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={handleSubmit(onSubmit)}
-                  variant="primary">
-                  <span className="hidden lg:inline-block">Save</span>
-                  <MdSave className="w-4 h-4" />
+                  variant="primary"
+                  disabled={!isValid || pending}>
+                  {!pending ? (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">Save</span>
+                      <MdSave className="w-4 h-4" />
+                    </Fragment>
+                  ) : (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </Fragment>
+                  )}
                 </Button>
               </div>
             </div>
@@ -900,8 +1030,9 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                       isDisabled={false}
                                       isMulti={false}
                                       placeholder="Discount..."
-                                      options={discountOpt}
+                                      options={discountOption}
                                       icon=""
+                                      isClearable
                                     />
                                   )}
                                   name={`payments.${index}.billingDiscount`}
@@ -988,8 +1119,9 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                       isDisabled={false}
                                       isMulti={false}
                                       placeholder="Tax..."
-                                      options={taxOpt}
+                                      options={taxOption}
                                       icon=""
+                                      isClearable
                                     />
                                   )}
                                   name={`payments.${index}.billingTax`}
@@ -1178,30 +1310,37 @@ const TemplatesForm = ({ pageProps }: Props) => {
       </div>
 
       {/* delete modal */}
-      <Modal size="small" onClose={onCloseDelete} isOpen={isOpenDelete}>
+      <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
         <Fragment>
           <ModalHeader
-            className="p-4 border-b-2 border-gray mb-3"
+            className="p-4 border-b-2 border-gray"
             isClose={true}
-            onClick={onCloseDelete}>
-            <h3 className="text-lg font-semibold">Delete Tenant</h3>
+            onClick={onCloseDiscard}>
+            <div className="w-full">
+              <h3 className="text-base font-semibold">Go back</h3>
+              <p className="text-sm text-gray-5">
+                Are you sure to cancel create template ?
+              </p>
+            </div>
           </ModalHeader>
-          <div className="w-full my-5 px-4">
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
 
-          <ModalFooter
-            className="p-4 border-t-2 border-gray"
-            isClose={true}
-            onClick={onCloseDelete}>
+          <div className="w-full flex items-center p-4 gap-2 justify-end">
             <Button
-              variant="primary"
-              className="rounded-md text-sm"
+              variant="secondary-outline"
+              className="rounded-md text-sm border-2 border-gray-4"
               type="button"
               onClick={onCloseDelete}>
-              Yes, Delete it!
+              <span className="text-sm">Close</span>
             </Button>
-          </ModalFooter>
+
+            <Button
+              variant="primary"
+              className="rounded-md text-sm border-2 border-primary"
+              type="button"
+              onClick={onDiscard}>
+              <span className="text-sm">Yes, Cancel it!</span>
+            </Button>
+          </div>
         </Fragment>
       </Modal>
     </DefaultLayout>
