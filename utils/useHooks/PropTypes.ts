@@ -388,3 +388,24 @@ export type BillingDiscountProps = {
   createdAt?: string | any;
   updatedAt?: string | any;
 };
+
+export type BillingTemplateDetailProps = {
+  id?: number | string | any;
+  billingDiscount?: BillingDiscountProps | any;
+  billingTax?: BillingTaxProps | any;
+  billingTemplateDetailAmount?: number | string | any;
+  billingTemplateDetailName?: string | any;
+  createdAt?: string | any;
+  updatedAt?: string | any;
+};
+
+export type BillingTemplateProps = {
+  id?: number | string | any;
+  billingTemplateDetails?: BillingTemplateDetailProps | any;
+  billingTemplateDetailAmount?: number | string | any;
+  billingTemplateDetailName?: number | string | any;
+  billingTemplateName?: string | any;
+  billingTemplateNotes?: string | any;
+  createdAt?: number | string | any;
+  updatedAt?: string | any;
+};

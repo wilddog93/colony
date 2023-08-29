@@ -27,7 +27,10 @@ import { ModalHeader } from "../../../../../components/Modal/ModalComponent";
 import moment from "moment";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { toast } from "react-toastify";
-import { OptionProps } from "../../../../../utils/useHooks/PropTypes";
+import {
+  BillingTemplateProps,
+  OptionProps,
+} from "../../../../../utils/useHooks/PropTypes";
 import {
   getProductCategories,
   selectProductCategoryManagement,
@@ -50,6 +53,7 @@ import {
   getBillingTemplate,
   selectBillingTemplateManagement,
 } from "../../../../../redux/features/billing/template/billingTemplateReducers";
+import { formatMoney } from "../../../../../utils/useHooks/useFunction";
 
 interface PropsData {
   id?: number | any;
@@ -203,7 +207,7 @@ const BillingTemplates = ({ pageProps }: Props) => {
   const [loading, setLoading] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<PropsData[]>([]);
+  const [dataTable, setDataTable] = useState<BillingTemplateProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState<any[] | any>(null);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -214,7 +218,7 @@ const BillingTemplates = ({ pageProps }: Props) => {
   const [isOpenAdd, setIsOpenAdd] = useState(false);
   const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [formData, setFormData] = useState<PropsData | any>(null);
+  const [formData, setFormData] = useState<BillingTemplateProps | any>(null);
 
   // date format
   const dateFormat = (value: string | any) => {
@@ -281,24 +285,18 @@ const BillingTemplates = ({ pageProps }: Props) => {
     setIsOpenDelete(true);
   };
 
-  const columns = useMemo<ColumnDef<PropsData, any>[]>(
+  console.log(billingTemplates, "billingTemplates");
+
+  const columns = useMemo<ColumnDef<BillingTemplateProps, any>[]>(
     () => [
       {
-        accessorKey: "brand",
-        header: (info) => <div className="uppercase">Brand</div>,
+        accessorKey: "billingTemplateName",
+        header: (info) => <div className="uppercase">Name</div>,
         cell: ({ row, getValue }) => {
-          const name = getValue()?.brandName || "-";
-          const image = row?.original?.productImage
-            ? `${url}product/productImage/${row?.original?.productImage}`
-            : "../../image/no-image.jpeg";
+          let value = getValue() || "-";
           return (
             <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
-              <img
-                src={image}
-                alt="brand-logo"
-                className="w-8 h-8 rounded-full object-cover object-center"
-              />
-              <span>{name}</span>
+              <span>{value}</span>
             </div>
           );
         },
@@ -306,8 +304,8 @@ const BillingTemplates = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "productName",
-        header: (info) => <div className="uppercase">Product Name</div>,
+        accessorKey: "billingTemplateNotes",
+        header: (info) => <div className="uppercase">Note</div>,
         cell: ({ row, getValue }) => {
           return <div className="w-full">{getValue() || "-"}</div>;
         },
@@ -315,39 +313,29 @@ const BillingTemplates = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "productType",
-        header: (info) => <div className="uppercase">Type</div>,
+        accessorKey: "billingTemplateDetails",
+        header: (info) => <div className="uppercase">Total</div>,
         cell: ({ row, getValue }) => {
-          const value = getValue();
-          return <div className="w-full">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
-        accessorKey: "productCategory.productCategoryName",
-        header: (info) => <div className="uppercase">Category</div>,
-        cell: ({ row, getValue }) => {
-          const value = getValue() || "-";
-          return <div className="w-full">{value}</div>;
-        },
-        footer: (props) => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10,
-      },
-      {
-        accessorKey: "productQty",
-        header: (info) => (
-          <div className="uppercase w-full text-center">Product Quantity</div>
-        ),
-        cell: ({ row, getValue }) => {
-          const value = getValue();
-          return <div className="w-full text-center">{value}</div>;
+          const { billingTemplateDetails } = row.original;
+
+          return (
+            <div className="w-full">
+              {billingTemplateDetails && billingTemplateDetails?.length > 0
+                ? billingTemplateDetails?.map((item: any, idx: any) => {
+                    return (
+                      <div key={idx}>
+                        Rp.{" "}
+                        {item?.billingTemplateDetailAmount
+                          ? formatMoney({
+                              amount: item?.billingTemplateDetailAmount,
+                            })
+                          : "0"}
+                      </div>
+                    );
+                  })
+                : "-"}
+            </div>
+          );
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
@@ -515,120 +503,6 @@ const BillingTemplates = ({ pageProps }: Props) => {
       })
     );
   };
-
-  // get product-category
-  const filterProductCategory = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `productCategoryName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductCategories({
-          token,
-          params: filterProductCategory.queryObject,
-        })
-      );
-  }, [token, filterProductCategory]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productCategories;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.productCategoryName,
-          label: item?.productCategoryName,
-        });
-      });
-      setCategoryOpt(arr);
-    }
-  }, [productCategories]);
-  // product-category end
-
-  // get product-unit-measurement
-  const filterProductUnit = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `unitMeasurementName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductUnits({
-          token,
-          params: filterProductUnit.queryObject,
-        })
-      );
-  }, [token, filterProductUnit]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productUnits;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.unitMeasurementName,
-          label: item?.unitMeasurementName,
-        });
-      });
-      setUnitOpt(arr);
-    }
-  }, [productUnits]);
-  // product-unit-measurement end
-
-  // get product-brand
-  const filterProductBrand = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    qb.sortBy({
-      field: `brandName`,
-      order: "ASC",
-    });
-    qb.query();
-    return qb;
-  }, []);
-
-  useEffect(() => {
-    if (token)
-      dispatch(
-        getProductBrands({
-          token,
-          params: filterProductBrand.queryObject,
-        })
-      );
-  }, [token, filterProductBrand]);
-
-  useEffect(() => {
-    let arr: Options[] = [];
-    const { data } = productBrands;
-    if (data || data?.length > 0) {
-      data?.map((item: any) => {
-        arr.push({
-          ...item,
-          value: item?.brandName,
-          label: item?.brandName,
-        });
-      });
-      setBrandOpt(arr);
-    }
-  }, [productBrands]);
-  // product-brand end
 
   console.log(pageCount, "pageCount");
 

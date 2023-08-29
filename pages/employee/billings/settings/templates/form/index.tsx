@@ -141,8 +141,8 @@ const stylesSelect = {
 
 type PaymentProps = {
   id?: number | string | any;
-  billingTemplatePaymentName?: string | any;
-  billingAmount?: number | string | any;
+  billingTemplateDetailName?: string | any;
+  billingTemplateDetailAmount?: number | string | any;
   billingDiscount?: number | string | any;
   billingDiscountAmount?: number | string | any;
   billingTax?: any;
@@ -223,8 +223,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
         payments: [
           {
             id: null,
-            billingTemplatePaymentName: null,
-            billingAmount: null,
+            billingTemplateDetailName: null,
+            billingTemplateDetailAmount: null,
             billingDiscount: null,
             billingDiscountAmount: null,
             billingTax: null,
@@ -261,8 +261,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
   const addNewCols = () => {
     append({
       id: null,
-      billingTemplatePaymentName: null,
-      billingAmount: null,
+      billingTemplateDetailName: null,
+      billingTemplateDetailAmount: null,
       billingDiscount: null,
       billingDiscountAmount: null,
       billingTax: null,
@@ -276,8 +276,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
     // console.log(formValues, "watchChange")
     if (formValues?.length > 0) {
       formValues.map((value, index) => {
-        let billingAmount =
-          watchChange?.name === `payments.${index}.billingAmount`;
+        let billingTemplateDetailAmount =
+          watchChange?.name === `payments.${index}.billingTemplateDetailAmount`;
         let discount =
           watchChange?.name === `payments.${index}.billingDiscount`;
         let tax = watchChange?.name === `payments.${index}.billingTax`;
@@ -288,23 +288,27 @@ const TemplatesForm = ({ pageProps }: Props) => {
 
         let totalDiscount =
           value?.billingDiscount?.type == "Percent"
-            ? (Number(value.billingAmount) || 0) *
-              ((Number(value?.billingDiscount?.total) || 0) / 100)
+            ? Math.round(
+                (Number(value.billingTemplateDetailAmount) || 0) *
+                  ((Number(value?.billingDiscount?.total) || 0) / 100)
+              )
             : Number(value?.billingDiscount?.total) || 0;
         let totalTax =
           value?.billingTax?.type == "Percent"
-            ? (Number(value.billingAmount) || 0) *
-              ((Number(value?.billingTax?.total) || 0) / 100)
+            ? Math.round(
+                (Number(value.billingTemplateDetailAmount) || 0) *
+                  ((Number(value?.billingTax?.total) || 0) / 100)
+              )
             : Number(value?.billingTax?.total) || 0;
         let total =
-          (Number(value.billingAmount) || 0) +
+          (Number(value.billingTemplateDetailAmount) || 0) +
           (Number(value?.billingTaxAmount) || 0) -
           (Number(value?.billingDiscountAmount) || 0);
 
         if (discount)
           setValue(`payments.${index}.billingDiscountAmount`, totalDiscount);
         if (tax) setValue(`payments.${index}.billingTaxAmount`, totalTax);
-        if (billingAmount || discountAmount || taxAmount)
+        if (billingTemplateDetailAmount || discountAmount || taxAmount)
           setValue(`payments.${index}.billingTotal`, total);
         if (total < 0) {
           setError(`payments.${index}.billingTotal`, {
@@ -381,7 +385,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
 
   const Total = ({ control }: { control: Control<FormValues> }) => {
     const subTotal = formValues.reduce(
-      (acc, current) => acc + (Number(current.billingAmount) || 0),
+      (acc, current) =>
+        acc + (Number(current.billingTemplateDetailAmount) || 0),
       0
     );
     const totalTax = formValues.reduce(
@@ -395,7 +400,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
     const total = formValues.reduce(
       (acc, current) =>
         acc +
-        (Number(current.billingAmount) || 0) +
+        (Number(current.billingTemplateDetailAmount) || 0) +
         (Number(current.billingTaxAmount) || 0) -
         (Number(current.billingDiscountAmount) || 0),
       0
@@ -494,7 +499,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
       payments:
         value?.payments && value?.payments?.length > 0
           ? value?.payments?.map((item) => ({
-              billingTemplatePaymentName: item?.billingTemplatePaymentName,
+              billingTemplateDetailName: item?.billingTemplateDetailName,
+              billingTemplateDetailAmount: item?.billingTemplateDetailAmount,
               billingDiscount: item?.billingDiscount?.id,
               billingTax: item?.billingTax?.id,
             }))
@@ -912,7 +918,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                   placeholder="Payments..."
                                   className="w-full rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none"
                                   {...register(
-                                    `payments.${index}.billingTemplatePaymentName` as any,
+                                    `payments.${index}.billingTemplateDetailName` as any,
                                     {
                                       required: {
                                         value: true,
@@ -923,12 +929,12 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                   )}
                                 />
                                 {errors?.payments?.[index]
-                                  ?.billingTemplatePaymentName && (
+                                  ?.billingTemplateDetailName && (
                                   <div className="mt-1 text-xs flex items-center text-red-300">
                                     <span className="text-red-300">
                                       {
                                         errors?.payments?.[index]
-                                          ?.billingTemplatePaymentName
+                                          ?.billingTemplateDetailName
                                           ?.message as any
                                       }
                                     </span>
@@ -973,7 +979,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                       className="w-full rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none"
                                     />
                                   )}
-                                  name={`payments.${index}.billingAmount`}
+                                  name={`payments.${index}.billingTemplateDetailAmount`}
                                   control={control}
                                   rules={{
                                     required: {
@@ -983,11 +989,13 @@ const TemplatesForm = ({ pageProps }: Props) => {
                                   }}
                                 />
                               </div>
-                              {errors?.payments?.[index]?.billingAmount && (
+                              {errors?.payments?.[index]
+                                ?.billingTemplateDetailAmount && (
                                 <div className="mt-1 text-xs flex items-center text-red-300">
                                   <span className="text-red-300">
                                     {
-                                      errors?.payments?.[index]?.billingAmount
+                                      errors?.payments?.[index]
+                                        ?.billingTemplateDetailAmount
                                         ?.message as any
                                     }
                                   </span>
