@@ -624,8 +624,8 @@ const BillingTemplates = ({ pageProps }: Props) => {
             isClose={true}
             onClick={onCloseModalDelete}>
             <div className="flex flex-col gap-1">
-              <h3 className="text-lg font-semibold">Delete Product</h3>
-              <p className="text-gray-5">{`Are you sure to delete ${formData?.productName} ?`}</p>
+              <h3 className="text-lg font-semibold">Delete Template</h3>
+              <p className="text-gray-5">{`Are you sure to delete ${formData?.billingTemplateName} ?`}</p>
             </div>
           </ModalHeader>
           <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
