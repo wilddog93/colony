@@ -153,6 +153,7 @@ type PaymentProps = {
 
 type FormValues = {
   id: number | string | any | null;
+  billingTemplateNumber: string | any | null;
   billingTemplateName: string | any | null;
   billingTemplateNotes: string | null;
   payments: PaymentProps[];
@@ -198,6 +199,8 @@ const TemplatesForm = ({ pageProps }: Props) => {
   const [watchValue, setWatchValue] = useState<FormValues | any>();
   const [watchChange, setWatchChange] = useState<any | null>(null);
 
+  const [loading, setLoading] = useState(false);
+
   // form
   const {
     register,
@@ -215,6 +218,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
     defaultValues: useMemo<FormValues>(
       () => ({
         id: null,
+        billingTemplateNumber: null,
         billingTemplateName: null,
         billingTemplateNotes: null,
         durationStart: null,
@@ -529,6 +533,33 @@ const TemplatesForm = ({ pageProps }: Props) => {
     console.log(newObj, "form-data");
   };
 
+  const onExport: SubmitHandler<FormValues> = (value) => {
+    let newObj = {
+      billingTemplateNumber: value?.billingTemplateNumber,
+      billingTemplateName: value?.billingTemplateName,
+      billingTemplateNotes: value?.billingTemplateNotes,
+      startPeriod: value?.periodStart?.toISOString(),
+      endPeriod: value?.periodEnd?.toISOString(),
+      releaseDate: value?.durationStart?.toISOString(),
+      dueDate: value?.durationEnd?.toISOString(),
+      payments:
+        value?.payments && value?.payments?.length > 0
+          ? value?.payments?.map((item) => ({
+              billingTemplateDetailName: item?.billingTemplateDetailName,
+              billingTemplateDetailAmount: item?.billingTemplateDetailAmount,
+              billingDiscount: item?.billingDiscount,
+              billingTax: item?.billingTax,
+            }))
+          : [],
+    };
+
+    localStorage.setItem("data-export", JSON.stringify(newObj));
+    router.push({
+      pathname: "/employee/billings/settings/templates/form/export",
+    });
+    setLoading(true);
+  };
+
   console.log({ discountOption, discountOpt }, "discount-opt");
 
   return (
@@ -552,9 +583,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
         />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
+        <form className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
           <div className="sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2 border-b-2 border-gray">
             {/* headers */}
             <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
@@ -598,17 +627,28 @@ const TemplatesForm = ({ pageProps }: Props) => {
                   className="rounded-lg text-sm font-semibold py-3"
                   onClick={onOpenDiscard}
                   variant="secondary-outline">
-                  <MdClose className="w-4 h-4" />
                   <span className="hidden lg:inline-block">Cancel</span>
                 </Button>
-                {/* <Button
+                <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
-                  onClick={handleSubmit(onSubmit)}
+                  onClick={handleSubmit(onExport)}
+                  disabled={loading || !isValid}
                   variant="primary-outline">
-                  <span className="hidden lg:inline-block">Export Excel</span>
-                  <MdDownload className="w-4 h-4" />
-                </Button> */}
+                  {!loading ? (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">
+                        Export Excel
+                      </span>
+                      <MdDownload className="w-4 h-4" />
+                    </Fragment>
+                  ) : (
+                    <Fragment>
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </Fragment>
+                  )}
+                </Button>
                 <Button
                   type="button"
                   className="rounded-lg text-sm font-semibold py-3"
@@ -634,18 +674,50 @@ const TemplatesForm = ({ pageProps }: Props) => {
           <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-col gap-2.5 lg:gap-6">
               {/* form */}
-              <Cards className="w-full grid col-span-1 lg:grid-cols-2 items-center gap-2 mt-4">
-                <div className="w-full max-w-max flex items-center gap-2">
-                  <div className="relative">
+              <Cards className="w-full grid col-span-1 items-center mt-4">
+                <div className="w-full max-w-max flex divide-x-2 divide-gray">
+                  <div className="relative px-2">
                     <input
                       type="text"
-                      placeholder="Monthly bill..."
+                      placeholder="Billing No."
                       autoFocus
-                      className={`w-full max-w-45 text-lg text-primary rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
+                      className={`w-full max-w-45 text-lg text-primary border-b-2 border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
+                      {...register("billingTemplateNumber", {
+                        required: {
+                          value: true,
+                          message: "This fill is required.",
+                        },
+                      })}
+                      disabled={!isCode}
+                      onBlur={() => setIsCode(false)}
+                    />
+
+                    <span className="absolute right-4 top-4 cursor-pointer">
+                      <MdEdit
+                        onClick={() => setIsCode((e) => !e)}
+                        className="w-6 h-6 fill-current text-primary opacity-80"
+                      />
+                    </span>
+                    {errors?.billingTemplateNumber && (
+                      <div className="mt-1 text-xs flex items-center text-red-300">
+                        <MdWarning className="w-4 h-4 mr-1" />
+                        <span className="text-red-300">
+                          {errors?.billingTemplateNumber?.message as any}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative px-2">
+                    <input
+                      type="text"
+                      placeholder="Billing Name"
+                      autoFocus
+                      className={`w-full max-w-45 text-lg text-primary border-b-2 border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
                       {...register("billingTemplateName", {
                         required: {
                           value: true,
-                          message: "Billing template name is required.",
+                          message: "This fill is required.",
                         },
                       })}
                       disabled={!isTitle}
@@ -658,15 +730,15 @@ const TemplatesForm = ({ pageProps }: Props) => {
                         className="w-6 h-6 fill-current text-primary opacity-80"
                       />
                     </span>
+                    {errors?.billingTemplateName && (
+                      <div className="mt-1 text-xs flex items-center text-red-300">
+                        <MdWarning className="w-4 h-4 mr-1" />
+                        <span className="text-red-300">
+                          {errors?.billingTemplateName?.message as any}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  {errors?.billingTemplateName && (
-                    <div className="mt-1 text-xs flex items-center text-red-300">
-                      <MdWarning className="w-4 h-4 mr-1" />
-                      <span className="text-red-300">
-                        {errors?.billingTemplateName?.message as any}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </Cards>
 
@@ -1338,7 +1410,7 @@ const TemplatesForm = ({ pageProps }: Props) => {
               variant="secondary-outline"
               className="rounded-md text-sm border-2 border-gray-4"
               type="button"
-              onClick={onCloseDelete}>
+              onClick={onCloseDiscard}>
               <span className="text-sm">Close</span>
             </Button>
 

@@ -158,6 +158,8 @@ export type UnitProps = {
   totalOngoingBill?: number | string | any;
   totalUnreadMessageLocalshop?: number | any;
   totalAmenity?: number | any;
+  occupant?: UserProps | any;
+  tenant?: UserProps | any;
 };
 
 // parking
