@@ -47,19 +47,30 @@ import {
   selectUnitManagement,
 } from "../../../../../../redux/features/building-management/unit/unitReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import { UnitProps } from "../../../../../../utils/useHooks/PropTypes";
+import {
+  OptionProps,
+  UnitProps,
+} from "../../../../../../utils/useHooks/PropTypes";
 import { IndeterminateCheckbox } from "../../../../../../components/tables/components/TableComponent";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaCircleNotch } from "react-icons/fa";
+import {
+  getTowers,
+  selectTowerManagement,
+} from "../../../../../../redux/features/building-management/tower/towerReducers";
+import {
+  getFloors,
+  selectFloorManagement,
+} from "../../../../../../redux/features/building-management/floor/floorReducers";
 
 type Props = {
   pageProps: any;
 };
 
 const sortOpt = [
-  { value: "A-Z", label: "A-Z" },
-  { value: "Z-A", label: "Z-A" },
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
 ];
 
 const stylesSelectSort = {
@@ -162,27 +173,27 @@ const ReceiptPage = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
   const { units } = useAppSelector(selectUnitManagement);
+  const { towers } = useAppSelector(selectTowerManagement);
+  const { floors } = useAppSelector(selectFloorManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [search, setSearch] = useState(null);
-  const [sort, setSort] = useState(false);
   const [loading, setLoading] = useState(true);
-  // side-body
-  const [sidebar, setSidebar] = useState(false);
 
   // data-table
   const [dataTable, setDataTable] = useState<UnitProps[]>([]);
+  const [search, setSearch] = useState<string | any>(null);
+  const [sort, setSort] = useState<OptionProps[] | any>(null);
   const [isSelectedRow, setIsSelectedRow] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
   const [total, setTotal] = useState(0);
+  const [tower, setTower] = useState<OptionProps | any>(null);
+  const [floor, setFloor] = useState<OptionProps | any>(null);
 
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDiscard, setIsOpenDiscard] = useState(false);
-  const [isOpenCreate, setIsOpenCreate] = useState(false);
-  const [details, setDetails] = useState<UnitProps>();
   const [loadingExport, setLoadingExport] = useState(false);
 
   // date
@@ -205,8 +216,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
   useEffect(() => {
     setFormData(initiaLocalStorage?.data);
   }, []);
-
-  console.log(formData, "formData");
 
   // date format
   const dateFormat = (value: string | any) => {
@@ -238,7 +247,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
 
   // discard modal
   const onCloseDiscard = () => {
-    setDetails(undefined);
     setIsOpenDiscard(false);
   };
 
@@ -435,24 +443,68 @@ const ReceiptPage = ({ pageProps }: Props) => {
     );
   };
 
-  const filterUnit = useMemo(() => {
+  // units
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+    if (sort) qr = { ...qr, sort: sort?.value };
+    if (tower) qr = { ...qr, tower: tower?.value };
+    if (floor) qr = { ...qr, floor: floor?.value };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search, sort, tower, floor]);
+
+  const filters = useMemo(() => {
     const qb = RequestQueryBuilder.create();
 
     const search = {
-      $and: [{ "tenant.id": { $notnull: true } }],
+      $and: [
+        { "tenant.id": { $notnull: true } },
+        { "floor.tower.id": { $eq: query?.tower } },
+        { "floor.id": { $eq: query?.floor } },
+        {
+          $or: [
+            { unitName: { $contL: query?.search } },
+            { "occupant_user.firstName": { $contL: query?.search } },
+            { "tenant_user.firstName": { $contL: query?.search } },
+          ],
+        },
+      ],
     };
 
-    qb.search(search);
-    qb.sortBy({ field: "unitName", order: "ASC" });
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
 
+    qb.search(search);
+    if (!query?.sort) {
+      qb.sortBy({
+        field: `updatedAt`,
+        order: "DESC",
+      });
+    } else {
+      qb.sortBy({
+        field: `unitName`,
+        order: !sort?.value ? "ASC" : sort.value,
+      });
+    }
     qb.query();
     return qb;
-  }, []);
+  }, [
+    query?.page,
+    query?.limit,
+    query?.search,
+    query?.sort,
+    query?.tower,
+    query?.floor,
+  ]);
 
   useEffect(() => {
-    if (token)
-      dispatch(getUnitsTenant({ token, params: filterUnit.queryObject }));
-  }, [token, filterUnit]);
+    if (token) dispatch(getUnitsTenant({ token, params: filters.queryObject }));
+  }, [token, filters]);
 
   useEffect(() => {
     let newArr: UnitProps[] | any[] = [];
@@ -472,6 +524,81 @@ const ReceiptPage = ({ pageProps }: Props) => {
     setPageCount(newPageCount);
     setTotal(newTotal);
   }, [units]);
+  // end unit
+
+  // tower
+  const filterTower = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    qb.sortBy({
+      field: `towerName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getTowers({ token, params: filterTower.queryObject }));
+    }
+  }, [token, filterTower]);
+
+  const towerOption = useMemo(() => {
+    let newArr: OptionProps[] | any[] = [];
+
+    const { data } = towers;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push({
+          ...item,
+          value: item.id,
+          label: item.towerName,
+        });
+      });
+    }
+    return newArr;
+  }, [towers]);
+  // end tower
+
+  // floor
+  const filterFloor = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+    const search = {
+      $and: [{ "tower.id": { $eq: query?.tower } }],
+    };
+
+    qb.search(search);
+    qb.sortBy({
+      field: `floorName`,
+      order: "ASC",
+    });
+    qb.query();
+    return qb;
+  }, [query?.tower]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getFloors({ token, params: filterFloor.queryObject }));
+    }
+  }, [token, filterFloor]);
+
+  const floorOption = useMemo(() => {
+    let newArr: OptionProps[] | any[] = [];
+
+    const { data } = floors;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push({
+          ...item,
+          value: item.id,
+          label: item.floorName,
+        });
+      });
+    }
+    return newArr;
+  }, [floors]);
+  console.log(floor, "floor");
+  // end floor
 
   const onDiscard = () => {
     router.back();
@@ -661,14 +788,15 @@ const ReceiptPage = ({ pageProps }: Props) => {
                       isMulti={false}
                       placeholder="Sorts..."
                       options={sortOpt}
+                      isClearable
                       icon="MdSort"
                     />
                   </div>
                   <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                     <DropdownSelect
                       customStyles={stylesSelect}
-                      value={sort}
-                      onChange={setSort}
+                      value={tower}
+                      onChange={setTower}
                       error=""
                       className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                       classNamePrefix=""
@@ -677,15 +805,16 @@ const ReceiptPage = ({ pageProps }: Props) => {
                       isDisabled={false}
                       isMulti={false}
                       placeholder="Towers..."
-                      options={sortOpt}
+                      options={towerOption}
+                      isClearable
                       icon=""
                     />
                   </div>
                   <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                     <DropdownSelect
                       customStyles={stylesSelect}
-                      value={sort}
-                      onChange={setSort}
+                      value={floor}
+                      onChange={setFloor}
                       error=""
                       className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                       classNamePrefix=""
@@ -694,7 +823,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
                       isDisabled={false}
                       isMulti={false}
                       placeholder="Floors..."
-                      options={sortOpt}
+                      options={floorOption}
+                      isClearable
                       icon=""
                     />
                   </div>
