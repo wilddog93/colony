@@ -241,6 +241,7 @@ export type LocationProps = {
   qty?: number | string | any;
   assets?: any[];
 };
+
 export type ProductProps = {
   id?: number | string | any;
   createdAt?: string | any;
@@ -410,4 +411,24 @@ export type BillingTemplateProps = {
   billingTemplateNotes?: string | any;
   createdAt?: number | string | any;
   updatedAt?: string | any;
+};
+
+export type BillingProps = {
+  id?: number | string;
+  billingId?: string | number;
+  billingName?: string;
+  billingNotes?: string;
+  billingStatus?: string;
+  releaseStart?: Date | string | any | null;
+  dueEnd?: Date | string | any | null;
+  startPeriod?: Date | string | any | null;
+  endPeriod?: Date | string | any | null;
+  totalUnit?: number | string | null;
+  totalPaymentItem?: number | string | null;
+  totalPayment?: number | string | null;
+  totalAmount?: number | string | null;
+  totalDiscount?: number | string | null;
+  totalTax?: number | string | null;
+  updatedAt?: string;
+  createdAt?: string;
 };

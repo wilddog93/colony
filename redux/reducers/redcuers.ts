@@ -45,6 +45,7 @@ import productLocationManagementReducers from "../features/assets/locations/prod
 import billingTemplateManagementReducers from "../features/billing/template/billingTemplateReducers";
 import billingTaxManagementReducers from "../features/billing/tax/billingTaxReducers";
 import billingDiscountManagementReducers from "../features/billing/discount/billingDiscountReducers";
+import billingManagementReducers from "../features/billing/billingReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -98,4 +99,5 @@ export const combinedReducer = combineReducers({
   billingTemplateManagement: billingTemplateManagementReducers,
   billingTaxManagement: billingTaxManagementReducers,
   billingDiscountManagement: billingDiscountManagementReducers,
+  billingManagement: billingManagementReducers,
 });
