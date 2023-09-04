@@ -294,7 +294,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
       excelFile:
         value?.document?.length > 0 ? value?.document[0]?.documentSource : "",
     };
-    console.log(newObj, "document");
+    // console.log(newObj, "document");
     dispatch(
       createBilling({
         token,
