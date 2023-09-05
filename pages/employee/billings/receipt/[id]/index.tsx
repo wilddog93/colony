@@ -724,7 +724,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
               </div>
 
               <SidebarBody sidebarOpen={sidebar} setSidebarOpen={setSidebar}>
-                <div className="responsive w-full h-full bg-white shadow-card overflow-auto">
+                <div className="responsive w-full h-full bg-white shadow-card overflow-auto text-sm">
                   <ModalHeader
                     className="sticky top-0 bg-white border-b-2 border-gray p-4"
                     isClose
