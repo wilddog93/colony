@@ -12,6 +12,7 @@ import type { RootState } from "../../store";
 export type BillingState = {
   billings: any;
   billing: any;
+  billingUnit: any;
   pending: boolean;
   error: boolean;
   message: any;
@@ -20,6 +21,7 @@ export type BillingState = {
 const initialState: BillingState = {
   billings: {},
   billing: {},
+  billingUnit: {},
   pending: false,
   error: false,
   message: "",
@@ -108,6 +110,40 @@ export const getBillingById = createAsyncThunk<
   };
   try {
     const response = await axios.get(`billing/${params.id}`, config);
+    const { data, status } = response;
+    if (status == 200) {
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// get unit by id billing
+export const getBillingUnitById = createAsyncThunk<
+  any,
+  DefaultGetData,
+  { state: RootState }
+>("/billing/id/unit", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    params: params.params,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.get(`billing/${params.id}/unit`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -287,6 +323,27 @@ export const billingSlice = createSlice({
         };
       })
       .addCase(getBillingById.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // get-billing-unit-byid
+      .addCase(getBillingUnitById.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(getBillingUnitById.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+          billingUnit: payload,
+        };
+      })
+      .addCase(getBillingUnitById.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

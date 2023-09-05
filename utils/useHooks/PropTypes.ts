@@ -431,4 +431,7 @@ export type BillingProps = {
   totalTax?: number | string | null;
   updatedAt?: string;
   createdAt?: string;
+  billingUnitDetails?: any;
+  unit?: UnitProps | any;
+  billing?: any;
 };
