@@ -40,6 +40,7 @@ import {
   getBillingById,
   getBillingUnitById,
   selectBillingManagement,
+  updateStatusBilling,
 } from "../../../../../redux/features/billing/billingReducers";
 import {
   BillingProps,
@@ -47,6 +48,16 @@ import {
 } from "../../../../../utils/useHooks/PropTypes";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import CardTablesRow from "../../../../../components/tables/layouts/server/CardTablesRow";
+import { toast } from "react-toastify";
+import { FaCircleNotch } from "react-icons/fa";
+import {
+  getTowers,
+  selectTowerManagement,
+} from "../../../../../redux/features/building-management/tower/towerReducers";
+import {
+  getFloors,
+  selectFloorManagement,
+} from "../../../../../redux/features/building-management/floor/floorReducers";
 
 type Props = {
   pageProps: any;
@@ -157,6 +168,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { towers } = useAppSelector(selectTowerManagement);
+  const { floors } = useAppSelector(selectFloorManagement);
   const { pending, billing, billingUnit } = useAppSelector(
     selectBillingManagement
   );
@@ -164,6 +177,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState<OptionProps | any>(null);
+  const [tower, setTower] = useState<OptionProps | any>(null);
+  const [floor, setFloor] = useState<OptionProps | any>(null);
   const [loading, setLoading] = useState(true);
   // side-body
   const [sidebar, setSidebar] = useState(false);
@@ -212,8 +227,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
 
   // create
   const onCloseCreate = () => {
-    setDetails(undefined);
     setIsOpenCreate(false);
+    !sidebar ? setDetails(undefined) : null;
   };
   const onOpenCreate = () => {
     // setDetails(items)
@@ -225,7 +240,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
     setDetails(undefined);
     setIsOpenDiscard(false);
   };
-
   const onOpenDiscard = () => {
     // setDetails(items)
     setIsOpenDiscard(true);
@@ -499,7 +513,33 @@ const ReceiptPage = ({ pageProps }: Props) => {
     setTotal(newTotal);
   }, [billingUnit]);
 
-  console.log(billingUnit, "data-billing-unit");
+  const onChangeStatus = ({ value }: any) => {
+    const newObj = {
+      status: value,
+    };
+    dispatch(
+      updateStatusBilling({
+        token,
+        id: query?.id,
+        data: newObj,
+        isSuccess: () => {
+          if (value == "Approve") {
+            toast.dark("Invoice has been created");
+            onCloseCreate();
+          } else {
+            toast.dark("Receipt has been rejected");
+            onCloseDiscard();
+          }
+          dispatch(getBillingById({ token, id: query?.id }));
+        },
+        isError: () => {
+          toast.dark("Something went wrong");
+        },
+      })
+    );
+  };
+
+  console.log(details, "data-billing");
 
   return (
     <DefaultLayout
@@ -562,7 +602,9 @@ const ReceiptPage = ({ pageProps }: Props) => {
               <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
                 <Button
                   type="button"
-                  className="rounded-lg text-sm font-semibold py-3"
+                  className={`rounded-lg text-sm font-semibold py-3 ${
+                    billing?.billingStatus === "Rejected" ? "hidden" : ""
+                  }`}
                   onClick={() => onOpenDiscard()}
                   variant="danger">
                   <span className="hidden lg:inline-block">
@@ -572,19 +614,12 @@ const ReceiptPage = ({ pageProps }: Props) => {
 
                 <Button
                   type="button"
-                  className="rounded-lg text-sm font-semibold py-3"
-                  onClick={() => console.log("add")}
-                  variant="primary-outline">
-                  <span className="hidden lg:inline-block">Save Receipt</span>
-                  <MdSave className="w-4 h-4" />
-                </Button>
-
-                <Button
-                  type="button"
-                  className="rounded-lg text-sm font-semibold py-3"
+                  className={`rounded-lg text-sm font-semibold py-3 ${
+                    billing?.billingStatus === "Approve" ? "hidden" : ""
+                  }`}
                   onClick={() => onOpenCreate()}
                   variant="primary">
-                  <span className="hidden lg:inline-block">Create Receipt</span>
+                  <span className="hidden lg:inline-block">Create Invoice</span>
                 </Button>
               </div>
             </div>
@@ -642,8 +677,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
                   </div>
                 </Cards>
                 {/* filters */}
-                <div className="w-full grid grid-cols-1 lg:grid-cols-6 gap-2.5 p-4">
-                  <div className="w-full lg:col-span-3">
+                <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-2.5 p-4 lg:items-center">
+                  <div className="w-full lg:col-span-2">
                     <SearchInput
                       className="w-full text-sm rounded-xl"
                       classNamePrefix=""
@@ -667,40 +702,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                       placeholder="Sorts..."
                       options={sortOpt}
                       icon="MdSort"
-                    />
-                  </div>
-                  <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                    <DropdownSelect
-                      customStyles={stylesSelect}
-                      value={sort}
-                      onChange={setSort}
-                      error=""
-                      className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                      classNamePrefix=""
-                      formatOptionLabel=""
-                      instanceId="1"
-                      isDisabled={false}
-                      isMulti={false}
-                      placeholder="Towers..."
-                      options={sortOpt}
-                      icon=""
-                    />
-                  </div>
-                  <div className="w-full flex flex-col lg:flex-row items-center gap-2">
-                    <DropdownSelect
-                      customStyles={stylesSelect}
-                      value={sort}
-                      onChange={setSort}
-                      error=""
-                      className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
-                      classNamePrefix=""
-                      formatOptionLabel=""
-                      instanceId="1"
-                      isDisabled={false}
-                      isMulti={false}
-                      placeholder="Floors..."
-                      options={sortOpt}
-                      icon=""
+                      isClearable
                     />
                   </div>
                 </div>
@@ -749,18 +751,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
                             }`}>
                             {details?.billingUnitStatus}
                           </span>
-
-                          <div>
-                            <Button
-                              type="button"
-                              className="rounded-lg text-sm font-semibold py-3"
-                              onClick={onOpen}
-                              variant="primary">
-                              <span className="inline-block">
-                                Manual Payment
-                              </span>
-                            </Button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -810,7 +800,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                   <Total detail={details?.billing} />
 
                   {/* payment */}
-                  <div className="w-full flex flex-col gap-2 p-4">
+                  {/* <div className="w-full flex flex-col gap-2 p-4">
                     <h3 className="mb-2">Payment</h3>
                     <Cards className="w-full bg-gray p-4 flex items-center justify-between gap-2 text-sm">
                       <div className="flex flex-col gap-2 text-gray-5">
@@ -835,7 +825,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                         <p>00/00/0000</p>
                       </div>
                     </Cards>
-                  </div>
+                  </div> */}
                 </div>
               </SidebarBody>
             </div>
@@ -860,10 +850,10 @@ const ReceiptPage = ({ pageProps }: Props) => {
             className="p-4 mb-3"
             isClose={true}
             onClick={onCloseCreate}>
-            <h3 className="text-lg font-semibold">Create Receipt</h3>
+            <h3 className="text-lg font-semibold">Create Invoice</h3>
           </ModalHeader>
           <div className="w-full my-5 px-4 text-center">
-            <h3>Are you sure to Create receipt ID 12345 ?</h3>
+            <h3>Are you sure to Create invoice ID {billing?.billingId} ?</h3>
           </div>
 
           <div className="w-full flex items-center justify-center p-4 border-t-2 border-gray gap-2">
@@ -879,9 +869,19 @@ const ReceiptPage = ({ pageProps }: Props) => {
               variant="primary"
               className="rounded-md text-sm"
               type="button"
-              onClick={onCloseCreate}>
-              Yes
-              <MdCheck className="w-5 h-5" />
+              disabled={pending}
+              onClick={() => onChangeStatus({ value: "Approve" })}>
+              {pending ? (
+                <Fragment>
+                  Loading
+                  <FaCircleNotch className="w-5 h-5 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <Fragment>
+                  Yes
+                  <MdCheck className="w-5 h-5" />
+                </Fragment>
+              )}
             </Button>
           </div>
         </Fragment>
@@ -908,8 +908,16 @@ const ReceiptPage = ({ pageProps }: Props) => {
               variant="primary"
               className="rounded-md text-sm"
               type="button"
-              onClick={onCloseDiscard}>
-              Yes, Discard it!
+              disabled={pending}
+              onClick={() => onChangeStatus({ value: "Rejected" })}>
+              {pending ? (
+                <Fragment>
+                  Loading
+                  <FaCircleNotch className="w-5 h-5 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <Fragment>Yes, Discard it!</Fragment>
+              )}
             </Button>
           </ModalFooter>
         </Fragment>

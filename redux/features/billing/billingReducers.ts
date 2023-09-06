@@ -234,6 +234,44 @@ export const updateBilling = createAsyncThunk<
   }
 });
 
+// update-status
+export const updateStatusBilling = createAsyncThunk<
+  any,
+  BillingData,
+  { state: RootState }
+>("/billing/switchStatus/update", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.patch(
+      `billing/switchStatus/${params.id}`,
+      params.data,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // delete
 export const deleteBilling = createAsyncThunk<
   any,
