@@ -1,60 +1,63 @@
-import React, {
-  ChangeEvent,
-  Fragment,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import DefaultLayout from "../../../../components/Layouts/DefaultLayouts";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
+import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
 import { GetServerSideProps } from "next";
 import { getCookies } from "cookies-next";
 import { useRouter } from "next/router";
-import { useAppDispatch, useAppSelector } from "../../../../redux/Hook";
+import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import {
   getAuthMe,
   selectAuth,
-} from "../../../../redux/features/auth/authReducers";
+} from "../../../../../redux/features/auth/authReducers";
 import { ColumnDef } from "@tanstack/react-table";
-import Button from "../../../../components/Button/Button";
+import Button from "../../../../../components/Button/Button";
 import {
+  MdAdd,
   MdArrowRightAlt,
-  MdDelete,
-  MdDocumentScanner,
+  MdCheck,
+  MdChevronLeft,
   MdMonetizationOn,
+  MdMoreHoriz,
+  MdSave,
   MdUpload,
+  MdWork,
 } from "react-icons/md";
-import SidebarComponent from "../../../../components/Layouts/Sidebar/SidebarComponent";
-import { menuPayments } from "../../../../utils/routes";
-import { SearchInput } from "../../../../components/Forms/SearchInput";
-import DropdownSelect from "../../../../components/Dropdown/DropdownSelect";
-import Modal from "../../../../components/Modal";
+import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
+import { menuPayments } from "../../../../../utils/routes";
+import { SearchInput } from "../../../../../components/Forms/SearchInput";
+import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
+import Modal from "../../../../../components/Modal";
 import {
   ModalFooter,
   ModalHeader,
-} from "../../../../components/Modal/ModalComponent";
+} from "../../../../../components/Modal/ModalComponent";
 import moment from "moment";
-import ManualForm from "../../../../components/Forms/Billings/Invoices/ManualForm";
+import SidebarBody from "../../../../../components/Layouts/Sidebar/SidebarBody";
+import SelectTables from "../../../../../components/tables/layouts/SelectTables";
+import ManualForm from "../../../../../components/Forms/Billings/Invoices/ManualForm";
+import Cards from "../../../../../components/Cards/Cards";
+import { formatMoney } from "../../../../../utils/useHooks/useFunction";
 import {
-  convertBytes,
-  formatMoney,
-  toBase64,
-} from "../../../../utils/useHooks/useFunction";
-import { RequestQueryBuilder } from "@nestjsx/crud-request";
-import {
-  InvoiceProps,
-  OptionProps,
-} from "../../../../utils/useHooks/PropTypes";
-import {
-  createBilling,
-  getBilling,
-  getBillingInvoice,
+  getBillingById,
+  getBillingUnitById,
   selectBillingManagement,
-} from "../../../../redux/features/billing/billingReducers";
-import CardTablesRow from "../../../../components/tables/layouts/server/CardTablesRow";
+  updateStatusBilling,
+} from "../../../../../redux/features/billing/billingReducers";
+import {
+  BillingProps,
+  OptionProps,
+} from "../../../../../utils/useHooks/PropTypes";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import CardTablesRow from "../../../../../components/tables/layouts/server/CardTablesRow";
 import { toast } from "react-toastify";
 import { FaCircleNotch } from "react-icons/fa";
-import SidebarBody from "../../../../components/Layouts/Sidebar/SidebarBody";
+import {
+  getTowers,
+  selectTowerManagement,
+} from "../../../../../redux/features/building-management/tower/towerReducers";
+import {
+  getFloors,
+  selectFloorManagement,
+} from "../../../../../redux/features/building-management/floor/floorReducers";
 
 type Props = {
   pageProps: any;
@@ -96,7 +99,7 @@ const stylesSelectSort = {
     return {
       ...provided,
       background: "",
-      padding: ".5rem",
+      padding: ".6rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
@@ -104,21 +107,11 @@ const stylesSelectSort = {
         color: state.isFocused ? "#E2E8F0" : "#5F59F7",
         borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
       },
-      minHeight: 20,
+      minHeight: 40,
       flexDirection: "row-reverse",
     };
   },
-  menuList: (provided: any) => {
-    return {
-      ...provided,
-    };
-  },
-  menu: (provided: any) => {
-    return {
-      ...provided,
-      zIndex: 999,
-    };
-  },
+  menuList: (provided: any) => provided,
 };
 
 const stylesSelect = {
@@ -168,37 +161,42 @@ const ReceiptPage = ({ pageProps }: Props) => {
   moment.locale("id");
   const router = useRouter();
   const { pathname, query } = router;
+  const url = process.env.ENDPOINT_API;
 
   // props
   const { token, access, firebaseToken } = pageProps;
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
-  const { invoices, pending } = useAppSelector(selectBillingManagement);
+  const { towers } = useAppSelector(selectTowerManagement);
+  const { floors } = useAppSelector(selectFloorManagement);
+  const { pending, billing, billingUnit } = useAppSelector(
+    selectBillingManagement
+  );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState(null);
   const [sort, setSort] = useState<OptionProps | any>(null);
+  const [tower, setTower] = useState<OptionProps | any>(null);
+  const [floor, setFloor] = useState<OptionProps | any>(null);
   const [loading, setLoading] = useState(true);
   // side-body
   const [sidebar, setSidebar] = useState(false);
 
   // data-table
-  const [dataTable, setDataTable] = useState<InvoiceProps[]>([]);
+  const [dataTable, setDataTable] = useState<BillingProps[] | any[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
   const [total, setTotal] = useState(0);
 
-  // files
-  const [formData, setFormData] = useState<any>(null);
-
   // modal
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<InvoiceProps>();
+  const [isOpenDiscard, setIsOpenDiscard] = useState(false);
+  const [isOpenCreate, setIsOpenCreate] = useState(false);
+  const [details, setDetails] = useState<BillingProps | any>(null);
 
   // date
   const now = new Date();
@@ -210,137 +208,81 @@ const ReceiptPage = ({ pageProps }: Props) => {
   // date format
   const dateFormat = (value: string | any) => {
     if (!value) return "-";
-    return moment(new Date(value)).format("MMM DD, YYYY");
+    return moment(new Date(value)).format("MM/DD/YYYY");
   };
 
   // form modal
-  const onOpen = (value: any) => {
-    console.log(value, "detail-open");
-    setFormData({
-      billingUnit: value?.id,
-      totalPayment:
-        Number(value?.totalAmount || 0) - Number(value?.totalPayment || 0),
-    });
-    setIsOpenModal(true);
-  };
-
-  const onClose = () => {
-    setFormData(null);
-    setIsOpenModal(false);
-  };
+  const onClose = () => setIsOpenModal(false);
+  const onOpen = () => setIsOpenModal(true);
 
   // detail modal
   const onCloseDetail = () => {
     setDetails(undefined);
     setSidebar(false);
   };
-
   const onOpenDetail = (items: any) => {
     setDetails(items);
     setSidebar(true);
   };
 
-  const columns = useMemo<ColumnDef<InvoiceProps, any>[]>(
+  // create
+  const onCloseCreate = () => {
+    setIsOpenCreate(false);
+    !sidebar ? setDetails(undefined) : null;
+  };
+  const onOpenCreate = () => {
+    // setDetails(items)
+    setIsOpenCreate(true);
+  };
+
+  // discard modal
+  const onCloseDiscard = () => {
+    setDetails(undefined);
+    setIsOpenDiscard(false);
+  };
+  const onOpenDiscard = () => {
+    // setDetails(items)
+    setIsOpenDiscard(true);
+  };
+
+  const columns = useMemo<ColumnDef<BillingProps, any>[]>(
     () => [
       {
-        accessorKey: "billing.billingName",
-        header: (info) => <div className="uppercase text-left">Invoice</div>,
-        cell: ({ getValue, row }) => {
-          const { id } = row?.original;
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              <div className="text-xs capitalize">{getValue()}</div>
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
         accessorKey: "unit.unitName",
-        header: (info) => <div className="uppercase text-left">Unit</div>,
+        header: (info) => <div className="uppercase">Unit</div>,
         cell: ({ getValue, row }) => {
-          const { id } = row?.original;
+          let { id, unit } = row?.original;
           return (
             <div
               onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              <div className="text-xs capitalize">{getValue()}</div>
+              className="w-full flex items-center cursor-pointer gap-1 hover:cursor-pointer">
+              <img
+                src={
+                  unit?.unitImage
+                    ? `${url}unit/unitImage/${unit?.unitImage}`
+                    : "../../../../image/no-image.jpeg"
+                }
+                alt="images"
+                className="w-8 h-8 rounded-lg"
+              />
+              <div className="text-sm font-semibold">{getValue()}</div>
             </div>
           );
         },
         footer: (props) => props.column.id,
         enableColumnFilter: false,
-      },
-      {
-        accessorKey: "billingUnitStatus",
-        header: (info) => <div className="uppercase">Status</div>,
-        cell: ({ getValue, row }) => {
-          let value = getValue();
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className={`w-full flex flex-col font-semibold hover:cursor-pointer ${
-                value == "Unpaid"
-                  ? "text-danger"
-                  : value == "Paid"
-                  ? "text-primary"
-                  : ""
-              }`}>
-              <div className="text-xs">{value}</div>
-            </div>
-          );
-        },
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "totalDiscount",
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              <div className="">Rp.{formatMoney({ amount: getValue() })}</div>
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-left uppercase">Discount</div>
-        ),
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-        size: 150,
-      },
-      {
-        accessorKey: "totalTax",
-        cell: ({ row, getValue }) => {
-          return (
-            <div
-              onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              <div className="">Rp.{formatMoney({ amount: getValue() })}</div>
-            </div>
-          );
-        },
-        header: (props) => (
-          <div className="w-full text-left uppercase">Tax</div>
-        ),
-        footer: (props) => props.column.id,
-        enableColumnFilter: false,
-        size: 150,
+        size: 250,
+        maxSize: 250,
       },
       {
         accessorKey: "totalAmount",
         cell: ({ row, getValue }) => {
-          const value = getValue() || 0;
+          let value = getValue() || 0;
           return (
             <div
               onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              {`Rp. ${formatMoney({ amount: value })}`}
+              className="w-full text-sm text-gray-5 text-left hover:cursor-pointer">
+              <div className="">Rp.{formatMoney({ amount: value })}</div>
             </div>
           );
         },
@@ -349,52 +291,67 @@ const ReceiptPage = ({ pageProps }: Props) => {
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
+        size: 150,
       },
       {
-        accessorKey: "billingStatus",
+        accessorKey: "totalDiscount",
         cell: ({ row, getValue }) => {
-          let discount = Number(row?.original?.totalDiscount || 0);
-          let tax = Number(row?.original?.totalTax || 0);
-          let amount = Number(row?.original?.totalAmount || 0);
-
-          const result = Math.round(amount + tax - discount);
-
+          let value = getValue() || 0;
           return (
             <div
               onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-left hover:cursor-pointer">
-              <p>{`Rp. ${formatMoney({ amount: result })}`}</p>
+              className="w-full text-sm text-gray-5 text-left hover:cursor-pointer">
+              <div className="">Rp.{formatMoney({ amount: value })}</div>
             </div>
           );
         },
         header: (props) => (
-          <div className="w-full text-left uppercase">Total Payment</div>
+          <div className="w-full text-left uppercase">Amount</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
+        size: 150,
+      },
+      {
+        accessorKey: "totalTax",
+        cell: ({ row, getValue }) => {
+          let value = getValue() || 0;
+          return (
+            <div
+              onClick={() => onOpenDetail(row?.original)}
+              className="w-full text-sm text-gray-5 text-left hover:cursor-pointer">
+              <div className="">Rp.{formatMoney({ amount: value })}</div>
+            </div>
+          );
+        },
+        header: (props) => (
+          <div className="w-full text-left uppercase">Amount</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+        size: 150,
       },
       {
         accessorKey: "totalPayment",
         cell: ({ row, getValue }) => {
-          let discount = Number(row?.original?.totalDiscount || 0);
-          let tax = Number(row?.original?.totalTax || 0);
-          let amount = Number(row?.original?.totalAmount || 0);
-
-          const result = Math.round(amount + tax - discount);
-
+          const value = getValue() || 0;
+          const { totalAmount, totalDiscount, totalTax } = row?.original;
+          let result =
+            Number(totalAmount || 0) +
+            Number(totalTax || 0) -
+            Number(totalDiscount);
           return (
             <div
               onClick={() => onOpenDetail(row?.original)}
-              className="w-full text-xs text-right hover:cursor-pointer font-semibold">
-              <span
-                className={
-                  getValue() < result ? "text-danger" : "text-primary"
-                }>{`Rp. ${formatMoney({ amount: getValue() })}`}</span>
+              className={`w-full text-sm text-right hover:cursor-pointer ${
+                value < result ? "text-danger" : "text-primary"
+              }`}>
+              {`Rp.${formatMoney({ amount: value })}`}
             </div>
           );
         },
         header: (props) => (
-          <div className="w-full text-right uppercase">Already Paid</div>
+          <div className="w-full text-right uppercase">Payment Amount</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -413,89 +370,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
       );
     }
   }, [token]);
-
-  // data-table
-  useEffect(() => {
-    if (query?.page) setPages(Number(query?.page) || 1);
-    if (query?.limit) setLimit(Number(query?.limit) || 10);
-    if (query?.search) setSearch((query?.search as any) || "");
-    if (query?.sort) {
-      if (query?.sort == "ASC") {
-        setSort({ value: query?.sort, label: "A-Z" });
-      } else {
-        setSort({ value: query?.sort, label: "Z-A" });
-      }
-    }
-  }, [query?.page, query?.limit, query?.search, query?.sort]);
-
-  useEffect(() => {
-    let qr: any = {
-      page: pages,
-      limit: limit,
-    };
-
-    if (search) qr = { ...qr, search: search };
-    if (sort) qr = { ...qr, sort: sort?.value };
-
-    router.replace({ pathname, query: qr });
-  }, [pages, limit, search, sort]);
-
-  const filters = useMemo(() => {
-    const qb = RequestQueryBuilder.create();
-
-    const search = {
-      $and: [
-        { "billing.billingStatus": { $notin: ["Waiting", "Rejected"] } },
-        {
-          $or: [
-            { "billing.billingName": { $contL: query?.search } },
-            { "billing.billingNotes": { $contL: query?.search } },
-          ],
-        },
-      ],
-    };
-
-    if (query?.page) qb.setPage(Number(query?.page) || 1);
-    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
-
-    qb.search(search);
-    if (!query?.sort) {
-      qb.sortBy({
-        field: `updatedAt`,
-        order: "DESC",
-      });
-    } else {
-      qb.sortBy({
-        field: `billing.billingName`,
-        order: !sort?.value ? "ASC" : sort.value,
-      });
-    }
-    qb.query();
-    return qb;
-  }, [query?.page, query?.limit, query?.search, query?.sort]);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(getBillingInvoice({ token, params: filters.queryObject }));
-    }
-  }, [token, filters]);
-
-  useEffect(() => {
-    let newArr: InvoiceProps[] | any[] = [];
-    let newPageCount: number = 0;
-    let newTotal: number = 0;
-    const { data, pageCount, total } = invoices;
-    if (data && data?.length > 0) {
-      data?.map((item: any) => {
-        newArr.push(item);
-      });
-      newPageCount = pageCount;
-      newTotal = total;
-    }
-    setDataTable(newArr);
-    setPageCount(newPageCount);
-    setTotal(newTotal);
-  }, [invoices]);
 
   const Total = ({ detail }: any) => {
     // const {  } = detailVal;
@@ -543,8 +417,129 @@ const ReceiptPage = ({ pageProps }: Props) => {
     );
   };
 
-  // console.log("invoice-data :", invoices);
-  // console.log("detail-data :", details);
+  // get billing by id
+  useEffect(() => {
+    if (token) {
+      dispatch(getBillingById({ token, id: query?.id }));
+    }
+  }, [query?.id, token]);
+
+  // data-table
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch((query?.search as any) || "");
+    if (query?.sort) {
+      if (query?.sort == "ASC") {
+        setSort({ value: query?.sort, label: "A-Z" });
+      } else {
+        setSort({ value: query?.sort, label: "Z-A" });
+      }
+    }
+  }, [query?.page, query?.limit, query?.search, query?.sort]);
+
+  useEffect(() => {
+    let qr: any = {
+      id: query?.id,
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+    if (sort) qr = { ...qr, sort: sort?.value };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search, sort]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        {
+          $or: [
+            { "unit.unitName": { $contL: query?.search } },
+            // { billingNotes: { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    if (!query?.sort) {
+      qb.sortBy({
+        field: `updatedAt`,
+        order: "DESC",
+      });
+    } else {
+      qb.sortBy({
+        field: `unit.unitName`,
+        order: !sort?.value ? "ASC" : sort.value,
+      });
+    }
+    qb.query();
+    return qb;
+  }, [query?.page, query?.limit, query?.search, query?.sort]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(
+        getBillingUnitById({
+          token,
+          id: query?.id,
+          params: filters.queryObject,
+        })
+      );
+    }
+  }, [token, filters, query?.id]);
+
+  useEffect(() => {
+    let newArr: any[] = [];
+    let newPageCount: number = 0;
+    let newTotal: number = 0;
+    const { data, pageCount, total }: any = billingUnit;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+      newPageCount = pageCount;
+      newTotal = total;
+    }
+    setDataTable(newArr);
+    setPageCount(newPageCount);
+    setTotal(newTotal);
+  }, [billingUnit]);
+
+  const onChangeStatus = ({ value }: any) => {
+    const newObj = {
+      status: value,
+    };
+    dispatch(
+      updateStatusBilling({
+        token,
+        id: query?.id,
+        data: newObj,
+        isSuccess: () => {
+          if (value == "Approve") {
+            toast.dark("Invoice has been created");
+            onCloseCreate();
+          } else {
+            toast.dark("Receipt has been rejected");
+            onCloseDiscard();
+          }
+          dispatch(getBillingById({ token, id: query?.id }));
+        },
+        isError: () => {
+          toast.dark("Something went wrong");
+        },
+      })
+    );
+  };
+
+  console.log(details, "data-billing");
 
   return (
     <DefaultLayout
@@ -567,8 +562,8 @@ const ReceiptPage = ({ pageProps }: Props) => {
           setSidebar={setSidebarOpen}
         />
 
-        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2">
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 lg:overflow-y-auto">
+          <div className="sticky bg-white top-0 z-50 py-6 w-full flex flex-col gap-2">
             {/* headers */}
             <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div className="w-full flex items-center justify-between py-3 lg:hidden">
@@ -589,34 +584,98 @@ const ReceiptPage = ({ pageProps }: Props) => {
               </div>
 
               <div className="w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0">
-                <div className="flex flex-col gap-1 items-start">
-                  <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
-                    Invoices
-                  </h3>
-                  <div className="flex items-center gap-3 font-semibold text-gray-5 tracking-wide">
-                    <div>322 Overdue</div>
-                    <div>322 Ongoing</div>
-                    <div>32 Posted</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
                 <Button
                   type="button"
-                  className="rounded-lg text-sm font-semibold py-3"
-                  onClick={onOpenFiles}
-                  variant="primary">
-                  <span className="hidden lg:inline-block">Import Receipt</span>
-                  <MdUpload className="w-4 h-4" />
+                  className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5"
+                  onClick={() => router.back()}
+                  variant="secondary-outline"
+                  key={"1"}>
+                  <MdChevronLeft className="w-5 h-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
+                      Receipt Details
+                    </h3>
+                  </div>
                 </Button>
-              </div> */}
+              </div>
+
+              <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
+                <Button
+                  type="button"
+                  className={`rounded-lg text-sm font-semibold py-3 ${
+                    billing?.billingStatus === "Rejected" ? "hidden" : ""
+                  }`}
+                  onClick={() => onOpenDiscard()}
+                  variant="danger">
+                  <span className="hidden lg:inline-block">
+                    Discard Receipt
+                  </span>
+                </Button>
+
+                <Button
+                  type="button"
+                  className={`rounded-lg text-sm font-semibold py-3 ${
+                    billing?.billingStatus === "Approve" ? "hidden" : ""
+                  }`}
+                  onClick={() => onOpenCreate()}
+                  variant="primary">
+                  <span className="hidden lg:inline-block">Create Invoice</span>
+                </Button>
+              </div>
             </div>
           </div>
 
           <main className="relative h-full tracking-wide text-left text-boxdark-2 overflow-auto">
             <div className="w-full h-full flex overflow-auto">
               <div className="w-full flex flex-col gap-2.5 lg:gap-6 lg:overflow-y-auto">
+                <Cards className="w-full grid col-span-1 p-4 tracking-wide">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 gap-4 p-4 bg-gray rounded-xl shadow-card">
+                    <div className="w-full lg:col-span-2">
+                      <div className="text-primary font-semibold">
+                        #{billing?.billingId || "-"}
+                      </div>
+                      <div className="text-sm">
+                        {billing?.billingName || "-"}
+                      </div>
+                    </div>
+                    <div className="w-full lg:col-span-2">
+                      <div className="text-gray-5 text-sm">Periode</div>
+                      <div className="text-sm">
+                        {`${
+                          billing?.startPeriod
+                            ? `${dateFormat(billing?.startPeriod)} -`
+                            : ""
+                        } ${
+                          billing?.endPeriod
+                            ? `${dateFormat(billing?.endPeriod)}`
+                            : ""
+                        }`}
+                      </div>
+                    </div>
+                    <div className="w-full">
+                      <div className="text-gray-5 text-sm">Release Date</div>
+                      <div className="text-sm">
+                        {billing?.releaseDate
+                          ? dateFormat(billing?.releaseDate)
+                          : "-"}
+                      </div>
+                    </div>
+                    <div className="w-full">
+                      <div className="text-gray-5 text-sm">Due Date</div>
+                      <div className="text-sm">
+                        {billing?.dueDate ? dateFormat(billing?.dueDate) : "-"}
+                      </div>
+                    </div>
+                    <div className="w-full">
+                      <div className="text-gray-5 text-sm">Total Item</div>
+                      <div className="text-sm">5</div>
+                    </div>
+                    <div className="w-full">
+                      <div className="text-gray-5 text-sm">Selected Unit</div>
+                      <div className="text-sm">2355</div>
+                    </div>
+                  </div>
+                </Cards>
                 {/* filters */}
                 <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-2.5 p-4 lg:items-center">
                   <div className="w-full lg:col-span-2">
@@ -662,6 +721,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                   setIsSelected={setIsSelectedRow}
                   // isInfiniteScroll
                   // classTable="bg-gray p-4"
+                  isHideHeader
                 />
               </div>
 
@@ -687,22 +747,10 @@ const ReceiptPage = ({ pageProps }: Props) => {
                             className={`px-4 py-2 rounded-lg font-semibold ${
                               details?.billingUnitStatus == "Unpaid"
                                 ? "bg-red-300 text-red-500"
-                                : "bg-gray text-gray-6"
+                                : ""
                             }`}>
                             {details?.billingUnitStatus}
                           </span>
-
-                          <Button
-                            type="button"
-                            className={`rounded-lg active:scale-90 ${
-                              details?.billingUnitStatus == "Paid"
-                                ? "hidden"
-                                : ""
-                            }`}
-                            variant="primary"
-                            onClick={() => onOpen(details)}>
-                            <span>Manual Payment</span>
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -749,7 +797,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                     </div>
                   </div>
 
-                  <Total detail={details} />
+                  <Total detail={details?.billing} />
 
                   {/* payment */}
                   {/* <div className="w-full flex flex-col gap-2 p-4">
@@ -785,23 +833,93 @@ const ReceiptPage = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* modal example */}
+      {/* modal manual payment */}
       <Modal size="small" onClose={onClose} isOpen={isOpenModal}>
         <Fragment>
           <ModalHeader className="p-4 mb-3" isClose={true} onClick={onClose}>
             <h3 className="text-lg font-semibold">Manual Payment</h3>
           </ModalHeader>
-          <ManualForm
-            isOpen={isOpenModal}
-            onClose={onClose}
-            items={formData}
-            token={token}
-            getData={() =>
-              dispatch(
-                getBillingInvoice({ token, params: filters.queryObject })
-              )
-            }
-          />
+          <ManualForm isOpen={isOpenModal} onClose={onClose} />
+        </Fragment>
+      </Modal>
+
+      {/* Create modal */}
+      <Modal size="small" onClose={onCloseCreate} isOpen={isOpenCreate}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 mb-3"
+            isClose={true}
+            onClick={onCloseCreate}>
+            <h3 className="text-lg font-semibold">Create Invoice</h3>
+          </ModalHeader>
+          <div className="w-full my-5 px-4 text-center">
+            <h3>Are you sure to Create invoice ID {billing?.billingId} ?</h3>
+          </div>
+
+          <div className="w-full flex items-center justify-center p-4 border-t-2 border-gray gap-2">
+            <Button
+              variant="primary-outline"
+              className="rounded-md text-sm"
+              type="button"
+              onClick={onCloseCreate}>
+              Cancel
+            </Button>
+
+            <Button
+              variant="primary"
+              className="rounded-md text-sm"
+              type="button"
+              disabled={pending}
+              onClick={() => onChangeStatus({ value: "Approve" })}>
+              {pending ? (
+                <Fragment>
+                  Loading
+                  <FaCircleNotch className="w-5 h-5 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <Fragment>
+                  Yes
+                  <MdCheck className="w-5 h-5" />
+                </Fragment>
+              )}
+            </Button>
+          </div>
+        </Fragment>
+      </Modal>
+
+      {/* Discard modal */}
+      <Modal size="small" onClose={onCloseDiscard} isOpen={isOpenDiscard}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 mb-3"
+            isClose={true}
+            onClick={onCloseDiscard}>
+            <h3 className="text-lg font-semibold">Discard Receipt</h3>
+          </ModalHeader>
+          <div className="w-full my-5 px-4 text-center">
+            <h3>Are you sure to discard receipt ?</h3>
+          </div>
+
+          <ModalFooter
+            className="p-4 border-t-2 border-gray justify-center"
+            isClose={true}
+            onClick={onCloseDiscard}>
+            <Button
+              variant="primary"
+              className="rounded-md text-sm"
+              type="button"
+              disabled={pending}
+              onClick={() => onChangeStatus({ value: "Rejected" })}>
+              {pending ? (
+                <Fragment>
+                  Loading
+                  <FaCircleNotch className="w-5 h-5 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <Fragment>Yes, Discard it!</Fragment>
+              )}
+            </Button>
+          </ModalFooter>
         </Fragment>
       </Modal>
     </DefaultLayout>

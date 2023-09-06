@@ -13,6 +13,8 @@ export type BillingState = {
   billings: any;
   billing: any;
   billingUnit: any;
+  invoices: any;
+  invoice: any;
   pending: boolean;
   error: boolean;
   message: any;
@@ -22,6 +24,8 @@ const initialState: BillingState = {
   billings: {},
   billing: {},
   billingUnit: {},
+  invoices: {},
+  invoice: {},
   pending: false,
   error: false,
   message: "",
@@ -76,6 +80,40 @@ export const getBilling = createAsyncThunk<
   };
   try {
     const response = await axios.get("billing", config);
+    const { data, status } = response;
+    if (status == 200) {
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// get all billing-invoices
+export const getBillingInvoice = createAsyncThunk<
+  any,
+  DefaultGetData,
+  { state: RootState }
+>("/billing/invoice", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    params: params.params,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.get("billing/invoice", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -177,6 +215,40 @@ export const createBilling = createAsyncThunk<
   };
   try {
     const response = await axios.post("billing", params.data, config);
+    const { data, status } = response;
+    if (status == 201) {
+      params.isSuccess();
+      return data;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("User not found");
+    } else {
+      throw new Error(newError.message);
+    }
+  }
+});
+
+// create-billing-manual
+export const createBillingManual = createAsyncThunk<
+  any,
+  BillingData,
+  { state: RootState }
+>("/billing/create/manual", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  try {
+    const response = await axios.post("billing/payment", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -442,6 +514,47 @@ export const billingSlice = createSlice({
         };
       })
       .addCase(deleteBilling.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // get-billing-invoice
+      .addCase(getBillingInvoice.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(getBillingInvoice.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+          invoices: payload,
+        };
+      })
+      .addCase(getBillingInvoice.rejected, (state, { error }) => {
+        state.pending = false;
+        state.error = true;
+        state.message = error.message;
+      })
+
+      // create-billing-manual
+      .addCase(createBillingManual.pending, (state) => {
+        return {
+          ...state,
+          pending: true,
+        };
+      })
+      .addCase(createBillingManual.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          pending: false,
+          error: false,
+        };
+      })
+      .addCase(createBillingManual.rejected, (state, { error }) => {
         state.pending = false;
         state.error = true;
         state.message = error.message;

@@ -414,11 +414,13 @@ export type BillingTemplateProps = {
 };
 
 export type BillingProps = {
-  id?: number | string;
-  billingId?: string | number;
-  billingName?: string;
-  billingNotes?: string;
-  billingStatus?: string;
+  id?: number | string | any;
+  updatedAt?: string | any;
+  createdAt?: string | any;
+  billingId?: string | any | number;
+  billingName?: string | any;
+  billingNotes?: string | any;
+  billingStatus?: string | any;
   releaseStart?: Date | string | any | null;
   dueEnd?: Date | string | any | null;
   startPeriod?: Date | string | any | null;
@@ -429,9 +431,21 @@ export type BillingProps = {
   totalAmount?: number | string | null;
   totalDiscount?: number | string | null;
   totalTax?: number | string | null;
-  updatedAt?: string;
-  createdAt?: string;
   billingUnitDetails?: any;
   unit?: UnitProps | any;
   billing?: any;
+};
+
+export type InvoiceProps = {
+  id?: number | string | any;
+  updatedAt?: string | any;
+  createdAt?: string | any;
+  billingUnitStatus: string | any;
+  billingUnitPaymentStatus: string | any;
+  totalAmount: number | string | any;
+  totalDiscount: number | string | any;
+  totalTax: number | string | any;
+  totalPayment: number | string | any;
+  billing: BillingProps | any;
+  unit: UnitProps | any;
 };
