@@ -693,16 +693,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* modal example */}
-      <Modal size="small" onClose={onClose} isOpen={isOpenModal}>
-        <Fragment>
-          <ModalHeader className="p-4 mb-3" isClose={true} onClick={onClose}>
-            <h3 className="text-lg font-semibold">Manual Payment</h3>
-          </ModalHeader>
-          <ManualForm isOpen={isOpenModal} onClose={onClose} />
-        </Fragment>
-      </Modal>
-
       {/* delete modal */}
       <Modal size="small" onClose={onCloseDelete} isOpen={isOpenDelete}>
         <Fragment>
