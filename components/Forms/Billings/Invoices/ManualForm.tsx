@@ -40,6 +40,7 @@ type FormValues = {
   paymentManualAmount?: number | any;
   paymentDiscount?: number | any;
   paymentPenalty?: number | any;
+  remainingPayment?: number | any;
 };
 
 const ManualForm = ({ items, isOpen, onClose, getData, token }: Props) => {
@@ -102,10 +103,9 @@ const ManualForm = ({ items, isOpen, onClose, getData, token }: Props) => {
   });
 
   const subTotal = useMemo(() => {
-    const result =
-      Number(amount || 0) - Number(discount || 0) + Number(pinalty || 0);
+    const result = Number(amount || 0) + Number(discount || 0);
     return result;
-  }, [amount, discount, pinalty]);
+  }, [amount, discount]);
 
   useEffect(() => {
     let result: number = 0;
@@ -135,24 +135,30 @@ const ManualForm = ({ items, isOpen, onClose, getData, token }: Props) => {
         : 0,
       paymentPenalty: value?.paymentPenalty ? Number(value?.paymentPenalty) : 0,
     };
-    dispatch(
-      createBillingManual({
-        token,
-        data: newObj,
-        isSuccess: () => {
-          toast.dark("Payment has been created");
-          getData();
-          onClose();
-        },
-        isError: () => {
-          console.log("error-manual-payment");
-        },
-      })
-    );
+    if (value?.remainingPayment < 0) {
+      toast.dark("Remaining total amount cannot be greater than total payment");
+      return;
+    } else {
+      dispatch(
+        createBillingManual({
+          token,
+          data: newObj,
+          isSuccess: () => {
+            toast.dark("Payment has been created");
+            getData();
+            onClose();
+          },
+          isError: () => {
+            console.log("error-manual-payment");
+          },
+        })
+      );
+    }
+
     console.log(newObj, "form-data");
   };
 
-  console.log(items, "items");
+  console.log(errors, "error");
 
   return (
     <form className="w-full">
@@ -276,11 +282,30 @@ const ManualForm = ({ items, isOpen, onClose, getData, token }: Props) => {
                 thousandSeparator={true}
                 placeholder="IDR"
                 prefix={"IDR "}
-                className="w-full rounded-xl border border-stroke bg-transparent py-3 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                className="w-full rounded-xl border border-stroke bg-transparent py-3 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none"
+                disabled={true}
               />
             )}
             name="remainingPayment"
             control={control}
+            // rules={{
+            //     validate: async ({
+            //       remainingPayment,
+            //     }: any): Promise<string | boolean> => {
+            //       if (!remainingPayment) {
+            //         return "Please fill the amount";
+            //       } else if (Number(remainingPayment) < 0) {
+            //         return `Remaining total amount cannot be greater than total payment`;
+            //       } else {
+            //         return true;
+            //       }
+            //     },
+            //   min: {
+            //     value: 0,
+            //     message:
+            //       "Remaining total amount cannot be greater than total payment",
+            //   },
+            // }}
           />
         </div>
       </div>

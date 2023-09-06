@@ -198,7 +198,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenDetail, setIsOpenDetail] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<InvoiceProps>();
+  const [details, setDetails] = useState<InvoiceProps | any>(null);
 
   // date
   const now = new Date();
@@ -216,16 +216,21 @@ const ReceiptPage = ({ pageProps }: Props) => {
   // form modal
   const onOpen = (value: any) => {
     console.log(value, "detail-open");
+    let sub =
+      Number(value?.totalAmount || 0) -
+      Number(value?.totalDiscount || 0) +
+      Number(value?.totalTax);
     setFormData({
       billingUnit: value?.id,
-      totalPayment:
-        Number(value?.totalAmount || 0) - Number(value?.totalPayment || 0),
+      totalPayment: sub - Number(value?.totalPayment || 0),
     });
     setIsOpenModal(true);
   };
 
   const onClose = () => {
     setFormData(null);
+    setSidebar(false);
+    setDetails(null);
     setIsOpenModal(false);
   };
 
