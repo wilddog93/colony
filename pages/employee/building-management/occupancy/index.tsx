@@ -38,6 +38,7 @@ import {
 } from "../../../../redux/features/building-management/unit/unitReducers";
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import OccupantForm from "../../../../components/Forms/employee/occupant/OccupantForm";
+import CardTablesRow from "../../../../components/tables/layouts/server/CardTablesRow";
 
 type FormValues = {
   id?: number | string | any;
@@ -90,7 +91,10 @@ const Occupancy = ({ pageProps }: Props) => {
 
   // add owner modal
   const onOpenAddOwner = (items: any) => {
-    setFormData(items);
+    setFormData({
+      ...items,
+      propertyStructures: parseInt(accessId),
+    });
     setIsOpenAddOwner(true);
   };
   const onCloseAddOwner = () => {
@@ -101,7 +105,10 @@ const Occupancy = ({ pageProps }: Props) => {
 
   // add Occupant modal
   const onOpenAddOccupant = (items: any) => {
-    setFormData(items);
+    setFormData({
+      ...items,
+      propertyStructures: parseInt(accessId),
+    });
     setIsOpenAddOccupant(true);
   };
   const onCloseAddOccupant = () => {
@@ -208,7 +215,11 @@ const Occupancy = ({ pageProps }: Props) => {
             <div className="w-full">
               <div className="w-full flex items-center gap-2">
                 <img
-                  src={user?.profileImage || "../../image/no-image.jpeg"}
+                  src={
+                    user?.profileImage
+                      ? `${url}user/profileImage/${user?.profileImage}`
+                      : "../../image/no-image.jpeg"
+                  }
                   alt="images"
                   className="w-[20%] object-cover object-center rounded-full"
                 />
@@ -256,7 +267,11 @@ const Occupancy = ({ pageProps }: Props) => {
             <div className="w-full">
               <div className="w-full flex items-center gap-2">
                 <img
-                  src={user?.profileImage || "../../image/no-image.jpeg"}
+                  src={
+                    user?.profileImage
+                      ? `${url}user/profileImage/${user?.profileImage}`
+                      : "../../image/no-image.jpeg"
+                  }
                   alt="images"
                   className="w-[20%] object-cover object-center rounded-full"
                 />
@@ -569,7 +584,7 @@ const Occupancy = ({ pageProps }: Props) => {
               </div>
 
               {/* table test */}
-              <ScrollCardTables
+              <CardTablesRow
                 columns={columns}
                 dataTable={dataTable}
                 loading={loading}
@@ -633,6 +648,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Access cookies using the cookie name
   const token = cookies["accessToken"] || null;
   const access = cookies["access"] || null;
+  const accessId = cookies["accessId"] || null;
   const firebaseToken = cookies["firebaseToken"] || null;
 
   if (!token) {
@@ -645,7 +661,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { token, access, firebaseToken },
+    props: { token, access, accessId, firebaseToken },
   };
 };
 
