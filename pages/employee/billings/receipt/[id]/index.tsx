@@ -306,7 +306,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
           );
         },
         header: (props) => (
-          <div className="w-full text-left uppercase">Amount</div>
+          <div className="w-full text-left uppercase">Discount</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
@@ -325,7 +325,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
           );
         },
         header: (props) => (
-          <div className="w-full text-left uppercase">Amount</div>
+          <div className="w-full text-left uppercase">Tax</div>
         ),
         footer: (props) => props.column.id,
         enableColumnFilter: false,
