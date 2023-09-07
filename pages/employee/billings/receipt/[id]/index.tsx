@@ -629,7 +629,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
             <div className="w-full h-full flex overflow-auto">
               <div className="w-full flex flex-col lg:overflow-y-auto">
                 <Cards className="w-full grid grid-cols-1 p-4 gap-2 tracking-wide">
-                  <div className="w-full divide-x-2 divide-gray-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 bg-gray rounded-xl shadow-card">
+                  <div className="w-full divide-x-2 divide-gray-3 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 bg-gray rounded-xl shadow-card">
                     <div className="w-full p-4 lg:col-span-2">
                       <div className="text-primary font-semibold">
                         #{billing?.billingId || "-"}
