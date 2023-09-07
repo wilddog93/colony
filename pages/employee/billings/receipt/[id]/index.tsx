@@ -539,7 +539,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
     );
   };
 
-  console.log(details, "data-billing");
+  console.log(billing, "data-billing");
 
   return (
     <DefaultLayout
@@ -627,9 +627,9 @@ const ReceiptPage = ({ pageProps }: Props) => {
 
           <main className="relative h-full tracking-wide text-left text-boxdark-2 overflow-auto">
             <div className="w-full h-full flex overflow-auto">
-              <div className="w-full flex flex-col gap-2.5 lg:gap-6 lg:overflow-y-auto">
-                <Cards className="w-full grid col-span-1 p-4 tracking-wide">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 gap-4 p-4 bg-gray rounded-xl shadow-card">
+              <div className="w-full flex flex-col lg:overflow-y-auto">
+                <Cards className="w-full grid grid-cols-1 lg:grid-cols-4 p-4 gap-2 tracking-wide">
+                  <div className="w-full lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-7 gap-4 p-4 bg-gray rounded-xl shadow-card">
                     <div className="w-full lg:col-span-2">
                       <div className="text-primary font-semibold">
                         #{billing?.billingId || "-"}
@@ -668,11 +668,19 @@ const ReceiptPage = ({ pageProps }: Props) => {
                     </div>
                     <div className="w-full">
                       <div className="text-gray-5 text-sm">Total Item</div>
-                      <div className="text-sm">5</div>
+                      <div className="text-sm">
+                        {billing?.totalPaymentItem || 0}
+                      </div>
                     </div>
-                    <div className="w-full">
-                      <div className="text-gray-5 text-sm">Selected Unit</div>
-                      <div className="text-sm">2355</div>
+                  </div>
+                  <div className="w-full flex px-4 items-center gap-2">
+                    <div className="w-full lg:w-1/2 text-gray-5 text-sm">
+                      Selected Unit
+                    </div>
+                    <div className="w-full h-full lg:w-1/2 flex text-sm p-2 border-2 border-gray-4 justify-end items-center rounded-lg">
+                      <span className="text-center text-xl font-semibold text-primary">
+                        {billing?.totalUnit}
+                      </span>
                     </div>
                   </div>
                 </Cards>
@@ -721,7 +729,6 @@ const ReceiptPage = ({ pageProps }: Props) => {
                   setIsSelected={setIsSelectedRow}
                   // isInfiniteScroll
                   // classTable="bg-gray p-4"
-                  isHideHeader
                 />
               </div>
 
