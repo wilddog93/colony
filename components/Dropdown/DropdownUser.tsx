@@ -92,7 +92,7 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
             <span className="block text-xs">UX Designer</span>
           </span>
 
-          <span className="h-12 w-12 rounded-full">
+          <span className="h-12 w-12 rounded-full flex items-center">
             <img
               src={
                 data?.user?.profileImage
@@ -100,7 +100,7 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
                   : userDefault || "image/user/user-01.png"
               }
               alt="avatar"
-              className="object-cover object-center rounded-full"
+              className="h-10 w-10 object-cover object-center rounded-full"
             />
           </span>
 
