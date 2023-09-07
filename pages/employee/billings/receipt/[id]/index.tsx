@@ -628,9 +628,9 @@ const ReceiptPage = ({ pageProps }: Props) => {
           <main className="relative h-full tracking-wide text-left text-boxdark-2 overflow-auto">
             <div className="w-full h-full flex overflow-auto">
               <div className="w-full flex flex-col lg:overflow-y-auto">
-                <Cards className="w-full grid grid-cols-1 lg:grid-cols-4 p-4 gap-2 tracking-wide">
-                  <div className="w-full lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-7 gap-4 p-4 bg-gray rounded-xl shadow-card">
-                    <div className="w-full lg:col-span-2">
+                <Cards className="w-full grid grid-cols-1 p-4 gap-2 tracking-wide">
+                  <div className="w-full divide-x-2 divide-gray-4 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-8 bg-gray rounded-xl shadow-card">
+                    <div className="w-full p-4 lg:col-span-2">
                       <div className="text-primary font-semibold">
                         #{billing?.billingId || "-"}
                       </div>
@@ -638,7 +638,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                         {billing?.billingName || "-"}
                       </div>
                     </div>
-                    <div className="w-full lg:col-span-2">
+                    <div className="w-full p-4 lg:col-span-2">
                       <div className="text-gray-5 text-sm">Periode</div>
                       <div className="text-sm">
                         {`${
@@ -652,7 +652,7 @@ const ReceiptPage = ({ pageProps }: Props) => {
                         }`}
                       </div>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full p-4">
                       <div className="text-gray-5 text-sm">Release Date</div>
                       <div className="text-sm">
                         {billing?.releaseDate
@@ -660,27 +660,21 @@ const ReceiptPage = ({ pageProps }: Props) => {
                           : "-"}
                       </div>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full p-4">
                       <div className="text-gray-5 text-sm">Due Date</div>
                       <div className="text-sm">
                         {billing?.dueDate ? dateFormat(billing?.dueDate) : "-"}
                       </div>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full p-4">
                       <div className="text-gray-5 text-sm">Total Item</div>
                       <div className="text-sm">
                         {billing?.totalPaymentItem || 0}
                       </div>
                     </div>
-                  </div>
-                  <div className="w-full flex px-4 items-center gap-2">
-                    <div className="w-full lg:w-1/2 text-gray-5 text-sm">
-                      Selected Unit
-                    </div>
-                    <div className="w-full h-full lg:w-1/2 flex text-sm p-2 border-2 border-gray-4 justify-end items-center rounded-lg">
-                      <span className="text-center text-xl font-semibold text-primary">
-                        {billing?.totalUnit}
-                      </span>
+                    <div className="w-full p-4 text-sm">
+                      <div className="text-gray-5">Selected Unit</div>
+                      <div className="">{billing?.totalUnit || 0}</div>
                     </div>
                   </div>
                 </Cards>
