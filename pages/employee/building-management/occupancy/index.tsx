@@ -221,7 +221,7 @@ const Occupancy = ({ pageProps }: Props) => {
                       : "../../image/no-image.jpeg"
                   }
                   alt="images"
-                  className="w-[20%] object-cover object-center rounded-full"
+                  className="w-8 h-8 object-cover object-center rounded-full"
                 />
                 <div className="w-[80%] flex flex-col gap-2 text-gray-5">
                   <h3 className="text-sm font-semibold">
@@ -273,7 +273,7 @@ const Occupancy = ({ pageProps }: Props) => {
                       : "../../image/no-image.jpeg"
                   }
                   alt="images"
-                  className="w-[20%] object-cover object-center rounded-full"
+                  className="w-8 h-8 object-cover object-center rounded-full"
                 />
                 <div className="w-[80%] flex flex-col gap-2 text-gray-5">
                   <h3 className="text-sm font-semibold">
