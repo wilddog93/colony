@@ -43,17 +43,7 @@ const MerchantLayouts = ({
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           {/* <DomainSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logo={logo} title={title} images={images} token={token} /> */}
           {/* <!-- ===== Header Start ===== --> */}
-          <MerchantHeader
-            routes={menuOwnerMaster}
-            logo={logo}
-            images={images}
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            header={header}
-            userDefault={userDefault}
-            token={token}
-            icons={icons}
-          />
+          <MerchantHeader logo={logo} userDefault={userDefault} token={token} />
           {/* <!-- ===== Header End ===== --> */}
 
           {/* <!-- ===== Main Content Start ===== --> */}

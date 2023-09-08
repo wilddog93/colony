@@ -1,7 +1,6 @@
 import Navbar from "../../../components/Tenant/Navbar";
 import TenantMenu from "../../../components/Tenant/TenantMenu";
-import TenantSideBar from "../../../components/Tenant/TenantSideBar";
-import { MdDeleteOutline } from "react-icons/md";
+import { MdArrowRightAlt, MdDeleteOutline } from "react-icons/md";
 import { MdOutlinePlayArrow } from "react-icons/md";
 import { MdAttachFile } from "react-icons/md";
 import { MdOutlineUpload } from "react-icons/md";
@@ -10,9 +9,20 @@ import MerchantLayouts from "../../../components/Layouts/MerchantLayouts";
 import TenantTabs from "../../../components/Tenant/TenantTabs";
 import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModalHeader } from "../../../components/Modal/ModalComponent";
 import NewItem from "../../../components/Forms/Merchant/detail/NewItem";
+import SidebarBody from "../../../components/Layouts/Sidebar/SidebarBody";
+import {
+  getAuthMe,
+  selectAuth,
+} from "../../../redux/features/auth/authReducers";
+import { useAppDispatch, useAppSelector } from "../../../redux/Hook";
+import { GetServerSideProps } from "next";
+import { getCookies } from "cookies-next";
+import moment from "moment";
+import { useRouter } from "next/router";
+import TenantSidebar from "../../../components/Layouts/Sidebar/Tenants";
 
 type Props = {
   pageProps: any;
@@ -20,6 +30,19 @@ type Props = {
 
 const tenant = ({ pageProps }: Props) => {
   // form
+  moment.locale("id");
+  const router = useRouter();
+  const { pathname, query } = router;
+  const url = process.env.ENDPOINT_API;
+
+  // props
+  const { token, access, firebaseToken } = pageProps;
+  // redux
+  const dispatch = useAppDispatch();
+  const { data } = useAppSelector(selectAuth);
+
+  const [sidebar, setSidebar] = useState(true);
+
   const [isForm, setIsForm] = useState(false);
   const [formData, setFormData] = useState<any>({});
 
@@ -30,6 +53,19 @@ const tenant = ({ pageProps }: Props) => {
     setIsForm(false);
   };
 
+  useEffect(() => {
+    if (token) {
+      dispatch(
+        getAuthMe({
+          token,
+          callback: () => router.push("/authentication?page=sign-in"),
+        })
+      );
+    }
+  }, [token]);
+
+  console.log(sidebar, "sidebar");
+
   return (
     <MerchantLayouts
       title="Colony"
@@ -39,84 +75,53 @@ const tenant = ({ pageProps }: Props) => {
       description=""
       images="../image/logo/building-logo.svg"
       userDefault="../image/user/user-01.png">
-      <div className="w-full absolute inset-0 mt-16 z-99 bg-white flex">
-        <div className="w-full flex flex-col lg:flex-row">
-          <div className="w-1/4">
-            <TenantSideBar />
+      <div className="absolute inset-0 mt-20 z-20 bg-boxdark flex text-white">
+        <TenantSidebar setSidebar={setSidebar} sidebar={sidebar} token={token}>
+          <div className="w-full flex flex-col gap-4 px-4">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, nulla!
           </div>
-          <div className="w-full flex flex-col lg:flex-row p-2">
-            <TenantTabs />
-            <div className="w-full px-2 lg:w-1/4 md:gap-3 flex flex-col">
-              {/* Unit Owner */}
-              <div className="flex flex-col mt-2 lg:mt-5 gap-1">
-                <h1 className="text-xl">Unit Owner</h1>
-                <div className="bg-white p-2 mt-1 space-x-2 items-center rounded-lg shadow border-stroke border flex flex-row">
-                  <div className="w-12 h-12">
-                    <img src="../../../image/user/user-01.png"></img>
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="font-bold text-sm">Thomas Anree</p>
-                    <p className="text-xs">thomasanree@gmail.com</p>
-                  </div>
-                </div>
-              </div>
-              {/* Occupant */}
-              <div className="mt-2 flex flex-col gap-1">
-                <h1 className="text-xl">Occupant</h1>
-                <div className="bg-white p-2 mt-1 justify-between items-center rounded-lg border-stroke border shadow flex flex-row">
-                  <div className="w-12 h-12">
-                    <img src="../../../image/user/user-01.png"></img>
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="font-bold text-sm">Thomas Anree</p>
-                    <p className="text-xs">thomasanree@gmail.com</p>
-                  </div>
-                  <MdDeleteOutline className="w-6 h-6 hover:text-red-500 cursor-pointer" />
-                </div>
-              </div>
-              {/* media */}
-              <div className="mt-2 flex flex-col gap-1">
-                <div className="flex flex-row  items-center justify-between">
-                  <h1 className="text-xl">Media</h1>
-                  <button className="mr-1 font-semibold text-purple-400 hover:text-primary">
-                    View All
-                  </button>
-                </div>
-                <div className="bg-white p-2 mt-1 rounded-lg shadow border-stroke border flex flex-col gap-2">
-                  <img
-                    src="../../../image/no-image.jpeg"
-                    className="mx-auto rounded-lg max-h-[200px] w-full"></img>
-                  <div className="border-slate-400 shadow-sm rounded-lg flex flex-row items-center justify-center w-full border-[1px] p-2">
-                    <MdOutlinePlayArrow />
-                    <span>Preview</span>
-                  </div>
-                  <div className="border-slate-400 shadow-sm rounded-lg flex flex-row items-center w-full border-[1px]">
-                    <button className="bg-white w-1/4 flex justify-center items-center">
-                      <MdAttachFile />
-                    </button>
-                    <div className="bg-slate-400 h-full w-[1px]"></div>
-                    <input
-                      className="w-3/4 p-2 bg-slate-300"
-                      value="https://www.youtube.com/watch?v=undefined"></input>
-                  </div>
-
-                  <span className="font-bold text-lg">-</span>
-                  <span className="">-</span>
-                </div>
-              </div>
-              {/* video upload */}
-              <Button
-                type="button"
-                onClick={isOpenForm}
-                className="rounded-lg text-sm font-semibold py-4"
-                variant="primary">
-                <span>Upload Video</span>
-                <MdOutlineUpload />
-              </Button>
+        </TenantSidebar>
+        <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 lg:overflow-y-auto">
+          <div className="sticky bg-white top-0 z-50 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between py-6 px-8 2xl:px-10 gap-2">
+            <div className="w-full flex items-center justify-between py-3">
+              <button
+                aria-controls="sidebar"
+                aria-expanded={sidebar}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSidebar(!sidebar);
+                }}
+                className="rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden">
+                <MdArrowRightAlt
+                  className={`w-5 h-5 delay-700 ease-in-out ${
+                    sidebar ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
+                Tenant Owner
+              </h3>
+            </div>
+          </div>
+          <div className="w-full mt-10">
+            <div className="w-full text-gray-6">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
+              molestias illum voluptatibus repellendus tempore excepturi ipsum
+              praesentium neque? Nulla sint molestiae cupiditate nisi tempore
+              ipsa qui natus voluptatum soluta. Earum assumenda culpa est illo
+              laboriosam dolores dignissimos recusandae perferendis expedita qui
+              iure autem porro aliquid voluptas voluptate explicabo ipsa
+              quisquam saepe excepturi, inventore quidem numquam aspernatur quo?
+              Nobis dolore autem cum et a aut excepturi adipisci, consequuntur
+              commodi, magni amet ea soluta voluptas quibusdam asperiores
+              facilis, voluptatum quis eaque quisquam nisi! Sit atque, et
+              consequatur, aspernatur magni pariatur labore id nisi voluptatem,
+              ipsa aliquid cupiditate fuga enim rem maxime repellendus.
             </div>
           </div>
         </div>
       </div>
+
       <Modal isOpen={isForm} onClose={isCloseForm} size="medium">
         <div>
           <ModalHeader
@@ -160,3 +165,26 @@ const tenant = ({ pageProps }: Props) => {
 };
 
 export default tenant;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Parse cookies from the request headers
+  const cookies = getCookies(context);
+
+  // Access cookies using the cookie name
+  const token = cookies["accessToken"] || null;
+  const access = cookies["access"] || null;
+  const firebaseToken = cookies["firebaseToken"] || null;
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/authentication?page=sign-in", // Redirect to the home page
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { token, access, firebaseToken },
+  };
+};
