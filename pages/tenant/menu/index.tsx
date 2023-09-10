@@ -23,6 +23,7 @@ import { getCookies } from "cookies-next";
 import moment from "moment";
 import { useRouter } from "next/router";
 import TenantSidebar from "../../../components/Layouts/Sidebar/Tenants";
+import TenantLayouts from "../../../components/Layouts/TenantLayouts";
 
 type Props = {
   pageProps: any;
@@ -67,7 +68,7 @@ const tenant = ({ pageProps }: Props) => {
   console.log(sidebar, "sidebar");
 
   return (
-    <MerchantLayouts
+    <TenantLayouts
       title="Colony"
       header="Tenant"
       head="Menu"
@@ -160,7 +161,7 @@ const tenant = ({ pageProps }: Props) => {
           </div>
         </div>
       </Modal>
-    </MerchantLayouts>
+    </TenantLayouts>
   );
 };
 
