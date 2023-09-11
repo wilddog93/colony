@@ -103,7 +103,7 @@ const TenantSidebar = ({
     <Fragment>
       <aside
         ref={sidebarRef}
-        className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-9999 flex w-full max-w-xs flex-col overflow-y-hidden bg-boxdark duration-300 ease-in-out lg:static lg:translate-x-0 ${
+        className={`border-gray-4 shadow-card absolute inset-y-0 left-0 z-99999 flex w-full max-w-xs flex-col overflow-y-hidden bg-boxdark duration-300 ease-in-out lg:static lg:translate-x-0 ${
           sidebar ? "translate-x-0" : "-translate-x-full"
         } ${className}`}>
         {/* <!-- SIDEBAR HEADER --> */}

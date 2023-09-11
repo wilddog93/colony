@@ -850,3 +850,23 @@ export const menuManageDomainOwner: MenuProps[] = [
     },
   },
 ];
+
+// tenant-owner
+export const menuTabTenants: MenuProps[] = [
+  {
+    pathname: "Billing History",
+    url: "/tenant/billing",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Transaction History",
+    url: "/tenant/transactions",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
