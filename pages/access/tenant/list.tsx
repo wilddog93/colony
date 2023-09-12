@@ -50,7 +50,7 @@ type Props = {
   pageProps: PageProps;
 };
 
-const TenantAccessPage = ({ pageProps }: Props) => {
+const TenantListAccessPage = ({ pageProps }: Props) => {
   // props
   const { token, access, firebaseToken, page } = pageProps;
 
@@ -461,4 +461,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
-export default TenantAccessPage;
+export default TenantListAccessPage;

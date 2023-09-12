@@ -870,3 +870,18 @@ export const menuTabTenants: MenuProps[] = [
     },
   },
 ];
+
+export const menuTenantAccess: MenuProps[] = [
+  {
+    pathname: "Units",
+    url: "/access/tenant"
+  },
+  {
+    pathname: "List Claim",
+    url: "/access/tenant/list",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];

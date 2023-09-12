@@ -517,6 +517,66 @@ export const webDomainAccess = createAsyncThunk<
   }
 });
 
+// tenant-access
+export const webTenantAccess = createAsyncThunk<
+  any,
+  AccessData,
+  { state: RootState }
+>("auth/web/access/unit/{id}", async (params, { getState }) => {
+  let config: HeadersConfiguration = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  };
+  let newData = {};
+  try {
+    const response = await axios.get(
+      `auth/web/access/unit/${params.id}`,
+      config
+    );
+    const { data, status } = response;
+    if (status == 200) {
+      setCookie("accessToken", data?.accessToken, {
+        secure: true,
+        maxAge: 60 * 60 * 24,
+      });
+      setCookie("refreshToken", data?.refreshToken, {
+        secure: true,
+        maxAge: 60 * 60 * 24,
+      });
+      setCookie("access", "unit", { secure: true });
+      setCookie("accessId", params.id, { secure: true });
+      newData = {
+        ...data,
+        access: "property",
+        accessId: params.id,
+      };
+      params.callback();
+      return newData;
+    } else {
+      throw response;
+    }
+  } catch (error: any) {
+    const { data, status } = error.response;
+    let newError: any = { message: data.message[0] };
+    toast.dark(newError.message);
+    if (error.response && error.response.status === 404) {
+      throw new Error("Property not found");
+    } else {
+      // if (status == 401) {
+      //     deleteCookie("access")
+      //     deleteCookie("accessId")
+      //     deleteCookie("accessToken")
+      //     deleteCookie("refreshToken")
+      //     params.callback()
+      // }
+      throw new Error(newError.message);
+    }
+  }
+});
+
 // SLICER
 export const authSlice = createSlice({
   name: "auth",

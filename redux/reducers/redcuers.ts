@@ -46,6 +46,7 @@ import billingTemplateManagementReducers from "../features/billing/template/bill
 import billingTaxManagementReducers from "../features/billing/tax/billingTaxReducers";
 import billingDiscountManagementReducers from "../features/billing/discount/billingDiscountReducers";
 import billingManagementReducers from "../features/billing/billingReducers";
+import tenantAccessReducers from "../features/tenants/tenantAccessReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -100,4 +101,7 @@ export const combinedReducer = combineReducers({
   billingTaxManagement: billingTaxManagementReducers,
   billingDiscountManagement: billingDiscountManagementReducers,
   billingManagement: billingManagementReducers,
+
+  // tenant-access
+  tenantAccess: tenantAccessReducers,
 });

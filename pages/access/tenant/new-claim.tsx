@@ -24,6 +24,7 @@ import {
   MdOutlineBusiness,
   MdOutlineHome,
   MdPerson,
+  MdSave,
 } from "react-icons/md";
 import Button from "../../../components/Button/Button";
 import Cards from "../../../components/Cards/Cards";
@@ -50,7 +51,7 @@ type Props = {
   pageProps: PageProps;
 };
 
-const TenantAccessPage = ({ pageProps }: Props) => {
+const TenantNewClaimPage = ({ pageProps }: Props) => {
   // props
   const { token, access, firebaseToken, page } = pageProps;
 
@@ -233,7 +234,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
                       user?.firstName || ""
                     } ${user?.lastName || ""}`}</h3>
                   </div>
-                  <div className="w-full flex flex-1 gap-2 justify-center md:justify-start">
+                  <div className="w-full flex gap-2 justify-center md:justify-start">
                     <div>
                       <MdMail className="w-6 h-6" />
                     </div>
@@ -337,34 +338,29 @@ const TenantAccessPage = ({ pageProps }: Props) => {
           </div>
 
           <div
-            className={`relative w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
+            className={`w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
             <div className="w-full flex flex-col items-center">
               <div className="w-full sticky top-0 z-9999 bg-gray">
                 <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8 sticky">
                     <div className="w-full">
                         <h3 className="text-title-lg font-semibold">Access List</h3>
                         <p className="text-base text-gray-5">Select your workspace</p>
-                        </div>
-
-                        <div className="w-full flex justify-end">
-                        <button
-                            onClick={()=> router.push({
-                                pathname: "/access/tenant/new-claim",
-                                query: {
-                                    page: 1,
-                                    limit: 10
-                                }
-                            })}
-                            type="button"
-                            className="px-2 py-1 inline-flex items-center bg-primary text-white focus:outline-none rounded-lg text-sm active:scale-90"
-                        >
-                            <span>New Claim</span>
-                        </button>
                     </div>
                 </div>
 
-                <div className="w-full">
-                    <Tabs menus={menuTenantAccess} />
+                <div className="w-full flex items-center gap-2 bg-white p-4">
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="w-full max-w-max flex items-center gap-1 px-2 py-1 rounded-lg focus:outline-none capitalize active:scale-90 text-sm"
+                    >
+                        <span><MdChevronLeft className="w-4 h-4" /></span>
+                        <span>back</span>
+                    </button>
+                    <button className="w-full max-w-max flex items-center gap-1 px-2 py-1 rounded-lg focus:outline-none capitalize active:scale-90 bg-primary text-sm text-white ml-auto">
+                        <span>save</span>
+                        <span><MdSave className="w-4 h-4" /></span>
+                    </button>
                 </div>
               </div>
 
@@ -461,4 +457,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
-export default TenantAccessPage;
+export default TenantNewClaimPage;
