@@ -216,7 +216,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
             <h3 className="font-semibold text-lg">
               {domain?.domainName || "-"}
             </h3>
-            <p className="text-sm">{domain?.domainDescription || "lorem"}</p>
+            <p className="text-sm">{domain?.domainDescription || "-"}</p>
           </div>
           <div className="w-full flex items-center text-left p-2 gap-2">
             <div className="font-semibold text-gray-5 flex items-center gap-2">
@@ -270,9 +270,9 @@ const OwnerAccess = ({ pageProps }: Props) => {
       <div className="bg-gray w-full lg:px-44 lg:py-10">
         <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden lg:overflow-y-auto">
           <div
-            className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
+            className={`relative w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between lg:overflow-auto`}>
             <div className="w-full flex flex-col justify-center gap-6">
-              <div className="flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0">
+              <div className="w-full flex flex-col gap-2 sticky top-0 inset-x-0 bg-white p-4 lg:p-0">
                 <div className="w-full">
                   <Button
                     type="button"
@@ -303,7 +303,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                 </p>
               </div>
 
-              <Cards className="mt-34 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
+              <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
                     src="../../../image/user/user-01.png"
@@ -331,15 +331,18 @@ const OwnerAccess = ({ pageProps }: Props) => {
             </div>
 
             {/* data-property */}
-            <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
+            <div className="w-full h-full flex flex-col justify-center gap-2 mt-3">
               <h3 className="text-lg tracking-wide">Select Your Access :</h3>
-              <div className="w-full h-full overflow-y-auto">
+              <div className="w-full">
                 <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => gotToAccess("owner")}
                     className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${
-                      router.pathname.includes("owner") ? "bg-gray" : "bg-white"
+                      router.pathname.includes("owner")
+                        ? "bg-gray"
+                        : "bg-white"
+                    }
                     }`}>
                     <img
                       src="../../image/logo/logo-icon.svg"
@@ -356,7 +359,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                   <button
                     type="button"
                     onClick={() => gotToAccess("employee")}
-                    className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                    className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left`}>
                     <img
                       src="../../image/logo/logo-icon.svg"
                       alt="icon"
@@ -372,7 +375,11 @@ const OwnerAccess = ({ pageProps }: Props) => {
                   <button
                     type="button"
                     onClick={() => gotToAccess("tenant")}
-                    className="tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left">
+                    className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left  ${
+                      router.pathname.includes("tenant")
+                        ? "bg-gray"
+                        : "bg-white"
+                    }`}>
                     <img
                       src="../../image/logo/logo-icon.svg"
                       alt="icon"
@@ -422,9 +429,9 @@ const OwnerAccess = ({ pageProps }: Props) => {
           </div>
 
           <div
-            className={`w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out`}>
+            className={`relative w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
             <div className="w-full h-full flex flex-col items-center">
-              <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8">
+              <div className="w-full sticky top-0 z-9999 bg-gray p-8">
                 <div className="w-full">
                   <h3 className="text-title-lg font-semibold">Access List</h3>
                   <p className="text-base text-gray-5">Select your workspace</p>
@@ -440,6 +447,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                   </Button>
                 </div>
               </div>
+
               <div className="w-full overflow-auto p-8">
                 <div className="w-full h-full flex flex-col gap-4 ">
                   {domains?.length > 0 ? (
