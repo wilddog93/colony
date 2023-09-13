@@ -348,23 +348,13 @@ const TenantAccessPage = ({ pageProps }: Props) => {
 
                         <div className="w-full flex justify-end">
                         <button
-                            onClick={()=> router.push({
-                                pathname: "/access/tenant/new-claim",
-                                query: {
-                                    page: 1,
-                                    limit: 10
-                                }
-                            })}
+                            onClick={()=> console.log("open-modal-claim")}
                             type="button"
                             className="px-2 py-1 inline-flex items-center bg-primary text-white focus:outline-none rounded-lg text-sm active:scale-90"
                         >
-                            <span>New Claim</span>
+                            <span>Claim Unit</span>
                         </button>
                     </div>
-                </div>
-
-                <div className="w-full">
-                    <Tabs menus={menuTenantAccess} />
                 </div>
               </div>
 
