@@ -70,7 +70,7 @@ const BillingTenant = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  console.log(sidebar, "sidebar");
+  // console.log(sidebar, "sidebar");
 
   return (
     <TenantLayouts
