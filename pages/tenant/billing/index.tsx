@@ -9,12 +9,6 @@ import {
   MdSettings,
   MdShower,
 } from "react-icons/md";
-import { MdOutlinePlayArrow } from "react-icons/md";
-import { MdAttachFile } from "react-icons/md";
-import { MdOutlineUpload } from "react-icons/md";
-import VideoButton from "../../../components/Tenant/button/VideoButton";
-import MerchantLayouts from "../../../components/Layouts/MerchantLayouts";
-import TenantTabs from "../../../components/Tenant/TenantTabs";
 import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
 import { useEffect, useState } from "react";
@@ -94,7 +88,11 @@ const BillingTenant = ({ pageProps }: Props) => {
               <button
                 type="button"
                 className="flex items-center gap-1 rounded-md p-2 active:scale-95 text-lg"
-                onClick={() => console.log("back")}>
+                onClick={() =>
+                  router.push({
+                    pathname: "/",
+                  })
+                }>
                 <MdChevronLeft className="w-6 h-6" />
                 <span>Back</span>
               </button>
