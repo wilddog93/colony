@@ -306,7 +306,7 @@ export default function OccupantForm({
       <ModalHeader
         onClick={isCloseModal}
         isClose={true}
-        className="p-2 bg-white rounded-t-xl border-b-2 border-gray">
+        className="p-2 bg-white text-gray-6 rounded-t-xl border-b-2 border-gray">
         <Fragment>
           <div className={`w-full ${userSelected?.id ? "hidden" : ""}`}>
             <SearchInput
@@ -343,7 +343,7 @@ export default function OccupantForm({
       </ModalHeader>
 
       {/* step-1 */}
-      <div className={`w-full ${userSelected?.id ? "hidden" : ""}`}>
+      <div className={`w-full text-gray-6 ${userSelected?.id ? "hidden" : ""}`}>
         <div
           className={`w-full max-h-[250px] overflow-y-auto overflow-x-hidden`}>
           <div className="w-full ">
@@ -377,7 +377,7 @@ export default function OccupantForm({
 
           <button
             type="button"
-            className="rounded-md text-sm border py-2 px-4 border-gray shadow-card"
+            className="rounded-md text-sm border py-2 px-4 border-gray shadow-card text-danger"
             onClick={isCloseModal}>
             <span className="font-semibold">Discard</span>
           </button>
@@ -385,7 +385,7 @@ export default function OccupantForm({
       </div>
 
       {/* step-2 */}
-      <div className={`w-full ${userSelected?.id ? "" : "hidden"}`}>
+      <div className={`w-full text-gray-6 ${userSelected?.id ? "" : "hidden"}`}>
         <div className={`w-full p-4`}>
           <div className={`w-full mb-3`}>
             <label

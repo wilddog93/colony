@@ -344,16 +344,6 @@ const TenantAccessPage = ({ pageProps }: Props) => {
                     <div className="w-full">
                         <h3 className="text-title-lg font-semibold">Access List</h3>
                         <p className="text-base text-gray-5">Select your workspace</p>
-                        </div>
-
-                        <div className="w-full flex justify-end">
-                        <button
-                            onClick={()=> console.log("open-modal-claim")}
-                            type="button"
-                            className="px-2 py-1 inline-flex items-center bg-primary text-white focus:outline-none rounded-lg text-sm active:scale-90"
-                        >
-                            <span>Claim Unit</span>
-                        </button>
                     </div>
                 </div>
               </div>
