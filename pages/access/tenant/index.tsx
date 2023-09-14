@@ -11,17 +11,11 @@ import {
   webTenantAccess,
 } from "../../../redux/features/auth/authReducers";
 import AuthLayout from "../../../components/Layouts/AuthLayouts";
-import Link from "next/link";
 import {
-  MdAdd,
-  MdArrowBack,
   MdChevronLeft,
   MdChevronRight,
   MdLogin,
-  MdLogout,
   MdMail,
-  MdMailOutline,
-  MdOutlineBusiness,
   MdOutlineHome,
   MdPerson,
 } from "react-icons/md";
