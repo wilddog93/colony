@@ -429,7 +429,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
           <div
             className={`relative w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
             <div className="w-full h-full flex flex-col items-center">
-              <div className="w-full sticky top-0 z-9999 bg-gray p-8">
+              <div className="w-full sticky top-0 z-999 bg-gray p-8">
                 <div className="w-full">
                   <h3 className="text-title-lg font-semibold">Access List</h3>
                   <p className="text-base text-gray-5">Select your workspace</p>

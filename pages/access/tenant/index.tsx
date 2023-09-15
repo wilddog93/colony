@@ -124,7 +124,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
     return (
       <button
         type="button"
-        className="w-full h-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-hidden"
+        className="w-full h-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-hidden"
         onClick={() => goToTenantAccess(id)}>
         <img
           src={
@@ -343,7 +343,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
           <div
             className={`relative w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
             <div className="w-full flex flex-col items-center">
-              <div className="w-full sticky top-0 z-9999 bg-gray">
+              <div className="w-full sticky top-0 z-999 bg-gray">
                 <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8 sticky">
                   <div className="w-full">
                     <h3 className="text-title-lg font-semibold">Access List</h3>

@@ -58,6 +58,8 @@ const BillingTenant = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
 
+  // data unit
+
   const [sidebar, setSidebar] = useState(true);
 
   const [isForm, setIsForm] = useState(false);
@@ -149,6 +151,7 @@ const BillingTenant = ({ pageProps }: Props) => {
 
   return (
     <TenantLayouts
+      token={token}
       title="Colony"
       header="Tenant"
       head="Menu"
