@@ -306,7 +306,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
               <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="../../../image/user/user-01.png"
+                    src="../../../image/no-image.jpeg"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
@@ -339,9 +339,7 @@ const OwnerAccess = ({ pageProps }: Props) => {
                     type="button"
                     onClick={() => gotToAccess("owner")}
                     className={`tracking-wide w-full flex flex-col flex-1 border border-gray shadow-card-2 p-4 rounded-xl gap-2 text-left ${
-                      router.pathname.includes("owner")
-                        ? "bg-gray"
-                        : "bg-white"
+                      router.pathname.includes("owner") ? "bg-gray" : "bg-white"
                     }
                     }`}>
                     <img

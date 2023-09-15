@@ -13,6 +13,7 @@ import AuthLayout from "../components/Layouts/AuthLayouts";
 import Link from "next/link";
 import {
   MdArrowBack,
+  MdChevronLeft,
   MdLogin,
   MdLogout,
   MdMail,
@@ -91,11 +92,11 @@ const Home = ({ pageProps }: Props) => {
       logo="./image/logo/logo-icon.svg"
       description="">
       <div className="bg-gray w-full lg:px-44 lg:py-10">
-        <div className="relative w-full h-full flex items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden overflow-y-auto">
+        <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden overflow-y-auto">
           <div
-            className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
+            className={`relative w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between lg:overflow-auto`}>
             <div className="w-full flex flex-col justify-center gap-6">
-              <div className="flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0">
+              <div className="w-full flex flex-col gap-2 sticky top-0 inset-x-0 bg-white p-4 lg:p-0">
                 <div className="w-full flex flex-col lg:flex-row items-center">
                   <h2 className="font-bold text-2xl text-graydark dark:text-white sm:text-title-xl2 text-center sm:text-left">
                     Welcome Back {user?.lastName || "-"}
@@ -113,10 +114,10 @@ const Home = ({ pageProps }: Props) => {
                 </p>
               </div>
 
-              <Cards className="mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
+              <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="./image/user/user-01.png"
+                    src="../../../image/no-image.jpeg"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
@@ -130,7 +131,7 @@ const Home = ({ pageProps }: Props) => {
                       user?.firstName || ""
                     } ${user?.lastName || ""}`}</h3>
                   </div>
-                  <div className="w-full flex flex-1 gap-2 justify-center sm:justify-start">
+                  <div className="w-full flex flex-1 gap-2 justify-center md:justify-start">
                     <div>
                       <MdMail className="w-6 h-6" />
                     </div>
@@ -140,9 +141,10 @@ const Home = ({ pageProps }: Props) => {
               </Cards>
             </div>
 
-            <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
+            {/* data-property */}
+            <div className="w-full h-full flex flex-col justify-center gap-2 mt-3">
               <h3 className="text-lg tracking-wide">Select Your Access :</h3>
-              <div className="overflow-auto w-full h-full">
+              <div className="w-full">
                 <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                   <button
                     type="button"

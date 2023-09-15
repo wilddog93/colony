@@ -200,7 +200,7 @@ const Home = ({ pageProps }: Props) => {
               <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="../../../image/user/user-01.png"
+                    src="../../../image/no-image.jpeg"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
@@ -331,7 +331,7 @@ const Home = ({ pageProps }: Props) => {
                   <p className="text-base text-gray-5">Select your workspace</p>
                 </div>
               </div>
-              
+
               <div className="w-full overflow-auto p-8">
                 <div className="w-full h-full flex flex-col gap-4 ">
                   {properties?.length > 0 ? (
