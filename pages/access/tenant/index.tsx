@@ -189,7 +189,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
           <div
             className={`relative w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between lg:overflow-auto`}>
             <div className="w-full flex flex-col justify-center gap-6">
-              <div className="relative w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between lg:overflow-auto">
+              <div className="w-full flex flex-col gap-2 sticky top-0 inset-x-0 bg-white p-4 lg:p-0">
                 <div className="w-full">
                   <Button
                     type="button"
