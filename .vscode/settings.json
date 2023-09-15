@@ -5,5 +5,9 @@
   "editor.formatOnSave": true,
   "editor.fontFamily": "Menlo, Monaco, 'Courier New', monospace, 'Fira Code Retina'",
   "files.autoSave": "onWindowChange",
-  "editor.codeActionsOnSave": {}
+  "editor.codeActionsOnSave": {},
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "vue-html": "html"
+  }
 }

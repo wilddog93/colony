@@ -17,7 +17,7 @@ import MerchantLayouts from "../../../components/Layouts/MerchantLayouts";
 import TenantTabs from "../../../components/Tenant/TenantTabs";
 import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ModalHeader } from "../../../components/Modal/ModalComponent";
 import NewItem from "../../../components/Forms/Merchant/detail/NewItem";
 import SidebarBody from "../../../components/Layouts/Sidebar/SidebarBody";
@@ -35,6 +35,18 @@ import TenantLayouts from "../../../components/Layouts/TenantLayouts";
 import Tabs from "../../../components/Layouts/Tabs";
 import { menuTabTenants } from "../../../utils/routes";
 import Cards from "../../../components/Cards/Cards";
+import { ColumnDef } from "@tanstack/react-table";
+import SelectTables from "../../../components/tables/layouts/server/SelectTables";
+
+type TransactionProps = {
+  id?: any;
+  createdAt?: any | string;
+  transactionName?: string | any;
+  transactionTotal?: string | number | any;
+  transactiondate?: string | any;
+  localshopName?: string | any;
+  dueDate?: string | any;
+};
 
 type Props = {
   pageProps: any;
@@ -58,6 +70,17 @@ const TransactionTenant = ({ pageProps }: Props) => {
   const [isForm, setIsForm] = useState(false);
   const [formData, setFormData] = useState<any>({});
 
+  const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState<string | any>(null);
+  const [dataTable, setDataTable] = useState<TransactionProps[] | any[]>([]);
+  const [pageCount, setPageCount] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isSelectedRow, setIsSelectedRow] = useState<TransactionProps | any>(
+    null
+  );
+
   const isOpenForm = () => {
     setIsForm(true);
   };
@@ -76,7 +99,64 @@ const TransactionTenant = ({ pageProps }: Props) => {
     }
   }, [token]);
 
-  console.log(sidebar, "sidebar");
+  const columns = useMemo<ColumnDef<TransactionProps, any>[]>(
+    () => [
+      {
+        accessorKey: "transactionName",
+        header: (info) => <div className="uppercase">Transaction</div>,
+        cell: ({ row, getValue }) => {
+          const name = getValue() || "-";
+          return (
+            <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
+              <span>{name}</span>
+            </div>
+          );
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "loccalshopName",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Localshop</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "transactionDate",
+        header: (info) => (
+          <div className="uppercase w-full text-center">Transaction Date</div>
+        ),
+        cell: ({ row, getValue }) => {
+          const value = getValue();
+          return <div className="w-full text-center">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "transactionTotal",
+        header: (info) => <div className="uppercase">Total</div>,
+        cell: ({ row, getValue }) => {
+          const value = getValue() || "-";
+          return <div className="w-full">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+    ],
+    []
+  );
+
+  console.log(data, "data");
 
   return (
     <TenantLayouts
@@ -158,19 +238,20 @@ const TransactionTenant = ({ pageProps }: Props) => {
               </div>
               <div className="w-full mt-10">
                 <div className="w-full text-gray-6">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-                  molestias illum voluptatibus repellendus tempore excepturi
-                  ipsum praesentium neque? Nulla sint molestiae cupiditate nisi
-                  tempore ipsa qui natus voluptatum soluta. Earum assumenda
-                  culpa est illo laboriosam dolores dignissimos recusandae
-                  perferendis expedita qui iure autem porro aliquid voluptas
-                  voluptate explicabo ipsa quisquam saepe excepturi, inventore
-                  quidem numquam aspernatur quo? Nobis dolore autem cum et a aut
-                  excepturi adipisci, consequuntur commodi, magni amet ea soluta
-                  voluptas quibusdam asperiores facilis, voluptatum quis eaque
-                  quisquam nisi! Sit atque, et consequatur, aspernatur magni
-                  pariatur labore id nisi voluptatem, ipsa aliquid cupiditate
-                  fuga enim rem maxime repellendus.
+                  <SelectTables
+                    loading={loading}
+                    setLoading={setLoading}
+                    pages={pages}
+                    setPages={setPages}
+                    limit={limit}
+                    setLimit={setLimit}
+                    pageCount={pageCount}
+                    columns={columns}
+                    dataTable={dataTable}
+                    total={total}
+                    setIsSelected={setIsSelectedRow}
+                    isInfiniteScroll={false}
+                  />
                 </div>
               </div>
             </div>
@@ -184,9 +265,11 @@ const TransactionTenant = ({ pageProps }: Props) => {
                     className="rounded-full h-14 w-14 object-cover object-center"
                     alt="images"
                   />
-                  <div>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis, soluta.
+                  <div className="flex flex-col gap-2">
+                    <p className="font-semibold">{`${
+                      data?.user?.firstName || ""
+                    } ${data?.user?.lastName || ""}`}</p>
+                    <p className="">{`${data?.user?.email || ""}`}</p>
                   </div>
                 </div>
               </Cards>
@@ -199,9 +282,11 @@ const TransactionTenant = ({ pageProps }: Props) => {
                     className="rounded-full h-14 w-14 object-cover object-center"
                     alt="images"
                   />
-                  <div>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis, soluta.
+                  <div className="flex flex-col gap-2">
+                    <p className="font-semibold">{`${
+                      data?.user?.firstName || ""
+                    } ${data?.user?.lastName || ""}`}</p>
+                    <p className="">{`${data?.user?.email || ""}`}</p>
                   </div>
                 </div>
               </Cards>
