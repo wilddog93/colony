@@ -87,7 +87,7 @@ const DropdownUser = ({ userDefault, token }: DropdownUserProps) => {
           className="flex items-center gap-4">
           <span className="hidden text-right lg:block text-white">
             <span className="block text-sm font-medium">
-              {data?.user.nickName}
+              {data?.user?.nickName || "-"}
             </span>
             <span className="block text-xs">UX Designer</span>
           </span>

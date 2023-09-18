@@ -3,9 +3,13 @@ import TenantMenu from "../../../components/Tenant/TenantMenu";
 import {
   MdArrowLeft,
   MdArrowRightAlt,
+  MdBathroom,
+  MdBathtub,
+  MdBed,
   MdBusiness,
   MdChevronLeft,
   MdDeleteOutline,
+  MdRoom,
   MdSettings,
   MdShower,
 } from "react-icons/md";
@@ -58,6 +62,8 @@ const BillingTenant = ({ pageProps }: Props) => {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
 
+  console.log(data?.unit, "unit-detail");
+
   // data unit
 
   const [sidebar, setSidebar] = useState(true);
@@ -73,6 +79,24 @@ const BillingTenant = ({ pageProps }: Props) => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSelectedRow, setIsSelectedRow] = useState<BillingProps | any>(null);
+
+  // description-read
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isHiddenDesc.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isHiddenDesc];
+      _selected.splice(idx, 1);
+      setIsHiddenDesc(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isHiddenDesc];
+      _selected.push(val);
+      setIsHiddenDesc(_selected);
+    }
+  };
 
   const isOpenForm = () => {
     setIsForm(true);
@@ -149,6 +173,33 @@ const BillingTenant = ({ pageProps }: Props) => {
     []
   );
 
+  const units = useMemo(() => {
+    let newObj: any = {};
+    const { unit } = data;
+    if (unit) {
+      newObj = unit;
+    }
+    return newObj;
+  }, [data]);
+
+  const amenityIcon = (value: any) => {
+    let newValue: any | string = "";
+    switch (value) {
+      case "Bathroom":
+        newValue = <MdBathtub className="w-6 h-6" />;
+        break;
+      case "Bedroom":
+        newValue = <MdBed className="w-6 h-6" />;
+        break;
+      case "Water heater":
+        newValue = <MdShower className="w-6 h-6" />;
+        break;
+      default:
+        return newValue;
+    }
+    return newValue;
+  };
+
   return (
     <TenantLayouts
       token={token}
@@ -188,20 +239,42 @@ const BillingTenant = ({ pageProps }: Props) => {
               <h3 className="text-lg">Unit Code</h3>
               <div className="text-base w-full flex items-center gap-2">
                 <MdBusiness className="w-8 h-8" />
-                <span>Unit name</span>
+                <span>{units?.unitName || "-"}</span>
               </div>
               <div className="text-sm font-normal">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                Ducimus, provident.
+                <p>
+                  {units?.unitDescription?.length > 70 &&
+                  !isHiddenDesc.includes(units?.id)
+                    ? `${units?.unitDescription.substring(70, 0)} ...`
+                    : units?.unitDescription || "-"}
+                </p>
+
+                <button
+                  onClick={() => onReadDescription(units.id)}
+                  className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                    units?.unitDescription?.length > 70 ? "" : "hidden"
+                  }`}>
+                  {isHiddenDesc.includes(units.id) ? "Hide" : "Show"}
+                </button>
               </div>
             </div>
 
             <div className="w-full mt-5 font-bold">
               <h3 className="text-lg">Amenities</h3>
-              <div className="text-base w-full flex items-center gap-2 font-normal">
-                <MdShower className="w-6 h-6" />
-                <span>Bathup</span>
-              </div>
+              {units?.unitAmenities?.length > 0 ? (
+                units?.unitAmenities?.map((item: any, idx: any) => (
+                  <div className="text-base w-full flex items-center gap-2 font-normal">
+                    {item?.amenity?.amenityName
+                      ? amenityIcon(item?.amenity?.amenityName)
+                      : null}
+                    <span>{item?.amenity?.amenityName || "-"}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-base w-full flex items-center gap-2 font-normal">
+                  <span>Amenities not found</span>
+                </div>
+              )}
             </div>
           </div>
         </TenantSidebar>

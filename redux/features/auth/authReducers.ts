@@ -13,6 +13,7 @@ import { setCookie, deleteCookie } from "cookies-next";
 export type AuthState = {
   data: {
     user?: any;
+    unit?: any;
     accessToken?: string;
     refreshToken?: string;
     access?: string;
@@ -27,6 +28,7 @@ export type AuthState = {
 const initialState: AuthState = {
   data: {
     user: {},
+    unit: {},
     accessToken: "",
     refreshToken: "",
     access: "",
@@ -195,7 +197,7 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>(
       const response = await axios.get("auth/web/me", config);
       const { data, status } = response;
       if (status == 200) {
-        return data.user;
+        return data;
       } else {
         throw response;
       }
@@ -771,7 +773,8 @@ export const authSlice = createSlice({
           error: false,
           data: {
             ...state.data,
-            user: payload,
+            user: payload.user,
+            unit: payload.unit,
           },
         };
       })
