@@ -1,15 +1,9 @@
-import Navbar from "../../../components/Tenant/Navbar";
-import TenantMenu from "../../../components/Tenant/TenantMenu";
 import {
-  MdArrowLeft,
   MdArrowRightAlt,
-  MdBathroom,
   MdBathtub,
   MdBed,
   MdBusiness,
   MdChevronLeft,
-  MdDeleteOutline,
-  MdRoom,
   MdSettings,
   MdShower,
 } from "react-icons/md";
@@ -17,8 +11,6 @@ import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
 import { useEffect, useMemo, useState } from "react";
 import { ModalHeader } from "../../../components/Modal/ModalComponent";
-import NewItem from "../../../components/Forms/Merchant/detail/NewItem";
-import SidebarBody from "../../../components/Layouts/Sidebar/SidebarBody";
 import {
   getAuthMe,
   selectAuth,
@@ -35,14 +27,23 @@ import { menuTabTenants } from "../../../utils/routes";
 import Cards from "../../../components/Cards/Cards";
 import { ColumnDef } from "@tanstack/react-table";
 import SelectTables from "../../../components/tables/layouts/server/SelectTables";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import {
+  getUnitBilling,
+  selectUnitBilling,
+} from "../../../redux/features/tenants/billingHistory/unitBillingHistoryReducers";
+import { formatMoney } from "../../../utils/useHooks/useFunction";
 
 type BillingProps = {
   id?: any;
   createdAt?: any | string;
-  paymentName?: string | any;
-  paymentTotal?: string | number | any;
+  billing?: string | any;
+  totalPayment?: string | number | any;
   paymentdate?: string | any;
   dueDate?: string | any;
+  totalAmount?: string | any;
+  totalDiscount?: string | any;
+  totalTax?: string | any;
 };
 
 type Props = {
@@ -61,6 +62,7 @@ const BillingTenant = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { unitBillings, pending } = useAppSelector(selectUnitBilling);
 
   console.log(data?.unit, "unit-detail");
 
@@ -79,6 +81,12 @@ const BillingTenant = ({ pageProps }: Props) => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSelectedRow, setIsSelectedRow] = useState<BillingProps | any>(null);
+
+  // date
+  const dateFormat = (value: any) => {
+    const date = value ? moment(new Date(value)).format("MM/DD/YYYY") : "-";
+    return date;
+  };
 
   // description-read
   const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
@@ -116,13 +124,80 @@ const BillingTenant = ({ pageProps }: Props) => {
     }
   }, [token]);
 
+  // get Products
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch(query?.search || "");
+  }, [query?.page, query?.limit, query?.search]);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        {
+          $or: [
+            // { "brand.brandName": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, [query?.page, query?.limit, query?.search]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getUnitBilling({ token, params: filters.queryObject }));
+    }
+  }, [token, filters]);
+
+  useEffect(() => {
+    let newArr: BillingProps[] | any[] = [];
+    let newPageCount: number = 0;
+    let newTotal: number = 0;
+
+    const { data, pageCount, total } = unitBillings;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+      newPageCount = pageCount;
+      newTotal = total;
+    }
+    setDataTable(newArr);
+    setPageCount(newPageCount);
+    setTotal(newTotal);
+  }, [unitBillings]);
+
   const columns = useMemo<ColumnDef<BillingProps, any>[]>(
     () => [
       {
-        accessorKey: "paymentName",
+        accessorKey: "billing",
         header: (info) => <div className="uppercase">Payment Purpose</div>,
         cell: ({ row, getValue }) => {
-          const name = getValue() || "-";
+          const name = getValue().billingName || "-";
           return (
             <div className="w-full flex items-center gap-2 text-left uppercase font-semibold">
               <span>{name}</span>
@@ -133,37 +208,41 @@ const BillingTenant = ({ pageProps }: Props) => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "paymentTotal",
+        accessorKey: "billing.totalPayment",
         header: (info) => <div className="uppercase">Payment Total</div>,
         cell: ({ row, getValue }) => {
           const value = getValue() || "-";
-          return <div className="w-full">{value}</div>;
+          return (
+            <div className="w-full text-center lg:text-left">
+              Rp. {formatMoney({ amount: value })}
+            </div>
+          );
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
       },
       {
-        accessorKey: "dueDate",
+        accessorKey: "billing.dueDate",
         header: (info) => (
-          <div className="uppercase w-full text-center">Due Date</div>
+          <div className="uppercase w-full text-left">Due Date</div>
         ),
         cell: ({ row, getValue }) => {
           const value = getValue();
-          return <div className="w-full text-center">{value}</div>;
+          return <div className="w-full">{dateFormat(value)}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
       },
       {
-        accessorKey: "paymentDate",
+        accessorKey: "billing.updatedAt",
         header: (info) => (
-          <div className="uppercase w-full text-center">Payment Date</div>
+          <div className="uppercase w-full text-left">Payment Date</div>
         ),
         cell: ({ row, getValue }) => {
           const value = getValue();
-          return <div className="w-full text-center">{value}</div>;
+          return <div className="w-full">{dateFormat(value)}</div>;
         },
         footer: (props) => props.column.id,
         // enableSorting: false,
@@ -199,6 +278,8 @@ const BillingTenant = ({ pageProps }: Props) => {
     }
     return newValue;
   };
+
+  console.log(units, "data-unit");
 
   return (
     <TenantLayouts
@@ -263,7 +344,9 @@ const BillingTenant = ({ pageProps }: Props) => {
               <h3 className="text-lg">Amenities</h3>
               {units?.unitAmenities?.length > 0 ? (
                 units?.unitAmenities?.map((item: any, idx: any) => (
-                  <div className="text-base w-full flex items-center gap-2 font-normal">
+                  <div
+                    key={idx}
+                    className="text-base w-full flex items-center gap-2 font-normal">
                     {item?.amenity?.amenityName
                       ? amenityIcon(item?.amenity?.amenityName)
                       : null}
@@ -336,9 +419,9 @@ const BillingTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      data?.user?.firstName || ""
-                    } ${data?.user?.lastName || ""}`}</p>
-                    <p className="">{`${data?.user?.email || ""}`}</p>
+                      units?.tenant?.user?.firstName || ""
+                    } ${units?.tenant?.user?.lastName || ""}`}</p>
+                    <p className="">{`${units?.tenant?.user?.email || ""}`}</p>
                   </div>
                 </div>
               </Cards>
@@ -353,9 +436,11 @@ const BillingTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      data?.user?.firstName || ""
-                    } ${data?.user?.lastName || ""}`}</p>
-                    <p className="">{`${data?.user?.email || ""}`}</p>
+                      units?.occupant?.user?.firstName || ""
+                    } ${units?.occupant?.user?.lastName || ""}`}</p>
+                    <p className="">{`${
+                      units?.occupant?.user?.email || ""
+                    }`}</p>
                   </div>
                 </div>
               </Cards>

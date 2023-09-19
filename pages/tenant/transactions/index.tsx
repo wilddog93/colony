@@ -1,26 +1,18 @@
-import Navbar from "../../../components/Tenant/Navbar";
-import TenantMenu from "../../../components/Tenant/TenantMenu";
 import {
   MdArrowLeft,
   MdArrowRightAlt,
+  MdBathtub,
+  MdBed,
   MdBusiness,
   MdChevronLeft,
   MdDeleteOutline,
   MdSettings,
   MdShower,
 } from "react-icons/md";
-import { MdOutlinePlayArrow } from "react-icons/md";
-import { MdAttachFile } from "react-icons/md";
-import { MdOutlineUpload } from "react-icons/md";
-import VideoButton from "../../../components/Tenant/button/VideoButton";
-import MerchantLayouts from "../../../components/Layouts/MerchantLayouts";
-import TenantTabs from "../../../components/Tenant/TenantTabs";
 import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
 import { useEffect, useMemo, useState } from "react";
 import { ModalHeader } from "../../../components/Modal/ModalComponent";
-import NewItem from "../../../components/Forms/Merchant/detail/NewItem";
-import SidebarBody from "../../../components/Layouts/Sidebar/SidebarBody";
 import {
   getAuthMe,
   selectAuth,
@@ -37,6 +29,7 @@ import { menuTabTenants } from "../../../utils/routes";
 import Cards from "../../../components/Cards/Cards";
 import { ColumnDef } from "@tanstack/react-table";
 import SelectTables from "../../../components/tables/layouts/server/SelectTables";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
 
 type TransactionProps = {
   id?: any;
@@ -81,6 +74,30 @@ const TransactionTenant = ({ pageProps }: Props) => {
     null
   );
 
+  // date
+  const dateFormat = (value: any) => {
+    const date = value ? moment(new Date(value)).format("MM/DD/YYYY") : "-";
+    return date;
+  };
+
+  // description-read
+  const [isHiddenDesc, setIsHiddenDesc] = useState<any[]>([]);
+  const onReadDescription = (val: any) => {
+    const idx = isHiddenDesc.indexOf(val);
+
+    if (idx > -1) {
+      // console.log("pus nihss");
+      const _selected = [...isHiddenDesc];
+      _selected.splice(idx, 1);
+      setIsHiddenDesc(_selected);
+    } else {
+      // console.log("push ini");
+      const _selected = [...isHiddenDesc];
+      _selected.push(val);
+      setIsHiddenDesc(_selected);
+    }
+  };
+
   const isOpenForm = () => {
     setIsForm(true);
   };
@@ -98,6 +115,73 @@ const TransactionTenant = ({ pageProps }: Props) => {
       );
     }
   }, [token]);
+
+  // get transaction
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch(query?.search || "");
+  }, [query?.page, query?.limit, query?.search]);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        {
+          $or: [
+            // { "brand.brandName": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    qb.sortBy({
+      field: "updatedAt",
+      order: "DESC",
+    });
+    qb.query();
+    return qb;
+  }, [query?.page, query?.limit, query?.search]);
+
+  useEffect(() => {
+    if (token) {
+      // dispatch(getUnitBilling({ token, params: filters.queryObject }));
+    }
+  }, [token, filters]);
+
+  // useEffect(() => {
+  //   let newArr: BillingProps[] | any[] = [];
+  //   let newPageCount: number = 0;
+  //   let newTotal: number = 0;
+
+  //   const { data, pageCount, total } = unitBillings;
+  //   if (data && data?.length > 0) {
+  //     data?.map((item: any) => {
+  //       newArr.push(item);
+  //     });
+  //     newPageCount = pageCount;
+  //     newTotal = total;
+  //   }
+  //   setDataTable(newArr);
+  //   setPageCount(newPageCount);
+  //   setTotal(newTotal);
+  // }, [unitBillings]);
 
   const columns = useMemo<ColumnDef<TransactionProps, any>[]>(
     () => [
@@ -156,6 +240,34 @@ const TransactionTenant = ({ pageProps }: Props) => {
     []
   );
 
+  // unit
+  const units = useMemo(() => {
+    let newObj: any = {};
+    const { unit } = data;
+    if (unit) {
+      newObj = unit;
+    }
+    return newObj;
+  }, [data]);
+
+  const amenityIcon = (value: any) => {
+    let newValue: any | string = "";
+    switch (value) {
+      case "Bathroom":
+        newValue = <MdBathtub className="w-6 h-6" />;
+        break;
+      case "Bedroom":
+        newValue = <MdBed className="w-6 h-6" />;
+        break;
+      case "Water heater":
+        newValue = <MdShower className="w-6 h-6" />;
+        break;
+      default:
+        return newValue;
+    }
+    return newValue;
+  };
+
   console.log(data, "data");
 
   return (
@@ -174,7 +286,11 @@ const TransactionTenant = ({ pageProps }: Props) => {
               <button
                 type="button"
                 className="flex items-center gap-1 rounded-md p-2 active:scale-95 text-lg"
-                onClick={() => console.log("back")}>
+                onClick={() =>
+                  router.push({
+                    pathname: "/",
+                  })
+                }>
                 <MdChevronLeft className="w-6 h-6" />
                 <span>Back</span>
               </button>
@@ -192,20 +308,44 @@ const TransactionTenant = ({ pageProps }: Props) => {
               <h3 className="text-lg">Unit Code</h3>
               <div className="text-base w-full flex items-center gap-2">
                 <MdBusiness className="w-8 h-8" />
-                <span>Unit name</span>
+                <span>{units?.unitName || "-"}</span>
               </div>
               <div className="text-sm font-normal">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                Ducimus, provident.
+                <p>
+                  {units?.unitDescription?.length > 70 &&
+                  !isHiddenDesc.includes(units?.id)
+                    ? `${units?.unitDescription.substring(70, 0)} ...`
+                    : units?.unitDescription || "-"}
+                </p>
+
+                <button
+                  onClick={() => onReadDescription(units.id)}
+                  className={`text-primary focus:outline-none font-bold mt-2 underline w-full max-w-max ${
+                    units?.unitDescription?.length > 70 ? "" : "hidden"
+                  }`}>
+                  {isHiddenDesc.includes(units.id) ? "Hide" : "Show"}
+                </button>
               </div>
             </div>
 
             <div className="w-full mt-5 font-bold">
               <h3 className="text-lg">Amenities</h3>
-              <div className="text-base w-full flex items-center gap-2 font-normal">
-                <MdShower className="w-6 h-6" />
-                <span>Bathup</span>
-              </div>
+              {units?.unitAmenities?.length > 0 ? (
+                units?.unitAmenities?.map((item: any, idx: any) => (
+                  <div
+                    key={idx}
+                    className="text-base w-full flex items-center gap-2 font-normal">
+                    {item?.amenity?.amenityName
+                      ? amenityIcon(item?.amenity?.amenityName)
+                      : null}
+                    <span>{item?.amenity?.amenityName || "-"}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-base w-full flex items-center gap-2 font-normal">
+                  <span>Amenities not found</span>
+                </div>
+              )}
             </div>
           </div>
         </TenantSidebar>
@@ -267,9 +407,9 @@ const TransactionTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      data?.user?.firstName || ""
-                    } ${data?.user?.lastName || ""}`}</p>
-                    <p className="">{`${data?.user?.email || ""}`}</p>
+                      units?.tenant?.user?.firstName || ""
+                    } ${units?.tenant?.user?.lastName || ""}`}</p>
+                    <p className="">{`${units?.tenant?.user?.email || ""}`}</p>
                   </div>
                 </div>
               </Cards>
@@ -284,9 +424,11 @@ const TransactionTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      data?.user?.firstName || ""
-                    } ${data?.user?.lastName || ""}`}</p>
-                    <p className="">{`${data?.user?.email || ""}`}</p>
+                      units?.occupant?.user?.firstName || ""
+                    } ${units?.occupant?.user?.lastName || ""}`}</p>
+                    <p className="">{`${
+                      units?.occupant?.user?.email || ""
+                    }`}</p>
                   </div>
                 </div>
               </Cards>
