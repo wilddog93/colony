@@ -75,7 +75,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
           deleteCookie("accessToken");
           deleteCookie("refreshToken");
           deleteCookie("access");
-          router.push("/authentication?page=sign-in");
+          router.push("/authentication/sign-in");
         },
       })
     );
@@ -435,7 +435,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in",
+        destination: "/authentication/sign-in",
         permanent: true,
       },
     };

@@ -216,7 +216,7 @@ const Vehicles = ({ pageProps }: Props) => {
       dispatch(
         getAuthMe({
           token,
-          callback: () => router.push("/authentication?page=sign-in"),
+          callback: () => router.push("/authentication/sign-in"),
         })
       );
     }
@@ -762,7 +762,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in", // Redirect to the home page
+        destination: "/authentication/sign-in", // Redirect to the home page
         permanent: false,
       },
     };
