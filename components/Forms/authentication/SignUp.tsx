@@ -368,7 +368,7 @@ const SignUp = (props: any) => {
                 </div>
                 <div className="w-full lg:w-1/2 relative">
                   <input
-                    id="name"
+                    id="lastName"
                     value={lastName}
                     onChange={onLastNameChange}
                     type="text"
@@ -457,7 +457,6 @@ const SignUp = (props: any) => {
                 value={email}
                 onChange={onEmailChange}
                 type="email"
-                autoFocus
                 placeholder="Enter your email"
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               />
@@ -484,7 +483,6 @@ const SignUp = (props: any) => {
                 type={isHiddenPass ? "password" : "text"}
                 id="password"
                 placeholder="Enter your password"
-                autoFocus
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               />
 
@@ -519,7 +517,6 @@ const SignUp = (props: any) => {
                 type={isHiddenCPass ? "password" : "text"}
                 id="verify-password"
                 placeholder="Please re-enter your password"
-                autoFocus
                 className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               />
 

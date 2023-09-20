@@ -18,8 +18,6 @@ import {
   MdOutlineMail,
 } from "react-icons/md";
 import { useRouter } from "next/router";
-import AccountVerify from "../../components/Forms/authentication/AccountVerify";
-import AccountVerified from "../../components/Forms/authentication/AccountVerified";
 import { useAppDispatch, useAppSelector } from "../../redux/Hook";
 import {
   getAuthMe,
@@ -98,10 +96,7 @@ const ResendEmail = ({ pageProps }: Props) => {
           token,
           callback: () =>
             router.push({
-              pathname: "/authentication",
-              query: {
-                page: "sign-in",
-              },
+              pathname: "/authentication/sign-in",
             }),
         })
       );
@@ -155,7 +150,7 @@ const ResendEmail = ({ pageProps }: Props) => {
             <div className="w-full h-full flex flex-col items-center justify-between">
               <Link
                 className="w-full pt-5.5 flex items-center gap-4 px-10"
-                href="/authentication?page=sign-in">
+                href="/authentication/sign-in">
                 <img src="../image/logo/logo-icon-white.png" alt="logo" />
                 <h2 className="text-lg text-white sm:text-title-lg">Colony.</h2>
               </Link>
@@ -265,7 +260,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in", // Redirect to the home page
+        destination: "/authentication/sign-in", // Redirect to the home page
         permanent: false,
       },
     };

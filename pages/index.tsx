@@ -11,19 +11,11 @@ import {
 } from "../redux/features/auth/authReducers";
 import AuthLayout from "../components/Layouts/AuthLayouts";
 import Link from "next/link";
-import {
-  MdArrowBack,
-  MdChevronLeft,
-  MdLogin,
-  MdLogout,
-  MdMail,
-  MdMailOutline,
-} from "react-icons/md";
+import { MdLogin, MdMail } from "react-icons/md";
 import Button from "../components/Button/Button";
 import Cards from "../components/Cards/Cards";
 import Modal from "../components/Modal";
 import { FaCircleNotch, FaRegQuestionCircle } from "react-icons/fa";
-import LoadingPage from "../components/LoadingPage";
 
 interface PageProps {
   page: string;
@@ -60,7 +52,7 @@ const Home = ({ pageProps }: Props) => {
           deleteCookie("accessToken");
           deleteCookie("refreshToken");
           deleteCookie("access");
-          router.push("/authentication?page=sign-in");
+          router.push("/authentication/sign-in");
         },
       })
     );
@@ -235,7 +227,7 @@ const Home = ({ pageProps }: Props) => {
             <div className="w-full h-full flex flex-col items-center justify-between">
               <Link
                 className="w-full pt-5.5 flex items-center gap-4 px-10"
-                href="/authentication?page=sign-in">
+                href="/authentication/sign-in">
                 <img src="../image/logo/logo-icon-white.png" alt="logo" />
                 <h2 className="text-lg text-white sm:text-title-lg">Colony.</h2>
               </Link>
@@ -361,7 +353,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in",
+        destination: "/authentication/sign-in",
         permanent: true,
       },
     };
