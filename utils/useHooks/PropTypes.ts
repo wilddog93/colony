@@ -92,8 +92,8 @@ export type SubTaskProps = {
 
 // options
 export interface OptionProps {
-  value: string | any;
-  label: string | any;
+  value?: string | any;
+  label?: string | any;
 }
 
 // issues

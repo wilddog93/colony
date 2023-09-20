@@ -31,7 +31,7 @@ const DefaultLayouts = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="dark:bg-boxdark-2 dark:text-bodydark">
+    <div className="">
       <Head>
         <title>{`${head} - ${header}`} | Colony</title>
         <link rel="icon" href={logo ? logo : `./image/logo-bar.png`} />

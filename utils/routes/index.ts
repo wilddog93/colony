@@ -60,17 +60,16 @@ export const menuPropertyMaster: MenuProps[] = [
         className: "text-lg",
         // text-[#44C2FD]
       },
-      {
-        pathname: "Billings & Payments",
-        pages: "billings",
-        url: "/employee/billings",
-        icons: {
-          icon: MdMonetizationOn,
-          className: "w-8 h-8 text-meta-3",
-        },
-        className: "text-lg",
-        // text-[#44FDAF]
-      },
+      // {
+      //   pathname: "Billings & Payments",
+      //   pages: "billings",
+      //   url: "/employee/billings",
+      //   icons: {
+      //     icon: MdMonetizationOn,
+      //     className: "w-8 h-8 text-meta-3",
+      //   },
+      //   className: "text-lg",
+      // },
       {
         pathname: "Task Management",
         pages: "tasks",
@@ -93,51 +92,50 @@ export const menuPropertyMaster: MenuProps[] = [
         className: "text-lg",
         // text-[#F7E759]
       },
-      {
-        pathname: "Media",
-        pages: "media",
-        url: "/employee/media/videos",
-        icons: {
-          icon: MdPhotoSizeSelectActual,
-          className: "w-8 h-8 text-primary",
-        },
-        className: "text-lg",
-      },
-      {
-        pathname: "Merchants",
-        pages: "merchants",
-        url: "/employee/merchants",
-        icons: {
-          icon: MdStore,
-          className: "w-8 h-8 text-meta-8",
-        },
-        className: "text-lg",
-        // text-[#F79259]
-      },
+      // {
+      //   pathname: "Media",
+      //   pages: "media",
+      //   url: "/employee/media/videos",
+      //   icons: {
+      //     icon: MdPhotoSizeSelectActual,
+      //     className: "w-8 h-8 text-primary",
+      //   },
+      //   className: "text-lg",
+      // },
+      // {
+      //   pathname: "Merchants",
+      //   pages: "merchants",
+      //   url: "/employee/merchants",
+      //   icons: {
+      //     icon: MdStore,
+      //     className: "w-8 h-8 text-meta-8",
+      //   },
+      //   className: "text-lg",
+      // },
     ],
   },
-  {
-    subMenus: [
-      {
-        pathname: "Settings",
-        pages: "employee/settings",
-        url: "/settings",
-        icons: {
-          icon: MdOutlineSettings,
-          className: "w-8 h-8",
-        },
-      },
-      {
-        pathname: "Helps",
-        pages: "helps",
-        url: "/helps",
-        icons: {
-          icon: MdHelpOutline,
-          className: "w-8 h-8",
-        },
-      },
-    ],
-  },
+  // {
+  //   subMenus: [
+  //     {
+  //       pathname: "Settings",
+  //       pages: "employee/settings",
+  //       url: "/settings",
+  //       icons: {
+  //         icon: MdOutlineSettings,
+  //         className: "w-8 h-8",
+  //       },
+  //     },
+  //     {
+  //       pathname: "Helps",
+  //       pages: "helps",
+  //       url: "/helps",
+  //       icons: {
+  //         icon: MdHelpOutline,
+  //         className: "w-8 h-8",
+  //       },
+  //     },
+  //   ],
+  // },
 ];
 
 // Building Management
@@ -874,7 +872,7 @@ export const menuTabTenants: MenuProps[] = [
 export const menuTenantAccess: MenuProps[] = [
   {
     pathname: "Units",
-    url: "/access/tenant"
+    url: "/access/tenant",
   },
   {
     pathname: "List Claim",

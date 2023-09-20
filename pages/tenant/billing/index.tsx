@@ -1,11 +1,16 @@
 import {
+  MdAcUnit,
   MdArrowRightAlt,
+  MdBalcony,
   MdBathtub,
   MdBed,
   MdBusiness,
   MdChevronLeft,
+  MdOutlineWifi,
+  MdPool,
   MdSettings,
   MdShower,
+  MdYard,
 } from "react-icons/md";
 import Button from "../../../components/Button/Button";
 import Modal from "../../../components/Modal";
@@ -33,6 +38,7 @@ import {
   selectUnitBilling,
 } from "../../../redux/features/tenants/billingHistory/unitBillingHistoryReducers";
 import { formatMoney } from "../../../utils/useHooks/useFunction";
+import FormTenantAmenity from "../../../components/Forms/Tenant/unit-tenant/FormTenantAmenity.1";
 
 type BillingProps = {
   id?: any;
@@ -67,10 +73,10 @@ const BillingTenant = ({ pageProps }: Props) => {
   console.log(data?.unit, "unit-detail");
 
   // data unit
-
   const [sidebar, setSidebar] = useState(true);
 
   const [isForm, setIsForm] = useState(false);
+  const [isUpdateAmenity, setIsUpdateAmenity] = useState<boolean>(false);
   const [formData, setFormData] = useState<any>(null);
 
   const [pages, setPages] = useState(1);
@@ -111,6 +117,22 @@ const BillingTenant = ({ pageProps }: Props) => {
   };
   const isCloseForm = () => {
     setIsForm(false);
+  };
+
+  const isOpenUpdate = (value: any) => {
+    let newObj: any[] = value?.map((item: any) => ({
+      id: item?.amenity?.id,
+      label: item?.amenity?.amenityName,
+      checked: true,
+      totalAmenity: item?.totalAmenity,
+      amenity: item?.amenity,
+    }));
+    setIsUpdateAmenity(true);
+    setFormData(newObj);
+  };
+  const isCloseUpdate = () => {
+    setIsUpdateAmenity(false);
+    setFormData(null);
   };
 
   useEffect(() => {
@@ -273,6 +295,24 @@ const BillingTenant = ({ pageProps }: Props) => {
       case "Water heater":
         newValue = <MdShower className="w-6 h-6" />;
         break;
+      case "AC":
+        newValue = <MdAcUnit className="w-6 h-6" />;
+        break;
+      case "Balcony":
+        newValue = <MdBalcony className="w-6 h-6" />;
+        break;
+      case "Public Pool":
+        newValue = <MdPool className="w-6 h-6" />;
+        break;
+      case "Private Pool":
+        newValue = <MdPool className="w-6 h-6" />;
+        break;
+      case "Garden":
+        newValue = <MdYard className="w-6 h-6" />;
+        break;
+      case "Internet":
+        newValue = <MdOutlineWifi className="w-6 h-6" />;
+        break;
       default:
         return newValue;
     }
@@ -310,7 +350,7 @@ const BillingTenant = ({ pageProps }: Props) => {
               <button
                 type="button"
                 className="bg-gray text-gray-6 flex items-center gap-1 rounded-md border-2 border-gray p-2 active:scale-95"
-                onClick={() => console.log("edit info")}>
+                onClick={() => isOpenUpdate(units?.unitAmenities)}>
                 <span>Edit Info</span>
                 <MdSettings className="w-4 h-4" />
               </button>
@@ -347,10 +387,15 @@ const BillingTenant = ({ pageProps }: Props) => {
                   <div
                     key={idx}
                     className="text-base w-full flex items-center gap-2 font-normal">
-                    {item?.amenity?.amenityName
-                      ? amenityIcon(item?.amenity?.amenityName)
-                      : null}
-                    <span>{item?.amenity?.amenityName || "-"}</span>
+                    <div className="w-1/5 flex justify-center">
+                      {item?.amenity?.amenityName
+                        ? amenityIcon(item?.amenity?.amenityName)
+                        : null}
+                    </div>
+                    <div className="w-4/5 flex items-center justify-between">
+                      <span>{item?.amenity?.amenityName || "-"}</span>
+                      <span>{item?.totalAmenity || "0"}</span>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -486,6 +531,16 @@ const BillingTenant = ({ pageProps }: Props) => {
             </form>
           </div>
         </div>
+      </Modal>
+
+      {/* amenity form  */}
+      <Modal isOpen={isUpdateAmenity} onClose={isCloseUpdate} size="medium">
+        <FormTenantAmenity
+          token={token}
+          items={formData}
+          isCloseModal={isCloseUpdate}
+          isUpdate
+        />
       </Modal>
     </TenantLayouts>
   );

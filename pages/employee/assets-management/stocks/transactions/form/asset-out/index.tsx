@@ -700,7 +700,7 @@ const NewTransactionUsage = ({ pageProps }: Props) => {
                     rows={5}
                     maxLength={400}
                     placeholder="Notes..."
-                    className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    className="w-full text-sm rounded-lg border border-stroke bg-white py-2 px-4 outline-none focus:border-primary focus-visible:shadow-none "
                     {...register("transactionDescription")}
                   />
                   <div className="mt-1 text-xs flex items-center">

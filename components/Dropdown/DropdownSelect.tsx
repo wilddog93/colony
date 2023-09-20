@@ -1,5 +1,9 @@
-import Select, { IndicatorSeparatorProps, components } from "react-select";
-import React, { FC } from "react";
+import Select, {
+  IndicatorSeparatorProps,
+  SelectInstance,
+  components,
+} from "react-select";
+import React, { FC, useEffect, useRef } from "react";
 import { MdArrowDropDown, MdSearch } from "react-icons/md";
 
 import * as IconMd from "react-icons/md";
@@ -36,6 +40,7 @@ type Props = {
   customStyles: any;
   icon: string;
   isClearable?: boolean;
+  menuIsOpen?: boolean;
 };
 
 export default function DropdownSelect({
@@ -53,6 +58,7 @@ export default function DropdownSelect({
   customStyles,
   icon,
   isClearable,
+  menuIsOpen,
 }: Props) {
   const onChangeMulti = (selected: any) => {
     isMulti &&
@@ -87,8 +93,18 @@ export default function DropdownSelect({
     return <components.NoOptionsMessage {...props} />;
   };
 
+  const ref = useRef<SelectInstance>(null);
+
+  useEffect(() => {
+    const selectEl = ref.current;
+    if (!selectEl) return;
+    if (menuIsOpen) selectEl.blur();
+    else selectEl.focus();
+  }, []);
+
   return (
     <Select
+      ref={ref}
       instanceId={instanceId || "id"}
       components={{ DropdownIndicator, NoOptionsMessage }}
       placeholder={placeholder || "Choose..."}
@@ -114,6 +130,7 @@ export default function DropdownSelect({
         },
       })}
       styles={customStyles}
+      menuIsOpen={menuIsOpen}
     />
   );
 }
