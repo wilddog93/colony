@@ -443,7 +443,7 @@ const Occupancy = ({ pageProps }: Props) => {
           <main className="tracking-wide text-left text-boxdark-2 mt-5">
             <div className="w-full flex flex-col">
               {/* content */}
-              <div className="w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 tracking-wider mb-5">
+             {/* <div className="w-full grid col-span-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 tracking-wider mb-5">
                 <Cards className="w-full bg-white shadow-md text-gray-6 font-thin text-sm sm:text-base rounded-xl border border-gray">
                   <div className="w-full p-4 flex flex-col gap-4">
                     <h1>Occupancy Level</h1>
@@ -566,7 +566,7 @@ const Occupancy = ({ pageProps }: Props) => {
                     </div>
                   </div>
                 </Cards>
-              </div>
+              </div>*/}
 
               {/* table test */}
               <ScrollCardTables
