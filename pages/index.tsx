@@ -24,6 +24,8 @@ interface PageProps {
   firebaseToken: any;
 }
 
+// just update
+
 type Props = {
   pageProps: PageProps;
 };
