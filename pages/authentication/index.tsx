@@ -145,7 +145,7 @@ const Authentication: NextPage<Props> = ({ pageProps }) => {
                 }`}>
                 <div className="flex flex-col justify-center">
                   <h2 className="text-title-md2 lg:text-title-lg mb-5">
-                    Welcome to Colony Manage Your Property as Convenient Living.
+                    Welcome to Colony, We Manage Your Property as Convenient Living.
                   </h2>
 
                   <p className="leading-1 text-sm">
