@@ -285,13 +285,13 @@ const Tenants = ({ pageProps }: Props) => {
         cell: ({ row, getValue }) => {
           console.log(row.original, "info");
           return (
-            <div className="w-full flex gap-1 items-center">
-              <button
+            <div className="w-full flex gap-1 items-center justify-center">
+              {/* <button
                 type="button"
                 onClick={() => console.log(row.original)}
                 className="w-full text-center flex items-center justify-center cursor-pointer">
                 <MdEdit className="text-gray-5 w-4 h-4" />
-              </button>
+              </button> */}
 
               <button
                 type="button"
@@ -302,7 +302,9 @@ const Tenants = ({ pageProps }: Props) => {
             </div>
           );
         },
-        header: () => <span className="uppercase">Actions</span>,
+        header: () => (
+          <div className="w-full uppercase text-center">Actions</div>
+        ),
         footer: (props) => props.column.id,
         // enableSorting: false,
         enableColumnFilter: false,
@@ -411,7 +413,7 @@ const Tenants = ({ pageProps }: Props) => {
       dispatch(
         getAuthMe({
           token,
-          callback: () => router.push("/authentication?page=sign-in"),
+          callback: () => router.push("/authentication/sign-in"),
         })
       );
     }
@@ -479,7 +481,7 @@ const Tenants = ({ pageProps }: Props) => {
               </Button>
             </div>
 
-            <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
+            {/* <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
               <Button
                 type="button"
                 className="rounded-lg text-sm font-semibold py-3"
@@ -489,7 +491,7 @@ const Tenants = ({ pageProps }: Props) => {
                 <span className="hidden lg:inline-block">New Tenant</span>
                 <MdAdd className="w-4 h-4" />
               </Button>
-            </div>
+            </div> */}
           </div>
 
           <main className="relative tracking-wide text-left text-boxdark-2">
@@ -668,7 +670,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in", // Redirect to the home page
+        destination: "/authentication/sign-in", // Redirect to the home page
         permanent: false,
       },
     };

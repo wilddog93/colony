@@ -1,11 +1,18 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import {
   MdDelete,
+  MdDocumentScanner,
   MdOutlineAddPhotoAlternate,
+  MdOutlineAttachment,
+  MdOutlineFileCopy,
+  MdOutlineFileDownload,
+  MdOutlineFileOpen,
+  MdOutlineFileUpload,
   MdOutlineFormatBold,
   MdOutlineFormatItalic,
   MdOutlineFormatUnderlined,
   MdSend,
+  MdTask,
 } from "react-icons/md";
 import React, {
   ChangeEvent,
@@ -25,7 +32,11 @@ import Underline from "@tiptap/extension-underline";
 import { Image } from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Button from "../../Button/Button";
-import { isBase64, toBase64 } from "../../../utils/useHooks/useFunction";
+import {
+  isBase64,
+  isPDFFiles,
+  toBase64,
+} from "../../../utils/useHooks/useFunction";
 
 type Props = {
   content: any;
@@ -51,11 +62,12 @@ export default function Comments({
   setContentEdit,
   imagesEdit,
   setImagesEdit,
-}: any): JSX.Element | undefined {
+}: any) {
   const url = process.env.API_ENDPOINT;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputRefEdit = useRef<HTMLInputElement>(null);
   const [isBaseStatus, setIsBaseStatus] = useState(false);
+  const [isPdfStatus, setIsPdfStatus] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -93,6 +105,8 @@ export default function Comments({
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        console.log(file?.name, "images-format");
+        setIsPdfStatus(isPDFFiles(file?.name));
         if (e.target) {
           const result = e.target.result as string;
           setImages(result);
@@ -107,8 +121,10 @@ export default function Comments({
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        setIsPdfStatus(isPDFFiles(file?.name));
         if (e.target) {
           const result = e.target.result as string;
+          console.log(e.target.result, "images-format");
           setImagesEdit(result);
         }
       };
@@ -169,13 +185,25 @@ export default function Comments({
   // console.log(content, "content isi", content?.length)
 
   useEffect(() => {
-    setIsBaseStatus(isBase64(imagesEdit));
-  }, [imagesEdit]);
+    if (isEdit) {
+      setIsBaseStatus(isBase64(imagesEdit) ? true : false);
+    } else {
+      setIsBaseStatus(isBase64(images) ? true : false);
+    }
+  }, [isEdit, imagesEdit, images]);
 
-  console.log({ contentEdit, imagesEdit }, "data-comment");
+  useEffect(() => {
+    if (isEdit) {
+      setIsPdfStatus(isPDFFiles(imagesEdit));
+    } else {
+      setIsPdfStatus(isPDFFiles(images));
+    }
+  }, [isEdit]);
+
+  console.log({ isPdfStatus, isBaseStatus }, "images-format", images);
 
   if (!editor) {
-    return;
+    return null;
   }
   return (
     <Fragment>
@@ -228,7 +256,7 @@ export default function Comments({
             {!isEdit ? (
               <Fragment>
                 <label htmlFor="image">
-                  <MdOutlineAddPhotoAlternate className="h-6 w-6 text-gray-6 cursor-pointer hover:text-primary" />
+                  <MdOutlineAttachment className="h-5 w-5 text-gray-6 cursor-pointer hover:text-primary rotate-90" />
                 </label>
                 <input
                   id="image"
@@ -242,13 +270,14 @@ export default function Comments({
             ) : (
               <Fragment>
                 <label htmlFor="imageEdit">
-                  <MdOutlineAddPhotoAlternate className="h-6 w-6 text-gray-6 cursor-pointer hover:text-primary" />
+                  <MdOutlineAttachment className="h-5 w-5 text-gray-6 cursor-pointer hover:text-primary rotate-90" />
                 </label>
                 <input
                   id="imageEdit"
                   hidden
                   type="file"
-                  accept="image/*"
+                  // accept="image/*"
+                  accept="application/pdf,image/*"
                   ref={fileInputRefEdit}
                   onChange={handleImageUploadEdit}
                 />
@@ -288,11 +317,15 @@ export default function Comments({
           <label
             htmlFor="logo"
             className="w-full max-w-32 hover:cursor-pointer">
-            <img
-              src={images}
-              alt="logo"
-              className="w-32 h-auto object-cover object-center border border-gray shadow-card rounded-lg"
-            />
+            {!isPdfStatus ? (
+              <img
+                src={images}
+                alt="logo"
+                className="w-32 h-auto object-cover object-center border border-gray shadow-card rounded-lg"
+              />
+            ) : (
+              <MdTask className="w-16 mx-auto h-auto rounded-lg text-gray-6" />
+            )}
           </label>
 
           {/* delete filte */}
@@ -313,15 +346,29 @@ export default function Comments({
           <label
             htmlFor="logo"
             className="w-full max-w-32 hover:cursor-pointer">
-            <img
-              src={
-                isBaseStatus
-                  ? imagesEdit
-                  : `${url}project/task/attachment/${imagesEdit}`
-              }
-              alt="logo"
-              className="w-32 h-auto object-cover object-center border border-gray shadow-card rounded-lg"
-            />
+            {isBaseStatus && !isPdfStatus ? (
+              <img
+                src={imagesEdit}
+                alt="logo"
+                className="w-32 h-auto object-cover object-center border border-gray shadow-card rounded-lg"
+              />
+            ) : null}
+
+            {isBaseStatus && isPdfStatus ? (
+              <MdTask className="w-16 h-auto mx-auto" />
+            ) : null}
+
+            {!isBaseStatus && isPdfStatus ? (
+              <MdTask className="w-16 h-auto mx-auto" />
+            ) : null}
+
+            {!isBaseStatus && !isPdfStatus ? (
+              <img
+                src={`${url}project/task/attachment/${imagesEdit}`}
+                alt="logo"
+                className="w-32 h-auto object-cover object-center border border-gray shadow-card rounded-lg"
+              />
+            ) : null}
           </label>
 
           {/* delete filte */}

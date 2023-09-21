@@ -1,84 +1,161 @@
-import React, { Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
-import DefaultLayout from '../../../../../components/Layouts/DefaultLayouts'
-import SidebarBM from '../../../../../components/Layouts/Sidebar/Building-Management';
-import { MdAdd, MdArrowRightAlt, MdCalendarToday, MdChevronLeft, MdCleaningServices, MdClose, MdDelete, MdDownload, MdEdit, MdEmail, MdFemale, MdLocalHotel, MdMale, MdPhone, MdUpload } from 'react-icons/md';
-import Button from '../../../../../components/Button/Button';
-import { SearchInput } from '../../../../../components/Forms/SearchInput';
-import Modal from '../../../../../components/Modal';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import DefaultLayout from "../../../../../components/Layouts/DefaultLayouts";
+import {
+  MdArrowRightAlt,
+  MdChevronLeft,
+  MdDelete,
+  MdDownload,
+  MdMuseum,
+  MdOutlineFileCopy,
+  MdUpload,
+} from "react-icons/md";
+import Button from "../../../../../components/Button/Button";
+import { SearchInput } from "../../../../../components/Forms/SearchInput";
+import Modal from "../../../../../components/Modal";
 
-import { ModalFooter, ModalHeader } from '../../../../../components/Modal/ModalComponent';
-import { useRouter } from 'next/router';
-import DropdownSelect from '../../../../../components/Dropdown/DropdownSelect';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnItems } from '../../../../../components/tables/components/makeData';
-import { makeData } from '../../../../../components/tables/components/makeData';
-import { GetServerSideProps } from 'next';
-import { getCookies } from 'cookies-next';
-import { useAppDispatch, useAppSelector } from '../../../../../redux/Hook';
-import { getAuthMe, selectAuth } from '../../../../../redux/features/auth/authReducers';
-import SelectTables from '../../../../../components/tables/layouts/SelectTables';
-import { IndeterminateCheckbox } from '../../../../../components/tables/components/TableComponent';
-import Tabs from '../../../../../components/Layouts/Tabs';
-import { menuAccessCard, menuBM } from '../../../../../utils/routes';
-import SidebarComponent from '../../../../../components/Layouts/Sidebar/SidebarComponent';
+import { ModalHeader } from "../../../../../components/Modal/ModalComponent";
+import { useRouter } from "next/router";
+import DropdownSelect from "../../../../../components/Dropdown/DropdownSelect";
+import { ColumnDef } from "@tanstack/react-table";
+import { GetServerSideProps } from "next";
+import { getCookies } from "cookies-next";
+import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
+import {
+  getAuthMe,
+  selectAuth,
+} from "../../../../../redux/features/auth/authReducers";
+import SelectTables from "../../../../../components/tables/layouts/server/SelectTables";
+import { IndeterminateCheckbox } from "../../../../../components/tables/components/TableComponent";
+import Tabs from "../../../../../components/Layouts/Tabs";
+import { menuAccessCard, menuBM } from "../../../../../utils/routes";
+import SidebarComponent from "../../../../../components/Layouts/Sidebar/SidebarComponent";
+import {
+  AccessCardProps,
+  OptionProps,
+} from "../../../../../utils/useHooks/PropTypes";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { FaCircleNotch } from "react-icons/fa";
+import {
+  convertBytes,
+  toBase64,
+} from "../../../../../utils/useHooks/useFunction";
+import {
+  getAccessCards,
+  selectAccessCardManagement,
+  uploadAccessCard,
+} from "../../../../../redux/features/building-management/access/accessCardReducers";
+import moment from "moment";
 
 type Props = {
-  pageProps: any
-}
+  pageProps: any;
+};
 
-const sortOpt = [
-  { value: "A-Z", label: "A-Z" },
-  { value: "Z-A", label: "Z-A" },
+const sortOpt: OptionProps[] = [
+  { value: "ASC", label: "A-Z" },
+  { value: "DESC", label: "Z-A" },
+];
+
+const statusOpt: OptionProps[] = [
+  { value: "Reserved", label: "Reserved" },
+  { value: "Occupied", label: "Occupied" },
+  { value: "Vacant", label: "Vacant" },
 ];
 
 const stylesSelect = {
   indicatorsContainer: (provided: any) => ({
     ...provided,
-    flexDirection: "row-reverse"
+    flexDirection: "row-reverse",
   }),
   indicatorSeparator: (provided: any) => ({
     ...provided,
-    display: 'none'
+    display: "none",
   }),
   dropdownIndicator: (provided: any) => {
-    return ({
+    return {
       ...provided,
-      color: '#7B8C9E',
-    })
+      color: "#7B8C9E",
+    };
   },
   clearIndicator: (provided: any) => {
-    return ({
+    return {
       ...provided,
-      color: '#7B8C9E',
-    })
+      color: "#7B8C9E",
+    };
   },
   singleValue: (provided: any) => {
-    return ({
+    return {
       ...provided,
-      color: '#5F59F7',
-    })
+      color: "#5F59F7",
+    };
   },
   control: (provided: any, state: any) => {
-    console.log(provided, "control")
-    return ({
+    console.log(provided, "control");
+    return {
       ...provided,
       background: "",
-      padding: '.6rem',
+      padding: ".5rem",
       borderRadius: ".75rem",
       borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
       color: "#5F59F7",
       "&:hover": {
         color: state.isFocused ? "#E2E8F0" : "#5F59F7",
-        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7"
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
       },
-      minHeight: 40,
-      flexDirection: "row-reverse"
-    })
+      minHeight: 38,
+      flexDirection: "row-reverse",
+    };
   },
-  menuList: (provided: any) => (provided)
+  menuList: (provided: any) => provided,
 };
 
-const Areas = ({ pageProps }: Props) => {
+const stylesSelects = {
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+  }),
+  indicatorSeparator: (provided: any) => ({
+    ...provided,
+    display: "none",
+  }),
+  dropdownIndicator: (provided: any) => {
+    return {
+      ...provided,
+      color: "#7B8C9E",
+    };
+  },
+  clearIndicator: (provided: any) => {
+    return {
+      ...provided,
+      color: "#7B8C9E",
+    };
+  },
+  singleValue: (provided: any) => {
+    return {
+      ...provided,
+      color: "#5F59F7",
+    };
+  },
+  control: (provided: any, state: any) => {
+    console.log(provided, "control");
+    return {
+      ...provided,
+      background: "",
+      padding: ".5rem",
+      borderRadius: ".75rem",
+      borderColor: state.isFocused ? "#5F59F7" : "#E2E8F0",
+      color: "#5F59F7",
+      "&:hover": {
+        color: state.isFocused ? "#E2E8F0" : "#5F59F7",
+        borderColor: state.isFocused ? "#E2E8F0" : "#5F59F7",
+      },
+      minHeight: 38,
+    };
+  },
+  menuList: (provided: any) => provided,
+};
+
+const AccessCard = ({ pageProps }: Props) => {
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -87,184 +164,335 @@ const Areas = ({ pageProps }: Props) => {
   // redux
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectAuth);
+  const { accessCards, pending } = useAppSelector(selectAccessCardManagement);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [search, setSearch] = useState(null);
-  const [sort, setSort] = useState(false);
+  const [search, setSearch] = useState<any>(null);
+  const [sort, setSort] = useState<OptionProps | any>(null);
+  const [status, setStatus] = useState<OptionProps | any>(null);
   const [loading, setLoading] = useState(true);
 
   // data-table
-  const [dataTable, setDataTable] = useState<ColumnItems[]>([]);
+  const [dataTable, setDataTable] = useState<AccessCardProps[]>([]);
   const [isSelectedRow, setIsSelectedRow] = useState({});
   const [pages, setPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(2000);
-  const [total, setTotal] = useState(1000)
+  const [pageCount, setPageCount] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  // modal
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isOpenDetail, setIsOpenDetail] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const [details, setDetails] = useState<ColumnItems>();
+  // file-upload
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [isOpenUpload, setIsOpenUpload] = useState(false);
+  const [files, setFiles] = useState<any | any[]>([]);
+  const [formData, setFormData] = useState<any>(null);
 
-  // form modal
-  const onClose = () => setIsOpenModal(false);
-  const onOpen = () => setIsOpenModal(true);
+  // template & data
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
 
-  // detail modal
-  const onCloseDetail = () => {
-    setDetails(undefined)
-    setIsOpenDetail(false)
-  };
-  const onOpenDetail = (items: any) => {
-    setDetails(items)
-    setIsOpenDetail(true)
+  // date
+  const dateTimeFormat = (value: any) => {
+    if (!value) return "-";
+    const date = moment(new Date(value)).format("MMMM Do YYYY, h:mm");
+    return date;
   };
 
-  // detail modal
-  const onCloseDelete = () => {
-    setDetails(undefined)
-    setIsOpenDelete(false)
+  // upload modal
+  const onOpenUpload = () => {
+    setIsOpenUpload(true);
   };
-  const onOpenDelete = (items: any) => {
-    setDetails(items)
-    setIsOpenDelete(true)
+  const onCloseUpload = () => {
+    setFiles([]);
+    setIsOpenUpload(false);
   };
 
   useEffect(() => {
-    setDataTable(() => makeData(50000))
-  }, []);
+    if (token) {
+      dispatch(
+        getAuthMe({
+          token,
+          callback: () => router.push("/authentication/sign-in"),
+        })
+      );
+    }
+  }, [token]);
 
-  const columns = useMemo<ColumnDef<ColumnItems, any>[]>(
-    () => [
-      {
-        id: 'select',
-        header: ({ table }) => {
-          return (
-            <IndeterminateCheckbox
-              {...{
-                checked: table?.getIsAllRowsSelected(),
-                indeterminate: table?.getIsSomeRowsSelected(),
-                onChange: table?.getToggleAllRowsSelectedHandler()
-              }}
-            />
-          )
-        },
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler()
-              }}
-            />
-          </div>
-        ),
-        size: 10,
-        minSize: 10
-      },
-      {
-        accessorKey: 'fullName',
-        header: (info) => (
-          <div>
-            Zone Name
-          </div>
-        ),
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        footer: props => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10
-      },
-      {
-        accessorKey: 'email',
-        header: (info) => "Description",
-        cell: info => {
-          console.log(info.row.original, 'row item')
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'phoneNumber',
-        header: (info) => "Units",
-        cell: info => {
-          return (
-            <div className='cursor-pointer' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'owned',
-        cell: info => {
-          return (
-            <div className='cursor-pointer text-center' onClick={() => onOpenDetail(info.row.original)}>
-              {info.getValue()}
-            </div>
-          )
-        },
-        header: props => (<div className='w-full text-center'>Total Unit</div>),
-        footer: props => props.column.id,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'id',
-        cell: ({ row, getValue }) => {
-          return (
-            <div className='w-full text-center flex items-center justify-center cursor-pointer'>
-              <Button
-                onClick={() => onOpen()}
-                variant="secondary-outline-none"
-                className="px-1 py-1"
-                type="button"
-              >
-                <MdEdit className='text-gray-5 w-4 h-4' />
-              </Button>
-              <Button
-                onClick={() => onOpenDelete(row.original)}
-                variant="secondary-outline-none"
-                className="px-1 py-1"
-                type="button"
-              >
-                <MdDelete className='text-gray-5 w-4 h-4' />
-              </Button>
-            </div>
-          )
-        },
-        header: props => (<div className='w-full text-center'>Actions</div>),
-        footer: props => props.column.id,
-        // enableSorting: false,
-        enableColumnFilter: false,
-        size: 10,
-        minSize: 10
+  // get access-card
+  useEffect(() => {
+    if (query?.page) setPages(Number(query?.page) || 1);
+    if (query?.limit) setLimit(Number(query?.limit) || 10);
+    if (query?.search) setSearch(query?.search || "");
+    if (query?.sort) {
+      if (query?.sort == "ASC") {
+        setSort({ value: query?.sort, label: "A-Z" });
+      } else {
+        setSort({ value: query?.sort, label: "Z-A" });
       }
+    }
+  }, [query?.page, query?.limit, query?.search, query?.sort]);
+
+  useEffect(() => {
+    let qr: any = {
+      page: pages,
+      limit: limit,
+    };
+
+    if (search) qr = { ...qr, search: search };
+    if (sort) qr = { ...qr, sort: sort?.value };
+
+    router.replace({ pathname, query: qr });
+  }, [pages, limit, search, sort]);
+
+  const filters = useMemo(() => {
+    const qb = RequestQueryBuilder.create();
+
+    const search = {
+      $and: [
+        {
+          $or: [
+            { cardNumber: { $contL: query?.search } },
+            { cardHolder: { $contL: query?.search } },
+            { cardType: { $contL: query?.search } },
+            { "unit.unitName": { $contL: query?.search } },
+          ],
+        },
+      ],
+    };
+
+    if (query?.page) qb.setPage(Number(query?.page) || 1);
+    if (query?.limit) qb.setLimit(Number(query?.limit) || 10);
+
+    qb.search(search);
+    if (!query?.sort) {
+      qb.sortBy({
+        field: `updatedAt`,
+        order: "DESC",
+      });
+    } else {
+      qb.sortBy({
+        field: `cardNumber`,
+        order: !sort?.value ? "ASC" : sort.value,
+      });
+    }
+    qb.query();
+    return qb;
+  }, [query?.page, query?.limit, query?.search, query?.sort]);
+
+  useEffect(() => {
+    if (token) dispatch(getAccessCards({ token, params: filters.queryObject }));
+  }, [token, filters]);
+
+  useEffect(() => {
+    let newArr: any[] = [];
+    const { data, pageCount, total } = accessCards;
+    if (data && data?.length > 0) {
+      data?.map((item: any) => {
+        newArr.push(item);
+      });
+    }
+    setDataTable(newArr);
+    setPageCount(pageCount);
+    setTotal(total);
+  }, [accessCards]);
+
+  // column
+  const columns = useMemo<ColumnDef<AccessCardProps, any>[]>(
+    () => [
+      // {
+      //   id: "select",
+      //   header: ({ table }) => {
+      //     return (
+      //       <IndeterminateCheckbox
+      //         {...{
+      //           checked: table?.getIsAllRowsSelected(),
+      //           indeterminate: table?.getIsSomeRowsSelected(),
+      //           onChange: table?.getToggleAllRowsSelectedHandler(),
+      //         }}
+      //       />
+      //     );
+      //   },
+      //   cell: ({ row }) => (
+      //     <div className="px-1">
+      //       <IndeterminateCheckbox
+      //         {...{
+      //           checked: row.getIsSelected(),
+      //           disabled: !row.getCanSelect(),
+      //           indeterminate: row.getIsSomeSelected(),
+      //           onChange: row.getToggleSelectedHandler(),
+      //         }}
+      //       />
+      //     </div>
+      //   ),
+      //   size: 10,
+      //   minSize: 10,
+      // },
+      {
+        accessorKey: "cardNumber",
+        header: (info) => <div className="uppercase">Card No.</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        // enableSorting: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "unit",
+        header: (info) => <div className="uppercase">Unit Code</div>,
+        cell: ({ getValue, row }) => {
+          const value = getValue()?.unitCode || "-";
+          return <div className="">{value}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "cardHolder",
+        header: (info) => <div className="uppercase">Card Holder</div>,
+        cell: ({ row, getValue }) => {
+          return <div className="">{getValue() || "-"}</div>;
+        },
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "activeDate",
+        cell: ({ row, getValue }) => {
+          let date = dateTimeFormat(getValue());
+          return <div className="">{date}</div>;
+        },
+        header: (props) => (
+          <div className="w-full uppercase">Card Active Date</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "expiryDate",
+        cell: ({ row, getValue }) => {
+          let date = dateTimeFormat(getValue());
+          return <div className="">{date}</div>;
+        },
+        header: (props) => (
+          <div className="w-full text-center uppercase">Card Expired Date</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "cardType",
+        cell: ({ row, getValue }) => {
+          const type = getValue() || "-";
+          return <div>{type || "-"}</div>;
+        },
+        header: (props) => (
+          <div className="w-full text-center uppercase">Card Type</div>
+        ),
+        footer: (props) => props.column.id,
+        enableColumnFilter: false,
+      },
     ],
     []
   );
 
-  useEffect(() => {
-    if (token) {
-      dispatch(getAuthMe({ token, callback: () => router.push("/authentication?page=sign-in") }))
+  // download data-format
+  const onDownloadTemplate = async () => {
+    setLoadingTemplate(true);
+    await axios({
+      url: `accessCard/template`,
+      method: "GET",
+      responseType: "blob",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `AccessCard-Template.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        console.log(response, 111);
+        setLoadingTemplate(false);
+      })
+      .catch((err) => {
+        toast.dark(err?.message);
+      });
+  };
+
+  // download data
+  const onDownload = async () => {
+    setLoadingData(true);
+
+    let date = new Date();
+    await axios({
+      url: `accessCard/download`,
+      method: "GET",
+      responseType: "blob",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${date}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        console.log(response, 111);
+        setLoadingData(false);
+      })
+      .catch((err) => {
+        toast.error(err?.message);
+      });
+  };
+
+  // upload-handler
+  const onHandlerUpload = async (event: any) => {
+    let data = [];
+    // console.log(100, event.target.files.length);
+    for (let index = 0; index < event.target.files.length; index++) {
+      data.push(toBase64(event.target.files[index]));
     }
-  }, [token]);
+    let imgData = await Promise.all(data);
+    setFiles(imgData);
+  };
+
+  const onDeleteImage = () => {
+    if (fileRef.current) {
+      fileRef.current.value = "";
+      setFiles(undefined);
+    }
+  };
+
+  // upload
+  const onUpload = (files: any) => {
+    let newData = {
+      excelFile:
+        !files || files?.length == 0
+          ? []
+          : files.map((img: any) => img.images)?.toString(),
+    };
+    dispatch(
+      uploadAccessCard({
+        token,
+        data: newData,
+        isSuccess: () => {
+          toast.dark("File has been uploaded");
+          onCloseUpload();
+          dispatch(getAccessCards({ token, params: filters.queryObject }));
+        },
+        isError: () => {
+          console.log("error-upload-file");
+        },
+      })
+    );
+    // console.log(newData);
+  };
 
   return (
     <DefaultLayout
@@ -276,112 +504,134 @@ const Areas = ({ pageProps }: Props) => {
       userDefault="../../../image/user/user-01.png"
       description=""
       token={token}
-    >
-      <div className='absolute inset-0 mt-20 z-9 bg-boxdark flex text-white'>
+      icons={{
+        icon: MdMuseum,
+        className: "w-8 h-8 text-meta-5",
+      }}>
+      <div className="absolute inset-0 mt-20 z-9 bg-boxdark flex text-white">
         <SidebarComponent
-          className=''
+          className=""
           menus={menuBM}
           sidebar={sidebarOpen}
           setSidebar={setSidebarOpen}
         />
 
         <div className="relative w-full bg-white lg:rounded-tl-[3rem] p-8 pt-0 2xl:p-10 2xl:pt-0 overflow-y-auto">
-          <div className='sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2'>
+          <div className="sticky bg-white top-0 z-50 py-6 mb-3 w-full flex flex-col gap-2">
             {/* headers */}
-            <div className='w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2'>
-              <div className='w-full flex items-center justify-between py-3 lg:hidden'>
+            <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+              <div className="w-full flex items-center justify-between py-3 lg:hidden">
                 <button
-                  aria-controls='sidebar'
+                  aria-controls="sidebar"
                   aria-expanded={sidebarOpen}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    setSidebarOpen(!sidebarOpen)
+                    e.stopPropagation();
+                    setSidebarOpen(!sidebarOpen);
                   }}
-                  className='rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden'
-                >
-                  <MdArrowRightAlt className={`w-5 h-5 delay-700 ease-in-out ${sidebarOpen ? "rotate-180" : ""}`} />
+                  className="rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark lg:hidden">
+                  <MdArrowRightAlt
+                    className={`w-5 h-5 delay-700 ease-in-out ${
+                      sidebarOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
               </div>
 
-              <div className='w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0'>
+              <div className="w-full max-w-max flex gap-2 items-center mx-auto lg:mx-0">
                 <Button
                   type="button"
-                  className='rounded-lg text-sm font-semibold py-3 border-0 gap-2.5'
+                  className="rounded-lg text-sm font-semibold py-3 border-0 gap-2.5"
                   onClick={() => router.back()}
-                  variant='secondary-outline'
-                  key={'1'}
-                >
-                  {/* <MdChevronLeft className='w-6 h-6 text-gray-4' /> */}
-                  <div className='flex flex-col gap-1 items-start'>
-                    <h3 className='w-full lg:max-w-max text-center text-2xl font-semibold text-graydark'>Access Card</h3>
+                  variant="secondary-outline"
+                  key={"1"}>
+                  <MdChevronLeft className="w-6 h-6 text-gray-4" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <h3 className="w-full lg:max-w-max text-center text-2xl font-semibold text-graydark">
+                      Access Card
+                    </h3>
                   </div>
                 </Button>
               </div>
 
-              <div className='w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto'>
+              <div className="w-full lg:max-w-max flex items-center justify-center gap-2 lg:ml-auto">
                 <Button
                   type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Format</span>
-                  <MdDownload className='w-4 h-4' />
+                  className="rounded-lg text-sm font-semibold py-3"
+                  onClick={() => onDownloadTemplate()}
+                  variant="primary-outline">
+                  {loadingTemplate ? (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Format</span>
+                      <MdDownload className="w-4 h-4" />
+                    </div>
+                  )}
                 </Button>
                 <Button
                   type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary-outline'
-                >
-                  <span className='hidden lg:inline-block'>Data</span>
-                  <MdDownload className='w-4 h-4' />
+                  className="rounded-lg text-sm font-semibold py-3"
+                  onClick={() => onDownload()}
+                  variant="primary-outline">
+                  {loadingData ? (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Loading...</span>
+                      <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="hidden lg:inline-block">Data</span>
+                      <MdDownload className="w-4 h-4" />
+                    </div>
+                  )}
                 </Button>
                 <Button
                   type="button"
-                  className='rounded-lg text-sm font-semibold py-3'
-                  onClick={onOpen}
-                  variant='primary'
-                >
-                  <span className='hidden lg:inline-block'>Upload</span>
-                  <MdUpload className='w-4 h-4' />
+                  className="rounded-lg text-sm font-semibold py-3"
+                  onClick={onOpenUpload}
+                  variant="primary">
+                  <span className="hidden lg:inline-block">Upload</span>
+                  <MdUpload className="w-4 h-4" />
                 </Button>
               </div>
             </div>
             {/* tabs */}
-            <div className='w-full px-4'>
+            <div className="w-full px-4">
               <Tabs menus={menuAccessCard} />
             </div>
           </div>
 
-          <main className='relative tracking-wide text-left text-boxdark-2'>
+          <main className="relative tracking-wide text-left text-boxdark-2">
             <div className="w-full flex flex-col overflow-auto gap-2.5 lg:gap-6">
               {/* content */}
-              <div className='w-full flex flex-col lg:flex-row gap-2.5 p-4'>
-                <div className='w-full lg:w-3/4'>
+              <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-2.5 p-4 items-center">
+                <div className="w-full lg:col-span-3">
                   <SearchInput
-                    className='w-full text-sm rounded-xl'
-                    classNamePrefix=''
+                    className="w-full text-sm rounded-xl"
+                    classNamePrefix=""
                     filter={search}
                     setFilter={setSearch}
-                    placeholder='Search...'
+                    placeholder="Search..."
                   />
                 </div>
-                <div className='w-full lg:w-1/4 flex flex-col lg:flex-row items-center gap-2'>
+                <div className="w-full flex flex-col lg:flex-row items-center gap-2">
                   <DropdownSelect
                     customStyles={stylesSelect}
                     value={sort}
                     onChange={setSort}
                     error=""
-                    className='text-sm font-normal text-gray-5 w-full lg:w-2/10'
+                    className="text-sm font-normal text-gray-5 w-full lg:w-2/10"
                     classNamePrefix=""
                     formatOptionLabel=""
-                    instanceId='1'
+                    instanceId="sort"
                     isDisabled={false}
                     isMulti={false}
-                    placeholder='Sorts...'
+                    placeholder="Sorts..."
                     options={sortOpt}
-                    icon='MdSort'
+                    icon="MdSort"
                   />
                 </div>
               </div>
@@ -405,146 +655,113 @@ const Areas = ({ pageProps }: Props) => {
         </div>
       </div>
 
-      {/* modal example */}
-      <Modal
-        size=''
-        onClose={onClose}
-        isOpen={isOpenModal}
-      >
+      {/* modal upload */}
+      <Modal size="small" onClose={onCloseUpload} isOpen={isOpenUpload}>
         <Fragment>
           <ModalHeader
-            className='p-4 border-b-2 border-gray mb-3'
+            className="p-4 border-b-2 border-gray"
             isClose={true}
-            onClick={onClose}
-          >
-            <h3 className='text-lg font-semibold'>Modal Header</h3>
+            onClick={onCloseUpload}>
+            <h3 className="text-lg font-semibold">Upload files</h3>
           </ModalHeader>
-          <div className="w-full px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, optio. Suscipit cupiditate voluptatibus et ut alias nostrum architecto ex explicabo quidem harum, porro error aliquid perferendis, totam iste corporis possimus nobis! Aperiam, necessitatibus libero! Sunt dolores possimus explicabo ducimus aperiam ipsam dolor nemo voluptate at tenetur, esse corrupti sapiente similique voluptatem, consequatur sequi dicta deserunt, iure saepe quasi eius! Eveniet provident modi at perferendis asperiores voluptas excepturi eius distinctio aliquam. Repellendus, libero modi eligendi nisi incidunt inventore perferendis qui corrupti similique id fuga sint molestias nihil expedita enim dolor aperiam, quam aspernatur in maiores deserunt, recusandae reiciendis velit. Expedita, fuga.
-          </div>
-          <ModalFooter
-            className='p-4 border-t-2 border-gray mt-3'
-            isClose={true}
-            onClick={onClose}
-          ></ModalFooter>
-        </Fragment>
-      </Modal>
+          <div className="w-full p-4">
+            <div className="w-full flex items-center justify-between gap-2">
+              <input
+                type="file"
+                id="upload-file"
+                placeholder="Upload files excel..."
+                autoFocus
+                className={`w-full focus:outline-none max-w-max text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-2 file:border-primary file:text-sm file:font-semibold file:bg-violet-50 file:text-primary-700 hover:file:bg-violet-100 ${
+                  !files || files?.length == 0 ? "" : "hidden"
+                }`}
+                onChange={onHandlerUpload}
+                ref={fileRef}
+                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              />
 
-      {/* detail modal */}
-      <Modal
-        size='small'
-        onClose={onCloseDetail}
-        isOpen={isOpenDetail}
-      >
-        <Fragment>
-          <ModalHeader
-            className='p-6 mb-3'
-            isClose={true}
-            onClick={onCloseDetail}
-          >
-            <div className="flex-flex-col gap-2">
-              <h3 className='text-lg font-semibold'>{details?.firstName || ""}</h3>
-              <div className="flex items-center gap-2">
-                <p className='text-sm text-gray-5'>{details?.firstName || ""} {details?.lastName || ""}</p>
-                <p className='text-sm text-gray-5 capitalize flex items-center'>
-                  <span>{details?.gender === "female" ? <MdFemale className='w-4 h-4 text-danger' /> : details?.gender === "male" ? <MdMale className='w-4 h-4 text-primary' /> : null}</span>
-                  {details?.gender || ""}
-                </p>
-              </div>
-            </div>
-          </ModalHeader>
-          <div className="w-full px-6 mb-5">
-            <div className='w-full flex gap-2.5'>
-              <img src={details?.images ?? "../../../image/user/user-02.png"} alt="profile-images" className='w-32 h-32 rounded-full shadow-2 object-cover object-center' />
+              {!files && files?.length == 0
+                ? null
+                : files?.map((img: any) => {
+                    return (
+                      <div
+                        className="flex flex-col w-full text-gray-6"
+                        key={img.size}>
+                        <div className="flex w-full items-center">
+                          <div className="">
+                            <MdOutlineFileCopy className="h-16 w-16 text-gray-500" />
+                          </div>
+                          <div className="flex flex-col text-sm text-gray-500">
+                            <p className="font-bold overflow-hidden">
+                              {img.name}
+                            </p>
+                            <p>
+                              {img?.size
+                                ? convertBytes({ bytes: img?.size })
+                                : "-"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
 
-              <div className='w-full flex flex-col gap-2 text-gray-5'>
-                <h3 className='font-bold text-lg'>{details?.fullName}</h3>
-                <div className='flex items-center gap-2'>
-                  <MdEmail />
-                  {details?.email}
-                </div>
-                <div className='flex items-center gap-2'>
-                  <MdPhone />
-                  {/* {formatPhone("+", details?.phoneNumber)} */}
-                  {details?.phoneNumber}
-                </div>
-                <div className='flex items-center gap-2'>
-                  <MdCalendarToday />
-                  {details?.date}
-                </div>
+              <div
+                className={`${
+                  !files || files?.length == 0 ? "hidden " : ""
+                }flex`}>
+                <button
+                  type="button"
+                  className={`rounded-full bg-danger text-white text-sm p-2 shadow-card hover:opacity-90 active:scale-90`}
+                  onClick={onDeleteImage}>
+                  <MdDelete className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
-
-          <div className="w-full flex flex-col divide-y-2 divide-gray shadow-3">
-            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_05</div>
-              <p>Occupant</p>
-            </div>
-            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_12</div>
-              <p>Occupant & Owner</p>
-            </div>
-            <div className='w-full flex flex-col px-6 lg:flex-row items-center justify-between py-2'>
-              <div className='text-lg text-primary'>Unit_55</div>
-              <p>Owner</p>
-            </div>
-          </div>
-        </Fragment>
-      </Modal>
-
-      {/* delete modal */}
-      <Modal
-        size='small'
-        onClose={onCloseDelete}
-        isOpen={isOpenDelete}
-      >
-        <Fragment>
-          <ModalHeader
-            className='p-4 border-b-2 border-gray mb-3'
-            isClose={true}
-            onClick={onCloseDelete}
-          >
-            <h3 className='text-lg font-semibold'>Delete Tenant</h3>
-          </ModalHeader>
-          <div className='w-full my-5 px-4'>
-            <h3>Are you sure to delete tenant data ?</h3>
-          </div>
-
-          <ModalFooter
-            className='p-4 border-t-2 border-gray'
-            isClose={true}
-            onClick={onCloseDelete}
-          >
-            <Button
-              variant="primary"
-              className="rounded-md text-sm"
+          <div className="w-full flex border-t-2 border-gray p-4 justify-end gap-2">
+            <button
               type="button"
-              onClick={onCloseDelete}
-            >
-              Yes, Delete it!
+              onClick={onCloseUpload}
+              className="inline-flex gap-1 px-4 py-2 rounded-lg border-2 border-gray shadow-2 focus:outline-none hover:opacity-90 active:scale-90">
+              <span className="text-xs font-semibold">Discard</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => onUpload(files)}
+              disabled={pending}
+              className="rounded-lg border-2 border-primary active:scale-90 shadow-2">
+              {pending ? (
+                <div className="flex items-center gap-1 text-xs">
+                  <span>loading...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </div>
+              ) : (
+                <span className="text-xs">Upload</span>
+              )}
             </Button>
-          </ModalFooter>
+          </div>
         </Fragment>
       </Modal>
     </DefaultLayout>
-  )
+  );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Parse cookies from the request headers
-  const cookies = getCookies(context)
+  const cookies = getCookies(context);
 
   // Access cookies using the cookie name
-  const token = cookies['accessToken'] || null;
-  const access = cookies['access'] || null;
-  const firebaseToken = cookies['firebaseToken'] || null;
+  const token = cookies["accessToken"] || null;
+  const access = cookies["access"] || null;
+  const firebaseToken = cookies["firebaseToken"] || null;
 
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in", // Redirect to the home page
-        permanent: false
+        destination: "/authentication/sign-in", // Redirect to the home page
+        permanent: false,
       },
     };
   }
@@ -554,4 +771,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Areas;
+export default AccessCard;

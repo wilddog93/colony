@@ -25,6 +25,7 @@ import Modal from "../../../../Modal";
 import UsersForm from "./UsersForm";
 import moment from "moment";
 import {
+  deleteTasks,
   getTasksByIdProject,
   selectTaskManagement,
   updateTasks,
@@ -38,6 +39,7 @@ import { selectAuth } from "../../../../../redux/features/auth/authReducers";
 import TaskComment from "./TaskComment";
 import TabsComponent from "../../../../Button/TabsComponent";
 import Todos from "./Todos";
+import { getProjectById } from "../../../../../redux/features/task-management/project/projectManagementReducers";
 
 type Props = {
   id: number | any;
@@ -142,8 +144,6 @@ export default function TaskFormUpdate(props: Props) {
 
   // data-item-task
   const [subTasks, setSubTasks] = useState<any | any>([]);
-  const [comments, setComments] = useState<any | any[]>([]);
-  const [attachments, setAttachments] = useState<any | any[]>([]);
   const [taskCategoryData, setTaskCategoryData] = useState<any | any[]>([]);
   // option
   const { taskCategories } = useAppSelector(selectTaskCategory);
@@ -163,6 +163,39 @@ export default function TaskFormUpdate(props: Props) {
   const onCloseModalCategory = () => {
     setIsOpenModalCategory(false);
   };
+
+  // modal delete task
+  const [isDeleteTask, setIsDeleteTask] = useState(false);
+  const [formDelete, setFormDelete] = useState<any>(null);
+  const onOpenDeleteTask = (value: any) => {
+    setFormDelete(value);
+    setIsDeleteTask(true);
+  };
+
+  const onCloseDeleteTask = () => {
+    setFormDelete(null);
+    setIsDeleteTask(false);
+  };
+
+  // delete task
+  const onDeleteTask = (value: any) => {
+    dispatch(
+      deleteTasks({
+        token,
+        id: query?.id,
+        taskId: value?.id,
+        isSuccess: () => {
+          dispatch(getTasksByIdProject({ token, id: query?.id }));
+          dispatch(getProjectById({ token, id: query?.id }));
+          onCloseDeleteTask();
+        },
+        isError: () => {
+          console.log("error");
+        },
+      })
+    );
+  };
+  // end
 
   // form
   const {
@@ -355,49 +388,6 @@ export default function TaskFormUpdate(props: Props) {
     }
   }, [taskCategories]);
 
-  // subtask
-  const filterSubTask = useMemo(() => {
-    let qb = RequestQueryBuilder.create();
-
-    qb.sortBy({ field: "updatedAt", order: "DESC" });
-
-    qb.query();
-    return qb;
-  }, []);
-
-  const getSubTask = async ({ token, params, id, taskId }: any) => {
-    const config = {
-      params,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
-    try {
-      const res = await axios.get(`/project/${id}/${taskId}/subTask`, config);
-      const { status, data } = res;
-      if (status == 200) {
-        setSubTasks(data?.data);
-      } else {
-        toast("Something went wrong!", { type: "error" });
-        throw res;
-      }
-    } catch (error) {
-      console.log(error, "error-response-subtask");
-    }
-  };
-
-  useEffect(() => {
-    if (token && items?.id) {
-      getSubTask({
-        token,
-        params: filterSubTask.queryObject,
-        id: items?.project?.id,
-        taskId: items?.id,
-      });
-    }
-  }, [token, items]);
-
   const generateStatusColor = (value: any) => {
     console.log(value, "value-data");
     let color = "#333333";
@@ -436,10 +426,8 @@ export default function TaskFormUpdate(props: Props) {
   const menuTabs = [
     { pathname: "To Do" },
     { pathname: "Comment" },
-    { pathname: "Attachment" },
+    // { pathname: "Attachment" },
   ];
-
-  //
 
   console.log(taskCategoryData, "items-task");
 
@@ -468,18 +456,19 @@ export default function TaskFormUpdate(props: Props) {
             </button>
             <button
               type="button"
-              onClick={() => console.log("save")}
+              onClick={() => onOpenDeleteTask(items)}
               className="border border-danger text-white bg-danger rounded-lg p-1 focus:outline-none focus:border-white">
               <MdDelete className="w-5 h-5" />
             </button>
           </div>
         </div>
       </ModalHeader>
+
       <div className="w-full">
         <div className="w-full flex flex-col lg:flex-row gap-2 divide-x-2 divide-gray">
           <div className="w-full lg:w-1/2 flex flex-col gap-2 p-6 text-gray-6">
             <div
-              className={`inline-flex w-full max-w-max px-4 py-2 text-xl rounded-lg shadow-2 mb-3 ${
+              className={`inline-flex w-full max-w-max px-4 py-2 text-xl rounded-lg mb-3 ${
                 !items?.taskStatus ? "hidden" : ""
               }`}
               style={{
@@ -574,8 +563,8 @@ export default function TaskFormUpdate(props: Props) {
               </label> */}
               <div className="w-full mt-2">
                 <textarea
-                  rows={3}
-                  cols={5}
+                  rows={5}
+                  cols={3}
                   maxLength={400}
                   placeholder="Description"
                   id="projectDescription"
@@ -732,6 +721,45 @@ export default function TaskFormUpdate(props: Props) {
           options={taskCategoryOpt}
           onCloseModal={onCloseModalCategory}
         />
+      </Modal>
+
+      {/* delete task */}
+      <Modal size="small" onClose={onCloseDeleteTask} isOpen={isDeleteTask}>
+        <Fragment>
+          <ModalHeader
+            className="p-4 border-b-2 border-gray mb-3"
+            isClose={true}
+            onClick={onCloseDeleteTask}>
+            <div className="text-gray-6">
+              <h3 className="text-md font-semibold">Delete Task</h3>
+              <p className="text-xs">Are you sure to delete this task ?</p>
+            </div>
+          </ModalHeader>
+          <div className="w-full flex items-center px-4 justify-end gap-2 mb-3">
+            <button
+              type="button"
+              className="inline-flex gap-2.5 items-center justify-center py-2 px-4 text-center hover:bg-opacity-90 rounded-lg border-2 border-gray shadow-2"
+              onClick={onCloseDeleteTask}>
+              <span className="text-xs font-semibold">Discard</span>
+            </button>
+
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg border-2 border-primary"
+              onClick={() => onDeleteTask(formDelete)}
+              disabled={pending}>
+              {pending ? (
+                <Fragment>
+                  <span className="text-xs">Deleting...</span>
+                  <FaCircleNotch className="w-4 h-4 animate-spin-1.5" />
+                </Fragment>
+              ) : (
+                <span className="text-xs">Yes, Delete it!</span>
+              )}
+            </Button>
+          </div>
+        </Fragment>
       </Modal>
     </Fragment>
   );

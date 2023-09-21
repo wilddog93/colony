@@ -259,7 +259,10 @@ export const deleteTasks = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`project/${params.id}`, config);
+    const response = await axios.delete(
+      `project/${params.id}/${params?.taskId}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

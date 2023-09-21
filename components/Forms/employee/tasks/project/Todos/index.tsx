@@ -51,7 +51,7 @@ export default function Todos({ id, item, member, user, token }: Props) {
 
   // get task todos
   useEffect(() => {
-    if (token) {
+    if (token && item?.id) {
       dispatch(
         getTaskTodos({
           token,

@@ -8,20 +8,16 @@ import {
   getAuthMe,
   selectAuth,
   webLogout,
+  webTenantAccess,
 } from "../../../redux/features/auth/authReducers";
 import AuthLayout from "../../../components/Layouts/AuthLayouts";
-import Link from "next/link";
 import {
-  MdAdd,
-  MdArrowBack,
   MdChevronLeft,
   MdChevronRight,
   MdLogin,
-  MdLogout,
   MdMail,
-  MdMailOutline,
-  MdOutlineBusiness,
   MdOutlineHome,
+  MdPerson,
 } from "react-icons/md";
 import Button from "../../../components/Button/Button";
 import Cards from "../../../components/Cards/Cards";
@@ -33,6 +29,12 @@ import {
   selectPropertyAccess,
 } from "../../../redux/features/propertyAccess/propertyAccessReducers";
 import { webPropertyAccess } from "../../../redux/features/auth/authReducers";
+import {
+  getAccessTenant,
+  selecttTenantAccess,
+} from "../../../redux/features/tenants/tenantAccessReducers";
+import Tabs from "../../../components/Layouts/Tabs";
+import { menuTabTenants, menuTenantAccess } from "../../../utils/routes";
 
 interface PageProps {
   page: string;
@@ -45,14 +47,17 @@ type Props = {
   pageProps: PageProps;
 };
 
-const Home = ({ pageProps }: Props) => {
+const TenantAccessPage = ({ pageProps }: Props) => {
   // props
   const { token, access, firebaseToken, page } = pageProps;
+
+  // url
+  const url = process.env.API_ENDPOINT;
 
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { data, isLogin, pending, error, message } = useAppSelector(selectAuth);
-  const property = useAppSelector(selectPropertyAccess);
+  const Tenant = useAppSelector(selecttTenantAccess);
   const { user } = data;
 
   // sidebar
@@ -70,14 +75,14 @@ const Home = ({ pageProps }: Props) => {
           deleteCookie("accessToken");
           deleteCookie("refreshToken");
           deleteCookie("access");
-          router.push("/authentication?page=sign-in");
+          router.push("/authentication/sign-in");
         },
       })
     );
   }, [token]);
 
   useEffect(() => {
-    if (token) dispatch(getAccessProperty({ token }));
+    if (token) dispatch(getAccessTenant({ token }));
   }, [token]);
 
   const isOpenSignOut = () => setIsSignOut(true);
@@ -93,48 +98,76 @@ const Home = ({ pageProps }: Props) => {
     );
   };
 
-  const properties = useMemo(() => {
-    const { data } = property.properties;
+  const tenants = useMemo(() => {
+    const { data } = Tenant.tenants;
     return data || [];
-  }, [property.properties]);
+  }, [Tenant.tenants]);
 
   const gotToAccess = (access: any) => {
     setCookie("access", access, { maxAge: 60 * 60 * 24 });
     router.push({ pathname: `/access/${access}` });
   };
 
-  const goToPropertyAccess = (id: number) => {
+  const goToTenantAccess = (id: number) => {
     dispatch(
-      webPropertyAccess({
+      webTenantAccess({
         id,
         token,
-        callback: () => router.push({ pathname: "/owner/dashboard" }),
+        callback: () => router.push({ pathname: "/tenant/billing" }),
       })
     );
   };
 
-  const Property = (props: any) => {
-    const { id, propertyStructureName, property } = props?.items;
+  const TenantComponent = (props: any) => {
+    const { id, unitName, unitDescription, unitImage, tenant, floor } =
+      props?.items;
     return (
       <button
         type="button"
-        className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
-        onClick={() => goToPropertyAccess(id)}>
+        className="w-full h-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-hidden"
+        onClick={() => goToTenantAccess(id)}>
         <img
           src={
-            property?.propertyLogo || "../../.../../image/logo/logo-icon.svg"
+            unitImage
+              ? url + `unit/unitImage/${unitImage}`
+              : "../../.../../image/logo/logo-icon.svg"
           }
           alt="icon"
-          className="w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto"
+          className="w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto"
         />
         <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
           <div className="w-full text-left p-2">
-            <h3 className="font-semibold text-lg">
-              {property?.propertyName || "-"}
-            </h3>
-            <p className="text-sm">
-              {property?.propertyDescription || "lorem"}
-            </p>
+            <div className="w-full flex flex-col gap-2">
+              <h3 className="font-semibold text-base">{unitName || "-"}</h3>
+              <div className="w-full flex flex-col gap-2">
+                <div></div>
+                <div className="w-full flex gap-2">
+                  <span>
+                    <MdPerson className="w-5 h-5" />
+                  </span>
+                  <div>{`${tenant?.user?.firstName || ""} ${
+                    tenant?.user?.lastName || ""
+                  }`}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-gray w-full my-2"></div>
+
+            <div className="w-full flex items-center text-left gap-2">
+              <div className="font-semibold text-gray-5 flex items-center gap-2">
+                <span>
+                  <MdOutlineHome className="w-4 h-4" />
+                </span>
+                <span>{floor?.tower?.towerName || "-"}</span>
+              </div>
+              <div className="font-semibold text-gray-5 flex items-center gap-2">
+                <span>
+                  <MdOutlineHome className="w-4 h-4" />
+                </span>
+                <span>{floor?.floorName || "-"}</span>
+              </div>
+            </div>
           </div>
         </div>
         <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">
@@ -144,7 +177,7 @@ const Home = ({ pageProps }: Props) => {
     );
   };
 
-  console.log(property.properties, "data");
+  console.log(tenants, "data-tenant");
 
   return (
     <AuthLayout
@@ -152,11 +185,11 @@ const Home = ({ pageProps }: Props) => {
       logo="../../.../../image/logo/logo-icon.svg"
       description="">
       <div className="bg-gray w-full lg:px-44 lg:py-10">
-        <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden lg:overflow-y-auto">
+        <div className="relative w-full lg:h-full flex flex-col lg:flex-row items-center rounded-xl bg-white shadow-default p-10 overflow-x-hidden overflow-y-auto">
           <div
-            className={`w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between`}>
+            className={`relative w-full lg:w-1/2 h-full flex flex-col p-6 lg:pr-10 gap-2 text-gray-5 justify-between lg:overflow-auto`}>
             <div className="w-full flex flex-col justify-center gap-6">
-              <div className="flex flex-col gap-2 fixed lg:static top-0 inset-x-0 bg-white p-4 lg:p-0">
+              <div className="w-full flex flex-col gap-2 sticky top-0 inset-x-0 bg-white p-4 lg:p-0">
                 <div className="w-full">
                   <Button
                     type="button"
@@ -187,10 +220,10 @@ const Home = ({ pageProps }: Props) => {
                 </p>
               </div>
 
-              <Cards className="mt-24 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
+              <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="../../../image/user/user-01.png"
+                    src="../../../image/no-image.jpeg"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
@@ -204,7 +237,7 @@ const Home = ({ pageProps }: Props) => {
                       user?.firstName || ""
                     } ${user?.lastName || ""}`}</h3>
                   </div>
-                  <div className="w-full flex flex-1 gap-2 justify-center sm:justify-start">
+                  <div className="w-full flex flex-1 gap-2 justify-center md:justify-start">
                     <div>
                       <MdMail className="w-6 h-6" />
                     </div>
@@ -215,9 +248,9 @@ const Home = ({ pageProps }: Props) => {
             </div>
 
             {/* data-property */}
-            <div className="w-full h-full max-h-[500px] flex flex-col justify-center gap-2 overflow-auto">
+            <div className="w-full h-full flex flex-col justify-center gap-2 mt-3">
               <h3 className="text-lg tracking-wide">Select Your Access :</h3>
-              <div className="w-full h-full overflow-auto">
+              <div className="w-full">
                 <div className="w-full grid cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                   <button
                     type="button"
@@ -308,64 +341,32 @@ const Home = ({ pageProps }: Props) => {
           </div>
 
           <div
-            className={`w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out`}>
-            <div className="w-full h-full flex flex-col items-center">
-              <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8">
-                <div className="w-full">
-                  <h3 className="text-title-lg font-semibold">Access List</h3>
-                  <p className="text-base text-gray-5">Select your workspace</p>
+            className={`relative w-full lg:w-1/2 h-full transition-transform duration-500 border-2 bg-gray text-graydark border-stroke rounded-3xl ease-in-out overflow-y-auto lg:overflow-x-hidden`}>
+            <div className="w-full flex flex-col items-center">
+              <div className="w-full sticky top-0 z-999 bg-gray">
+                <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8 sticky">
+                  <div className="w-full">
+                    <h3 className="text-title-lg font-semibold">Access List</h3>
+                    <p className="text-base text-gray-5">
+                      Select your workspace
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="w-full overflow-auto p-8">
-                <div className="w-full h-full flex flex-col gap-4 ">
-                  {/* {properties?.length > 0 ? properties?.map((item: any, index: any) => {
-                                    return (
-                                        <Property
-                                            key={index}
-                                            items={item}
-                                        />
-                                    )
-                                }) :
-                                    <div className='w-full'>
-                                        <span className='font-semibold text-lg'>Data not found!</span>
-                                    </div>
-                                } */}
 
-                  <button
-                    type="button"
-                    className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row lg:items-center bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
-                    onClick={() => router.push("/tenant/menu")}>
-                    <img
-                      src={"../../.../../image/logo/logo-icon.svg"}
-                      alt="icon"
-                      className="w-full max-w-[200px] lg:w-[20%] object-cover object-center mx-auto"
-                    />
-                    <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
-                      <div className="w-full text-left p-2">
-                        <h3 className="font-semibold text-lg">{"Colony05B"}</h3>
-                        <p className="text-sm divide-y-2 divide-gray">
-                          {"Fauzi"}
-                        </p>
-                      </div>
-                      <div className="w-full flex items-center text-left p-2 gap-2">
-                        <div className="font-semibold text-gray-5 flex items-center gap-2">
-                          <MdOutlineHome className="w-4 h-4" />
-                          <span>Colony</span>
-                        </div>
-                        <div className="font-semibold text-gray-5 flex items-center gap-2">
-                          <MdOutlineHome className="w-4 h-4" />
-                          <span>F1</span>
-                        </div>
-                        <div className="font-semibold text-gray-5 flex items-center gap-2">
-                          <MdOutlineHome className="w-4 h-4" />
-                          <span>Zone 1</span>
-                        </div>
-                      </div>
+              <div className="w-full p-8">
+                <div className="w-full flex flex-col gap-4 ">
+                  {tenants?.length > 0 ? (
+                    tenants?.map((item: any, index: any) => {
+                      return <TenantComponent key={index} items={item} />;
+                    })
+                  ) : (
+                    <div className="w-full">
+                      <span className="font-semibold text-lg">
+                        Data not found!
+                      </span>
                     </div>
-                    <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">
-                      <MdChevronRight className="w-7 h-7 m-auto" />
-                    </div>
-                  </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -434,7 +435,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (!token) {
     return {
       redirect: {
-        destination: "/authentication?page=sign-in",
+        destination: "/authentication/sign-in",
         permanent: true,
       },
     };
@@ -445,4 +446,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
-export default Home;
+export default TenantAccessPage;

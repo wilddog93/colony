@@ -126,10 +126,7 @@ const VerifyAccount = ({ pageProps }: Props) => {
           token,
           callback: () =>
             router.push({
-              pathname: "/authentication",
-              query: {
-                page: "sign-in",
-              },
+              pathname: "/authentication/sign-in",
             }),
         })
       );
@@ -185,7 +182,7 @@ const VerifyAccount = ({ pageProps }: Props) => {
             <div className="w-full h-full flex flex-col items-center justify-between">
               <Link
                 className="w-full pt-5.5 flex items-center gap-4 px-10"
-                href="/authentication?page=sign-in">
+                href="/authentication/sign-in">
                 <img src="../image/logo/logo-icon-white.png" alt="logo" />
                 <h2 className="text-lg text-white sm:text-title-lg">Colony.</h2>
               </Link>

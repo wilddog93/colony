@@ -61,6 +61,7 @@ function SelectTables(props: any) {
     setLimit,
     total,
     isInfiniteScroll,
+    headerColor,
   } = props;
 
   const router: NextRouter = useRouter();
@@ -242,7 +243,10 @@ function SelectTables(props: any) {
       <div className="col-span-1 p-4 overflow-x-auto">
         <table className="w-full table-auto overflow-hidden rounded-xl shadow-md">
           {/* <thead className='text-left divide-y dark:divide-gray-700 text-xs font-semibold tracking-wide text-gray-500 uppercase border-b dark:border-gray-700'> */}
-          <thead className="divide-y divide-gray-4 text-xs text-graydark bg-gray tracking-wide">
+          <thead
+            className={`divide-y divide-gray-4 text-xs text-graydark bg-gray tracking-wide ${
+              !headerColor ? "bg-gray" : headerColor
+            }`}>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup?.headers.map((header) => {
@@ -297,7 +301,10 @@ function SelectTables(props: any) {
                     return (
                       <td
                         key={cell.id}
-                        style={{ width: cell.column.columnDef.size }}
+                        style={{
+                          width: cell.column.columnDef.size,
+                          maxWidth: cell.column.columnDef.maxSize,
+                        }}
                         className="px-4 py-4">
                         {loading && !isInfiniteScroll ? (
                           <div className="px-1 py-1 animate-pulse flex items-center justify-center">

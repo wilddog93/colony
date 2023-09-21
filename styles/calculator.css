@@ -1,0 +1,26 @@
+.result-calculator {
+  height: 60px;
+  background-color: #bbb;
+  width: 100%;
+}
+
+.result-calculator p {
+  font-size: 40px;
+  margin: 5px;
+}
+
+.calculator-body {
+  max-width: 400px;
+  margin: auto;
+}
+
+.btn-wrapper {
+  display: block;
+  background-color: white;
+}
+
+.btn-calculator {
+  width: 25%;
+  height: 60px;
+  font-size: 30px;
+}

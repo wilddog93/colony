@@ -17,10 +17,14 @@ import {
   MdOutlineNextWeek,
   MdOutlinePeopleAlt,
   MdOutlineSettings,
+  MdPeople,
   MdPermDeviceInformation,
   MdPhotoSizeSelectActual,
   MdReceipt,
+  MdShoppingCart,
+  MdStorage,
   MdStore,
+  MdTrendingUp,
   MdUnarchive,
   MdWarningAmber,
   MdWork,
@@ -56,17 +60,16 @@ export const menuPropertyMaster: MenuProps[] = [
         className: "text-lg",
         // text-[#44C2FD]
       },
-      {
-        pathname: "Billings & Payments",
-        pages: "billings",
-        url: "/employee/billings",
-        icons: {
-          icon: MdMonetizationOn,
-          className: "w-8 h-8 text-meta-3",
-        },
-        className: "text-lg",
-        // text-[#44FDAF]
-      },
+      // {
+      //   pathname: "Billings & Payments",
+      //   pages: "billings",
+      //   url: "/employee/billings",
+      //   icons: {
+      //     icon: MdMonetizationOn,
+      //     className: "w-8 h-8 text-meta-3",
+      //   },
+      //   className: "text-lg",
+      // },
       {
         pathname: "Task Management",
         pages: "tasks",
@@ -80,8 +83,8 @@ export const menuPropertyMaster: MenuProps[] = [
       },
       {
         pathname: "Assets & Inventories",
-        pages: "assets-inventories",
-        url: "/employee/assets-inventories",
+        pages: "assets-management",
+        url: "/employee/assets-management/products",
         icons: {
           icon: MdUnarchive,
           className: "w-8 h-8 text-meta-6",
@@ -89,51 +92,50 @@ export const menuPropertyMaster: MenuProps[] = [
         className: "text-lg",
         // text-[#F7E759]
       },
-      {
-        pathname: "Media",
-        pages: "media",
-        url: "/employee/media/videos",
-        icons: {
-          icon: MdPhotoSizeSelectActual,
-          className: "w-8 h-8 text-primary",
-        },
-        className: "text-lg",
-      },
-      {
-        pathname: "Merchants",
-        pages: "merchants",
-        url: "/employee/merchants",
-        icons: {
-          icon: MdStore,
-          className: "w-8 h-8 text-meta-8",
-        },
-        className: "text-lg",
-        // text-[#F79259]
-      },
+      // {
+      //   pathname: "Media",
+      //   pages: "media",
+      //   url: "/employee/media/videos",
+      //   icons: {
+      //     icon: MdPhotoSizeSelectActual,
+      //     className: "w-8 h-8 text-primary",
+      //   },
+      //   className: "text-lg",
+      // },
+      // {
+      //   pathname: "Merchants",
+      //   pages: "merchants",
+      //   url: "/employee/merchants",
+      //   icons: {
+      //     icon: MdStore,
+      //     className: "w-8 h-8 text-meta-8",
+      //   },
+      //   className: "text-lg",
+      // },
     ],
   },
-  {
-    subMenus: [
-      {
-        pathname: "Settings",
-        pages: "employee/settings",
-        url: "/settings",
-        icons: {
-          icon: MdOutlineSettings,
-          className: "w-8 h-8",
-        },
-      },
-      {
-        pathname: "Helps",
-        pages: "helps",
-        url: "/helps",
-        icons: {
-          icon: MdHelpOutline,
-          className: "w-8 h-8",
-        },
-      },
-    ],
-  },
+  // {
+  //   subMenus: [
+  //     {
+  //       pathname: "Settings",
+  //       pages: "employee/settings",
+  //       url: "/settings",
+  //       icons: {
+  //         icon: MdOutlineSettings,
+  //         className: "w-8 h-8",
+  //       },
+  //     },
+  //     {
+  //       pathname: "Helps",
+  //       pages: "helps",
+  //       url: "/helps",
+  //       icons: {
+  //         icon: MdHelpOutline,
+  //         className: "w-8 h-8",
+  //       },
+  //     },
+  //   ],
+  // },
 ];
 
 // Building Management
@@ -493,6 +495,176 @@ export const menuProjects: MenuProps[] = [
   },
 ];
 
+// assets & inventories
+export const menuAssets: MenuProps[] = [
+  {
+    pathname: "Products",
+    pages: "products",
+    url: "/employee/assets-management/products",
+    icons: {
+      icon: MdShoppingCart,
+      className: "w-5 h-5",
+    },
+  },
+  {
+    pathname: "Assets & Inventories",
+    pages: "assets-inventories",
+    icons: {
+      icon: MdUnarchive,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Assets",
+        url: "/employee/assets-management/assets-inventories/assets",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Inventories",
+        url: "/employee/assets-management/assets-inventories/inventories",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
+  },
+  {
+    pathname: "Locations",
+    pages: "locations",
+    icons: {
+      icon: MdStorage,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Storage",
+        url: "/employee/assets-management/locations/storages",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Other",
+        url: "/employee/assets-management/locations/others",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
+  },
+  {
+    pathname: "Stocks",
+    pages: "stocks",
+    icons: {
+      icon: MdTrendingUp,
+      className: "w-5 h-5",
+    },
+    routes: [
+      {
+        pathname: "Request Order",
+        url: "/employee/assets-management/stocks/request-order",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Purchase Order",
+        url: "/employee/assets-management/stocks/purchase-order",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Move & Usage",
+        url: "/employee/assets-management/stocks/move-usage",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Asset Out",
+        url: "/employee/assets-management/stocks/asset-out",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Stock Taking",
+        url: "/employee/assets-management/stocks/stock-taking",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+      {
+        pathname: "Transactions",
+        url: "/employee/assets-management/stocks/transactions",
+        query: {
+          page: 1,
+          limit: 10,
+        },
+      },
+    ],
+  },
+  {
+    pathname: "Vendor",
+    pages: "vendor",
+    url: "/employee/assets-management/vendor",
+    icons: {
+      icon: MdPeople,
+      className: "w-5 h-5",
+    },
+  },
+];
+
+export const menuTabAssets: MenuProps[] = [
+  {
+    pathname: "Asset",
+    url: "/employee/assets-management/assets-inventories/assets",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Inventory",
+    url: "/employee/assets-management/assets-inventories/inventories",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+export const menuTabLocations: MenuProps[] = [
+  {
+    pathname: "Storage",
+    url: "/employee/assets-management/locations/storages",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Other",
+    url: "/employee/assets-management/locations/others",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
 // billing payment
 export const menuPayments: MenuProps[] = [
   {
@@ -670,6 +842,41 @@ export const menuManageDomainOwner: MenuProps[] = [
     pathname: "Access Group",
     pages: "home",
     url: "/owner/home/access-group",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+// tenant-owner
+export const menuTabTenants: MenuProps[] = [
+  {
+    pathname: "Billing History",
+    url: "/tenant/billing",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+  {
+    pathname: "Transaction History",
+    url: "/tenant/transactions",
+    query: {
+      page: 1,
+      limit: 10,
+    },
+  },
+];
+
+export const menuTenantAccess: MenuProps[] = [
+  {
+    pathname: "Units",
+    url: "/access/tenant",
+  },
+  {
+    pathname: "List Claim",
+    url: "/access/tenant/list",
     query: {
       page: 1,
       limit: 10,

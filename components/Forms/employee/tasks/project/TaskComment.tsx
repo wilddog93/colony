@@ -1,7 +1,18 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { MdDeleteOutline, MdDone, MdEdit, MdPeople } from "react-icons/md";
+import {
+  MdDeleteOutline,
+  MdDone,
+  MdDownload,
+  MdEdit,
+  MdPeople,
+  MdTask,
+} from "react-icons/md";
 import { useRouter } from "next/router";
-import { isBase64, sortByArr } from "../../../../../utils/useHooks/useFunction";
+import {
+  isBase64,
+  isPDFFiles,
+  sortByArr,
+} from "../../../../../utils/useHooks/useFunction";
 import { useAppDispatch, useAppSelector } from "../../../../../redux/Hook";
 import {
   createTaskComment,
@@ -50,6 +61,13 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
   const [commentEdit, setCommentEdit] = useState<any>(null);
   const [attachmentEdit, setAttachmentEdit] = useState(null);
 
+  // images
+  const [isOpenImage, setIsOpenImage] = useState(false);
+  const [formImage, setFormImage] = useState<any>(null);
+
+  // pdf status
+  const [isPdfStatus, setisPdfStatus] = useState(false);
+
   // edit base status
   const [isBaseStatus, setIsBaseStatus] = useState(false);
 
@@ -84,11 +102,16 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
     const { data } = taskComments;
     if (data && data?.length > 0) {
       data?.map((item: any) => {
-        arr.push(item);
+        arr.push({
+          ...item,
+          taskAttachmentStatus: isPDFFiles(item?.taskCommentAttachment),
+        });
       });
-      setCommentData(arr);
     }
+    setCommentData(arr);
   }, [taskComments]);
+
+  console.log(commentData, "status-update");
 
   // create-comment
   const onCreateComment = async (value: any) => {
@@ -138,6 +161,7 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
       id: value?.id,
       taskCommentContent: value?.taskCommentContent,
       taskCommentAttachment: value?.taskCommentAttachment,
+      taskAttacthmenStatus: isPDFFiles(value?.taskCommentAttachment),
     };
     setCommentEdit(value?.taskCommentContent);
     setAttachmentEdit(value?.taskCommentAttachment);
@@ -251,6 +275,34 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
     return sort;
   }, [commentData]);
 
+  // download document
+  const onDownloadDocument = async ({ url, name }: any) => {
+    async function toDataURL(url: any) {
+      const blob = await fetch(url).then((res) => res.blob());
+      return URL.createObjectURL(blob);
+    }
+    if (url) {
+      const a = document.createElement("a");
+      a.href = await toDataURL(url);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  // modal images
+  const onOpenModalImage = (value: any) => {
+    console.log(value, "images");
+    setFormImage(value);
+    setIsOpenImage(true);
+  };
+
+  const onCloseModalImage = () => {
+    setFormImage(null);
+    setIsOpenImage(false);
+  };
+
   return (
     <div>
       <div className="w-full flex flex-col font-normal px-4">
@@ -267,6 +319,9 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
       <div className="overflow-y-scroll my-5 max-h-60">
         {disPlayComment?.length > 0
           ? disPlayComment?.map((element: any, idx: any) => {
+              console.log(element, "status-edit");
+              let downloadURL = `${url}project/task/attachment/${element?.taskCommentAttachment}`;
+              let downloadName = element?.taskCommentAttachment;
               return (
                 <React.Fragment key={idx}>
                   <div className="w-full p-4 pb-0">
@@ -391,12 +446,58 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
                               .fromNow()}`}
                           </p>
 
-                          {element?.taskCommentAttachment ? (
-                            <div className="w-full flex flex-wrap mb-2">
-                              <img
-                                src={`${url}project/task/attachment/${element?.taskCommentAttachment}`}
-                                className="rounded-md h-10 w-10 mr-2 object-cover object-center"
-                              />
+                          {element?.taskCommentAttachment &&
+                          element?.taskAttachmentStatus ? (
+                            <div className="w-full flex items-center gap-1">
+                              <MdTask className="w-12 h-auto" />
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onDownloadDocument({
+                                      url: downloadURL,
+                                      name: downloadName,
+                                    })
+                                  }
+                                  className="inline-flex px-2 py-1 rounded-lg border-2 border-gray hover:shadow-2 active:scale-95 items-center justify-center gap-1">
+                                  <MdDownload className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {element?.taskCommentAttachment &&
+                          !element?.taskAttachmentStatus ? (
+                            <div className="w-full flex flex-col gap-2">
+                              <div className="w-full max-max flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onOpenModalImage({
+                                      url: downloadURL,
+                                      name: downloadName,
+                                    })
+                                  }
+                                  className="relative w-full max-w-max flex">
+                                  <img
+                                    src={`${url}project/task/attachment/${element?.taskCommentAttachment}`}
+                                    className="rounded-md h-10 w-10 object-cover object-center"
+                                  />
+                                </button>
+                                {/* <div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      onDownloadDocument({
+                                        url: downloadURL,
+                                        name: downloadName,
+                                      })
+                                    }
+                                    className="inline-flex px-2 py-1 rounded-lg border-2 border-gray hover:shadow-2 active:scale-95 items-center justify-center gap-1">
+                                    <MdDownload className="w-4 h-4" />
+                                  </button>
+                                </div> */}
+                              </div>
                             </div>
                           ) : null}
                         </div>
@@ -448,6 +549,42 @@ export default function TaskComment({ id, item, member, user, token }: Props) {
                 <span className="text-xs">Yes, Delete it!</span>
               )}
             </Button>
+          </div>
+        </Fragment>
+      </Modal>
+
+      {/* modal images */}
+      <Modal size="medium" onClose={onCloseModalImage} isOpen={isOpenImage}>
+        <Fragment>
+          <div className="w-full relative bg-gray-4 h-[350px] rounded-lg overflow-hidden shadow-card">
+            <ModalHeader
+              className="absolute top-0 inset-x-0 z-999 w-full p-4"
+              isClose={true}
+              onClick={onCloseModalImage}>
+              <div className="text-white">
+                <h3 className="text-md font-semibold shadow-2">
+                  {formImage?.name}
+                </h3>
+              </div>
+            </ModalHeader>
+            <img
+              src={formImage?.url}
+              className="w-full h-full z-99 mx-auto absolute inset-0 object-cover object-center"
+            />
+            <div className="absolute bottom-0 inset-x-0 z-999 w-full flex items-center px-4 justify-center gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() =>
+                  onDownloadDocument({
+                    url: formImage?.url,
+                    name: formImage?.name,
+                  })
+                }
+                className="relative w-full max-w-max flex gap-2 items-center rounded-lg shadow-card px-4 py-2 bg-primary text-white hover:opacity-75 active:scale-90">
+                <span>Download</span>
+                <MdDownload className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </Fragment>
       </Modal>

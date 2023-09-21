@@ -73,6 +73,18 @@ export const sortByArr = (fn: any, sortBy: boolean) => {
   };
 };
 
+export const convertBytes = ({ bytes, decimals = 2 }: any) => {
+  let units = ["B", "KB", "MB", "GB", "TB", "PB"];
+
+  let i = 0;
+
+  for (i; bytes > 1024; i++) {
+    bytes /= 1024;
+  }
+
+  return parseFloat(bytes.toFixed(decimals)) + " " + units[i];
+};
+
 export const toBase64 = (file: any) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -119,6 +131,12 @@ export const isBase64 = (str: any) => {
   return res;
 };
 
+export const isPDFFiles = (value: any) => {
+  const pdfRegex = /^.+\.(([pP][dD][fF]))$/;
+  let result = pdfRegex.test(value);
+  return result;
+};
+
 export const exportDataToJSON = (data: any) => {
   const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
     JSON.stringify(data)
@@ -128,4 +146,26 @@ export const exportDataToJSON = (data: any) => {
   link.download = "data.json";
 
   link.click();
+};
+
+export const getWebString = (value: any) => {
+  let condition = value?.slice(0, 8) === "https://";
+  if (!value) {
+    return {
+      website: null,
+      url: null,
+    };
+  } else {
+    if (condition) {
+      return {
+        website: value?.slice(8),
+        url: { value: value?.slice(0, 8), label: value?.slice(0, 8) },
+      };
+    } else {
+      return {
+        website: value?.slice(7),
+        url: { value: value?.slice(0, 7), label: value?.slice(0, 7) },
+      };
+    }
+  }
 };

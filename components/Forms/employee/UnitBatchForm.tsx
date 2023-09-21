@@ -265,6 +265,7 @@ export default function UnitBatchForm({
         unitOrder: items?.floorOrder,
         isBulk: items?.isBulk,
       });
+      setDataAmenity(items?.amenity ? items?.amenity : []);
     }
   }, [items]);
 
@@ -787,8 +788,8 @@ export default function UnitBatchForm({
                 className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary  disabled:bg-gray-3`}
                 {...register("unitDescription")}
               />
-              <div className="text-sm text-gray-5">
-                {descriptionValue?.length}/400
+              <div className="w-full flex justify-end text-sm text-gray-5">
+                {descriptionValue?.length || 0}/400
               </div>
             </div>
 

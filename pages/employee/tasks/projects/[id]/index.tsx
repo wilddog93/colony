@@ -278,27 +278,27 @@ const TaskDetail = ({ pageProps }: Props) => {
 
   const genProjectStatus = (value: string) => {
     if (!value) return "-";
-    if (value === "Open")
+    if (value === "Open" || value === "Not Started")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-7 text-meta-8 bg-orange-200">
           {value}
         </div>
       );
-    if (value === "On Progress")
+    if (value === "On Progress" || value === "Ongoing")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-8 text-meta-8 bg-orange-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-5 text-meta-5 bg-blue-100">
           {value}
         </div>
       );
-    if (value === "Closed")
+    if (value === "Closed" || value === "Done" || value === "Completed")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-green-600 text-green-600 bg-green-200">
           {value}
         </div>
       );
     if (value === "Overdue")
       return (
-        <div className="w-full max-w-max p-1 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
+        <div className="w-full max-w-max p-2 rounded-lg text-xs text-center border border-meta-1 text-meta-1 bg-red-200">
           {value}
         </div>
       );
@@ -306,7 +306,7 @@ const TaskDetail = ({ pageProps }: Props) => {
 
   const genColorProjectType = (value: any) => {
     // #333A48
-    let color = "";
+    let color = "#333A48";
     if (!value) return "";
     if (value == "Project") color = "#5E59CE";
     if (value == "Complaint Handling") color = "#FF8859";
@@ -571,8 +571,16 @@ const TaskDetail = ({ pageProps }: Props) => {
                       !projectData?.projectType ? "hidden" : ""
                     }`}>
                     <div
-                      className={`w-full max-w-max text-center bg-primary px-4 py-2 rounded-xl`}>
-                      {projectData?.projectType?.projectTypeName}
+                      style={{
+                        backgroundColor: genColorProjectType(
+                          projectData?.projectType?.projectTypeName
+                        ),
+                        color: "#FFFFFF",
+                      }}
+                      className={`w-full max-w-max text-centerpx-4 py-2 px-4 rounded-xl`}>
+                      {projectData?.projectType?.projectTypeName
+                        ? projectData?.projectType?.projectTypeName
+                        : "-"}
                     </div>
                   </div>
                 </div>
@@ -653,8 +661,10 @@ const TaskDetail = ({ pageProps }: Props) => {
 
                 <div className="w-full max-w-max flex items-center gap-2 px-4 py-2 text-sm">
                   <span className="font-semibold">Project Status:</span>
-                  <div className="bg-red-200 border-500 text-500 rounded-lg px-4 py-2 text-red-500 font-semibold">
-                    {projectData?.projectStatus}
+                  <div className="">
+                    {projectData?.projectStatus
+                      ? genProjectStatus(projectData?.projectStatus)
+                      : "-"}
                   </div>
                 </div>
               </div>

@@ -1,79 +1,21 @@
 import DropdownNotification from "../../../Dropdown/DropdownNotification";
 import DropdownUser from "../../../Dropdown/DropdownUser";
 import Link from "next/link";
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
-import Icon from "../../../Icon";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import DomainHeaderMobile from "../Domain/DomainHeaderMobile";
 
 type HeaderProps = {
-  header?: string;
   userDefault?: string;
-  sidebarOpen?: boolean;
-  setSidebarOpen: Dispatch<SetStateAction<boolean>>;
   logo?: string;
-  images?: string;
-  title?: any;
   token?: any;
-  icons?: any;
-  routes?: any;
 };
 
-const MerchantHeader = ({
-  header,
-  userDefault,
-  sidebarOpen,
-  setSidebarOpen,
-  logo,
-  images,
-  title,
-  token,
-  icons,
-  routes,
-}: HeaderProps) => {
+const MerchantHeader = ({ userDefault, logo, token }: HeaderProps) => {
   return (
     <Fragment>
       <header className="sticky top-0 z-999 flex w-full bg-boxdark-2 drop-shadow-none">
-        <div className="w-full flex flex-grow items-center gap-4 shadow-2">
+        <div className="w-full flex flex-grow items-center gap-4 py-1 shadow-2">
           <div className="w-full lg:w-2/3 flex items-center gap-2 sm:gap-8 px-6 py-5 lg:py-0">
-            {/* <!-- Hamburger Toggle BTN --> */}
-            <button
-              aria-controls="sidebar"
-              aria-expanded={sidebarOpen}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSidebarOpen(!sidebarOpen);
-              }}
-              className="z-99999 block lg:hidden rounded-sm border p-1.5 shadow-sm border-strokedark bg-boxdark">
-              <span className="relative block h-5.5 w-5.5 cursor-pointer">
-                <span className="du-block absolute right-0 h-full w-full">
-                  <span
-                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-[0] duration-200 ease-in-out bg-white ${
-                      !sidebarOpen && "!w-full delay-300"
-                    }`}></span>
-                  <span
-                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-150 duration-200 ease-in-out bg-white ${
-                      !sidebarOpen && "delay-400 !w-full"
-                    }`}></span>
-                  <span
-                    className={`relative top-0 left-0 my-1 block h-0.5 w-0 rounded-sm delay-200 duration-200 ease-in-out bg-white ${
-                      !sidebarOpen && "!w-full delay-500"
-                    }`}></span>
-                </span>
-                <span className="absolute right-0 h-full w-full rotate-45">
-                  <span
-                    className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm delay-300 duration-200 ease-in-out bg-white ${
-                      !sidebarOpen && "!h-0 !delay-[0]"
-                    }`}></span>
-                  <span
-                    className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm duration-200 ease-in-out bg-white ${
-                      !sidebarOpen && "!h-0 !delay-200"
-                    }`}></span>
-                </span>
-              </span>
-            </button>
-            {/* <!-- Hamburger Toggle BTN --> */}
-
             <Link
               href="/"
               className="w-full max-w-[200px] py-5 flex flex-shrink-0 items-center gap-2 text-white">
@@ -110,15 +52,6 @@ const MerchantHeader = ({
           </div>
         </div>
       </header>
-
-      <DomainHeaderMobile
-        isOpen={sidebarOpen}
-        setIsOpen={setSidebarOpen}
-        logo={logo}
-        title={title}
-        images={images}
-        token={token}
-      />
     </Fragment>
   );
 };
@@ -148,7 +81,7 @@ export const ActiveLink = ({
       //     ? "border-primary font-bold mb-3 md:mb-0 text-primary"
       //     : "text-gray-500 hover:text-gray-700 border-transparent"
       //     } ${className} block py-4 text-base border-b-4 rounded focus:outline-none whitespace-no-wrap`}
-      className={`group relative w-full max-w-max flex items-center py-5 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+      className={`group relative w-full max-w-max flex items-center py-5 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark ${
         active ? `border-b-2 border-primary ${activeClass}` : ""
       } ${className}`}>
       {children}

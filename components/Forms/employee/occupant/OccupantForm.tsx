@@ -1,21 +1,13 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { ModalFooter, ModalHeader } from "../../../Modal/ModalComponent";
-import { MdCheck, MdClose, MdOutlinePlace, MdWarning } from "react-icons/md";
+import { ModalHeader } from "../../../Modal/ModalComponent";
+import { MdAdd, MdCheck, MdWarning } from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "../../../../redux/Hook";
-import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "../../../Button/Button";
-import { tokenToString } from "typescript";
-import Link from "next/link";
-import { FaCircleNotch } from "react-icons/fa";
-import DropdownSelect from "../../../Dropdown/DropdownSelect";
-import {
-  createAmenities,
-  selectAmenityManagement,
-  updateAmenities,
-} from "../../../../redux/features/building-management/amenity/amenityReducers";
 import { selectUnitManagement } from "../../../../redux/features/building-management/unit/unitReducers";
 import {
   getUsersProperty,
+  registerUsersProperty,
   selectUserPropertyManagement,
   usersPropertyAddOccupant,
   usersPropertyAddTenant,
@@ -23,6 +15,7 @@ import {
 import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { SearchInput } from "../../SearchInput";
 import { toast } from "react-toastify";
+import { FaCircleNotch } from "react-icons/fa";
 
 type Options = {
   value?: any;
@@ -111,6 +104,25 @@ export default function OccupantForm({
   const [userOption, setUserOption] = useState<Options[]>([]);
   const [userSelected, setUserSelected] = useState<Options | any>(null);
   const [isSearch, setIsSearch] = useState<string | any>("");
+  const [isNewUser, setIsNewUser] = useState<boolean>(false);
+
+  // new user function
+  const onOpenNewUser = () => {
+    if (!items?.propertyStructures) {
+      toast.dark("Property structure not found!");
+      return;
+    }
+    setUserSelected({
+      id: items?.propertyStructures,
+      email: "",
+    });
+    setIsNewUser(true);
+  };
+
+  const onCloseNewUser = () => {
+    setUserSelected(null);
+    setIsNewUser(false);
+  };
 
   // form
   const {
@@ -235,7 +247,7 @@ export default function OccupantForm({
       unit: value?.unit,
       date: value?.date?.toISOString(),
     };
-    if (isOwner) {
+    if (isOwner && !isNewUser) {
       console.log(newData, "form-data-owner");
       dispatch(
         usersPropertyAddTenant({
@@ -243,12 +255,12 @@ export default function OccupantForm({
           data: newData,
           isSuccess() {
             getData();
-            toast.dark("Owner hasn been added");
+            toast.dark("Owner has been added");
             isCloseModal();
           },
         })
       );
-    } else if (isOccupant) {
+    } else if (isOccupant && !isNewUser) {
       console.log(newData, "form-data-occupant");
       dispatch(
         usersPropertyAddOccupant({
@@ -256,22 +268,45 @@ export default function OccupantForm({
           data: newData,
           isSuccess() {
             getData();
-            toast.dark("Occupant hasn been added");
+            toast.dark("Occupant has been added");
             isCloseModal();
           },
         })
       );
+    } else {
+      newData = {
+        firstName: value?.firstName,
+        lastName: value?.lastName,
+        email: value?.email,
+        propertyStructure: value?.id,
+      };
+      dispatch(
+        registerUsersProperty({
+          token,
+          data: newData,
+          isSuccess() {
+            dispatch(
+              getUsersProperty({ token, params: filterUser.queryObject })
+            );
+            getData();
+            toast.dark("New user has been added");
+            onCloseNewUser();
+          },
+        })
+      );
+      console.log(newData, "form-new-user");
     }
   };
 
   console.log("unit :", items);
+  console.log("new-user :", { isNewUser, userSelected, userData });
 
   return (
     <Fragment>
       <ModalHeader
         onClick={isCloseModal}
         isClose={true}
-        className="p-2 bg-white rounded-t-xl border-b-2 border-gray">
+        className="p-2 bg-white text-gray-6 rounded-t-xl border-b-2 border-gray">
         <Fragment>
           <div className={`w-full ${userSelected?.id ? "hidden" : ""}`}>
             <SearchInput
@@ -287,17 +322,28 @@ export default function OccupantForm({
               userSelected?.id ? "" : "hidden"
             }`}>
             <h3 className="text-lg font-semibold">
-              {isUpdate ? "Edit" : "Add"} {isOccupant ? "Occupant" : "Owner"}
+              {isUpdate ? "Edit" : "Add"}{" "}
+              {isOccupant && !isNewUser
+                ? "Occupant"
+                : !isOccupant && !isNewUser
+                ? "Owner"
+                : "User"}
             </h3>
             <p className="text-gray-5 text-sm">
-              Fill your {isOccupant ? "occupant" : "owner"} information.
+              Fill your{" "}
+              {isOccupant && !isNewUser
+                ? "occupant"
+                : !isOccupant && !isNewUser
+                ? "owner"
+                : "user"}{" "}
+              information.
             </p>
           </div>
         </Fragment>
       </ModalHeader>
 
       {/* step-1 */}
-      <div className={`w-full ${userSelected?.id ? "hidden" : ""}`}>
+      <div className={`w-full text-gray-6 ${userSelected?.id ? "hidden" : ""}`}>
         <div
           className={`w-full max-h-[250px] overflow-y-auto overflow-x-hidden`}>
           <div className="w-full ">
@@ -321,10 +367,17 @@ export default function OccupantForm({
           </div>
         </div>
 
-        <div className="w-full flex gap-2 justify-end p-4 border-t-2 border-gray">
+        <div className="w-full flex gap-2 justify-between p-4 border-t-2 border-gray">
+          <button
+            className="flex items-center text-primary rounded-md text-sm border py-2 px-4 border-gray shadow-card"
+            onClick={onOpenNewUser}>
+            <MdAdd className="w-4 h-4" />
+            <span className="font-semibold capitalize">New Email</span>
+          </button>
+
           <button
             type="button"
-            className="rounded-md text-sm border py-2 px-4 border-gray shadow-card"
+            className="rounded-md text-sm border py-2 px-4 border-gray shadow-card text-danger"
             onClick={isCloseModal}>
             <span className="font-semibold">Discard</span>
           </button>
@@ -332,9 +385,9 @@ export default function OccupantForm({
       </div>
 
       {/* step-2 */}
-      <div className={`w-full ${userSelected?.id ? "" : "hidden"}`}>
+      <div className={`w-full text-gray-6 ${userSelected?.id ? "" : "hidden"}`}>
         <div className={`w-full p-4`}>
-          <div className="w-full mb-3">
+          <div className={`w-full mb-3`}>
             <label
               className="text-gray-500 font-semibold text-sm"
               htmlFor="fullName">
@@ -346,7 +399,7 @@ export default function OccupantForm({
                 placeholder="First Name"
                 autoFocus
                 id="fullName"
-                className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
                 {...register("firstName")}
               />
               <input
@@ -354,7 +407,7 @@ export default function OccupantForm({
                 placeholder="Last Name"
                 autoFocus
                 id="fullName"
-                className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                className={`bg-white w-1/2 text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
                 {...register("lastName")}
               />
             </div>
@@ -388,7 +441,7 @@ export default function OccupantForm({
                 placeholder="Email"
                 autoFocus
                 id="email"
-                className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary disabled:border-0 disabled:bg-transparent`}
+                className={`bg-white w-full text-sm rounded-lg border border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary focus-visible:shadow-none disabled:border-0 disabled:bg-transparent`}
                 {...register("email")}
               />
             </div>
@@ -407,8 +460,8 @@ export default function OccupantForm({
           <button
             type="button"
             className="rounded-md text-sm border py-2 px-4 border-gray shadow-card"
-            onClick={() => setUserSelected(null)}>
-            <span className="font-semibold">Discard</span>
+            onClick={onCloseNewUser}>
+            <span className="font-semibold">Cancel</span>
           </button>
 
           <Button

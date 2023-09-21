@@ -121,7 +121,6 @@ const SignIn = (props: any) => {
   }, [email, password]);
 
   return (
-    // <div className={`static w-full h-full transition-transform duration-500 ${!isOpen ? "-translate-x-full" : ""}`}>
     <div
       className={`absolute bg-white left-0 top-0 z-50 flex w-full lg:w-1/2 h-full flex-col overflow-y-hidden duration-300 ease-in-out ${
         isOpened ? "translate-x-0 visible" : "-translate-x-full invisible"

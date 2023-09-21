@@ -29,7 +29,6 @@ import {
   ModalHeader,
 } from "../../components/Modal/ModalComponent";
 import LoadingPage from "../../components/LoadingPage";
-import axios from "axios";
 
 interface PageProps {
   page?: string;
@@ -99,6 +98,15 @@ const Authentication: NextPage<Props> = ({ pageProps }) => {
     } else {
       setIsNotif(false);
       setForm({});
+    }
+  }, [error, message]);
+
+  useEffect(() => {
+    let notif = message === "firebaseToken should not be empty";
+    if (error && notif) {
+      setTimeout(() => {
+        router.replace({ pathname, query });
+      }, 1000);
     }
   }, [error, message]);
 

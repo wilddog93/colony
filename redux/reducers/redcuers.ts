@@ -25,6 +25,29 @@ import projectManagementReducers from "../features/task-management/project/proje
 import taskManagementReducers from "../features/task-management/project/task/taskManagementReducers";
 import taskCommentReducers from "../features/task-management/project/taskComment/taskCommentReducers";
 import taskTodoReducers from "../features/task-management/project/taskTodo/taskTodoReducers";
+import issueManagementReducers from "../features/task-management/issue/issueManagementReducers";
+import productManagementReducers from "../features/assets/products/productManagementReducers";
+import productCategoryReducers from "../features/assets/products/category/productCategoryReducers";
+import productUnitReducers from "../features/assets/products/unit-measurement/productUnitReducers";
+import productBrandReducers from "../features/assets/products/brand/productBrandReducers";
+import locationManagementReducers from "../features/assets/locations/locationManagementReducers";
+import vendorManagementReducers from "../features/assets/vendor/vendorManagementReducers";
+import parkingLotReducers from "../features/building-management/parking/parkingLotReducers";
+import parkingVehicleReducers from "../features/building-management/parking/parkingVehicleReducers";
+import parkingTransactionReducers from "../features/building-management/parking/parkingTransactionReducers";
+import accessCardReducers from "../features/building-management/access/accessCardReducers";
+import accessCardTransactionReducers from "../features/building-management/access/accessCardTransactionReducers";
+import requestManagementReducers from "../features/assets/stocks/requestReducers";
+import orderManagementReducers from "../features/assets/stocks/orderReducers";
+import transactionManagementReducers from "../features/assets/stocks/transactionReducers";
+import stockBalanceManagementReducers from "../features/assets/stocks/stockBalanceReducers";
+import productLocationManagementReducers from "../features/assets/locations/productLocationManagementReducers";
+import billingTemplateManagementReducers from "../features/billing/template/billingTemplateReducers";
+import billingTaxManagementReducers from "../features/billing/tax/billingTaxReducers";
+import billingDiscountManagementReducers from "../features/billing/discount/billingDiscountReducers";
+import billingManagementReducers from "../features/billing/billingReducers";
+import tenantAccessReducers from "../features/tenants/tenantAccessReducers";
+import unitBillingReducers from "../features/tenants/billingHistory/unitBillingHistoryReducers";
 
 export const combinedReducer = combineReducers({
   //All reducer
@@ -39,6 +62,7 @@ export const combinedReducer = combineReducers({
   domainAccessGroup: domainAccessGroupReducers,
   domainAccess: domainAccessReducers,
   domainStructures: domainStructureReducers,
+  // bm
   towerManagement: towerReducers,
   floorManagement: floorReducers,
   floorTypeManagement: floorTypeReducers,
@@ -46,6 +70,12 @@ export const combinedReducer = combineReducers({
   unitTypeManagement: unitTypeReducers,
   unitManagement: unitReducers,
   userPropertyManagement: userPropertyReducers,
+  parkingLotManagement: parkingLotReducers,
+  parkingVehicleManagement: parkingVehicleReducers,
+  parkingTransactionManagement: parkingTransactionReducers,
+  accessCardManagement: accessCardReducers,
+  accessCardTransactionManagement: accessCardTransactionReducers,
+  // task-management
   projectType: projectTypeReducers,
   issueType: issueTypeReducers,
   issueCategory: issueCategoryReducers,
@@ -54,4 +84,26 @@ export const combinedReducer = combineReducers({
   taskManagement: taskManagementReducers,
   taskComment: taskCommentReducers,
   taskTodos: taskTodoReducers,
+  issueManagement: issueManagementReducers,
+  // asset-management
+  productManagement: productManagementReducers,
+  productCategoryManagement: productCategoryReducers,
+  productUnitManagement: productUnitReducers,
+  productBrandManagement: productBrandReducers,
+  locationManagement: locationManagementReducers,
+  productLocationManagement: productLocationManagementReducers,
+  vendorManagement: vendorManagementReducers,
+  requestManagement: requestManagementReducers,
+  orderManagement: orderManagementReducers,
+  transactionManagement: transactionManagementReducers,
+  stockBalanceManagement: stockBalanceManagementReducers,
+  // billing-management
+  billingTemplateManagement: billingTemplateManagementReducers,
+  billingTaxManagement: billingTaxManagementReducers,
+  billingDiscountManagement: billingDiscountManagementReducers,
+  billingManagement: billingManagementReducers,
+
+  // tenant-access
+  tenantAccess: tenantAccessReducers,
+  unitBilling: unitBillingReducers,
 });
