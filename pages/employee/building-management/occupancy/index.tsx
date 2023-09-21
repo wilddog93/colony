@@ -61,6 +61,8 @@ type Props = {
   pageProps: any;
 };
 
+// it has to be change
+
 const Occupancy = ({ pageProps }: Props) => {
   const url = process.env.API_ENDPOINT;
   const router = useRouter();
