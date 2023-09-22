@@ -167,7 +167,7 @@ const SignInComponent = (props: Props) => {
           <div className={`relative`}>
             <input
               type={isHidden ? "password" : "text"}
-              placeholder="6+ Characters, 1 Capital letter"
+              placeholder="Enter your password"
               className={`w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none`}
               value={password}
               onChange={onPasswordChange}

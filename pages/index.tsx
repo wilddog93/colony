@@ -102,7 +102,7 @@ const Home = ({ pageProps }: Props) => {
                   </Button>
                 </div>
                 <p className="text-gray-5 text-sm sm:text-title-sm text-center lg:text-left">
-                  Do you have any plan today?
+                  Do you have any plan for today?
                 </p>
               </div>
 
@@ -261,7 +261,7 @@ const Home = ({ pageProps }: Props) => {
         <div className="w-full px-6 flex flex-col items-center justify-center min-h-full h-[350px] max-h-[650px] gap-4 text-graydark tracking-wider">
           <h3 className="text-title-xl2 font-bold">Sign Out</h3>
           <FaRegQuestionCircle className="w-20 h-20 text-primary" />
-          <p>Are you sure to Sign Out ?</p>
+          <p>Do you want to sign out ?</p>
           <div className="w-full flex items-center gap-2 justify-center">
             <Button
               className="rounded-lg px-4"
