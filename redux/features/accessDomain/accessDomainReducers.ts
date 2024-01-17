@@ -127,7 +127,7 @@ export const getAccessDomain = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("auth/web/access/domain", async (params, { getState }) => {
+>("api/auth/web/access/domain", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export const getAccessDomain = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("auth/web/access/domain", config);
+    const response = await axios.get("api/auth/web/access/domain", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
