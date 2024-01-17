@@ -74,7 +74,7 @@ export const getTasksByIdProject = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`project/${params.id}/task`, config);
+    const response = await axios.get(`api/project/${params.id}/task`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const createTasks = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `project/${params.id}/task`,
+      `api/project/${params.id}/task`,
       params.data,
       config
     );
@@ -145,7 +145,7 @@ export const updateTasks = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `project/${params.id}/${params?.taskId}`,
+      `api/project/${params.id}/${params?.taskId}`,
       params.data,
       config
     );
@@ -183,7 +183,7 @@ export const updateTaskStatus = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `project/${params.id}/${params.taskId}/status`,
+      `api/project/${params.id}/${params.taskId}/status`,
       params.data,
       config
     );
@@ -222,7 +222,7 @@ export const updateTaskAssignee = createAsyncThunk<
   };
   try {
     const response = await axios.put(
-      `project/${params.id}/${params.taskId}/assignee`,
+      `api/project/${params.id}/${params.taskId}/assignee`,
       params.data,
       config
     );
@@ -260,7 +260,7 @@ export const deleteTasks = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `project/${params.id}/${params?.taskId}`,
+      `api/project/${params.id}/${params?.taskId}`,
       config
     );
     const { data, status } = response;

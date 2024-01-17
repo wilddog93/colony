@@ -73,7 +73,7 @@ export const getBillingTax = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("billingTax", config);
+    const response = await axios.get("api/billingTax", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -97,7 +97,7 @@ export const getBillingTaxById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/billingTax/id", async (params, { getState }) => {
+>("/api/billingTax/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -107,7 +107,7 @@ export const getBillingTaxById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`billingTax/${params.id}`, config);
+    const response = await axios.get(`api/billingTax/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -131,7 +131,7 @@ export const createBillingTax = createAsyncThunk<
   any,
   BillingTaxData,
   { state: RootState }
->("/billingTax/create", async (params, { getState }) => {
+>("/api/billingTax/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -165,7 +165,7 @@ export const updateBillingTax = createAsyncThunk<
   any,
   BillingTaxData,
   { state: RootState }
->("/billingTax/update", async (params, { getState }) => {
+>("/api/billingTax/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -175,7 +175,7 @@ export const updateBillingTax = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `billingTax/${params.id}`,
+      `api/billingTax/${params.id}`,
       params.data,
       config
     );
@@ -203,7 +203,7 @@ export const deleteBillingTax = createAsyncThunk<
   any,
   BillingTaxData,
   { state: RootState }
->("/billingTax/delete", async (params, { getState }) => {
+>("/api/billingTax/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -212,7 +212,7 @@ export const deleteBillingTax = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`billingTax/${params.id}`, config);
+    const response = await axios.delete(`api/billingTax/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

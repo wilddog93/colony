@@ -71,7 +71,7 @@ export const getAmenities = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("amenity", config);
+    const response = await axios.get("api/amenity", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -95,7 +95,7 @@ export const createAmenities = createAsyncThunk<
   any,
   AmenityData,
   { state: RootState }
->("/amenity/create", async (params, { getState }) => {
+>("/api/amenity/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -128,7 +128,7 @@ export const updateAmenities = createAsyncThunk<
   any,
   AmenityData,
   { state: RootState }
->("/amenity/update", async (params, { getState }) => {
+>("/api/amenity/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export const updateAmenities = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `amenity/${params.id}`,
+      `api/amenity/${params.id}`,
       params.data,
       config
     );
@@ -165,7 +165,7 @@ export const deleteAmenities = createAsyncThunk<
   any,
   AmenityData,
   { state: RootState }
->("/amenity/delete", async (params, { getState }) => {
+>("/api/amenity/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -174,7 +174,7 @@ export const deleteAmenities = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`amenity/${params.id}`, config);
+    const response = await axios.delete(`api/amenity/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

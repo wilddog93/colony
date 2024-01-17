@@ -74,7 +74,7 @@ export const getOrders = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("order", config);
+    const response = await axios.get("api/order", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getOrderById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`order/${params.id}`, config);
+    const response = await axios.get(`api/order/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -141,7 +141,7 @@ export const createOrder = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("order", params.data, config);
+    const response = await axios.post("api/order", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -176,7 +176,7 @@ export const createOrderDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `order/${params.id}/document`,
+      `api/order/${params.id}/document`,
       params.data,
       config
     );
@@ -214,7 +214,7 @@ export const updateOrder = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `order/${params.id}`,
+      `api/order/${params.id}`,
       params.data,
       config
     );
@@ -252,7 +252,7 @@ export const updateOrderChangeStatus = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `order/switchStatus/${params.id}`,
+      `api/order/switchStatus/${params.id}`,
       params.data,
       config
     );
@@ -289,7 +289,7 @@ export const deleteOrder = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`order/${params.id}`, config);
+    const response = await axios.delete(`api/order/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -324,7 +324,7 @@ export const deleteOrderDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `order/${params.id}/document/${params.documentId}`,
+      `api/order/${params.id}/document/${params.documentId}`,
       config
     );
     const { data, status } = response;

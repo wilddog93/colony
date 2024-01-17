@@ -74,7 +74,7 @@ export const getTransactions = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("transaction", config);
+    const response = await axios.get("api/transaction", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getTransactionById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`transaction/${params.id}`, config);
+    const response = await axios.get(`api/transaction/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -316,7 +316,7 @@ export const createTransactionDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `transaction/${params.id}/document`,
+      `api/transaction/${params.id}/document`,
       params.data,
       config
     );
@@ -354,7 +354,7 @@ export const updateTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `transaction/${params.id}`,
+      `api/transaction/${params.id}`,
       params.data,
       config
     );
@@ -392,7 +392,7 @@ export const updateTransactionChangeStatus = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `transaction/switchStatus/${params.id}`,
+      `api/transaction/switchStatus/${params.id}`,
       params.data,
       config
     );
@@ -429,7 +429,7 @@ export const deleteTransaction = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`transaction/${params.id}`, config);
+    const response = await axios.delete(`api/transaction/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -466,7 +466,7 @@ export const deleteTransactionDocumentById = createAsyncThunk<
     };
     try {
       const response = await axios.delete(
-        `transaction/${params.id}/document/${params.documentId}`,
+        `api/transaction/${params.id}/document/${params.documentId}`,
         config
       );
       const { data, status } = response;

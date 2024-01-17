@@ -71,7 +71,7 @@ export const getFloorTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("floorType", config);
+    const response = await axios.get("api/floorType", config);
     const { data, status } = response;
     if (status == 200) {
       return data;

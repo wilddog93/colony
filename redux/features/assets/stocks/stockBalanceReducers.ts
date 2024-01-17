@@ -74,7 +74,7 @@ export const getStockBalances = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("stockBalance", config);
+    const response = await axios.get("api/stockBalance", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getStockBalanceById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`stockBalance/${params.id}`, config);
+    const response = await axios.get(`api/stockBalance/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -141,7 +141,7 @@ export const createStockBalance = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("stockBalance", params.data, config);
+    const response = await axios.post("api/stockBalance", params.data, config);
     const { data, status } = response;
     if (status == 200 || status == 201) {
       params.isSuccess();
@@ -176,7 +176,7 @@ export const createStockBalanceDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `stockBalance/${params.id}/document`,
+      `api/stockBalance/${params.id}/document`,
       params.data,
       config
     );
@@ -290,7 +290,7 @@ export const updateStockBalance = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `stockBalance/${params.id}`,
+      `api/stockBalance/${params.id}`,
       params.data,
       config
     );
@@ -328,7 +328,7 @@ export const updateStockBalanceChangeStatus = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `stockBalance/switchStatus/${params.id}`,
+      `api/stockBalance/switchStatus/${params.id}`,
       params.data,
       config
     );
@@ -365,7 +365,10 @@ export const deleteStockBalance = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`stockBalance/${params.id}`, config);
+    const response = await axios.delete(
+      `api/stockBalance/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -402,7 +405,7 @@ export const deleteStockBalanceDocumentById = createAsyncThunk<
     };
     try {
       const response = await axios.delete(
-        `stockBalance/${params.id}/document/${params.documentId}`,
+        `api/stockBalance/${params.id}/document/${params.documentId}`,
         config
       );
       const { data, status } = response;

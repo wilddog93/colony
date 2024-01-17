@@ -65,7 +65,7 @@ export const getUsersProperty = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("user/property", async (params, { getState }) => {
+>("api/user/property", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -75,7 +75,7 @@ export const getUsersProperty = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("user/property", config);
+    const response = await axios.get("api/user/property", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -99,7 +99,7 @@ export const getUsersTenantProperty = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("user/tenant/property", async (params, { getState }) => {
+>("api/user/tenant/property", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -109,7 +109,7 @@ export const getUsersTenantProperty = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("user/tenant/property", config);
+    const response = await axios.get("api/user/tenant/property", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -132,7 +132,7 @@ export const inviteUsersProperty = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/invite", async (params, { getState }) => {
+>("api/user/property/invite", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -142,7 +142,7 @@ export const inviteUsersProperty = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      "user/property/invite",
+      "api/user/property/invite",
       params.data,
       config
     );
@@ -169,7 +169,7 @@ export const registerUsersProperty = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/invite/register", async (params, { getState }) => {
+>("api/user/property/invite/register", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -179,7 +179,7 @@ export const registerUsersProperty = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      "user/property/invite/register",
+      "api/user/property/invite/register",
       params.data,
       config
     );
@@ -206,7 +206,7 @@ export const usersPropertyAddTenant = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/addTenant", async (params, { getState }) => {
+>("api/user/property/addTenant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -215,7 +215,11 @@ export const usersPropertyAddTenant = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("user/addTenant", params?.data, config);
+    const response = await axios.post(
+      "api/user/addTenant",
+      params?.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -240,7 +244,7 @@ export const usersPropertyDeleteTenant = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/removeTenant", async (params, { getState }) => {
+>("api/user/property/removeTenant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     data: params?.data,
     headers: {
@@ -250,7 +254,7 @@ export const usersPropertyDeleteTenant = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete("user/removeTenant", config);
+    const response = await axios.delete("api/user/removeTenant", config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -274,7 +278,7 @@ export const usersPropertyAddOccupant = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/addOccupant", async (params, { getState }) => {
+>("api/user/property/addOccupant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -283,7 +287,11 @@ export const usersPropertyAddOccupant = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("user/addOccupant", params.data, config);
+    const response = await axios.post(
+      "api/user/addOccupant",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -308,7 +316,7 @@ export const usersPropertyDeleteOccupant = createAsyncThunk<
   any,
   UserData,
   { state: RootState }
->("user/property/removeOccupant", async (params, { getState }) => {
+>("api/user/property/removeOccupant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     data: params?.data,
     headers: {
@@ -318,7 +326,7 @@ export const usersPropertyDeleteOccupant = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete("user/removeOccupant", config);
+    const response = await axios.delete("api/user/removeOccupant", config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

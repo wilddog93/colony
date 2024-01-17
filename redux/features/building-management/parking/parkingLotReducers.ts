@@ -73,7 +73,7 @@ export const getParkingLots = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("parkingLot", config);
+    const response = await axios.get("api/parkingLot", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -97,7 +97,7 @@ export const getParkingLotById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/parkingLot/id", async (params, { getState }) => {
+>("/api/parkingLot/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -107,7 +107,7 @@ export const getParkingLotById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`parkingLot/${params.id}`, config);
+    const response = await axios.get(`api/parkingLot/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -131,7 +131,7 @@ export const createParkingLot = createAsyncThunk<
   any,
   ParkingData,
   { state: RootState }
->("/parkingLot/create", async (params, { getState }) => {
+>("/api/parkingLot/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -140,7 +140,7 @@ export const createParkingLot = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("parkingLot", params.data, config);
+    const response = await axios.post("api/parkingLot", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -164,7 +164,7 @@ export const updateParkingLot = createAsyncThunk<
   any,
   ParkingData,
   { state: RootState }
->("/parkingLot/update", async (params, { getState }) => {
+>("/api/parkingLot/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -174,7 +174,7 @@ export const updateParkingLot = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `parkingLot/${params.id}`,
+      `api/parkingLot/${params.id}`,
       params.data,
       config
     );
@@ -202,7 +202,7 @@ export const uploadParkingLot = createAsyncThunk<
   any,
   ParkingData,
   { state: RootState }
->("/parkingLot/upload", async (params, { getState }) => {
+>("/api/parkingLot/upload", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -211,7 +211,11 @@ export const uploadParkingLot = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post(`parkingLot/upload`, params.data, config);
+    const response = await axios.post(
+      `api/parkingLot/upload`,
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -235,7 +239,7 @@ export const deleteParkingLot = createAsyncThunk<
   any,
   ParkingData,
   { state: RootState }
->("/parkingLot/delete", async (params, { getState }) => {
+>("/api/parkingLot/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -244,7 +248,7 @@ export const deleteParkingLot = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`parkingLot/${params.id}`, config);
+    const response = await axios.delete(`api/parkingLot/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

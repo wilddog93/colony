@@ -73,7 +73,7 @@ export const getProducts = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("product", config);
+    const response = await axios.get("api/product", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,7 @@ export const getProductById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`product/${params.id}`, config);
+    const response = await axios.get(`api/product/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +140,7 @@ export const createProduct = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("product", params.data, config);
+    const response = await axios.post("api/product", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +175,7 @@ export const updateProduct = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `product/${params.id}`,
+      `api/product/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +212,7 @@ export const deleteProduct = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`product/${params.id}`, config);
+    const response = await axios.delete(`api/product/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

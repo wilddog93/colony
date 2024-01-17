@@ -71,7 +71,7 @@ export const getFloors = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("floor", config);
+    const response = await axios.get("api/floor", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -95,7 +95,7 @@ export const createFloorBatch = createAsyncThunk<
   any,
   FloorData,
   { state: RootState }
->("/floor/create/batch", async (params, { getState }) => {
+>("/api/floor/create/batch", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -104,7 +104,7 @@ export const createFloorBatch = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("floor/batch", params.data, config);
+    const response = await axios.post("api/floor/batch", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -129,7 +129,7 @@ export const createFloors = createAsyncThunk<
   any,
   FloorData,
   { state: RootState }
->("/floor/create", async (params, { getState }) => {
+>("/api/floor/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export const createFloors = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("floor", params.data, config);
+    const response = await axios.post("api/floor", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -162,7 +162,7 @@ export const updateFloors = createAsyncThunk<
   any,
   FloorData,
   { state: RootState }
->("/floor/update", async (params, { getState }) => {
+>("/api/floor/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export const updateFloors = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `floor/${params.id}`,
+      `api/floor/${params.id}`,
       params.data,
       config
     );
@@ -199,7 +199,7 @@ export const deleteFloors = createAsyncThunk<
   any,
   FloorData,
   { state: RootState }
->("/floor/delete", async (params, { getState }) => {
+>("/api/floor/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -208,7 +208,7 @@ export const deleteFloors = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`floor/${params.id}`, config);
+    const response = await axios.delete(`api/floor/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

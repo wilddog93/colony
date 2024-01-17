@@ -63,7 +63,7 @@ export const getAccessCards = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/accessCard", async (params, { getState }) => {
+>("/api/accessCard", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -73,7 +73,7 @@ export const getAccessCards = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("accessCard", config);
+    const response = await axios.get("api/accessCard", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -97,7 +97,7 @@ export const getAccessCardById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/accessCard/id", async (params, { getState }) => {
+>("/api/accessCard/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -107,7 +107,7 @@ export const getAccessCardById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`accessCard/${params.id}`, config);
+    const response = await axios.get(`api/accessCard/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -131,7 +131,7 @@ export const createAccessCard = createAsyncThunk<
   any,
   AccessCardData,
   { state: RootState }
->("/accessCard/create", async (params, { getState }) => {
+>("/api/accessCard/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -164,7 +164,7 @@ export const updateAccessCard = createAsyncThunk<
   any,
   AccessCardData,
   { state: RootState }
->("/accessCard/update", async (params, { getState }) => {
+>("/api/accessCard/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -174,7 +174,7 @@ export const updateAccessCard = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `accessCard/${params.id}`,
+      `api/accessCard/${params.id}`,
       params.data,
       config
     );
@@ -202,7 +202,7 @@ export const uploadAccessCard = createAsyncThunk<
   any,
   AccessCardData,
   { state: RootState }
->("/accessCard/upload", async (params, { getState }) => {
+>("/api/accessCard/upload", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -211,7 +211,11 @@ export const uploadAccessCard = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post(`accessCard/upload`, params.data, config);
+    const response = await axios.post(
+      `api/accessCard/upload`,
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -235,7 +239,7 @@ export const deleteAccessCard = createAsyncThunk<
   any,
   AccessCardData,
   { state: RootState }
->("/accessCard/delete", async (params, { getState }) => {
+>("/api/accessCard/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -244,7 +248,7 @@ export const deleteAccessCard = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`accessCard/${params.id}`, config);
+    const response = await axios.delete(`api/accessCard/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

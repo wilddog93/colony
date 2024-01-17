@@ -62,7 +62,7 @@ export const getUnitBilling = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("billing", async (params, { getState }) => {
+>("api/billing", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -72,7 +72,7 @@ export const getUnitBilling = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("myUnit/billing", config);
+    const response = await axios.get("api/myUnit/billing", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -96,7 +96,7 @@ export const getUnitBillingById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("property-type/id", async (params, { getState }) => {
+>("unitBilling/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -106,7 +106,7 @@ export const getUnitBillingById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`unitBilling/${params.id}`, config);
+    const response = await axios.get(`api/unitBilling/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;

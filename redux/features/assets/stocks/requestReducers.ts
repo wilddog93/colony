@@ -74,7 +74,7 @@ export const getRequests = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("request", config);
+    const response = await axios.get("api/request", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getRequestById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`request/${params.id}`, config);
+    const response = await axios.get(`api/request/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -278,7 +278,7 @@ export const createRequestDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `request/${params.id}/document`,
+      `api/request/${params.id}/document`,
       params.data,
       config
     );
@@ -316,7 +316,7 @@ export const updateRequest = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `request/${params.id}`,
+      `api/request/${params.id}`,
       params.data,
       config
     );
@@ -354,7 +354,7 @@ export const updateRequestChangeStatus = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `request/switchStatus/${params.id}`,
+      `api/request/switchStatus/${params.id}`,
       params.data,
       config
     );
@@ -391,7 +391,7 @@ export const deleteRequest = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`request/${params.id}`, config);
+    const response = await axios.delete(`api/request/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();
@@ -426,7 +426,7 @@ export const deleteRequestDocumentById = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `request/${params.id}/document/${params.documentId}`,
+      `api/request/${params.id}/document/${params.documentId}`,
       config
     );
     const { data, status } = response;

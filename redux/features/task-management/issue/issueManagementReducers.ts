@@ -73,7 +73,7 @@ export const getIssues = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("issue", config);
+    const response = await axios.get("api/issue", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -106,7 +106,7 @@ export const getIssueById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`issue/${params.id}`, config);
+    const response = await axios.get(`api/issue/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -139,7 +139,7 @@ export const createIssue = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("issue", params.data, config);
+    const response = await axios.post("api/issue", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -173,7 +173,7 @@ export const updateIssue = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `issue/${params.id}`,
+      `api/issue/${params.id}`,
       params.data,
       config
     );
@@ -201,7 +201,7 @@ export const updateIssueMember = createAsyncThunk<
   any,
   IssueData,
   { state: RootState }
->("/project/projectId/member/update", async (params, { getState }) => {
+>("/api/project/projectId/member/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -211,7 +211,7 @@ export const updateIssueMember = createAsyncThunk<
   };
   try {
     const response = await axios.put(
-      `project/${params.id}/member`,
+      `api/project/${params.id}/member`,
       params.data,
       config
     );
@@ -247,7 +247,7 @@ export const deleteIssue = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`issue/${params.id}`, config);
+    const response = await axios.delete(`api/issue/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

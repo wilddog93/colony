@@ -75,7 +75,7 @@ export const getProductLocations = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("product/location", config);
+    const response = await axios.get("api/product/location", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -109,7 +109,10 @@ export const getProductLocationById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`product/location/${params.id}`, config);
+    const response = await axios.get(
+      `api/product/location/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 200) {
       return data;

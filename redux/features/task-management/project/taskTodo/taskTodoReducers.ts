@@ -77,7 +77,7 @@ export const getTaskTodos = createAsyncThunk<
   };
   try {
     const response = await axios.get(
-      `project/${params?.id}/${params?.taskId}/subTask`,
+      `api/project/${params?.id}/${params?.taskId}/subTask`,
       config
     );
     const { data, status } = response;
@@ -113,7 +113,7 @@ export const createTaskTodo = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `project/${params.id}/${params.taskId}/subTask`,
+      `api/project/${params.id}/${params.taskId}/subTask`,
       params.data,
       config
     );
@@ -154,7 +154,7 @@ export const updateTaskTodo = createAsyncThunk<
     };
     try {
       const response = await axios.patch(
-        `project/${params.id}/${params?.taskId}/subTask/${params.subTaskId}`,
+        `api/project/${params.id}/${params?.taskId}/subTask/${params.subTaskId}`,
         params.data,
         config
       );

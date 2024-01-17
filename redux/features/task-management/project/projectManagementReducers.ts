@@ -73,7 +73,7 @@ export const getProjects = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("project", config);
+    const response = await axios.get("api/project", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -106,7 +106,7 @@ export const getProjectById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`project/${params.id}`, config);
+    const response = await axios.get(`api/project/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -139,7 +139,7 @@ export const createProject = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("project", params.data, config);
+    const response = await axios.post("api/project", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -173,7 +173,7 @@ export const updateProject = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `project/${params.id}`,
+      `api/project/${params.id}`,
       params.data,
       config
     );
@@ -211,7 +211,7 @@ export const updateProjectMember = createAsyncThunk<
   };
   try {
     const response = await axios.put(
-      `project/${params.id}/member`,
+      `api/project/${params.id}/member`,
       params.data,
       config
     );
@@ -247,7 +247,7 @@ export const deleteProject = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`project/${params.id}`, config);
+    const response = await axios.delete(`api/project/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

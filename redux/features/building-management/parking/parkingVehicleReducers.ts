@@ -73,7 +73,7 @@ export const getParkingVehicles = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("parkingLot/registered", config);
+    const response = await axios.get("api/parkingLot/registered", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getParkingVehicleById = createAsyncThunk<
   };
   try {
     const response = await axios.get(
-      `parkingLot/registered/${params.id}`,
+      `api/parkingLot/registered/${params.id}`,
       config
     );
     const { data, status } = response;
@@ -144,7 +144,7 @@ export const createParkingVehicle = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      "parkingLot/registered",
+      "api/parkingLot/registered",
       params.data,
       config
     );
@@ -181,7 +181,7 @@ export const updateParkingVehicle = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `parkingLot/registered/${params.id}`,
+      `api/parkingLot/registered/${params.id}`,
       params.data,
       config
     );
@@ -219,7 +219,7 @@ export const uploadParkingVehicle = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `parkingLot/registered/upload`,
+      `api/parkingLot/registered/upload`,
       params.data,
       config
     );
@@ -256,7 +256,7 @@ export const deleteParkingVehicle = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `parkingLot/registered/${params.id}`,
+      `api/parkingLot/registered/${params.id}`,
       config
     );
     const { data, status } = response;

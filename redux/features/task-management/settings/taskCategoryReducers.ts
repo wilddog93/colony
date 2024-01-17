@@ -73,7 +73,7 @@ export const getTaskCategories = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("taskCategory", config);
+    const response = await axios.get("api/taskCategory", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -106,7 +106,7 @@ export const getTaskCategoryById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`taskCategory/${params.id}`, config);
+    const response = await axios.get(`api/taskCategory/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -139,7 +139,7 @@ export const createTaskCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("taskCategory", params.data, config);
+    const response = await axios.post("api/taskCategory", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -173,7 +173,7 @@ export const updateTaskCategory = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `taskCategory/${params.id}`,
+      `api/taskCategory/${params.id}`,
       params.data,
       config
     );
@@ -209,7 +209,10 @@ export const deleteTaskCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`taskCategory/${params.id}`, config);
+    const response = await axios.delete(
+      `api/taskCategory/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

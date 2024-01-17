@@ -73,7 +73,7 @@ export const getProductCategories = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("productCategory", config);
+    const response = await axios.get("api/productCategory", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,10 @@ export const getProductCategoryById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`productCategory/${params.id}`, config);
+    const response = await axios.get(
+      `api/productCategory/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +143,11 @@ export const createProductCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("productCategory", params.data, config);
+    const response = await axios.post(
+      "api/productCategory",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +182,7 @@ export const updateProductCategory = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `productCategory/${params.id}`,
+      `api/productCategory/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +219,10 @@ export const deleteProductCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`productCategory/${params.id}`, config);
+    const response = await axios.delete(
+      `api/productCategory/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

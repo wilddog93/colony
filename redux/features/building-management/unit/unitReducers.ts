@@ -71,7 +71,7 @@ export const getUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("unit", config);
+    const response = await axios.get("api/unit", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -95,7 +95,7 @@ export const getUnitsTenant = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/unit/tenant", async (params, { getState }) => {
+>("/api/unit/tenant", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -105,7 +105,7 @@ export const getUnitsTenant = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("unit/tenant", config);
+    const response = await axios.get("api/unit/tenant", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -129,7 +129,7 @@ export const createUnitBatch = createAsyncThunk<
   any,
   UnitData,
   { state: RootState }
->("/unit/create/batch", async (params, { getState }) => {
+>("/api/unit/create/batch", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export const createUnitBatch = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("unit/batch", params.data, config);
+    const response = await axios.post("api/unit/batch", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -163,7 +163,7 @@ export const createUnits = createAsyncThunk<
   any,
   UnitData,
   { state: RootState }
->("/unit/create", async (params, { getState }) => {
+>("/api/unit/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export const createUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("unit", params.data, config);
+    const response = await axios.post("api/unit", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -197,7 +197,7 @@ export const updateUnitsImage = createAsyncThunk<
   any,
   UnitData,
   { state: RootState }
->("/unit/update/image", async (params, { getState }) => {
+>("/api/unit/update/image", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -207,7 +207,7 @@ export const updateUnitsImage = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `unit/unitImage/${params.id}`,
+      `api/unit/unitImage/${params.id}`,
       params.data,
       config
     );
@@ -234,7 +234,7 @@ export const updateUnits = createAsyncThunk<
   any,
   UnitData,
   { state: RootState }
->("/unit/update", async (params, { getState }) => {
+>("/api/unit/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -244,7 +244,7 @@ export const updateUnits = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `unit/${params.id}`,
+      `api/unit/${params.id}`,
       params.data,
       config
     );
@@ -271,7 +271,7 @@ export const deleteUnits = createAsyncThunk<
   any,
   UnitData,
   { state: RootState }
->("/unit/delete", async (params, { getState }) => {
+>("/api/unit/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -280,7 +280,7 @@ export const deleteUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`floor/${params.id}`, config);
+    const response = await axios.delete(`api/unit/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

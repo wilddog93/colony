@@ -84,10 +84,14 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 
 // Login
 export const webLogin = createAsyncThunk<any, AuthData, { state: RootState }>(
-  "auth/web/login",
+  "api/auth/web/login",
   async (params, { getState }) => {
     try {
-      const response = await axios.post("auth/web/login", params.data, config);
+      const response = await axios.post(
+        "api/auth/web/login",
+        params.data,
+        config
+      );
       const { data, status } = response;
       if (status == 200) {
         toast.dark("Sign in successfully!");
@@ -123,10 +127,10 @@ export const webLoginGoogle = createAsyncThunk<
   any,
   AuthData,
   { state: RootState }
->("auth/web/login/google", async (params, { getState }) => {
+>("api/auth/web/login/google", async (params, { getState }) => {
   try {
     const response = await axios.post(
-      "auth/web/login/google",
+      "api/auth/web/login/google",
       params.data,
       config
     );
@@ -159,9 +163,13 @@ export const webRegister = createAsyncThunk<
   any,
   AuthData,
   { state: RootState }
->("auth/web/register", async (params, { getState }) => {
+>("api/auth/web/register", async (params, { getState }) => {
   try {
-    const response = await axios.post("auth/web/register", params.data, config);
+    const response = await axios.post(
+      "api/auth/web/register",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       toast.dark("Sign up successfully!");
@@ -184,7 +192,7 @@ export const webRegister = createAsyncThunk<
 
 // Auth me
 export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>(
-  "auth/web/me",
+  "api/auth/web/me",
   async (params, { getState }) => {
     let config: HeadersConfiguration = {
       headers: {
@@ -194,7 +202,7 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>(
       },
     };
     try {
-      const response = await axios.get("auth/web/me", config);
+      const response = await axios.get("api/auth/web/me", config);
       const { data, status } = response;
       if (status == 200) {
         return data;
@@ -222,7 +230,7 @@ export const getAuthMe = createAsyncThunk<any, MyData, { state: RootState }>(
 
 // logout
 export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>(
-  "auth/web/logout",
+  "api/auth/web/logout",
   async (params, { getState }) => {
     let config: HeadersConfiguration = {
       headers: {
@@ -232,7 +240,7 @@ export const webLogout = createAsyncThunk<any, AuthData, { state: RootState }>(
       },
     };
     try {
-      const response = await axios.get("auth/web/logout", config);
+      const response = await axios.get("api/auth/web/logout", config);
       const { data, status } = response;
       if (status == 200) {
         toast.dark("Sign out successfully!");
@@ -263,13 +271,13 @@ export const webVerification = createAsyncThunk<
   any,
   AuthData,
   { state: RootState }
->("auth/web/register/[code]", async (params, { getState }) => {
+>("api/auth/web/register/[code]", async (params, { getState }) => {
   let emptyData = {
     data: {},
   };
   try {
     const response = await axios.patch(
-      `auth/web/register/${params.data}`,
+      `api/auth/web/register/${params.data}`,
       emptyData.data,
       config
     );
@@ -298,7 +306,7 @@ export const webResendEmail = createAsyncThunk<
   any,
   AuthData,
   { state: RootState }
->("auth/web/register/resendEmail", async (params, { getState }) => {
+>("api/auth/web/register/resendEmail", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -312,7 +320,7 @@ export const webResendEmail = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `auth/web/register/resendEmail`,
+      `api/auth/web/register/resendEmail`,
       newData,
       config
     );
@@ -341,10 +349,10 @@ export const webForgotPassword = createAsyncThunk<
   any,
   any,
   { state: RootState }
->("auth/web/forgot-password", async (params, { getState }) => {
+>("api/auth/web/forgot-password", async (params, { getState }) => {
   try {
     const response = await axios.post(
-      "auth/web/forgotPassword",
+      "api/auth/web/forgotPassword",
       params.data,
       config
     );
@@ -369,12 +377,12 @@ export const webForgotPassword = createAsyncThunk<
 
 // set new password - forgot password
 export const webNewPassword = createAsyncThunk<any, any, { state: RootState }>(
-  "auth/web/forgot-password/code",
+  "api/auth/web/forgot-password/code",
   async (params, { getState }) => {
     console.log(params, "params");
     try {
       const response = await axios.patch(
-        `auth/web/forgotPassword/${params.code}`,
+        `api/auth/web/forgotPassword/${params.code}`,
         params.data,
         config
       );
@@ -404,7 +412,7 @@ export const webPropertyAccess = createAsyncThunk<
   any,
   AccessData,
   { state: RootState }
->("auth/web/access/property/{id}", async (params, { getState }) => {
+>("api/auth/web/access/property/{id}", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -415,7 +423,7 @@ export const webPropertyAccess = createAsyncThunk<
   let newData = {};
   try {
     const response = await axios.get(
-      `auth/web/access/property/${params.id}`,
+      `api/auth/web/access/property/${params.id}`,
       config
     );
     const { data, status } = response;
@@ -464,7 +472,7 @@ export const webDomainAccess = createAsyncThunk<
   any,
   AccessData,
   { state: RootState }
->("auth/web/access/domain/{id}", async (params, { getState }) => {
+>("api/auth/web/access/domain/{id}", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -475,7 +483,7 @@ export const webDomainAccess = createAsyncThunk<
   let newData = {};
   try {
     const response = await axios.get(
-      `auth/web/access/domain/${params.id}`,
+      `api/auth/web/access/domain/${params.id}`,
       config
     );
     const { data, status } = response;
@@ -524,7 +532,7 @@ export const webTenantAccess = createAsyncThunk<
   any,
   AccessData,
   { state: RootState }
->("auth/web/access/unit/{id}", async (params, { getState }) => {
+>("api/auth/web/access/unit/{id}", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -535,7 +543,7 @@ export const webTenantAccess = createAsyncThunk<
   let newData = {};
   try {
     const response = await axios.get(
-      `auth/web/access/unit/${params.id}`,
+      `api/auth/web/access/unit/${params.id}`,
       config
     );
     const { data, status } = response;

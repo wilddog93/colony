@@ -73,7 +73,7 @@ export const getVendors = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("vendor", config);
+    const response = await axios.get("api/vendor", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,7 @@ export const getVendorById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`vendor/${params.id}`, config);
+    const response = await axios.get(`api/vendor/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +140,7 @@ export const createVendor = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("vendor", params.data, config);
+    const response = await axios.post("api/vendor", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +175,7 @@ export const updateVendor = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `vendor/${params.id}`,
+      `api/vendor/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +212,7 @@ export const deleteVendor = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`vendor/${params.id}`, config);
+    const response = await axios.delete(`api/vendor/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

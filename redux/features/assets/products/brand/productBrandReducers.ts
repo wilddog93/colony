@@ -73,7 +73,7 @@ export const getProductBrands = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("brand", config);
+    const response = await axios.get("api/brand", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,7 @@ export const getProductBrandById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`brand/${params.id}`, config);
+    const response = await axios.get(`api/brand/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +140,7 @@ export const createProductBrand = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("brand", params.data, config);
+    const response = await axios.post("api/brand", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +175,7 @@ export const updateProductBrand = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `brand/${params.id}`,
+      `api/brand/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +212,7 @@ export const deleteProductBrand = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`brand/${params.id}`, config);
+    const response = await axios.delete(`api/brand/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

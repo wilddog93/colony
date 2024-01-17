@@ -71,7 +71,7 @@ export const getUnitTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("unitType", config);
+    const response = await axios.get("api/unitType", config);
     const { data, status } = response;
     if (status == 200) {
       return data;

@@ -70,7 +70,7 @@ export const getTowers = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("tower", config);
+    const response = await axios.get("api/tower", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -93,7 +93,7 @@ export const createTowers = createAsyncThunk<
   any,
   TowerData,
   { state: RootState }
->("/tower/create", async (params, { getState }) => {
+>("/api/tower/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -126,7 +126,7 @@ export const updateTowers = createAsyncThunk<
   any,
   TowerData,
   { state: RootState }
->("/tower/update", async (params, { getState }) => {
+>("/api/tower/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export const updateTowers = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `tower/${params.id}`,
+      `api/tower/${params.id}`,
       params.data,
       config
     );

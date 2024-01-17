@@ -73,7 +73,7 @@ export const getLocations = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("location", config);
+    const response = await axios.get("api/location", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,7 @@ export const getLocationById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`location/${params.id}`, config);
+    const response = await axios.get(`api/location/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +140,7 @@ export const createLocation = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("location", params.data, config);
+    const response = await axios.post("api/location", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +175,7 @@ export const updateLocation = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `location/${params.id}`,
+      `api/location/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +212,7 @@ export const deleteLocation = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`location/${params.id}`, config);
+    const response = await axios.delete(`api/location/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

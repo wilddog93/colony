@@ -73,7 +73,7 @@ export const getBillingDiscount = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("billingDiscount", config);
+    const response = await axios.get("api/billingDiscount", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -97,7 +97,7 @@ export const getBillingDiscountById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/billingDiscount/id", async (params, { getState }) => {
+>("/api/billingDiscount/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -107,7 +107,10 @@ export const getBillingDiscountById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`billingDiscount/${params.id}`, config);
+    const response = await axios.get(
+      `api/billingDiscount/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -131,7 +134,7 @@ export const createBillingDiscount = createAsyncThunk<
   any,
   BillingDiscountData,
   { state: RootState }
->("/billingDiscount/create", async (params, { getState }) => {
+>("/api/billingDiscount/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -165,7 +168,7 @@ export const updateBillingDiscount = createAsyncThunk<
   any,
   BillingDiscountData,
   { state: RootState }
->("/billingDiscount/update", async (params, { getState }) => {
+>("/api/billingDiscount/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -175,7 +178,7 @@ export const updateBillingDiscount = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `billingDiscount/${params.id}`,
+      `api/billingDiscount/${params.id}`,
       params.data,
       config
     );
@@ -203,7 +206,7 @@ export const deleteBillingDiscount = createAsyncThunk<
   any,
   BillingDiscountData,
   { state: RootState }
->("/billingDiscount/delete", async (params, { getState }) => {
+>("/api/billingDiscount/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -212,7 +215,10 @@ export const deleteBillingDiscount = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`billingDiscount/${params.id}`, config);
+    const response = await axios.delete(
+      `api/billingDiscount/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

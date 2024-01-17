@@ -73,7 +73,7 @@ export const getBillingTemplate = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("billingTemplate", config);
+    const response = await axios.get("api/billingTemplate", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -97,7 +97,7 @@ export const getBillingTemplateById = createAsyncThunk<
   any,
   DefaultGetData,
   { state: RootState }
->("/billingTemplate/id", async (params, { getState }) => {
+>("/api/billingTemplate/id", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     params: params.params,
     headers: {
@@ -107,7 +107,10 @@ export const getBillingTemplateById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`billingTemplate/${params.id}`, config);
+    const response = await axios.get(
+      `api/billingTemplate/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -131,7 +134,7 @@ export const createBillingTemplate = createAsyncThunk<
   any,
   BillingTemplateData,
   { state: RootState }
->("/billingTemplate/create", async (params, { getState }) => {
+>("/api/billingTemplate/create", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -165,7 +168,7 @@ export const updateBillingTemplate = createAsyncThunk<
   any,
   BillingTemplateData,
   { state: RootState }
->("/billingTemplate/update", async (params, { getState }) => {
+>("/api/billingTemplate/update", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -175,7 +178,7 @@ export const updateBillingTemplate = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `billingTemplate/${params.id}`,
+      `api/billingTemplate/${params.id}`,
       params.data,
       config
     );
@@ -203,7 +206,7 @@ export const deleteBillingTemplate = createAsyncThunk<
   any,
   BillingTemplateData,
   { state: RootState }
->("/billingTemplate/delete", async (params, { getState }) => {
+>("/api/billingTemplate/delete", async (params, { getState }) => {
   let config: HeadersConfiguration = {
     headers: {
       "Content-Type": "application/json",
@@ -212,7 +215,10 @@ export const deleteBillingTemplate = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`billingTemplate/${params.id}`, config);
+    const response = await axios.delete(
+      `api/billingTemplate/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

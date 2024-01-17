@@ -73,7 +73,7 @@ export const getParkingTransactions = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("parkingLot/transaction", config);
+    const response = await axios.get("api/parkingLot/transaction", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -108,7 +108,7 @@ export const getParkingTransactionById = createAsyncThunk<
   };
   try {
     const response = await axios.get(
-      `parkingLot/transaction/${params.id}`,
+      `api/parkingLot/transaction/${params.id}`,
       config
     );
     const { data, status } = response;
@@ -144,7 +144,7 @@ export const createParkingTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      "parkingLot/transaction",
+      "api/parkingLot/transaction",
       params.data,
       config
     );
@@ -181,7 +181,7 @@ export const updateParkingTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `parkingLot/transaction/${params.id}`,
+      `api/parkingLot/transaction/${params.id}`,
       params.data,
       config
     );
@@ -219,7 +219,7 @@ export const uploadParkingTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `parkingLot/transaction/upload`,
+      `api/parkingLot/transaction/upload`,
       params.data,
       config
     );
@@ -256,7 +256,7 @@ export const deleteParkingTransaction = createAsyncThunk<
   };
   try {
     const response = await axios.delete(
-      `parkingLot/transaction/${params.id}`,
+      `api/parkingLot/transaction/${params.id}`,
       config
     );
     const { data, status } = response;

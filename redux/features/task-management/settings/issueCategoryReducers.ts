@@ -73,7 +73,7 @@ export const getIssueCategories = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("issueCategory", config);
+    const response = await axios.get("api/issueCategory", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -106,7 +106,7 @@ export const getIssueCategoryById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`issueCategory/${params.id}`, config);
+    const response = await axios.get(`api/issueCategory/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -139,7 +139,7 @@ export const createIssueCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("issueCategory", params.data, config);
+    const response = await axios.post("api/issueCategory", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -173,7 +173,7 @@ export const updateIssueCategory = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `issueCategory/${params.id}`,
+      `api/issueCategory/${params.id}`,
       params.data,
       config
     );
@@ -209,7 +209,10 @@ export const deleteIssueCategory = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`issueCategory/${params.id}`, config);
+    const response = await axios.delete(
+      `api/issueCategory/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

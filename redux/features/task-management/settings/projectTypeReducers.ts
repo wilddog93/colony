@@ -73,7 +73,7 @@ export const getProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("projectType", config);
+    const response = await axios.get("api/projectType", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -106,7 +106,7 @@ export const getProjectTypeById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`projectType/${params.id}`, config);
+    const response = await axios.get(`api/projectType/${params.id}`, config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -139,7 +139,7 @@ export const createProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("projectType", params.data, config);
+    const response = await axios.post("api/projectType", params.data, config);
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -173,7 +173,7 @@ export const updateProjectTypes = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `projectType/${params.id}`,
+      `api/projectType/${params.id}`,
       params.data,
       config
     );
@@ -209,7 +209,7 @@ export const deleteProjectTypes = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`projectType/${params.id}`, config);
+    const response = await axios.delete(`api/projectType/${params.id}`, config);
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

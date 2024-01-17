@@ -73,7 +73,7 @@ export const getProductUnits = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get("unitMeasurement", config);
+    const response = await axios.get("api/unitMeasurement", config);
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -107,7 +107,10 @@ export const getProductUnitById = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.get(`unitMeasurement/${params.id}`, config);
+    const response = await axios.get(
+      `api/unitMeasurement/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 200) {
       return data;
@@ -140,7 +143,11 @@ export const createProductUnit = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.post("unitMeasurement", params.data, config);
+    const response = await axios.post(
+      "api/unitMeasurement",
+      params.data,
+      config
+    );
     const { data, status } = response;
     if (status == 201) {
       params.isSuccess();
@@ -175,7 +182,7 @@ export const updateProductUnit = createAsyncThunk<
   };
   try {
     const response = await axios.patch(
-      `unitMeasurement/${params.id}`,
+      `api/unitMeasurement/${params.id}`,
       params.data,
       config
     );
@@ -212,7 +219,10 @@ export const deleteProductUnit = createAsyncThunk<
     },
   };
   try {
-    const response = await axios.delete(`unitMeasurement/${params.id}`, config);
+    const response = await axios.delete(
+      `api/unitMeasurement/${params.id}`,
+      config
+    );
     const { data, status } = response;
     if (status == 204) {
       params.isSuccess();

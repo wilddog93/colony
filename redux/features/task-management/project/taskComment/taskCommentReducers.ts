@@ -77,7 +77,7 @@ export const getTaskComment = createAsyncThunk<
   };
   try {
     const response = await axios.get(
-      `project/${params?.id}/${params?.taskId}/comment`,
+      `api/project/${params?.id}/${params?.taskId}/comment`,
       config
     );
     const { data, status } = response;
@@ -113,7 +113,7 @@ export const createTaskComment = createAsyncThunk<
   };
   try {
     const response = await axios.post(
-      `project/${params.id}/${params.taskId}/comment`,
+      `api/project/${params.id}/${params.taskId}/comment`,
       params.data,
       config
     );
@@ -153,7 +153,7 @@ export const updateTaskComment = createAsyncThunk<
     };
     try {
       const response = await axios.patch(
-        `project/${params.id}/${params?.taskId}/comment/${params.commentId}`,
+        `api/project/${params.id}/${params?.taskId}/comment/${params.commentId}`,
         params.data,
         config
       );
