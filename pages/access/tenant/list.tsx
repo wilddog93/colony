@@ -35,7 +35,10 @@ import {
   selectPropertyAccess,
 } from "../../../redux/features/propertyAccess/propertyAccessReducers";
 import { webPropertyAccess } from "../../../redux/features/auth/authReducers";
-import { getAccessTenant, selecttTenantAccess } from "../../../redux/features/tenants/tenantAccessReducers";
+import {
+  getAccessTenant,
+  selecttTenantAccess,
+} from "../../../redux/features/tenants/tenantAccessReducers";
 import Tabs from "../../../components/Layouts/Tabs";
 import { menuTabTenants, menuTenantAccess } from "../../../utils/routes";
 
@@ -122,7 +125,8 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
   };
 
   const TenantComponent = (props: any) => {
-    const { id, unitName, unitDescription, unitImage, tenant, floor } = props?.items;
+    const { id, unitName, unitDescription, unitImage, tenant, floor } =
+      props?.items;
     return (
       <button
         type="button"
@@ -140,15 +144,17 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
         <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
           <div className="w-full text-left p-2">
             <div className="w-full flex flex-col gap-2">
-              <h3 className="font-semibold text-base">
-                {unitName || "-"}
-              </h3>
+              <h3 className="font-semibold text-base">{unitName || "-"}</h3>
               <div className="w-full flex flex-col gap-2">
-                  <div></div>
-                  <div className="w-full flex gap-2">
-                    <span><MdPerson className="w-5 h-5" /></span>
-                    <div>{`${tenant?.user?.firstName || ""} ${tenant?.user?.lastName || ""}`}</div>
-                  </div>
+                <div></div>
+                <div className="w-full flex gap-2">
+                  <span>
+                    <MdPerson className="w-5 h-5" />
+                  </span>
+                  <div>{`${tenant?.user?.firstName || ""} ${
+                    tenant?.user?.lastName || ""
+                  }`}</div>
+                </div>
               </div>
             </div>
 
@@ -156,11 +162,15 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
 
             <div className="w-full flex items-center text-left gap-2">
               <div className="font-semibold text-gray-5 flex items-center gap-2">
-                <span><MdOutlineHome className="w-4 h-4" /></span>
+                <span>
+                  <MdOutlineHome className="w-4 h-4" />
+                </span>
                 <span>{floor?.tower?.towerName || "-"}</span>
               </div>
               <div className="font-semibold text-gray-5 flex items-center gap-2">
-                <span><MdOutlineHome className="w-4 h-4" /></span>
+                <span>
+                  <MdOutlineHome className="w-4 h-4" />
+                </span>
                 <span>{floor?.floorName || "-"}</span>
               </div>
             </div>
@@ -173,7 +183,7 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
     );
   };
 
-  console.log(tenants, 'data-tenant')
+  console.log(tenants, "data-tenant");
 
   return (
     <AuthLayout
@@ -219,7 +229,7 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
               <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="../../../image/no-image.jpeg"
+                    src="../../../image/user/user-01.png"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
@@ -341,47 +351,49 @@ const TenantListAccessPage = ({ pageProps }: Props) => {
             <div className="w-full flex flex-col items-center">
               <div className="w-full sticky top-0 z-9999 bg-gray">
                 <div className="w-full grid col-span-1 lg:grid-cols-2 items-center p-8 sticky">
-                    <div className="w-full">
-                        <h3 className="text-title-lg font-semibold">Access List</h3>
-                        <p className="text-base text-gray-5">Select your workspace</p>
-                        </div>
+                  <div className="w-full">
+                    <h3 className="text-title-lg font-semibold">Access List</h3>
+                    <p className="text-base text-gray-5">
+                      Select your workspace
+                    </p>
+                  </div>
 
-                        <div className="w-full flex justify-end">
-                        <button
-                            onClick={()=> router.push({
-                                pathname: "/access/tenant/new-claim",
-                                query: {
-                                    page: 1,
-                                    limit: 10
-                                }
-                            })}
-                            type="button"
-                            className="px-2 py-1 inline-flex items-center bg-primary text-white focus:outline-none rounded-lg text-sm active:scale-90"
-                        >
-                            <span>New Claim</span>
-                        </button>
-                    </div>
+                  <div className="w-full flex justify-end">
+                    <button
+                      onClick={() =>
+                        router.push({
+                          pathname: "/access/tenant/new-claim",
+                          query: {
+                            page: 1,
+                            limit: 10,
+                          },
+                        })
+                      }
+                      type="button"
+                      className="px-2 py-1 inline-flex items-center bg-primary text-white focus:outline-none rounded-lg text-sm active:scale-90">
+                      <span>New Claim</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="w-full">
-                    <Tabs menus={menuTenantAccess} />
+                  <Tabs menus={menuTenantAccess} />
                 </div>
               </div>
 
               <div className="w-full p-8">
                 <div className="w-full flex flex-col gap-4 ">
-                  {tenants?.length > 0 ? tenants?.map((item: any, index: any) => {
-                      return (
-                          <TenantComponent
-                              key={index}
-                              items={item}
-                          />
-                      )
-                  }) :
-                      <div className='w-full'>
-                          <span className='font-semibold text-lg'>Data not found!</span>
-                      </div>
-                  }
+                  {tenants?.length > 0 ? (
+                    tenants?.map((item: any, index: any) => {
+                      return <TenantComponent key={index} items={item} />;
+                    })
+                  ) : (
+                    <div className="w-full">
+                      <span className="font-semibold text-lg">
+                        Data not found!
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

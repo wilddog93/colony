@@ -109,7 +109,8 @@ const Home = ({ pageProps }: Props) => {
               <Cards className="mt-3 lg:mt-0 w-full flex flex-col lg:flex-row items-center sm:items-start justify-center bg-gray p-6 rounded-xl overflow-y-hidden overflow-x-auto">
                 <div className="w-full lg:w-1/5">
                   <img
-                    src="../../../image/no-image.jpeg"
+                    // src="../../../image/no-image.jpeg"
+                    src="../../../image/user/user-01.png"
                     alt="avatar"
                     className="rounded-full shadow-1 object-cover object-center w-14 h-14 mx-auto"
                   />
