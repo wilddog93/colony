@@ -168,7 +168,7 @@ const DomainUsers = ({ pageProps }: Props) => {
                 src={
                   image
                     ? `${url}user/profileImage/${image}`
-                    : "../image/no-image.jpeg"
+                    : "../image/user/user-01.png"
                 }
                 alt="avatar"
                 className="object-cover rounded-full object-center w-10 h-10"
@@ -450,7 +450,7 @@ const DomainUsers = ({ pageProps }: Props) => {
                   src={
                     formData?.profileImage
                       ? `${url}user/profileImage/${formData?.profileImage}`
-                      : "../../image/no-image.jpeg"
+                      : "../../image/user/user-01.png"
                   }
                   alt="avatar"
                   className="w-32 h-32 object-cover object-center mx-auto rounded-full"

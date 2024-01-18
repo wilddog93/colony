@@ -50,7 +50,7 @@ const Home = ({ pageProps }: Props) => {
   const { token, access, firebaseToken, page } = pageProps;
 
   // url
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/s";
 
   console.log(url, "url");
 
@@ -131,8 +131,8 @@ const Home = ({ pageProps }: Props) => {
         <img
           src={
             property?.propertyLogo
-              ? url + `property/propertyLogo/${property?.propertyLogo}`
-              : "../../.../../image/logo/logo-icon.svg"
+              ? url + `/property/propertyLogo/${property?.propertyLogo}`
+              : "../../.../image/logo/logo-icon.svg"
           }
           alt="icon"
           className="w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto rounded-lg"

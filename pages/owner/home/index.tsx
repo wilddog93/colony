@@ -25,7 +25,7 @@ type Props = {
 };
 
 const DomainHome = ({ pageProps }: Props) => {
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { token, access, accessId, firebaseToken } = pageProps;

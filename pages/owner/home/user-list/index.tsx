@@ -172,7 +172,7 @@ const RoleOptions = [
 ];
 
 const DomainUserManagement = ({ pageProps }: Props) => {
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { token, access, accessId, firebaseToken } = pageProps;
@@ -288,7 +288,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                 src={
                   image
                     ? `${url}user/profileImage/${image}`
-                    : "../../image/no-image.jpeg"
+                    : "../../image/user/user-01.png"
                 }
                 alt="avatar"
                 className="object-cover object-center rounded-full w-10 h-10"
@@ -512,7 +512,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
       logo="../../image/logo/logo-icon.svg"
       description=""
       images="../../image/logo/building-logo.svg"
-      userDefault="../../image/no-image.jpeg"
+      userDefault="../../image/user/user-01.png"
       token={token}
       icons={{
         icon: MdMuseum,
@@ -660,7 +660,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                   src={
                     formData?.profileImage
                       ? `${url}user/profileImage/${formData?.profileImage}`
-                      : "../../image/no-image.jpeg"
+                      : "../../image/user/user-01.png"
                   }
                   alt="avatar"
                   className="w-32 h-32 object-cover object-center mx-auto rounded-full"
@@ -693,7 +693,7 @@ const DomainUserManagement = ({ pageProps }: Props) => {
                   src={
                     formData?.domainStructure?.domain?.domainLogo
                       ? `${url}domain/domainLogo/${formData?.domainStructure?.domain?.domainLogo}`
-                      : "../../image/no-image.jpeg"
+                      : "../../image/user/user-01.png"
                   }
                   alt="avatar"
                   className="w-14 h-14 rounded-full object-cover object-center mx-auto"

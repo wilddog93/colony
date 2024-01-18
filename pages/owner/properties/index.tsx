@@ -180,7 +180,7 @@ const stylesSelect = {
 };
 
 const DomainProperty = ({ pageProps }: Props) => {
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { token, access, accessId, firebaseToken } = pageProps;
@@ -228,6 +228,8 @@ const DomainProperty = ({ pageProps }: Props) => {
           let totalAdmin = row?.original?.totalAdmin;
           let totalOngoingComplaint = row?.original?.totalOngoingComplaint;
           let logo = row?.original?.propertyLogo;
+
+          // console.log(row.original, "row");
 
           return (
             <Link

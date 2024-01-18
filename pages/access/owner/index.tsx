@@ -75,6 +75,8 @@ type WatchChangeProps = {
 const OwnerAccess = ({ pageProps }: Props) => {
   // props
   const { token, access, firebaseToken, page } = pageProps;
+  // url
+  const url = process.env.API_ENDPOINT + "api/";
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -201,17 +203,22 @@ const OwnerAccess = ({ pageProps }: Props) => {
 
   const Domains = (props: any) => {
     const { id, domainStructureName, domain } = props?.items;
+    console.log(domain, "domain");
     return (
       <button
         type="button"
-        className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
+        className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full tracking-wide flex flex-col lg:flex-row bg-white shadow-card-2 overflow-hidden rounded-xl gap-2 focus:outline-none"
         onClick={() => goToDomainAccess(domain.id)}>
         <img
-          src={domain?.propertyLogo || "../../.../../image/logo/logo-icon.svg"}
+          src={
+            domain?.domainLogo
+              ? url + `/domain/domainLogo/${domain?.domainLogo}`
+              : "../../.../../image/logo/logo-icon.svg"
+          }
           alt="icon"
-          className="w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto"
+          className="w-full h-full lg:w-[30%] object-cover object-center"
         />
-        <div className="w-full divide-y-2 divide-gray flex flex-col justify-between lg:w-[70%] p-2">
+        <div className="p-4 w-full divide-y-2 divide-gray flex flex-col justify-between lg:w-[70%]">
           <div className="w-full text-left p-2">
             <h3 className="font-semibold text-lg">
               {domain?.domainName || "-"}
