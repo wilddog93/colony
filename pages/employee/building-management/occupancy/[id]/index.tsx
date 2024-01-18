@@ -71,7 +71,7 @@ type Props = {
 };
 
 const UnitDetails = ({ pageProps }: Props) => {
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { token, accessToken, firebaseToken } = pageProps;

@@ -120,7 +120,7 @@ const FloorUnit = (props: Props) => {
     };
     setLoading(true);
     try {
-      const response = await axios.get("unit", config);
+      const response = await axios.get("api/unit", config);
       const { data, status } = response;
       if (status == 200) {
         if (data?.data?.length > 0) {
@@ -145,7 +145,7 @@ const FloorUnit = (props: Props) => {
       }
     } catch (error: any) {
       setLoading(false);
-      const { data, status } = error.response;
+      const { data, status } = error?.response;
       let newError: any = { message: data.message[0] };
       console.log(newError, "errors");
     }

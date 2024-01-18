@@ -430,7 +430,7 @@ const ParkingLot = ({ pageProps }: Props) => {
   const onDownloadTemplate = async () => {
     setLoadingTemplate(true);
     await axios({
-      url: `parkingLot/template`,
+      url: `api/parkingLot/template`,
       method: "GET",
       responseType: "blob",
       headers: {
@@ -459,7 +459,7 @@ const ParkingLot = ({ pageProps }: Props) => {
 
     let date = new Date();
     await axios({
-      url: `parkingLot/download`,
+      url: `api/parkingLot/download`,
       method: "GET",
       responseType: "blob",
       headers: {

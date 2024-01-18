@@ -253,7 +253,7 @@ const CardTower = ({
     };
     let tabs: FloorProps = tabFloor;
     try {
-      const response = await axios.get("floor", config);
+      const response = await axios.get("api/floor", config);
       const { data, status } = response;
       if (status == 200) {
         setDataFloor(data?.data);

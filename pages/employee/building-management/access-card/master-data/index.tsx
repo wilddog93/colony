@@ -399,7 +399,7 @@ const AccessCard = ({ pageProps }: Props) => {
   const onDownloadTemplate = async () => {
     setLoadingTemplate(true);
     await axios({
-      url: `accessCard/template`,
+      url: `api/accessCard/template`,
       method: "GET",
       responseType: "blob",
       headers: {
@@ -428,7 +428,7 @@ const AccessCard = ({ pageProps }: Props) => {
 
     let date = new Date();
     await axios({
-      url: `accessCard/download`,
+      url: `api/accessCard/download`,
       method: "GET",
       responseType: "blob",
       headers: {

@@ -62,7 +62,7 @@ type Props = {
 };
 
 const Occupancy = ({ pageProps }: Props) => {
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { token, access, accessId } = pageProps;
@@ -218,12 +218,12 @@ const Occupancy = ({ pageProps }: Props) => {
                   src={
                     user?.profileImage
                       ? `${url}user/profileImage/${user?.profileImage}`
-                      : "../../image/no-image.jpeg"
+                      : "../../image/user/user-01.png"
                   }
                   alt="images"
                   className="w-8 h-8 object-cover object-center rounded-full"
                 />
-                <div className="w-[80%] flex flex-col gap-2 text-gray-5">
+                <div className="w-[80%] h-full flex flex-col gap-2 text-gray-5">
                   <h3 className="text-sm font-semibold">
                     {getValue() || "-"} {user?.lastName}
                   </h3>
@@ -270,7 +270,7 @@ const Occupancy = ({ pageProps }: Props) => {
                   src={
                     user?.profileImage
                       ? `${url}user/profileImage/${user?.profileImage}`
-                      : "../../image/no-image.jpeg"
+                      : "../../image/user/user-01.png"
                   }
                   alt="images"
                   className="w-8 h-8 object-cover object-center rounded-full"
