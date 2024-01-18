@@ -158,7 +158,7 @@ const actionOpt: OptionProps[] = [
 
 const NewRequestAssetOut = ({ pageProps }: Props) => {
   moment.locale("id");
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { type } = query;
@@ -350,7 +350,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     try {
       let date = new Date();
       axios({
-        url: "stockBalance/generate",
+        url: "api/stockBalance/generate",
         method: "POST",
         data: params.data,
         responseType: "blob",

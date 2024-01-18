@@ -173,7 +173,7 @@ const stylesSelect = {
 
 const RequestStockTaking = ({ pageProps }: Props) => {
   moment.locale("id");
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -590,7 +590,7 @@ const RequestStockTaking = ({ pageProps }: Props) => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "stockBalance/calculate",
+        "api/stockBalance/calculate",
         params.data,
         config
       );

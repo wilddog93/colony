@@ -78,7 +78,7 @@ type Props = {
 
 const RequestDetails = ({ pageProps }: Props) => {
   moment.locale("id");
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -389,7 +389,7 @@ const RequestDetails = ({ pageProps }: Props) => {
     setLoading(true);
     try {
       axios({
-        url: `request/${params.id}/report`,
+        url: `api/request/${params.id}/report`,
         method: "GET",
         responseType: "blob",
         headers: {

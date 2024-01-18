@@ -59,7 +59,7 @@ type Props = {
 
 const TransactionUsageDetails = ({ pageProps }: Props) => {
   moment.locale("id");
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
 
@@ -390,7 +390,7 @@ const TransactionUsageDetails = ({ pageProps }: Props) => {
     setLoading(true);
     try {
       axios({
-        url: `transaction/${params.id}/report`,
+        url: `api/transaction/${params.id}/report`,
         method: "GET",
         responseType: "blob",
         headers: {

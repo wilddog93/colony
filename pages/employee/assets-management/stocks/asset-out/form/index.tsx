@@ -147,7 +147,7 @@ const actionOpt: OptionProps[] = [
 
 const NewRequestAssetOut = ({ pageProps }: Props) => {
   moment.locale("id");
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
   const router = useRouter();
   const { pathname, query } = router;
   const { type } = query;
@@ -293,7 +293,7 @@ const NewRequestAssetOut = ({ pageProps }: Props) => {
     };
     let newArr: any[] = [];
     try {
-      const response = await axios.get("product/asset", config);
+      const response = await axios.get("api/product/asset", config);
       const { data, status } = response;
       if (status == 200) {
         console.log(data, "result-data");
