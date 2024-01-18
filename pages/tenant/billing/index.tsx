@@ -61,7 +61,7 @@ const BillingTenant = ({ pageProps }: Props) => {
   moment.locale("id");
   const router = useRouter();
   const { pathname, query } = router;
-  const url = process.env.ENDPOINT_API;
+  const url = process.env.ENDPOINT_API + "api/";
 
   // props
   const { token, access, firebaseToken } = pageProps;
@@ -464,9 +464,9 @@ const BillingTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      units?.tenant?.user?.firstName || ""
+                      units?.tenant?.user?.firstName || "-"
                     } ${units?.tenant?.user?.lastName || ""}`}</p>
-                    <p className="">{`${units?.tenant?.user?.email || ""}`}</p>
+                    <p className="">{`${units?.tenant?.user?.email || "-"}`}</p>
                   </div>
                 </div>
               </Cards>
@@ -481,10 +481,10 @@ const BillingTenant = ({ pageProps }: Props) => {
                   />
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{`${
-                      units?.occupant?.user?.firstName || ""
+                      units?.occupant?.user?.firstName || "-"
                     } ${units?.occupant?.user?.lastName || ""}`}</p>
                     <p className="">{`${
-                      units?.occupant?.user?.email || ""
+                      units?.occupant?.user?.email || "-"
                     }`}</p>
                   </div>
                 </div>

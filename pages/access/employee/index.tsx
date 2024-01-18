@@ -50,7 +50,7 @@ const Home = ({ pageProps }: Props) => {
   const { token, access, firebaseToken, page } = pageProps;
 
   // url
-  const url = process.env.API_ENDPOINT + "api/s";
+  const url = process.env.API_ENDPOINT + "api/";
 
   console.log(url, "url");
 
@@ -126,7 +126,7 @@ const Home = ({ pageProps }: Props) => {
     return (
       <button
         type="button"
-        className="w-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none"
+        className="w-full overflow-hidden divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white shadow-card-2 rounded-xl gap-2 focus:outline-none"
         onClick={() => goToPropertyAccess(property.id)}>
         <img
           src={
@@ -135,9 +135,9 @@ const Home = ({ pageProps }: Props) => {
               : "../../.../image/logo/logo-icon.svg"
           }
           alt="icon"
-          className="w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto rounded-lg"
+          className="w-full h-full lg:w-[20%] object-cover object-center"
         />
-        <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
+        <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-4">
           <div className="w-full text-left p-2">
             <h3 className="font-semibold text-lg">
               {property?.propertyName || "-"}

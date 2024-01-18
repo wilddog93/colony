@@ -52,7 +52,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
   const { token, access, firebaseToken, page } = pageProps;
 
   // url
-  const url = process.env.API_ENDPOINT;
+  const url = process.env.API_ENDPOINT + "api/";
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -124,7 +124,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
     return (
       <button
         type="button"
-        className="w-full h-full divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white border border-gray shadow-card-2 p-4 rounded-xl gap-2 focus:outline-none overflow-hidden"
+        className="w-full overflow-hidden divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray h-full max-h-[200xp] tracking-wide flex flex-col lg:flex-row bg-white shadow-card-2 rounded-xl gap-2 focus:outline-none"
         onClick={() => goToTenantAccess(id)}>
         <img
           src={
@@ -133,22 +133,19 @@ const TenantAccessPage = ({ pageProps }: Props) => {
               : "../../.../../image/logo/logo-icon.svg"
           }
           alt="icon"
-          className="w-full max-w-[200px] lg:w-[20%] object-cover object-center m-auto"
+          className="w-full h-auto max-w-[200px] lg:w-[20%] object-cover object-center"
         />
-        <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-2">
+        <div className="w-full divide-y-2 divide-gray h-full flex flex-col justify-between lg:w-[70%] p-4">
           <div className="w-full text-left p-2">
+            <h3 className="font-semibold text-base">{unitName || "-"}</h3>
             <div className="w-full flex flex-col gap-2">
-              <h3 className="font-semibold text-base">{unitName || "-"}</h3>
-              <div className="w-full flex flex-col gap-2">
-                <div></div>
-                <div className="w-full flex gap-2">
-                  <span>
-                    <MdPerson className="w-5 h-5" />
-                  </span>
-                  <div>{`${tenant?.user?.firstName || ""} ${
-                    tenant?.user?.lastName || ""
-                  }`}</div>
-                </div>
+              <div className="w-full flex gap-2">
+                <span>
+                  <MdPerson className="w-5 h-5" />
+                </span>
+                <div>{`${tenant?.user?.firstName || ""} ${
+                  tenant?.user?.lastName || ""
+                }`}</div>
               </div>
             </div>
 
@@ -170,7 +167,7 @@ const TenantAccessPage = ({ pageProps }: Props) => {
             </div>
           </div>
         </div>
-        <div className="w-full h-full hidden lg:flex justify-start lg:w-[10%]">
+        <div className="w-full hidden lg:flex justify-start lg:w-[10%]">
           <MdChevronRight className="w-7 h-7 m-auto" />
         </div>
       </button>
